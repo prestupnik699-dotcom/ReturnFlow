@@ -178,3 +178,11 @@ Same reasoning as D-007. `deleted_at` is the single source of truth for deletion
 Status: Accepted
 
 `store_id` on `memberships` is nullable. `NULL` means organization-wide access (typical for `Owner` / `Administrator`). A non-null value scopes the membership to a single store (typical for `StoreManager`, `Employee`, `Receiver`, `Viewer`).
+
+### D-017 — notifications.type Enum Values and chat_rooms.store_id Scoping
+
+Status: Accepted
+
+`notifications.type` was left undefined in DATABASE.md. Values chosen to match the feature set already defined elsewhere in the documentation: `return_created`, `return_urgent`, `return_returned`, `comment_added`, `chat_message`, `announcement`, `invitation`.
+
+`chat_rooms.store_id` is nullable, following the same pattern as `memberships.store_id` (D-016): `NULL` means an organization-wide room (e.g. General), a non-null value scopes the room to one store (e.g. a store's Returns chat).
