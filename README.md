@@ -28,7 +28,7 @@ Database:
 
 - PostgreSQL
 
---------------------------------------------------
+---
 
 # Overview
 
@@ -38,7 +38,7 @@ The application minimizes forgotten returns, improves employee communication, si
 
 The project is built as an enterprise-grade, offline-first mobile application.
 
---------------------------------------------------
+---
 
 # Main Features
 
@@ -88,7 +88,7 @@ The project is built as an enterprise-grade, offline-first mobile application.
 
 ✓ Excel Export
 
---------------------------------------------------
+---
 
 # Technology Stack
 
@@ -140,7 +140,7 @@ Localization
 
 i18next
 
---------------------------------------------------
+---
 
 # Project Philosophy
 
@@ -156,7 +156,7 @@ Every screen must be:
 
 The application prioritizes reliability over unnecessary complexity.
 
---------------------------------------------------
+---
 
 # Supported Languages
 
@@ -170,7 +170,7 @@ English
 
 Russian
 
---------------------------------------------------
+---
 
 # Supported Themes
 
@@ -180,7 +180,7 @@ Dark
 
 System
 
---------------------------------------------------
+---
 
 # Documentation
 
@@ -199,7 +199,7 @@ Core documents:
 - 14_DEPLOYMENT.md
 - 15_CHANGELOG.md
 
---------------------------------------------------
+---
 
 # Folder Structure
 
@@ -216,7 +216,7 @@ ReturnFlow/
 └── README.md
 ```
 
---------------------------------------------------
+---
 
 # Development Workflow
 
@@ -231,7 +231,7 @@ Every feature follows this process:
 
 No feature may skip testing.
 
---------------------------------------------------
+---
 
 # Coding Standards
 
@@ -243,7 +243,7 @@ No feature may skip testing.
 - Localization for all user-facing text
 - Offline-first approach
 
---------------------------------------------------
+---
 
 # Version Policy
 
@@ -251,7 +251,7 @@ Version 1.0 includes only approved core functionality.
 
 Future enhancements are reserved for Version 2.0.
 
---------------------------------------------------
+---
 
 # Security
 
@@ -261,7 +261,7 @@ Future enhancements are reserved for Version 2.0.
 - Secure Storage
 - Role-based Access Control
 
---------------------------------------------------
+---
 
 # Deployment Targets
 
@@ -273,7 +273,7 @@ iOS
 
 - Apple App Store
 
---------------------------------------------------
+---
 
 # License
 
@@ -281,7 +281,7 @@ Private Commercial Project
 
 All rights reserved.
 
---------------------------------------------------
+---
 
 # Project Status
 
@@ -305,6 +305,6 @@ Testing
 
 Release
 
---------------------------------------------------
+---
 
 Built with the goal of creating a professional, commercial-grade mobile application for retail businesses.
