@@ -128,9 +128,27 @@ DATABASE.md's general principle ("Every table: Created At, Updated At, Soft Dele
 
 Status: Accepted
 
-Project targets **Expo SDK 57**. Chosen based on the Expo Go version actually installed on the developer's physical test device at project start (July 2026), since Expo Go on app stores updates independently of this project and does not always match the "recommended" SDK version in Expo's own documentation at any given moment.
+Project targets **Expo SDK 57**. Chosen based on the Expo Go version actually installed on the developer's physical test device at project start (July 2026), since Expo Go on app stores updates independently of this project.
 
 If Expo Go's required SDK changes again after real application code exists, the project should be upgraded to match using Expo's official SDK upgrade guide rather than recreated from scratch.
+
+---
+
+### D-013 — Email Confirmation Disabled in Development
+
+Status: Accepted (must be reverted before production)
+
+`Confirm email` is disabled in Supabase Auth provider settings for the development project (`returnflow-dev`), to allow faster iteration without needing to process confirmation links/deep links this early in development.
+
+Must be re-enabled before any production release, per DEPLOYMENT.md pre-release checklist.
+
+---
+
+### D-014 — Production Supabase Environment Deferred
+
+Status: Accepted
+
+Only one Supabase project (`returnflow-dev`) exists at this stage. Separate STAGING and PRODUCTION Supabase projects (per DEPLOYMENT.md environments section) will be created closer to release, once the schema and core features stabilize.
 
 ---
 
