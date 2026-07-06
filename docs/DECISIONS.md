@@ -164,3 +164,17 @@ If a new ambiguity is discovered:
 4. Add a new `D-0XX` entry above, in the same format.
 
 Never contradict a previously accepted decision without recording a new entry that explicitly supersedes it.
+
+### D-015 — profiles.status vs deleted_at
+
+Status: Accepted
+
+Same reasoning as D-007. `deleted_at` is the single source of truth for deletion. `profile_status` enum contains only `active`, `vacation`, `blocked` — `deleted` is intentionally omitted.
+
+---
+
+### D-016 — memberships.store_id Nullability
+
+Status: Accepted
+
+`store_id` on `memberships` is nullable. `NULL` means organization-wide access (typical for `Owner` / `Administrator`). A non-null value scopes the membership to a single store (typical for `StoreManager`, `Employee`, `Receiver`, `Viewer`).
