@@ -1,56 +1,310 @@
-# Welcome to your Expo app 👋
+# ReturnFlow
 
-This is an [Expo](https://expo.dev) project created with [`create-expo-app`](https://www.npmjs.com/package/create-expo-app).
+> Professional Supplier Return Management System
 
-## Get started
+Version: 1.0
 
-1. Install dependencies
+Status: In Development
 
-   ```bash
-   npm install
-   ```
+Platforms:
 
-2. Start the app
+- Android
+- iOS
 
-   ```bash
-   npx expo start
-   ```
+Framework:
 
-In the output, you'll find options to open the app in a
+- React Native
+- Expo
 
-- [development build](https://docs.expo.dev/develop/development-builds/introduction/)
-- [Android emulator](https://docs.expo.dev/workflow/android-studio-emulator/)
-- [iOS simulator](https://docs.expo.dev/workflow/ios-simulator/)
-- [Expo Go](https://expo.dev/go), a limited sandbox for trying out app development with Expo
+Language:
 
-You can start developing by editing the files inside the **app** directory. This project uses [file-based routing](https://docs.expo.dev/router/introduction).
+- TypeScript
 
-## Get a fresh project
+Backend:
 
-When you're ready, run:
+- Supabase
 
-```bash
-npm run reset-project
+Database:
+
+- PostgreSQL
+
+--------------------------------------------------
+
+# Overview
+
+ReturnFlow is a commercial mobile application designed to help retail stores manage supplier returns.
+
+The application minimizes forgotten returns, improves employee communication, simplifies workflows, and provides complete visibility into return operations.
+
+The project is built as an enterprise-grade, offline-first mobile application.
+
+--------------------------------------------------
+
+# Main Features
+
+✓ Multi-Organization Support
+
+✓ Multi-Store Support
+
+✓ User Authentication
+
+✓ Role Management
+
+✓ Supplier Management
+
+✓ Return Management
+
+✓ Multiple Photos
+
+✓ Comments
+
+✓ Search
+
+✓ Filters
+
+✓ Sorting
+
+✓ Statistics
+
+✓ Internal Chat
+
+✓ Announcements
+
+✓ Push Notifications
+
+✓ Offline Synchronization
+
+✓ Dark Theme
+
+✓ Light Theme
+
+✓ Georgian Language
+
+✓ English Language
+
+✓ Russian Language
+
+✓ PDF Export
+
+✓ Excel Export
+
+--------------------------------------------------
+
+# Technology Stack
+
+Frontend
+
+React Native
+
+Expo
+
+TypeScript
+
+Backend
+
+Supabase
+
+Database
+
+PostgreSQL
+
+Authentication
+
+Supabase Auth
+
+Storage
+
+Supabase Storage
+
+State Management
+
+Zustand
+
+Server State
+
+TanStack Query
+
+Navigation
+
+Expo Router
+
+Forms
+
+React Hook Form
+
+Validation
+
+Zod
+
+Localization
+
+i18next
+
+--------------------------------------------------
+
+# Project Philosophy
+
+ReturnFlow is designed for employees working in busy retail environments.
+
+Every screen must be:
+
+- Fast
+- Simple
+- Predictable
+- Beautiful
+- Easy to use with one hand
+
+The application prioritizes reliability over unnecessary complexity.
+
+--------------------------------------------------
+
+# Supported Languages
+
+Primary
+
+Georgian
+
+Secondary
+
+English
+
+Russian
+
+--------------------------------------------------
+
+# Supported Themes
+
+Light
+
+Dark
+
+System
+
+--------------------------------------------------
+
+# Documentation
+
+The project documentation is located in the `/docs` directory.
+
+Core documents:
+
+- 00_PROJECT_SPECIFICATION.md
+- 01_ARCHITECTURE.md
+- 02_DATABASE.md
+- 03_API.md
+- 10_AI_RULES.md
+- 11_MASTER_PROMPT.md
+- 12_ROADMAP.md
+- 13_TESTING.md
+- 14_DEPLOYMENT.md
+- 15_CHANGELOG.md
+
+--------------------------------------------------
+
+# Folder Structure
+
+```text
+ReturnFlow/
+
+├── app/
+├── src/
+├── assets/
+├── docs/
+├── package.json
+├── app.json
+├── tsconfig.json
+└── README.md
 ```
 
-This command will move the starter code to the **app-example** directory and create a blank **app** directory where you can start developing.
+--------------------------------------------------
 
-### Other setup steps
+# Development Workflow
 
-- To set up ESLint for linting, run `npx expo lint`, or follow our guide on ["Using ESLint and Prettier"](https://docs.expo.dev/guides/using-eslint/)
-- If you'd like to set up unit testing, follow our guide on ["Unit Testing with Jest"](https://docs.expo.dev/develop/unit-testing/)
-- Learn more about the TypeScript setup in this template in our guide on ["Using TypeScript"](https://docs.expo.dev/guides/typescript/)
+Every feature follows this process:
 
-## Learn more
+1. Plan
+2. Develop
+3. Test
+4. Review
+5. Merge
+6. Deploy
 
-To learn more about developing your project with Expo, look at the following resources:
+No feature may skip testing.
 
-- [Expo documentation](https://docs.expo.dev/): Learn fundamentals, or go into advanced topics with our [guides](https://docs.expo.dev/guides).
-- [Learn Expo tutorial](https://docs.expo.dev/tutorial/introduction/): Follow a step-by-step tutorial where you'll create a project that runs on Android, iOS, and the web.
+--------------------------------------------------
 
-## Join the community
+# Coding Standards
 
-Join our community of developers creating universal apps.
+- TypeScript only
+- Feature-based architecture
+- Strict typing
+- No duplicated code
+- Reusable components
+- Localization for all user-facing text
+- Offline-first approach
 
-- [Expo on GitHub](https://github.com/expo/expo): View our open source platform and contribute.
-- [Discord community](https://chat.expo.dev): Chat with Expo users and ask questions.
+--------------------------------------------------
+
+# Version Policy
+
+Version 1.0 includes only approved core functionality.
+
+Future enhancements are reserved for Version 2.0.
+
+--------------------------------------------------
+
+# Security
+
+- JWT Authentication
+- Row Level Security (RLS)
+- HTTPS
+- Secure Storage
+- Role-based Access Control
+
+--------------------------------------------------
+
+# Deployment Targets
+
+Android
+
+- Google Play
+
+iOS
+
+- Apple App Store
+
+--------------------------------------------------
+
+# License
+
+Private Commercial Project
+
+All rights reserved.
+
+--------------------------------------------------
+
+# Project Status
+
+Current Phase:
+
+Documentation Complete
+
+Next Phase:
+
+PROJECT_SPECIFICATION.md
+
+After that:
+
+Design System
+
+Database Implementation
+
+Application Development
+
+Testing
+
+Release
+
+--------------------------------------------------
+
+Built with the goal of creating a professional, commercial-grade mobile application for retail businesses.
