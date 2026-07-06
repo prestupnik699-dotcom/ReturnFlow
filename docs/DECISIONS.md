@@ -208,3 +208,13 @@ Status: Accepted
 | Статистика/экспорт | Да (весь org) | Да (весь org) | Да (свой магазин) | Нет | Нет | Только просмотр |
 
 StoreManager не может назначать роли Owner/Administrator/StoreManager другим — только Receiver/Employee/Viewer в своём магазине, чтобы не мог повысить кого-то до своего уровня или выше.
+
+### D-019 — Missing `invitations` Table
+
+Status: Accepted
+
+DATABASE.md's 18-table list does not include a table to store invitation codes, even though API.md requires an invitation code for registration and ROADMAP.md Phase 7 lists "Invite User" / "Accept Invitation" as features.
+
+A new `invitations` table is added: `organization_id`, `store_id` (nullable, same semantics as `memberships.store_id`), `role`, optional `email`, a short human-typeable `code`, `status` (`pending`/`accepted`/`revoked`/`expired`), `invited_by`, `expires_at`, `accepted_at`.
+
+Accepting an invitation is handled by a dedicated `accept_invitation(code)` SQL function (security definer), rather than opening up the `memberships` table's INSERT policy to any newly-signed-up user. This keeps the existing membership-management policies (D-018) unchanged and narrow.
