@@ -186,3 +186,25 @@ Status: Accepted
 `notifications.type` was left undefined in DATABASE.md. Values chosen to match the feature set already defined elsewhere in the documentation: `return_created`, `return_urgent`, `return_returned`, `comment_added`, `chat_message`, `announcement`, `invitation`.
 
 `chat_rooms.store_id` is nullable, following the same pattern as `memberships.store_id` (D-016): `NULL` means an organization-wide room (e.g. General), a non-null value scopes the room to one store (e.g. a store's Returns chat).
+
+### D-018 — Role Permission Matrix (resolves D-003)
+
+Status: Accepted
+
+| Действие | Owner | Administrator | StoreManager | Receiver | Employee | Viewer |
+|---|---|---|---|---|---|---|
+| Организация: настройки/удаление | Да | Да | Нет | Нет | Нет | Нет |
+| Магазины: создать | Да | Да | Нет | Нет | Нет | Нет |
+| Магазины: редактировать | Да (любой) | Да (любой) | Да (только свой) | Нет | Нет | Нет |
+| Пользователи: приглашать/менять роль/удалять | Да (весь org) | Да (весь org) | Да (свой магазин, только роли Receiver/Employee/Viewer) | Нет | Нет | Нет |
+| Поставщики: создать/редактировать | Да | Да | Да | Да | Нет | Нет |
+| Поставщики: смотреть | Да | Да | Да | Да | Да | Да |
+| Возвраты: создать | Да | Да | Да | Да | Да | Нет |
+| Возвраты: редактировать/вернуть/архивировать | Да | Да | Да | Да | Только свои | Нет |
+| Возвраты: удалить (soft) | Да | Да | Да | Нет | Нет | Нет |
+| Комментарии | Да | Да | Да | Да | Да | Только чтение |
+| Чат: писать | Да | Да | Да | Да | Да | Только чтение |
+| Объявления: создавать | Да | Да | Да (свой магазин) | Нет | Нет | Нет |
+| Статистика/экспорт | Да (весь org) | Да (весь org) | Да (свой магазин) | Нет | Нет | Только просмотр |
+
+StoreManager не может назначать роли Owner/Administrator/StoreManager другим — только Receiver/Employee/Viewer в своём магазине, чтобы не мог повысить кого-то до своего уровня или выше.
