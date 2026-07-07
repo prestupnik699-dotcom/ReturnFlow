@@ -57,7 +57,8 @@
   "common": {
     "loggedInAs": "Вы вошли как {{name}}",
     "logOut": "Выйти",
-    "back": "Назад"
+    "back": "Назад",
+    "organization": "Организация"
   },
   "organizations": {
     "title": "Создание организации",

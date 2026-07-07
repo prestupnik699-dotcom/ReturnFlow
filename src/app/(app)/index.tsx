@@ -1,59 +1,119 @@
-import { View, Text, Pressable, StyleSheet } from 'react-native';
-import { Link } from 'expo-router';
+import { View, Text, ScrollView, StyleSheet } from 'react-native';
+import { useRouter } from 'expo-router';
 import { useTranslation } from 'react-i18next';
 import { useAuthStore } from '@/stores/auth.store';
 import { logout } from '@/features/auth/services/auth.service';
 import { useTheme } from '@/theme/ThemeProvider';
+import { Screen } from '@/components/Screen';
+import { Card } from '@/components/Card';
+import { MenuRow } from '@/components/MenuRow';
 import { RequireRole } from '@/components/RequireRole';
 
 export default function Index() {
   const theme = useTheme();
+  const router = useRouter();
   const { t } = useTranslation();
   const session = useAuthStore((state) => state.session);
   const profile = useAuthStore((state) => state.profile);
+  const styles = createStyles(theme);
+
+  const initials = profile
+    ? `${profile.firstName.charAt(0)}${profile.lastName.charAt(0)}`.toUpperCase()
+    : '?';
 
   return (
-    <View style={[styles.center, { backgroundColor: theme.colors.background }]}>
-      <Text style={{ fontSize: theme.fontSizes.md, color: theme.colors.textPrimary }}>
-        {t('common.loggedInAs', {
-          name: profile ? `${profile.firstName} ${profile.lastName}` : (session?.user.email ?? ''),
-        })}
-      </Text>
+    <Screen>
+      <ScrollView contentContainerStyle={styles.container} showsVerticalScrollIndicator={false}>
+        <View style={styles.header}>
+          <View style={styles.avatar}>
+            <Text style={styles.avatarText}>{initials}</Text>
+          </View>
+          <View style={styles.headerText}>
+            <Text style={styles.name}>
+              {profile ? `${profile.firstName} ${profile.lastName}` : (session?.user.email ?? '')}
+            </Text>
+            {session?.user.email ? <Text style={styles.email}>{session.user.email}</Text> : null}
+          </View>
+        </View>
 
-      <Link href="/change-password" style={{ color: theme.colors.primary }}>
-        {t('auth.changePassword.title')}
-      </Link>
+        <Card>
+          <MenuRow
+            icon="person-circle-outline"
+            label={t('profile.title')}
+            onPress={() => router.push('/profile-settings')}
+          />
+          <MenuRow
+            icon="key-outline"
+            label={t('auth.changePassword.title')}
+            onPress={() => router.push('/change-password')}
+          />
+        </Card>
 
-      <Link href="/profile-settings" style={{ color: theme.colors.primary }}>
-        {t('profile.title')}
-      </Link>
+        <RequireRole roles={['Owner', 'Administrator']}>
+          <Text style={styles.sectionLabel}>{t('common.organization')}</Text>
+          <Card>
+            <MenuRow
+              icon="person-add-outline"
+              label={t('users.invite.title')}
+              onPress={() => router.push('/invite-user')}
+            />
+            <MenuRow
+              icon="business-outline"
+              label={t('organizations.settings.title')}
+              onPress={() => router.push('/organization-settings')}
+            />
+          </Card>
+        </RequireRole>
 
-      <RequireRole roles={['Owner', 'Administrator']}>
-        <Link href="/invite-user" style={{ color: theme.colors.primary }}>
-          {t('users.invite.title')}
-        </Link>
-        <Link href="/organization-settings" style={{ color: theme.colors.primary }}>
-          {t('organizations.settings.title')}
-        </Link>
-      </RequireRole>
-
-      <Pressable
-        style={{
-          backgroundColor: theme.colors.primary,
-          borderRadius: 12,
-          paddingVertical: theme.spacing.md,
-          paddingHorizontal: theme.spacing.xl,
-        }}
-        onPress={() => logout()}
-      >
-        <Text style={{ color: theme.colors.onPrimary, fontWeight: theme.fontWeights.semiBold }}>
-          {t('common.logOut')}
-        </Text>
-      </Pressable>
-    </View>
+        <Card>
+          <MenuRow
+            icon="log-out-outline"
+            label={t('common.logOut')}
+            onPress={() => logout()}
+            tone="danger"
+          />
+        </Card>
+      </ScrollView>
+    </Screen>
   );
 }
 
-const styles = StyleSheet.create({
-  center: { flex: 1, justifyContent: 'center', alignItems: 'center', gap: 16, padding: 24 },
-});
+function createStyles(theme: ReturnType<typeof useTheme>) {
+  return StyleSheet.create({
+    container: { gap: theme.spacing.lg, paddingBottom: theme.spacing.xl },
+    header: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      gap: theme.spacing.md,
+      marginBottom: theme.spacing.sm,
+    },
+    avatar: {
+      width: 56,
+      height: 56,
+      borderRadius: 28,
+      backgroundColor: theme.colors.primary,
+      alignItems: 'center',
+      justifyContent: 'center',
+    },
+    avatarText: {
+      color: theme.colors.onPrimary,
+      fontSize: theme.fontSizes.lg,
+      fontWeight: theme.fontWeights.bold,
+    },
+    headerText: { flex: 1 },
+    name: {
+      fontSize: theme.fontSizes.lg,
+      fontWeight: theme.fontWeights.bold,
+      color: theme.colors.textPrimary,
+    },
+    email: { fontSize: theme.fontSizes.sm, color: theme.colors.textSecondary },
+    sectionLabel: {
+      fontSize: theme.fontSizes.xs,
+      fontWeight: theme.fontWeights.semiBold,
+      color: theme.colors.textSecondary,
+      textTransform: 'uppercase',
+      marginTop: theme.spacing.sm,
+      marginLeft: theme.spacing.xs,
+    },
+  });
+}

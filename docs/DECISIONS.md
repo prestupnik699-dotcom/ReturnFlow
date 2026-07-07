@@ -256,3 +256,13 @@ Fixed by giving it real behavior: `accept_invitation()` now seeds the new member
 UI labels were also strengthened to make the distinction unmistakable without relying on a small hint text: the organization-level picker is labeled "Default language for new team members," the personal one "My language."
 
 This kind of visually-duplicate-but-semantically-different control must be caught during design, not after building both screens — a UI element that looks like another one anywhere in the app needs either a genuinely distinct label or should not exist as a separate control at all.
+
+### D-025 — Shared UI Component Library and Icon Set
+
+Status: Accepted
+
+Screens built through Phase 5 each hand-rolled their own buttons and cards with `Pressable`/`StyleSheet`, violating ARCHITECTURE.md Section 7 ("Never duplicate shared UI") and contributing to a visually inconsistent, unpolished result — a direct miss against the standing UX/UI quality rule (D-020).
+
+Fixed by building the actual shared component library now: `Button`, `Card`, `MenuRow` in `src/components`, using `@expo/vector-icons` (Ionicons) as the single icon library (ARCHITECTURE.md Section 14 — bundled with Expo, no extra install needed, Material-adjacent style matching MASTER_PROMPT.md's UI principles).
+
+The home screen is rebuilt on these components now. Other existing screens (Login, Register, Invite, Organization/Profile Settings) are retrofitted to use them opportunistically whenever next touched, rather than in one large, risky rewrite — but every screen built from this point forward must use these shared components, not hand-rolled equivalents.
