@@ -9,6 +9,7 @@ import { useSessionBootstrap } from '@/features/auth/hooks/useSessionBootstrap';
 import { useSyncOnReconnect } from '@/hooks/useSyncOnReconnect';
 import { getDatabase } from '@/lib/database';
 import { useAuthStore } from '@/stores/auth.store';
+import { useMembershipStore } from '@/stores/membership.store';
 import { ErrorBoundary } from '@/components/ErrorBoundary';
 
 getDatabase();
@@ -39,11 +40,16 @@ export default function RootLayout() {
 
 function RootNavigator() {
   const session = useAuthStore((state) => state.session);
+  const memberships = useMembershipStore((state) => state.memberships);
+  const hasOrganization = memberships.length > 0;
 
   return (
     <Stack screenOptions={{ headerShown: false }}>
-      <Stack.Protected guard={!!session}>
+      <Stack.Protected guard={!!session && hasOrganization}>
         <Stack.Screen name="(app)" />
+      </Stack.Protected>
+      <Stack.Protected guard={!!session && !hasOrganization}>
+        <Stack.Screen name="(onboarding)" />
       </Stack.Protected>
       <Stack.Protected guard={!session}>
         <Stack.Screen name="(auth)" />

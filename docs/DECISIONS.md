@@ -226,3 +226,13 @@ Status: Accepted
 Screens built so far used hardcoded Russian text, violating AI_RULES.md Section 15 and ignoring PROJECT_SPECIFICATION.md Section 1.6 (primary language is Georgian, not Russian). This was a mistake, not a deliberate simplification.
 
 i18next infrastructure is built now (ahead of the formal Phase 4 slot, same reasoning as D-020) with `ka` as the default and fallback language, `en` and `ru` as secondary. All screens built from this point on use translation keys exclusively. Existing screens (LoginScreen, index) are corrected in the same step.
+
+### D-022 — Onboarding Path for the First Organization
+
+Status: Accepted
+
+API.md requires an invitation code for registration, but invitations can only be issued by an existing member — leaving no path for the very first user of a new business to ever get in. This is resolved with a third app state, in addition to logged-out and logged-in-with-organization:
+
+Logged in + zero memberships → routed to an `(onboarding)` route group with a "Create your organization" screen. Submitting it creates the `organizations` row and, in the same flow, the caller's own `Owner` membership row (allowed by the bootstrap exception already present in the `memberships_insert` RLS policy, D-018). Once that membership exists, the app routes normally into `(app)`.
+
+This is the real implementation of ROADMAP.md Phase 5's "Create Organization" task, not a separate feature bolted on later.

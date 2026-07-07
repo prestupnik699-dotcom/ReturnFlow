@@ -1,5 +1,7 @@
 {
-  "app": { "name": "ReturnFlow" },
+  "app": {
+    "name": "ReturnFlow"
+  },
   "auth": {
     "login": {
       "subtitle": "Управление возвратами поставщикам",
@@ -56,5 +58,14 @@
     "loggedInAs": "Вы вошли как {{name}}",
     "logOut": "Выйти",
     "back": "Назад"
+  },
+  "organizations": {
+    "title": "Создание организации",
+    "subtitle": "Настройте компанию, чтобы начать работу с возвратами",
+    "nameLabel": "Название организации",
+    "submit": "Создать",
+    "errors": {
+      "nameTooShort": "Слишком короткое название"
+    }
   }
 }

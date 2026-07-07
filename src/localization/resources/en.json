@@ -1,5 +1,7 @@
 {
-  "app": { "name": "ReturnFlow" },
+  "app": {
+    "name": "ReturnFlow"
+  },
   "auth": {
     "login": {
       "subtitle": "Supplier return management",
@@ -56,5 +58,14 @@
     "loggedInAs": "Logged in as {{name}}",
     "logOut": "Log Out",
     "back": "Back"
+  },
+  "organizations": {
+    "title": "Create your organization",
+    "subtitle": "Set up your business to start managing returns",
+    "nameLabel": "Organization name",
+    "submit": "Create",
+    "errors": {
+      "nameTooShort": "Name is too short"
+    }
   }
 }
