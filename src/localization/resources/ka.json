@@ -69,11 +69,10 @@
     },
     "settings": {
       "title": "ორგანიზაციის პარამეტრები",
-      "defaultLanguageLabel": "ნაგულისხმევი ენა",
+      "defaultLanguageLabel": "ახალი თანამშრომლების ნაგულისხმევი ენა",
       "save": "შენახვა",
       "saved": "შენახულია",
-      "loadError": "ვერ ჩაიტვირთა ორგანიზაციის მონაცემები",
-      "languageHint": "ეს ენა ენიჭება ახალ წევრებს ნაგულისხმევად"
+      "loadError": "ვერ ჩაიტვირთა ორგანიზაციის მონაცემები"
     }
   },
   "users": {
@@ -89,7 +88,7 @@
   },
   "profile": {
     "title": "ჩემი პარამეტრები",
-    "languageLabel": "ენა",
+    "languageLabel": "ჩემი ენა",
     "themeLabel": "თემა",
     "themeLight": "ღია",
     "themeDark": "მუქი",

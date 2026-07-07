@@ -69,11 +69,10 @@
     },
     "settings": {
       "title": "Organization settings",
-      "defaultLanguageLabel": "Default language",
+      "defaultLanguageLabel": "Default language for new team members",
       "save": "Save",
       "saved": "Saved",
-      "loadError": "Couldn't load organization data",
-      "languageHint": "This becomes the default language for new team members"
+      "loadError": "Couldn't load organization data"
     }
   },
   "users": {
@@ -89,7 +88,7 @@
   },
   "profile": {
     "title": "My settings",
-    "languageLabel": "Language",
+    "languageLabel": "My language",
     "themeLabel": "Theme",
     "themeLight": "Light",
     "themeDark": "Dark",
