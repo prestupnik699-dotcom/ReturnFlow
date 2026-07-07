@@ -6,13 +6,18 @@ import { QueryClientProvider } from '@tanstack/react-query';
 import { queryClient } from '@/lib/query-client';
 import { ThemeProvider } from '@/theme/ThemeProvider';
 import { useSessionBootstrap } from '@/features/auth/hooks/useSessionBootstrap';
+import { useSyncOnReconnect } from '@/hooks/useSyncOnReconnect';
+import { getDatabase } from '@/lib/database';
 import { useAuthStore } from '@/stores/auth.store';
 import { ErrorBoundary } from '@/components/ErrorBoundary';
+
+getDatabase();
 
 SplashScreen.preventAutoHideAsync();
 
 export default function RootLayout() {
   useSessionBootstrap();
+  useSyncOnReconnect();
   const isInitializing = useAuthStore((state) => state.isInitializing);
 
   useEffect(() => {
