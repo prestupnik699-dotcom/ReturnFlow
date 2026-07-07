@@ -6,6 +6,7 @@ export type ThemeColors = {
   textPrimary: string;
   textSecondary: string;
   textInverse: string;
+  onPrimary: string;
   primary: string;
   primaryPressed: string;
   danger: string;
@@ -21,6 +22,7 @@ export const lightColors: ThemeColors = {
   textPrimary: '#0F172A',
   textSecondary: '#64748B',
   textInverse: '#FFFFFF',
+  onPrimary: '#FFFFFF',
   primary: '#4F46E5',
   primaryPressed: '#4338CA',
   danger: '#DC2626',
@@ -36,6 +38,7 @@ export const darkColors: ThemeColors = {
   textPrimary: '#F1F5F9',
   textSecondary: '#94A3B8',
   textInverse: '#0F172A',
+  onPrimary: '#FFFFFF',
   primary: '#6366F1',
   primaryPressed: '#818CF8',
   danger: '#F87171',

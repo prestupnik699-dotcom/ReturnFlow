@@ -48,7 +48,7 @@ export default function Index() {
         }}
         onPress={() => logout()}
       >
-        <Text style={{ color: theme.colors.textInverse, fontWeight: theme.fontWeights.semiBold }}>
+        <Text style={{ color: theme.colors.onPrimary, fontWeight: theme.fontWeights.semiBold }}>
           {t('common.logOut')}
         </Text>
       </Pressable>

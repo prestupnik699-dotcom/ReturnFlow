@@ -16,6 +16,7 @@ import { useTranslation } from 'react-i18next';
 import { loginSchema, type LoginFormValues } from '@/features/auth/validators/login.schema';
 import { login } from '@/features/auth/services/auth.service';
 import { useTheme } from '@/theme/ThemeProvider';
+import { Logo } from '@/components/Logo';
 
 export function LoginScreen() {
   const router = useRouter();
@@ -53,9 +54,7 @@ export function LoginScreen() {
     >
       <View style={styles.container}>
         <View style={styles.header}>
-          <View style={styles.logoBadge}>
-            <View style={styles.logoIcon} />
-          </View>
+          <Logo size={64} />
           <Text style={styles.title}>{t('app.name')}</Text>
           <Text style={styles.subtitle}>{t('auth.login.subtitle')}</Text>
         </View>
@@ -128,7 +127,7 @@ export function LoginScreen() {
             disabled={isSubmitting}
           >
             {isSubmitting ? (
-              <ActivityIndicator color={theme.colors.textInverse} />
+              <ActivityIndicator color={theme.colors.onPrimary} />
             ) : (
               <Text style={styles.buttonText}>{t('auth.login.submit')}</Text>
             )}
@@ -149,23 +148,6 @@ function createStyles(theme: ReturnType<typeof useTheme>) {
       paddingHorizontal: theme.spacing.xl,
     },
     header: { alignItems: 'center', marginBottom: theme.spacing['3xl'] },
-    logoBadge: {
-      width: 64,
-      height: 64,
-      borderRadius: 18,
-      backgroundColor: theme.colors.primary,
-      alignItems: 'center',
-      justifyContent: 'center',
-      marginBottom: theme.spacing.lg,
-    },
-    logoIcon: {
-      width: 26,
-      height: 26,
-      borderRadius: 13,
-      borderWidth: 4,
-      borderColor: theme.colors.textInverse,
-      borderRightColor: 'transparent',
-    },
     title: {
       fontSize: theme.fontSizes['2xl'],
       fontWeight: theme.fontWeights.bold,
@@ -215,7 +197,7 @@ function createStyles(theme: ReturnType<typeof useTheme>) {
     },
     buttonPressed: { backgroundColor: theme.colors.primaryPressed },
     buttonText: {
-      color: theme.colors.textInverse,
+      color: theme.colors.onPrimary,
       fontWeight: theme.fontWeights.semiBold,
       fontSize: theme.fontSizes.md,
     },
