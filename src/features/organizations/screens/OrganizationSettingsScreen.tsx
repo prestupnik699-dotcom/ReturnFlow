@@ -101,6 +101,7 @@ export function OrganizationSettingsScreen() {
 
         <View style={styles.field}>
           <Text style={styles.label}>{t('organizations.settings.defaultLanguageLabel')}</Text>
+          <Text style={styles.hint}>{t('organizations.settings.languageHint')}</Text>
           <View style={styles.languageRow}>
             {LANGUAGES.map((lang) => (
               <Pressable
@@ -182,6 +183,7 @@ function createStyles(theme: ReturnType<typeof useTheme>) {
     },
     inputError: { borderColor: theme.colors.danger },
     errorText: { fontSize: theme.fontSizes.xs, color: theme.colors.danger },
+    hint: { fontSize: theme.fontSizes.xs, color: theme.colors.textSecondary },
     languageRow: { flexDirection: 'row', gap: theme.spacing.sm },
     langChip: {
       borderWidth: 1,

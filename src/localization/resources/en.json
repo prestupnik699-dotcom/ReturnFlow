@@ -72,7 +72,8 @@
       "defaultLanguageLabel": "Default language",
       "save": "Save",
       "saved": "Saved",
-      "loadError": "Couldn't load organization data"
+      "loadError": "Couldn't load organization data",
+      "languageHint": "This becomes the default language for new team members"
     }
   },
   "users": {
@@ -85,5 +86,14 @@
       "copy": "Copy",
       "copied": "Copied"
     }
+  },
+  "profile": {
+    "title": "My settings",
+    "languageLabel": "Language",
+    "themeLabel": "Theme",
+    "themeLight": "Light",
+    "themeDark": "Dark",
+    "themeSystem": "System",
+    "saved": "Saved"
   }
 }

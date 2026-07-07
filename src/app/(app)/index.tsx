@@ -24,6 +24,10 @@ export default function Index() {
         {t('auth.changePassword.title')}
       </Link>
 
+      <Link href="/profile-settings" style={{ color: theme.colors.primary }}>
+        {t('profile.title')}
+      </Link>
+
       <RequireRole roles={['Owner', 'Administrator']}>
         <Link href="/invite-user" style={{ color: theme.colors.primary }}>
           {t('users.invite.title')}

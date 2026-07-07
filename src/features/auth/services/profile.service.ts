@@ -32,3 +32,17 @@ export async function fetchCurrentProfile(): Promise<Profile | null> {
     status: data.status,
   };
 }
+
+export async function updateProfileSettings(
+  profileId: string,
+  input: { language: string; theme: string },
+): Promise<void> {
+  const { error } = await supabase
+    .from('profiles')
+    .update({ language: input.language, theme: input.theme })
+    .eq('id', profileId);
+
+  if (error) {
+    throw error;
+  }
+}
