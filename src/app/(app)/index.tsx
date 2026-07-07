@@ -4,12 +4,15 @@ import { useTranslation } from 'react-i18next';
 import { useAuthStore } from '@/stores/auth.store';
 import { logout } from '@/features/auth/services/auth.service';
 import { useTheme } from '@/theme/ThemeProvider';
+import { RequireRole } from '@/components/RequireRole';
+import { useActiveRoles } from '@/features/auth/hooks/usePermissions';
 
 export default function Index() {
   const theme = useTheme();
   const { t } = useTranslation();
   const session = useAuthStore((state) => state.session);
   const profile = useAuthStore((state) => state.profile);
+  const activeRoles = useActiveRoles();
 
   return (
     <View style={[styles.center, { backgroundColor: theme.colors.background }]}>
@@ -21,6 +24,23 @@ export default function Index() {
       <Link href="/change-password" style={{ color: theme.colors.primary }}>
         {t('auth.changePassword.title')}
       </Link>
+
+      {/* Temporary permission-system smoke test, removed once real screens exist */}
+      <Text style={{ fontSize: theme.fontSizes.xs, color: theme.colors.textSecondary }}>
+        Role: {activeRoles.join(', ') || 'none'}
+      </Text>
+      <RequireRole
+        roles={['Owner', 'Administrator']}
+        fallback={
+          <Text style={{ fontSize: theme.fontSizes.xs, color: theme.colors.textSecondary }}>
+            Admin panel: hidden (not Owner/Administrator)
+          </Text>
+        }
+      >
+        <Text style={{ fontSize: theme.fontSizes.xs, color: theme.colors.success }}>
+          Admin panel: visible
+        </Text>
+      </RequireRole>
       <Pressable
         style={{
           backgroundColor: theme.colors.primary,
