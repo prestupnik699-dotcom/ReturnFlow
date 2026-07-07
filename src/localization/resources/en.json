@@ -45,6 +45,13 @@
       "passwordsDoNotMatch": "Passwords do not match"
     }
   },
+  "errors": {
+    "boundary": {
+      "title": "Something went wrong",
+      "message": "Please try again or restart the app",
+      "retry": "Try again"
+    }
+  },
   "common": {
     "loggedInAs": "Logged in as {{name}}",
     "logOut": "Log Out",

@@ -7,6 +7,7 @@ import { queryClient } from '@/lib/query-client';
 import { ThemeProvider } from '@/theme/ThemeProvider';
 import { useSessionBootstrap } from '@/features/auth/hooks/useSessionBootstrap';
 import { useAuthStore } from '@/stores/auth.store';
+import { ErrorBoundary } from '@/components/ErrorBoundary';
 
 SplashScreen.preventAutoHideAsync();
 
@@ -23,7 +24,9 @@ export default function RootLayout() {
   return (
     <QueryClientProvider client={queryClient}>
       <ThemeProvider>
-        <RootNavigator />
+        <ErrorBoundary>
+          <RootNavigator />
+        </ErrorBoundary>
       </ThemeProvider>
     </QueryClientProvider>
   );
