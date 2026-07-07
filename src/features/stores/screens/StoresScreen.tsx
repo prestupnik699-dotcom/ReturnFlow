@@ -8,6 +8,7 @@ import {
   Alert,
   Pressable,
 } from 'react-native';
+import Animated, { FadeInDown } from 'react-native-reanimated';
 import { useTranslation } from 'react-i18next';
 import { Ionicons } from '@expo/vector-icons';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
@@ -84,33 +85,35 @@ export function StoresScreen() {
             keyExtractor={(item) => item.id}
             contentContainerStyle={styles.list}
             ListEmptyComponent={<Text style={styles.empty}>{t('stores.empty')}</Text>}
-            renderItem={({ item }) => (
-              <Card>
-                <View style={styles.storeRow}>
-                  <Pressable onPress={() => handleSelectActive(item)} hitSlop={8}>
-                    <Ionicons
-                      name={activeStoreId === item.id ? 'radio-button-on' : 'radio-button-off'}
-                      size={22}
-                      color={
-                        activeStoreId === item.id
-                          ? theme.colors.primary
-                          : theme.colors.textSecondary
-                      }
-                    />
-                  </Pressable>
-
-                  <Pressable style={styles.storeInfo} onPress={() => handleEdit(item)}>
-                    <Text style={styles.storeName}>{item.name}</Text>
-                    {item.city ? <Text style={styles.storeMeta}>{item.city}</Text> : null}
-                  </Pressable>
-
-                  <RequireRole roles={['Owner', 'Administrator']}>
-                    <Pressable onPress={() => handleDelete(item)} hitSlop={12}>
-                      <Ionicons name="trash-outline" size={20} color={theme.colors.danger} />
+            renderItem={({ item, index }) => (
+              <Animated.View entering={FadeInDown.delay(index * 60).duration(300)}>
+                <Card>
+                  <View style={styles.storeRow}>
+                    <Pressable onPress={() => handleSelectActive(item)} hitSlop={8}>
+                      <Ionicons
+                        name={activeStoreId === item.id ? 'radio-button-on' : 'radio-button-off'}
+                        size={22}
+                        color={
+                          activeStoreId === item.id
+                            ? theme.colors.primary
+                            : theme.colors.textSecondary
+                        }
+                      />
                     </Pressable>
-                  </RequireRole>
-                </View>
-              </Card>
+
+                    <Pressable style={styles.storeInfo} onPress={() => handleEdit(item)}>
+                      <Text style={styles.storeName}>{item.name}</Text>
+                      {item.city ? <Text style={styles.storeMeta}>{item.city}</Text> : null}
+                    </Pressable>
+
+                    <RequireRole roles={['Owner', 'Administrator']}>
+                      <Pressable onPress={() => handleDelete(item)} hitSlop={12}>
+                        <Ionicons name="trash-outline" size={20} color={theme.colors.danger} />
+                      </Pressable>
+                    </RequireRole>
+                  </View>
+                </Card>
+              </Animated.View>
             )}
           />
         )}
@@ -120,7 +123,7 @@ export function StoresScreen() {
             label={t('stores.addButton')}
             icon="add"
             onPress={handleAdd}
-            style={{ marginBottom: insets.bottom || theme.spacing.md }}
+            style={{ marginBottom: insets.bottom + theme.spacing.lg }}
           />
         </RequireRole>
       </View>

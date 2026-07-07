@@ -272,3 +272,11 @@ The home screen is rebuilt on these components now. Other existing screens (Logi
 Status: Accepted
 
 `organizations.primary_color` and `logo_url` are not exposed in Organization Settings yet. Adding a color picker now would repeat the D-024 mistake — `ThemeProvider` currently uses a fixed indigo palette regardless of this field, so the control would look functional but do nothing. Both will be built together once Supabase Storage is wired up (Phase 9) and `ThemeProvider` is extended to apply the organization's chosen color as its actual primary color.
+
+### D-027 — Animation Standard (Reanimated)
+
+Status: Accepted
+
+`react-native-reanimated` (already installed as part of the Expo template) is the standard for all UI animation going forward — never the older `Animated` API, to keep one consistent, performant approach across the app.
+
+Baseline applied now: the shared `Button` component (D-025) gets a subtle press-scale animation, affecting every button in the app at once. List screens get a staggered fade/slide-in entrance for their items (applied first to Stores, the pattern to reuse for Suppliers and Returns lists later).
