@@ -1,42 +1,21 @@
-import { useEffect } from 'react';
-import { useRouter, Link } from 'expo-router';
-import { View, Text, Pressable, ActivityIndicator, StyleSheet } from 'react-native';
+import { View, Text, Pressable, StyleSheet } from 'react-native';
+import { Link } from 'expo-router';
 import { useTranslation } from 'react-i18next';
 import { useAuthStore } from '@/stores/auth.store';
 import { logout } from '@/features/auth/services/auth.service';
 import { useTheme } from '@/theme/ThemeProvider';
 
 export default function Index() {
-  const router = useRouter();
   const theme = useTheme();
   const { t } = useTranslation();
   const session = useAuthStore((state) => state.session);
   const profile = useAuthStore((state) => state.profile);
-  const isInitializing = useAuthStore((state) => state.isInitializing);
-
-  useEffect(() => {
-    if (!isInitializing && !session) {
-      router.replace('/login');
-    }
-  }, [isInitializing, session, router]);
-
-  if (isInitializing) {
-    return (
-      <View style={[styles.center, { backgroundColor: theme.colors.background }]}>
-        <ActivityIndicator color={theme.colors.primary} />
-      </View>
-    );
-  }
-
-  if (!session) {
-    return null;
-  }
 
   return (
     <View style={[styles.center, { backgroundColor: theme.colors.background }]}>
       <Text style={{ fontSize: theme.fontSizes.md, color: theme.colors.textPrimary }}>
         {t('common.loggedInAs', {
-          name: profile ? `${profile.firstName} ${profile.lastName}` : session.user.email,
+          name: profile ? `${profile.firstName} ${profile.lastName}` : (session?.user.email ?? ''),
         })}
       </Text>
       <Link href="/change-password" style={{ color: theme.colors.primary }}>
