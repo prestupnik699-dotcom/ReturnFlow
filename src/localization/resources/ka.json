@@ -20,6 +20,13 @@
       "haveAccount": "უკვე გაქვთ ანგარიში?",
       "logInLink": "შესვლა"
     },
+    "changePassword": {
+      "title": "პაროლის შეცვლა",
+      "newPasswordLabel": "ახალი პაროლი",
+      "confirmNewPasswordLabel": "გაიმეორეთ ახალი პაროლი",
+      "submit": "შეცვლა",
+      "success": "პაროლი წარმატებით შეიცვალა"
+    },
     "errors": {
       "emailRequired": "ელფოსტა სავალდებულოა",
       "emailInvalid": "არასწორი ელფოსტის ფორმატი",
@@ -33,6 +40,7 @@
   },
   "common": {
     "loggedInAs": "შესული ხართ როგორც {{name}}",
-    "logOut": "გასვლა"
+    "logOut": "გასვლა",
+    "back": "უკან"
   }
 }

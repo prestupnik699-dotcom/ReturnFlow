@@ -1,5 +1,5 @@
 import { useEffect } from 'react';
-import { useRouter } from 'expo-router';
+import { useRouter, Link } from 'expo-router';
 import { View, Text, Pressable, ActivityIndicator, StyleSheet } from 'react-native';
 import { useTranslation } from 'react-i18next';
 import { useAuthStore } from '@/stores/auth.store';
@@ -39,6 +39,9 @@ export default function Index() {
           name: profile ? `${profile.firstName} ${profile.lastName}` : session.user.email,
         })}
       </Text>
+      <Link href="/change-password" style={{ color: theme.colors.primary }}>
+        {t('auth.changePassword.title')}
+      </Link>
       <Pressable
         style={{
           backgroundColor: theme.colors.primary,

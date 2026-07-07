@@ -20,6 +20,13 @@
       "haveAccount": "Already have an account?",
       "logInLink": "Log in"
     },
+    "changePassword": {
+      "title": "Change password",
+      "newPasswordLabel": "New password",
+      "confirmNewPasswordLabel": "Confirm new password",
+      "submit": "Change password",
+      "success": "Password changed successfully"
+    },
     "errors": {
       "emailRequired": "Email is required",
       "emailInvalid": "Invalid email address",
@@ -33,6 +40,7 @@
   },
   "common": {
     "loggedInAs": "Logged in as {{name}}",
-    "logOut": "Log Out"
+    "logOut": "Log Out",
+    "back": "Back"
   }
 }
