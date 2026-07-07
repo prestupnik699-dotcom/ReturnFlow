@@ -3,16 +3,17 @@ import { View, Text, Pressable, ActivityIndicator, StyleSheet } from 'react-nati
 import * as Clipboard from 'expo-clipboard';
 import { useTranslation } from 'react-i18next';
 import { useTheme } from '@/theme/ThemeProvider';
+import { Screen } from '@/components/Screen';
 import { useCreateInvitation } from '@/features/users/hooks/useCreateInvitation';
 import type { MembershipRole } from '@/features/auth/services/membership.service';
 
 const ROLES: MembershipRole[] = [
-  'Owner',
-  'Administrator',
-  'StoreManager',
-  'Receiver',
   'Employee',
+  'Receiver',
   'Viewer',
+  'StoreManager',
+  'Administrator',
+  'Owner',
 ];
 
 export function InviteUserScreen() {
@@ -35,69 +36,68 @@ export function InviteUserScreen() {
   };
 
   return (
-    <View style={styles.container}>
-      <Text style={styles.title}>{t('users.invite.title')}</Text>
-      <Text style={styles.subtitle}>{t('users.invite.subtitle')}</Text>
+    <Screen>
+      <View style={styles.container}>
+        <Text style={styles.title}>{t('users.invite.title')}</Text>
+        <Text style={styles.subtitle}>{t('users.invite.subtitle')}</Text>
 
-      <View style={styles.roleGrid}>
-        {ROLES.map((role) => (
-          <Pressable
-            key={role}
-            onPress={() => setSelectedRole(role)}
-            style={[styles.roleChip, selectedRole === role && styles.roleChipActive]}
-          >
-            <Text style={[styles.roleChipText, selectedRole === role && styles.roleChipTextActive]}>
-              {role}
-            </Text>
-          </Pressable>
-        ))}
+        <View style={styles.roleGrid}>
+          {ROLES.map((role) => (
+            <Pressable
+              key={role}
+              onPress={() => setSelectedRole(role)}
+              style={[styles.roleChip, selectedRole === role && styles.roleChipActive]}
+            >
+              <Text
+                style={[styles.roleChipText, selectedRole === role && styles.roleChipTextActive]}
+              >
+                {role}
+              </Text>
+            </Pressable>
+          ))}
+        </View>
+
+        <Pressable
+          style={({ pressed }) => [
+            styles.button,
+            (mutation.isPending || pressed) && styles.buttonPressed,
+          ]}
+          onPress={handleGenerate}
+          disabled={mutation.isPending}
+        >
+          {mutation.isPending ? (
+            <ActivityIndicator color={theme.colors.onPrimary} />
+          ) : (
+            <Text style={styles.buttonText}>{t('users.invite.generate')}</Text>
+          )}
+        </Pressable>
+
+        {mutation.isError ? (
+          <View style={styles.errorBanner}>
+            <Text style={styles.errorBannerText}>{mutation.error.message}</Text>
+          </View>
+        ) : null}
+
+        {mutation.data ? (
+          <View style={styles.codeCard}>
+            <Text style={styles.codeLabel}>{t('users.invite.codeLabel')}</Text>
+            <Text style={styles.code}>{mutation.data.code}</Text>
+            <Text style={styles.validFor}>{t('users.invite.validFor')}</Text>
+            <Pressable style={styles.copyButton} onPress={handleCopy}>
+              <Text style={styles.copyButtonText}>
+                {copied ? t('users.invite.copied') : t('users.invite.copy')}
+              </Text>
+            </Pressable>
+          </View>
+        ) : null}
       </View>
-
-      <Pressable
-        style={({ pressed }) => [
-          styles.button,
-          (mutation.isPending || pressed) && styles.buttonPressed,
-        ]}
-        onPress={handleGenerate}
-        disabled={mutation.isPending}
-      >
-        {mutation.isPending ? (
-          <ActivityIndicator color={theme.colors.onPrimary} />
-        ) : (
-          <Text style={styles.buttonText}>{t('users.invite.generate')}</Text>
-        )}
-      </Pressable>
-
-      {mutation.isError ? (
-        <View style={styles.errorBanner}>
-          <Text style={styles.errorBannerText}>{mutation.error.message}</Text>
-        </View>
-      ) : null}
-
-      {mutation.data ? (
-        <View style={styles.codeCard}>
-          <Text style={styles.codeLabel}>{t('users.invite.codeLabel')}</Text>
-          <Text style={styles.code}>{mutation.data.code}</Text>
-          <Text style={styles.validFor}>{t('users.invite.validFor')}</Text>
-          <Pressable style={styles.copyButton} onPress={handleCopy}>
-            <Text style={styles.copyButtonText}>
-              {copied ? t('users.invite.copied') : t('users.invite.copy')}
-            </Text>
-          </Pressable>
-        </View>
-      ) : null}
-    </View>
+    </Screen>
   );
 }
 
 function createStyles(theme: ReturnType<typeof useTheme>) {
   return StyleSheet.create({
-    container: {
-      flex: 1,
-      backgroundColor: theme.colors.background,
-      padding: theme.spacing.xl,
-      gap: theme.spacing.lg,
-    },
+    container: { flex: 1, gap: theme.spacing.lg },
     title: {
       fontSize: theme.fontSizes.xl,
       fontWeight: theme.fontWeights.bold,

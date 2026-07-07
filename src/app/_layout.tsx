@@ -3,6 +3,7 @@ import { useEffect } from 'react';
 import { Stack } from 'expo-router';
 import * as SplashScreen from 'expo-splash-screen';
 import { QueryClientProvider } from '@tanstack/react-query';
+import { SafeAreaProvider } from 'react-native-safe-area-context';
 import { queryClient } from '@/lib/query-client';
 import { ThemeProvider } from '@/theme/ThemeProvider';
 import { useSessionBootstrap } from '@/features/auth/hooks/useSessionBootstrap';
@@ -28,13 +29,15 @@ export default function RootLayout() {
   }, [isInitializing]);
 
   return (
-    <QueryClientProvider client={queryClient}>
-      <ThemeProvider>
-        <ErrorBoundary>
-          <RootNavigator />
-        </ErrorBoundary>
-      </ThemeProvider>
-    </QueryClientProvider>
+    <SafeAreaProvider>
+      <QueryClientProvider client={queryClient}>
+        <ThemeProvider>
+          <ErrorBoundary>
+            <RootNavigator />
+          </ErrorBoundary>
+        </ThemeProvider>
+      </QueryClientProvider>
+    </SafeAreaProvider>
   );
 }
 
