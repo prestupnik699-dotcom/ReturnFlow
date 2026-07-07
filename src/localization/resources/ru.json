@@ -8,7 +8,8 @@
       "passwordLabel": "Пароль",
       "submit": "Войти",
       "noAccount": "Нет аккаунта?",
-      "registerLink": "Зарегистрироваться"
+      "registerLink": "Зарегистрироваться",
+      "forgotPasswordLink": "Забыли пароль?"
     },
     "register": {
       "title": "Регистрация",
@@ -26,6 +27,12 @@
       "confirmNewPasswordLabel": "Повторите новый пароль",
       "submit": "Изменить пароль",
       "success": "Пароль успешно изменён"
+    },
+    "forgotPassword": {
+      "title": "Восстановление пароля",
+      "instructions": "Введите email — вышлем ссылку для восстановления пароля",
+      "submit": "Отправить ссылку",
+      "success": "Если этот email зарегистрирован, ссылка отправлена"
     },
     "errors": {
       "emailRequired": "Введите email",

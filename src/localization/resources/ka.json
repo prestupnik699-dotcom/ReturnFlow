@@ -8,7 +8,8 @@
       "passwordLabel": "პაროლი",
       "submit": "შესვლა",
       "noAccount": "არ გაქვთ ანგარიში?",
-      "registerLink": "რეგისტრაცია"
+      "registerLink": "რეგისტრაცია",
+      "forgotPasswordLink": "დაგავიწყდათ პაროლი?"
     },
     "register": {
       "title": "რეგისტრაცია",
@@ -26,6 +27,12 @@
       "confirmNewPasswordLabel": "გაიმეორეთ ახალი პაროლი",
       "submit": "შეცვლა",
       "success": "პაროლი წარმატებით შეიცვალა"
+    },
+    "forgotPassword": {
+      "title": "პაროლის აღდგენა",
+      "instructions": "შეიყვანეთ თქვენი ელფოსტა — გამოგიგზავნით ბმულს პაროლის აღსადგენად",
+      "submit": "ბმულის გაგზავნა",
+      "success": "თუ ეს ელფოსტა რეგისტრირებულია, ბმული გამოგზავნილია"
     },
     "errors": {
       "emailRequired": "ელფოსტა სავალდებულოა",

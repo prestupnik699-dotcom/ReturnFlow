@@ -8,7 +8,8 @@
       "passwordLabel": "Password",
       "submit": "Log In",
       "noAccount": "Don't have an account?",
-      "registerLink": "Sign up"
+      "registerLink": "Sign up",
+      "forgotPasswordLink": "Forgot password?"
     },
     "register": {
       "title": "Create account",
@@ -26,6 +27,12 @@
       "confirmNewPasswordLabel": "Confirm new password",
       "submit": "Change password",
       "success": "Password changed successfully"
+    },
+    "forgotPassword": {
+      "title": "Reset password",
+      "instructions": "Enter your email and we'll send you a reset link",
+      "submit": "Send reset link",
+      "success": "If that email is registered, a reset link has been sent"
     },
     "errors": {
       "emailRequired": "Email is required",

@@ -1,65 +1,63 @@
 import { useState } from 'react';
-import {
-  View,
-  Text,
-  TextInput,
-  Pressable,
-  ActivityIndicator,
-  StyleSheet,
-  KeyboardAvoidingView,
-  Platform,
-} from 'react-native';
+import { View, Text, TextInput, Pressable, ActivityIndicator, StyleSheet } from 'react-native';
 import { useForm, Controller } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useRouter } from 'expo-router';
 import { useTranslation } from 'react-i18next';
-import { loginSchema, type LoginFormValues } from '@/features/auth/validators/login.schema';
-import { login } from '@/features/auth/services/auth.service';
+import {
+  forgotPasswordSchema,
+  type ForgotPasswordFormValues,
+} from '@/features/auth/validators/forgot-password.schema';
+import { requestPasswordReset } from '@/features/auth/services/auth.service';
 import { useTheme } from '@/theme/ThemeProvider';
-import { Logo } from '@/components/Logo';
 
-export function LoginScreen() {
+export function ForgotPasswordScreen() {
   const router = useRouter();
   const theme = useTheme();
   const { t } = useTranslation();
   const [submitError, setSubmitError] = useState<string | null>(null);
+  const [success, setSuccess] = useState(false);
 
   const {
     control,
     handleSubmit,
     formState: { errors, isSubmitting },
-  } = useForm<LoginFormValues>({
-    resolver: zodResolver(loginSchema),
-    defaultValues: { email: '', password: '' },
+  } = useForm<ForgotPasswordFormValues>({
+    resolver: zodResolver(forgotPasswordSchema),
+    defaultValues: { email: '' },
   });
 
-  const onSubmit = async (values: LoginFormValues) => {
+  const onSubmit = async (values: ForgotPasswordFormValues) => {
     setSubmitError(null);
-    const result = await login(values.email, values.password);
+    const result = await requestPasswordReset(values.email);
 
     if (!result.success) {
       setSubmitError(result.error.message);
       return;
     }
 
-    router.replace('/');
+    setSuccess(true);
   };
 
   const styles = createStyles(theme);
 
   return (
-    <KeyboardAvoidingView
-      style={styles.flex}
-      behavior={Platform.OS === 'ios' ? 'padding' : undefined}
-    >
-      <View style={styles.container}>
-        <View style={styles.header}>
-          <Logo size={64} />
-          <Text style={styles.title}>{t('app.name')}</Text>
-          <Text style={styles.subtitle}>{t('auth.login.subtitle')}</Text>
-        </View>
+    <View style={styles.container}>
+      <Text style={styles.title}>{t('auth.forgotPassword.title')}</Text>
 
+      {success ? (
+        <>
+          <View style={styles.successBanner}>
+            <Text style={styles.successText}>{t('auth.forgotPassword.success')}</Text>
+          </View>
+          <Pressable style={styles.button} onPress={() => router.replace('/login')}>
+            <Text style={styles.buttonText}>{t('common.back')}</Text>
+          </Pressable>
+        </>
+      ) : (
         <View style={styles.form}>
+          <Text style={styles.instructions}>{t('auth.forgotPassword.instructions')}</Text>
+
           <View style={styles.field}>
             <Text style={styles.label}>{t('auth.login.emailLabel')}</Text>
             <Controller
@@ -87,31 +85,6 @@ export function LoginScreen() {
             ) : null}
           </View>
 
-          <View style={styles.field}>
-            <Text style={styles.label}>{t('auth.login.passwordLabel')}</Text>
-            <Controller
-              control={control}
-              name="password"
-              render={({ field: { value, onChange, onBlur } }) => (
-                <TextInput
-                  style={[styles.input, errors.password && styles.inputError]}
-                  placeholder="••••••••"
-                  placeholderTextColor={theme.colors.textSecondary}
-                  secureTextEntry
-                  value={value}
-                  onChangeText={(text) => {
-                    onChange(text);
-                    setSubmitError(null);
-                  }}
-                  onBlur={onBlur}
-                />
-              )}
-            />
-            {errors.password ? (
-              <Text style={styles.errorText}>{t(errors.password.message ?? '')}</Text>
-            ) : null}
-          </View>
-
           {submitError ? (
             <View style={styles.errorBanner}>
               <Text style={styles.errorBannerText}>{submitError}</Text>
@@ -129,51 +102,36 @@ export function LoginScreen() {
             {isSubmitting ? (
               <ActivityIndicator color={theme.colors.onPrimary} />
             ) : (
-              <Text style={styles.buttonText}>{t('auth.login.submit')}</Text>
+              <Text style={styles.buttonText}>{t('auth.forgotPassword.submit')}</Text>
             )}
           </Pressable>
-
-          <Pressable
-            onPress={() => router.push('/forgot-password')}
-            style={styles.forgotPasswordLink}
-          >
-            <Text style={styles.footerLink}>{t('auth.login.forgotPasswordLink')}</Text>
-          </Pressable>
-
-          <View style={styles.footer}>
-            <Text style={styles.footerText}>{t('auth.login.noAccount')} </Text>
-            <Pressable onPress={() => router.replace('/register')}>
-              <Text style={styles.footerLink}>{t('auth.login.registerLink')}</Text>
-            </Pressable>
-          </View>
         </View>
-      </View>
-    </KeyboardAvoidingView>
+      )}
+    </View>
   );
 }
 
 function createStyles(theme: ReturnType<typeof useTheme>) {
   return StyleSheet.create({
-    flex: { flex: 1 },
     container: {
       flex: 1,
       backgroundColor: theme.colors.background,
       justifyContent: 'center',
       paddingHorizontal: theme.spacing.xl,
+      gap: theme.spacing.xl,
     },
-    header: { alignItems: 'center', marginBottom: theme.spacing['3xl'] },
     title: {
-      fontSize: theme.fontSizes['2xl'],
+      fontSize: theme.fontSizes.xl,
       fontWeight: theme.fontWeights.bold,
       color: theme.colors.textPrimary,
-    },
-    subtitle: {
-      fontSize: theme.fontSizes.sm,
-      color: theme.colors.textSecondary,
-      marginTop: theme.spacing.xs,
       textAlign: 'center',
     },
-    form: { gap: theme.spacing.lg },
+    instructions: {
+      fontSize: theme.fontSizes.sm,
+      color: theme.colors.textSecondary,
+      textAlign: 'center',
+    },
+    form: { gap: theme.spacing.md },
     field: { gap: theme.spacing.xs },
     label: {
       fontSize: theme.fontSizes.sm,
@@ -202,26 +160,23 @@ function createStyles(theme: ReturnType<typeof useTheme>) {
       fontSize: theme.fontSizes.sm,
       textAlign: 'center',
     },
+    successBanner: {
+      backgroundColor: theme.colors.success + '15',
+      borderRadius: 10,
+      padding: theme.spacing.md,
+    },
+    successText: { color: theme.colors.success, fontSize: theme.fontSizes.sm, textAlign: 'center' },
     button: {
       backgroundColor: theme.colors.primary,
       borderRadius: 12,
       paddingVertical: theme.spacing.md,
       alignItems: 'center',
-      marginTop: theme.spacing.sm,
     },
     buttonPressed: { backgroundColor: theme.colors.primaryPressed },
     buttonText: {
       color: theme.colors.onPrimary,
       fontWeight: theme.fontWeights.semiBold,
       fontSize: theme.fontSizes.md,
-    },
-    forgotPasswordLink: { alignItems: 'center', marginTop: theme.spacing.sm },
-    footer: { flexDirection: 'row', justifyContent: 'center', marginTop: theme.spacing.lg },
-    footerText: { color: theme.colors.textSecondary, fontSize: theme.fontSizes.sm },
-    footerLink: {
-      color: theme.colors.primary,
-      fontSize: theme.fontSizes.sm,
-      fontWeight: theme.fontWeights.semiBold,
     },
   });
 }
