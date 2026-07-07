@@ -1,13 +1,24 @@
 import { useState } from 'react';
-import { View, Text, TextInput, Pressable, ActivityIndicator, StyleSheet } from 'react-native';
+import {
+  View,
+  Text,
+  TextInput,
+  Pressable,
+  ActivityIndicator,
+  StyleSheet,
+  KeyboardAvoidingView,
+  Platform,
+} from 'react-native';
 import { useForm, Controller } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useRouter } from 'expo-router';
 import { loginSchema, type LoginFormValues } from '@/features/auth/validators/login.schema';
 import { login } from '@/features/auth/services/auth.service';
+import { useTheme } from '@/theme/ThemeProvider';
 
 export function LoginScreen() {
   const router = useRouter();
+  const theme = useTheme();
   const [submitError, setSubmitError] = useState<string | null>(null);
 
   const {
@@ -31,72 +42,188 @@ export function LoginScreen() {
     router.replace('/');
   };
 
+  const styles = createStyles(theme);
+
   return (
-    <View style={styles.container}>
-      <Text style={styles.title}>ReturnFlow</Text>
+    <KeyboardAvoidingView
+      style={styles.flex}
+      behavior={Platform.OS === 'ios' ? 'padding' : undefined}
+    >
+      <View style={styles.container}>
+        <View style={styles.header}>
+          <View style={styles.logoBadge}>
+            <Text style={styles.logoLetter}>R</Text>
+          </View>
+          <Text style={styles.title}>ReturnFlow</Text>
+          <Text style={styles.subtitle}>Управление возвратами поставщикам</Text>
+        </View>
 
-      <Controller
-        control={control}
-        name="email"
-        render={({ field: { value, onChange, onBlur } }) => (
-          <TextInput
-            style={styles.input}
-            placeholder="Email"
-            autoCapitalize="none"
-            keyboardType="email-address"
-            value={value}
-            onChangeText={onChange}
-            onBlur={onBlur}
-          />
-        )}
-      />
-      {errors.email ? <Text style={styles.errorText}>{errors.email.message}</Text> : null}
+        <View style={styles.form}>
+          <View style={styles.field}>
+            <Text style={styles.label}>Email</Text>
+            <Controller
+              control={control}
+              name="email"
+              render={({ field: { value, onChange, onBlur } }) => (
+                <TextInput
+                  style={[styles.input, errors.email && styles.inputError]}
+                  placeholder="you@company.com"
+                  placeholderTextColor={theme.colors.textSecondary}
+                  autoCapitalize="none"
+                  autoCorrect={false}
+                  keyboardType="email-address"
+                  value={value}
+                  onChangeText={(text) => {
+                    onChange(text);
+                    setSubmitError(null);
+                  }}
+                  onBlur={onBlur}
+                />
+              )}
+            />
+            {errors.email ? <Text style={styles.errorText}>{errors.email.message}</Text> : null}
+          </View>
 
-      <Controller
-        control={control}
-        name="password"
-        render={({ field: { value, onChange, onBlur } }) => (
-          <TextInput
-            style={styles.input}
-            placeholder="Password"
-            secureTextEntry
-            value={value}
-            onChangeText={onChange}
-            onBlur={onBlur}
-          />
-        )}
-      />
-      {errors.password ? <Text style={styles.errorText}>{errors.password.message}</Text> : null}
+          <View style={styles.field}>
+            <Text style={styles.label}>Пароль</Text>
+            <Controller
+              control={control}
+              name="password"
+              render={({ field: { value, onChange, onBlur } }) => (
+                <TextInput
+                  style={[styles.input, errors.password && styles.inputError]}
+                  placeholder="••••••••"
+                  placeholderTextColor={theme.colors.textSecondary}
+                  secureTextEntry
+                  value={value}
+                  onChangeText={(text) => {
+                    onChange(text);
+                    setSubmitError(null);
+                  }}
+                  onBlur={onBlur}
+                />
+              )}
+            />
+            {errors.password ? (
+              <Text style={styles.errorText}>{errors.password.message}</Text>
+            ) : null}
+          </View>
 
-      {submitError ? <Text style={styles.errorText}>{submitError}</Text> : null}
+          {submitError ? (
+            <View style={styles.errorBanner}>
+              <Text style={styles.errorBannerText}>{submitError}</Text>
+            </View>
+          ) : null}
 
-      <Pressable
-        style={[styles.button, isSubmitting && styles.buttonDisabled]}
-        onPress={handleSubmit(onSubmit)}
-        disabled={isSubmitting}
-      >
-        {isSubmitting ? (
-          <ActivityIndicator color="#fff" />
-        ) : (
-          <Text style={styles.buttonText}>Log In</Text>
-        )}
-      </Pressable>
-    </View>
+          <Pressable
+            style={({ pressed }) => [
+              styles.button,
+              (isSubmitting || pressed) && styles.buttonPressed,
+            ]}
+            onPress={handleSubmit(onSubmit)}
+            disabled={isSubmitting}
+          >
+            {isSubmitting ? (
+              <ActivityIndicator color={theme.colors.textInverse} />
+            ) : (
+              <Text style={styles.buttonText}>Войти</Text>
+            )}
+          </Pressable>
+        </View>
+      </View>
+    </KeyboardAvoidingView>
   );
 }
 
-const styles = StyleSheet.create({
-  container: { flex: 1, justifyContent: 'center', padding: 24, gap: 12 },
-  title: { fontSize: 28, fontWeight: '700', textAlign: 'center', marginBottom: 24 },
-  input: { borderWidth: 1, borderColor: '#ccc', borderRadius: 8, padding: 12, fontSize: 16 },
-  errorText: { color: '#dc2626', fontSize: 13 },
-  button: {
-    backgroundColor: '#111827',
-    borderRadius: 8,
-    padding: 14,
-    alignItems: 'center',
-    marginTop: 12,
-  },
-  buttonDisabled: { opacity: 0.6 },
-  buttonText: { color: '#fff', fontWeight: '600', fontSize: 16 },
-});
+function createStyles(theme: ReturnType<typeof useTheme>) {
+  return StyleSheet.create({
+    flex: { flex: 1 },
+    container: {
+      flex: 1,
+      backgroundColor: theme.colors.background,
+      justifyContent: 'center',
+      paddingHorizontal: theme.spacing.xl,
+    },
+    header: {
+      alignItems: 'center',
+      marginBottom: theme.spacing['3xl'],
+    },
+    logoBadge: {
+      width: 64,
+      height: 64,
+      borderRadius: 18,
+      backgroundColor: theme.colors.primary,
+      alignItems: 'center',
+      justifyContent: 'center',
+      marginBottom: theme.spacing.lg,
+    },
+    logoLetter: {
+      color: theme.colors.textInverse,
+      fontSize: theme.fontSizes['2xl'],
+      fontWeight: theme.fontWeights.bold,
+    },
+    title: {
+      fontSize: theme.fontSizes['2xl'],
+      fontWeight: theme.fontWeights.bold,
+      color: theme.colors.textPrimary,
+    },
+    subtitle: {
+      fontSize: theme.fontSizes.sm,
+      color: theme.colors.textSecondary,
+      marginTop: theme.spacing.xs,
+    },
+    form: {
+      gap: theme.spacing.lg,
+    },
+    field: {
+      gap: theme.spacing.xs,
+    },
+    label: {
+      fontSize: theme.fontSizes.sm,
+      fontWeight: theme.fontWeights.medium,
+      color: theme.colors.textSecondary,
+    },
+    input: {
+      borderWidth: 1,
+      borderColor: theme.colors.border,
+      backgroundColor: theme.colors.surface,
+      borderRadius: 12,
+      paddingHorizontal: theme.spacing.md,
+      paddingVertical: theme.spacing.md,
+      fontSize: theme.fontSizes.md,
+      color: theme.colors.textPrimary,
+    },
+    inputError: {
+      borderColor: theme.colors.danger,
+    },
+    errorText: {
+      fontSize: theme.fontSizes.xs,
+      color: theme.colors.danger,
+    },
+    errorBanner: {
+      backgroundColor: theme.colors.danger + '15',
+      borderRadius: 10,
+      padding: theme.spacing.md,
+    },
+    errorBannerText: {
+      color: theme.colors.danger,
+      fontSize: theme.fontSizes.sm,
+      textAlign: 'center',
+    },
+    button: {
+      backgroundColor: theme.colors.primary,
+      borderRadius: 12,
+      paddingVertical: theme.spacing.md,
+      alignItems: 'center',
+      marginTop: theme.spacing.sm,
+    },
+    buttonPressed: {
+      backgroundColor: theme.colors.primaryPressed,
+    },
+    buttonText: {
+      color: theme.colors.textInverse,
+      fontWeight: theme.fontWeights.semiBold,
+      fontSize: theme.fontSizes.md,
+    },
+  });
+}

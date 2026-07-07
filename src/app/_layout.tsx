@@ -5,6 +5,7 @@ import { queryClient } from '@/lib/query-client';
 import { supabase } from '@/lib/supabase';
 import { useAuthStore } from '@/stores/auth.store';
 import { fetchCurrentProfile } from '@/features/auth/services/profile.service';
+import { ThemeProvider } from '@/theme/ThemeProvider';
 
 export default function RootLayout() {
   const setSession = useAuthStore((state) => state.setSession);
@@ -61,7 +62,9 @@ export default function RootLayout() {
 
   return (
     <QueryClientProvider client={queryClient}>
-      <Stack />
+      <ThemeProvider>
+        <Stack screenOptions={{ headerShown: false }} />
+      </ThemeProvider>
     </QueryClientProvider>
   );
 }
