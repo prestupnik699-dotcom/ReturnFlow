@@ -119,3 +119,16 @@ export async function updateOrganization(
 
   return { success: true, data: mapOrganization(data) };
 }
+
+export async function deleteOrganization(organizationId: string): Promise<ServiceResult<null>> {
+  const { error } = await supabase
+    .from('organizations')
+    .update({ deleted_at: new Date().toISOString() })
+    .eq('id', organizationId);
+
+  if (error) {
+    return fromCaughtError(error, 'DELETE_ORGANIZATION_FAILED');
+  }
+
+  return { success: true, data: null };
+}

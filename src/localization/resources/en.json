@@ -72,7 +72,13 @@
       "defaultLanguageLabel": "Default language for new team members",
       "save": "Save",
       "saved": "Saved",
-      "loadError": "Couldn't load organization data"
+      "loadError": "Couldn't load organization data",
+      "dangerZoneTitle": "Danger zone",
+      "deleteButton": "Delete organization",
+      "deleteConfirmTitle": "Are you sure?",
+      "deleteConfirmMessage": "This will delete the organization and all its data. This cannot be undone.",
+      "deleteConfirmButton": "Delete",
+      "cancelButton": "Cancel"
     }
   },
   "users": {

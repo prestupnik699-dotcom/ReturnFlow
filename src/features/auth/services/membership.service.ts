@@ -13,7 +13,7 @@ export type Membership = {
 export async function fetchMemberships(profileId: string): Promise<Membership[]> {
   const { data, error } = await supabase
     .from('memberships')
-    .select('id, organization_id, store_id, role')
+    .select('id, organization_id, store_id, role, organizations(id)')
     .eq('profile_id', profileId)
     .is('deleted_at', null);
 
@@ -21,10 +21,15 @@ export async function fetchMemberships(profileId: string): Promise<Membership[]>
     throw error;
   }
 
-  return data.map((row) => ({
-    id: row.id,
-    organizationId: row.organization_id,
-    storeId: row.store_id,
-    role: row.role,
-  }));
+  // If the related organization is soft-deleted, RLS hides it from this
+  // embedded select entirely (it comes back null) — that is how we detect
+  // and drop memberships belonging to a deleted organization here.
+  return data
+    .filter((row) => row.organizations !== null)
+    .map((row) => ({
+      id: row.id,
+      organizationId: row.organization_id,
+      storeId: row.store_id,
+      role: row.role,
+    }));
 }

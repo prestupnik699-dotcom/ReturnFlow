@@ -72,7 +72,13 @@
       "defaultLanguageLabel": "Язык по умолчанию для новых сотрудников",
       "save": "Сохранить",
       "saved": "Сохранено",
-      "loadError": "Не удалось загрузить данные организации"
+      "loadError": "Не удалось загрузить данные организации",
+      "dangerZoneTitle": "Опасная зона",
+      "deleteButton": "Удалить организацию",
+      "deleteConfirmTitle": "Вы уверены?",
+      "deleteConfirmMessage": "Это удалит организацию со всеми данными. Действие необратимо.",
+      "deleteConfirmButton": "Удалить",
+      "cancelButton": "Отмена"
     }
   },
   "users": {

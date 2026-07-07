@@ -72,7 +72,13 @@
       "defaultLanguageLabel": "ახალი თანამშრომლების ნაგულისხმევი ენა",
       "save": "შენახვა",
       "saved": "შენახულია",
-      "loadError": "ვერ ჩაიტვირთა ორგანიზაციის მონაცემები"
+      "loadError": "ვერ ჩაიტვირთა ორგანიზაციის მონაცემები",
+      "dangerZoneTitle": "საშიში ზონა",
+      "deleteButton": "ორგანიზაციის წაშლა",
+      "deleteConfirmTitle": "დარწმუნებული ხართ?",
+      "deleteConfirmMessage": "ეს წაშლის ორგანიზაციას ყველა მონაცემთან ერთად. მოქმედება შეუქცევადია.",
+      "deleteConfirmButton": "წაშლა",
+      "cancelButton": "გაუქმება"
     }
   },
   "users": {

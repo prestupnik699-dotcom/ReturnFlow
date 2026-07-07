@@ -1,5 +1,13 @@
 import { useEffect, useState } from 'react';
-import { View, Text, TextInput, Pressable, ActivityIndicator, StyleSheet } from 'react-native';
+import {
+  View,
+  Text,
+  TextInput,
+  Pressable,
+  ActivityIndicator,
+  StyleSheet,
+  Alert,
+} from 'react-native';
 import { useForm, useWatch, Controller } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useTranslation } from 'react-i18next';
@@ -7,6 +15,7 @@ import { useTheme } from '@/theme/ThemeProvider';
 import { Screen } from '@/components/Screen';
 import { useOrganization } from '@/features/organizations/hooks/useOrganization';
 import { useUpdateOrganization } from '@/features/organizations/hooks/useUpdateOrganization';
+import { useDeleteOrganization } from '@/features/organizations/hooks/useDeleteOrganization';
 import {
   editOrganizationSchema,
   type EditOrganizationFormValues,
@@ -19,6 +28,7 @@ export function OrganizationSettingsScreen() {
   const { t } = useTranslation();
   const { data: organization, isLoading, isError } = useOrganization();
   const mutation = useUpdateOrganization();
+  const deleteMutation = useDeleteOrganization();
   const [saved, setSaved] = useState(false);
   const styles = createStyles(theme);
 
@@ -45,6 +55,21 @@ export function OrganizationSettingsScreen() {
   }, [organization, reset]);
 
   const selectedLanguage = useWatch({ control, name: 'defaultLanguage' });
+
+  const handleDelete = () => {
+    Alert.alert(
+      t('organizations.settings.deleteConfirmTitle'),
+      t('organizations.settings.deleteConfirmMessage'),
+      [
+        { text: t('organizations.settings.cancelButton'), style: 'cancel' },
+        {
+          text: t('organizations.settings.deleteConfirmButton'),
+          style: 'destructive',
+          onPress: () => deleteMutation.mutate(),
+        },
+      ],
+    );
+  };
 
   const onSubmit = (values: EditOrganizationFormValues) => {
     setSaved(false);
@@ -150,6 +175,29 @@ export function OrganizationSettingsScreen() {
             <Text style={styles.buttonText}>{t('organizations.settings.save')}</Text>
           )}
         </Pressable>
+
+        <View style={styles.dangerZone}>
+          <Text style={styles.dangerZoneTitle}>{t('organizations.settings.dangerZoneTitle')}</Text>
+          <Pressable
+            style={({ pressed }) => [
+              styles.deleteButton,
+              (deleteMutation.isPending || pressed) && styles.buttonPressed,
+            ]}
+            onPress={handleDelete}
+            disabled={deleteMutation.isPending}
+          >
+            {deleteMutation.isPending ? (
+              <ActivityIndicator color={theme.colors.danger} />
+            ) : (
+              <Text style={styles.deleteButtonText}>
+                {t('organizations.settings.deleteButton')}
+              </Text>
+            )}
+          </Pressable>
+          {deleteMutation.isError ? (
+            <Text style={styles.errorText}>{deleteMutation.error.message}</Text>
+          ) : null}
+        </View>
       </View>
     </Screen>
   );
@@ -218,6 +266,30 @@ function createStyles(theme: ReturnType<typeof useTheme>) {
     buttonPressed: { backgroundColor: theme.colors.primaryPressed },
     buttonText: {
       color: theme.colors.onPrimary,
+      fontWeight: theme.fontWeights.semiBold,
+      fontSize: theme.fontSizes.md,
+    },
+    dangerZone: {
+      marginTop: theme.spacing.xl,
+      paddingTop: theme.spacing.lg,
+      borderTopWidth: 1,
+      borderTopColor: theme.colors.border,
+      gap: theme.spacing.sm,
+    },
+    dangerZoneTitle: {
+      fontSize: theme.fontSizes.sm,
+      fontWeight: theme.fontWeights.semiBold,
+      color: theme.colors.danger,
+    },
+    deleteButton: {
+      borderWidth: 1,
+      borderColor: theme.colors.danger,
+      borderRadius: 12,
+      paddingVertical: theme.spacing.md,
+      alignItems: 'center',
+    },
+    deleteButtonText: {
+      color: theme.colors.danger,
       fontWeight: theme.fontWeights.semiBold,
       fontSize: theme.fontSizes.md,
     },
