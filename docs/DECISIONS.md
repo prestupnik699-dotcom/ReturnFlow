@@ -236,3 +236,11 @@ API.md requires an invitation code for registration, but invitations can only be
 Logged in + zero memberships → routed to an `(onboarding)` route group with a "Create your organization" screen. Submitting it creates the `organizations` row and, in the same flow, the caller's own `Owner` membership row (allowed by the bootstrap exception already present in the `memberships_insert` RLS policy, D-018). Once that membership exists, the app routes normally into `(app)`.
 
 This is the real implementation of ROADMAP.md Phase 5's "Create Organization" task, not a separate feature bolted on later.
+
+### D-023 — Minimal "Invite User" Screen Pulled Forward from Phase 7
+
+Status: Accepted
+
+Without an in-app way to generate invitation codes, the invitation-based registration flow (API.md) is unusable by real business owners — only reachable via direct SQL access. A minimal version of ROADMAP.md Phase 7's "Invite User" is built now: Owner/Administrator generates an organization-wide invitation code (role selectable, `store_id` left null) and copies it to share manually.
+
+Deferred to when Phase 6 (Stores) and the rest of Phase 7 are built: store-scoped invitations, a list of pending/accepted invitations, revoking a code, and StoreManager's narrower invite ability (already supported by the existing RLS policy, D-018, just not exposed in this minimal UI yet).

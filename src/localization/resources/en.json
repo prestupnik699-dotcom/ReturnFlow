@@ -67,5 +67,16 @@
     "errors": {
       "nameTooShort": "Name is too short"
     }
+  },
+  "users": {
+    "invite": {
+      "title": "Invite a team member",
+      "subtitle": "Generate an invitation code and share it with your employee",
+      "generate": "Generate code",
+      "codeLabel": "Invitation code",
+      "validFor": "Valid for 7 days",
+      "copy": "Copy",
+      "copied": "Copied"
+    }
   }
 }
