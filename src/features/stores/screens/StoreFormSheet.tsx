@@ -1,3 +1,4 @@
+import { useEffect } from 'react';
 import { Modal, View, Text, TextInput, StyleSheet } from 'react-native';
 import { useForm, Controller } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -9,13 +10,18 @@ import {
   type CreateStoreFormValues,
 } from '@/features/stores/validators/create-store.schema';
 import { useCreateStore } from '@/features/stores/hooks/useCreateStore';
+import { useUpdateStore } from '@/features/stores/hooks/useUpdateStore';
+import type { Store } from '@/features/stores/services/stores.service';
 
-type Props = { visible: boolean; onClose: () => void };
+type Props = { visible: boolean; onClose: () => void; store?: Store | null };
 
-export function CreateStoreSheet({ visible, onClose }: Props) {
+export function StoreFormSheet({ visible, onClose, store }: Props) {
   const theme = useTheme();
   const { t } = useTranslation();
-  const mutation = useCreateStore();
+  const createMutation = useCreateStore();
+  const updateMutation = useUpdateStore();
+  const isEditing = !!store;
+  const mutation = isEditing ? updateMutation : createMutation;
   const styles = createStyles(theme);
 
   const {
@@ -28,19 +34,26 @@ export function CreateStoreSheet({ visible, onClose }: Props) {
     defaultValues: { name: '', city: '', address: '', phone: '' },
   });
 
-  const handleClose = () => {
-    reset();
-    mutation.reset();
-    onClose();
-  };
+  useEffect(() => {
+    if (visible) {
+      reset({
+        name: store?.name ?? '',
+        city: store?.city ?? '',
+        address: store?.address ?? '',
+        phone: store?.phone ?? '',
+      });
+      createMutation.reset();
+      updateMutation.reset();
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [visible, store]);
 
   const onSubmit = (values: CreateStoreFormValues) => {
-    mutation.mutate(values, {
-      onSuccess: () => {
-        reset();
-        onClose();
-      },
-    });
+    if (isEditing && store) {
+      updateMutation.mutate({ storeId: store.id, input: values }, { onSuccess: () => onClose() });
+    } else {
+      createMutation.mutate(values, { onSuccess: () => onClose() });
+    }
   };
 
   return (
@@ -48,10 +61,10 @@ export function CreateStoreSheet({ visible, onClose }: Props) {
       visible={visible}
       animationType="slide"
       presentationStyle="pageSheet"
-      onRequestClose={handleClose}
+      onRequestClose={onClose}
     >
       <View style={styles.container}>
-        <Text style={styles.title}>{t('stores.create.title')}</Text>
+        <Text style={styles.title}>{isEditing ? store?.name : t('stores.create.title')}</Text>
 
         <View style={styles.field}>
           <Text style={styles.label}>{t('stores.create.nameLabel')}</Text>
@@ -133,7 +146,7 @@ export function CreateStoreSheet({ visible, onClose }: Props) {
           <Button
             label={t('organizations.settings.cancelButton')}
             variant="outline"
-            onPress={handleClose}
+            onPress={onClose}
             style={styles.flexButton}
           />
           <Button

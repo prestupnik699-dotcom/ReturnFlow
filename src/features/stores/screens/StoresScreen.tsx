@@ -10,6 +10,7 @@ import {
 } from 'react-native';
 import { useTranslation } from 'react-i18next';
 import { Ionicons } from '@expo/vector-icons';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useTheme } from '@/theme/ThemeProvider';
 import { Screen } from '@/components/Screen';
 import { Card } from '@/components/Card';
@@ -17,15 +18,21 @@ import { Button } from '@/components/Button';
 import { RequireRole } from '@/components/RequireRole';
 import { useStores } from '@/features/stores/hooks/useStores';
 import { useDeleteStore } from '@/features/stores/hooks/useDeleteStore';
-import { CreateStoreSheet } from '@/features/stores/screens/CreateStoreSheet';
+import { StoreFormSheet } from '@/features/stores/screens/StoreFormSheet';
+import { useMembershipStore } from '@/stores/membership.store';
 import type { Store } from '@/features/stores/services/stores.service';
 
 export function StoresScreen() {
   const theme = useTheme();
   const { t } = useTranslation();
+  const insets = useSafeAreaInsets();
   const { data: stores, isLoading, isError } = useStores();
   const deleteMutation = useDeleteStore();
-  const [createVisible, setCreateVisible] = useState(false);
+  const activeOrganizationId = useMembershipStore((state) => state.activeOrganizationId);
+  const activeStoreId = useMembershipStore((state) => state.activeStoreId);
+  const setActiveContext = useMembershipStore((state) => state.setActiveContext);
+  const [formVisible, setFormVisible] = useState(false);
+  const [editingStore, setEditingStore] = useState<Store | null>(null);
   const styles = createStyles(theme);
 
   const handleDelete = (store: Store) => {
@@ -37,6 +44,20 @@ export function StoresScreen() {
         onPress: () => deleteMutation.mutate(store.id),
       },
     ]);
+  };
+
+  const handleAdd = () => {
+    setEditingStore(null);
+    setFormVisible(true);
+  };
+
+  const handleEdit = (store: Store) => {
+    setEditingStore(store);
+    setFormVisible(true);
+  };
+
+  const handleSelectActive = (store: Store) => {
+    setActiveContext(activeOrganizationId, store.id);
   };
 
   if (isLoading) {
@@ -53,6 +74,7 @@ export function StoresScreen() {
     <Screen>
       <View style={styles.container}>
         <Text style={styles.title}>{t('stores.title')}</Text>
+        <Text style={styles.hint}>{t('stores.activeStoreHint')}</Text>
 
         {isError ? (
           <Text style={styles.errorText}>{t('organizations.settings.loadError')}</Text>
@@ -65,10 +87,23 @@ export function StoresScreen() {
             renderItem={({ item }) => (
               <Card>
                 <View style={styles.storeRow}>
-                  <View style={styles.storeInfo}>
+                  <Pressable onPress={() => handleSelectActive(item)} hitSlop={8}>
+                    <Ionicons
+                      name={activeStoreId === item.id ? 'radio-button-on' : 'radio-button-off'}
+                      size={22}
+                      color={
+                        activeStoreId === item.id
+                          ? theme.colors.primary
+                          : theme.colors.textSecondary
+                      }
+                    />
+                  </Pressable>
+
+                  <Pressable style={styles.storeInfo} onPress={() => handleEdit(item)}>
                     <Text style={styles.storeName}>{item.name}</Text>
                     {item.city ? <Text style={styles.storeMeta}>{item.city}</Text> : null}
-                  </View>
+                  </Pressable>
+
                   <RequireRole roles={['Owner', 'Administrator']}>
                     <Pressable onPress={() => handleDelete(item)} hitSlop={12}>
                       <Ionicons name="trash-outline" size={20} color={theme.colors.danger} />
@@ -81,23 +116,37 @@ export function StoresScreen() {
         )}
 
         <RequireRole roles={['Owner', 'Administrator']}>
-          <Button label={t('stores.addButton')} icon="add" onPress={() => setCreateVisible(true)} />
+          <Button
+            label={t('stores.addButton')}
+            icon="add"
+            onPress={handleAdd}
+            style={{ marginBottom: insets.bottom || theme.spacing.md }}
+          />
         </RequireRole>
       </View>
 
-      <CreateStoreSheet visible={createVisible} onClose={() => setCreateVisible(false)} />
+      <StoreFormSheet
+        visible={formVisible}
+        onClose={() => setFormVisible(false)}
+        store={editingStore}
+      />
     </Screen>
   );
 }
 
 function createStyles(theme: ReturnType<typeof useTheme>) {
   return StyleSheet.create({
-    container: { flex: 1, gap: theme.spacing.md },
+    container: { flex: 1, gap: theme.spacing.sm },
     center: { flex: 1, justifyContent: 'center', alignItems: 'center' },
     title: {
       fontSize: theme.fontSizes.xl,
       fontWeight: theme.fontWeights.bold,
       color: theme.colors.textPrimary,
+    },
+    hint: {
+      fontSize: theme.fontSizes.xs,
+      color: theme.colors.textSecondary,
+      marginBottom: theme.spacing.xs,
     },
     list: { gap: theme.spacing.sm, paddingBottom: theme.spacing.md },
     empty: { color: theme.colors.textSecondary, textAlign: 'center', marginTop: theme.spacing.xl },
@@ -105,10 +154,10 @@ function createStyles(theme: ReturnType<typeof useTheme>) {
     storeRow: {
       flexDirection: 'row',
       alignItems: 'center',
-      justifyContent: 'space-between',
+      gap: theme.spacing.md,
       padding: theme.spacing.lg,
     },
-    storeInfo: { gap: 2 },
+    storeInfo: { flex: 1, gap: 2 },
     storeName: {
       fontSize: theme.fontSizes.md,
       fontWeight: theme.fontWeights.semiBold,

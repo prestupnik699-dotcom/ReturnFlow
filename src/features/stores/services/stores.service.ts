@@ -88,3 +88,33 @@ export async function deleteStore(storeId: string): Promise<ServiceResult<null>>
 
   return { success: true, data: null };
 }
+
+type UpdateStoreInput = {
+  name: string;
+  city: string;
+  address: string;
+  phone: string;
+};
+
+export async function updateStore(
+  storeId: string,
+  input: UpdateStoreInput,
+): Promise<ServiceResult<Store>> {
+  const { data, error } = await supabase
+    .from('stores')
+    .update({
+      name: input.name,
+      city: input.city || null,
+      address: input.address || null,
+      phone: input.phone || null,
+    })
+    .eq('id', storeId)
+    .select('id, organization_id, name, city, address, phone, is_active')
+    .single();
+
+  if (error || !data) {
+    return fromCaughtError(error, 'UPDATE_STORE_FAILED');
+  }
+
+  return { success: true, data: mapStore(data) };
+}
