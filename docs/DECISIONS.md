@@ -266,3 +266,9 @@ Screens built through Phase 5 each hand-rolled their own buttons and cards with 
 Fixed by building the actual shared component library now: `Button`, `Card`, `MenuRow` in `src/components`, using `@expo/vector-icons` (Ionicons) as the single icon library (ARCHITECTURE.md Section 14 — bundled with Expo, no extra install needed, Material-adjacent style matching MASTER_PROMPT.md's UI principles).
 
 The home screen is rebuilt on these components now. Other existing screens (Login, Register, Invite, Organization/Profile Settings) are retrofitted to use them opportunistically whenever next touched, rather than in one large, risky rewrite — but every screen built from this point forward must use these shared components, not hand-rolled equivalents.
+
+### D-026 — Organization Logo and Brand Color Deferred Together
+
+Status: Accepted
+
+`organizations.primary_color` and `logo_url` are not exposed in Organization Settings yet. Adding a color picker now would repeat the D-024 mistake — `ThemeProvider` currently uses a fixed indigo palette regardless of this field, so the control would look functional but do nothing. Both will be built together once Supabase Storage is wired up (Phase 9) and `ThemeProvider` is extended to apply the organization's chosen color as its actual primary color.

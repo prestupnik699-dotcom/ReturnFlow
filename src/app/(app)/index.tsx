@@ -38,6 +38,11 @@ export default function Index() {
 
         <Card>
           <MenuRow
+            icon="storefront-outline"
+            label={t('stores.title')}
+            onPress={() => router.push('/stores')}
+          />
+          <MenuRow
             icon="person-circle-outline"
             label={t('profile.title')}
             onPress={() => router.push('/profile-settings')}

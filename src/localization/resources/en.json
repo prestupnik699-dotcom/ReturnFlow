@@ -101,5 +101,23 @@
     "themeDark": "Dark",
     "themeSystem": "System",
     "saved": "Saved"
+  },
+  "stores": {
+    "title": "Stores",
+    "empty": "No stores added yet",
+    "addButton": "Add store",
+    "create": {
+      "title": "New store",
+      "nameLabel": "Store name",
+      "cityLabel": "City",
+      "addressLabel": "Address",
+      "phoneLabel": "Phone",
+      "submit": "Add"
+    },
+    "deleteConfirmTitle": "Delete store?",
+    "deleteConfirmMessage": "This will delete the store. This cannot be undone.",
+    "errors": {
+      "nameTooShort": "Name is too short"
+    }
   }
 }

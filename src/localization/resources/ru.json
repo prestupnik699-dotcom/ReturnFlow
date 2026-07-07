@@ -101,5 +101,23 @@
     "themeDark": "Тёмная",
     "themeSystem": "Системная",
     "saved": "Сохранено"
+  },
+  "stores": {
+    "title": "Магазины",
+    "empty": "Пока нет ни одного магазина",
+    "addButton": "Добавить магазин",
+    "create": {
+      "title": "Новый магазин",
+      "nameLabel": "Название магазина",
+      "cityLabel": "Город",
+      "addressLabel": "Адрес",
+      "phoneLabel": "Телефон",
+      "submit": "Добавить"
+    },
+    "deleteConfirmTitle": "Удалить магазин?",
+    "deleteConfirmMessage": "Магазин будет удалён. Действие необратимо.",
+    "errors": {
+      "nameTooShort": "Слишком короткое название"
+    }
   }
 }

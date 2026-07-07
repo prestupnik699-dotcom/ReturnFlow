@@ -101,5 +101,23 @@
     "themeDark": "მუქი",
     "themeSystem": "სისტემური",
     "saved": "შენახულია"
+  },
+  "stores": {
+    "title": "მაღაზიები",
+    "empty": "მაღაზია ჯერ არ არის დამატებული",
+    "addButton": "მაღაზიის დამატება",
+    "create": {
+      "title": "ახალი მაღაზია",
+      "nameLabel": "მაღაზიის სახელი",
+      "cityLabel": "ქალაქი",
+      "addressLabel": "მისამართი",
+      "phoneLabel": "ტელეფონი",
+      "submit": "დამატება"
+    },
+    "deleteConfirmTitle": "წაშალოთ მაღაზია?",
+    "deleteConfirmMessage": "ეს წაშლის მაღაზიას. მოქმედება შეუქცევადია.",
+    "errors": {
+      "nameTooShort": "სახელი ძალიან მოკლეა"
+    }
   }
 }
