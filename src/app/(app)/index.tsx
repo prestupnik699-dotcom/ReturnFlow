@@ -28,6 +28,9 @@ export default function Index() {
         <Link href="/invite-user" style={{ color: theme.colors.primary }}>
           {t('users.invite.title')}
         </Link>
+        <Link href="/organization-settings" style={{ color: theme.colors.primary }}>
+          {t('organizations.settings.title')}
+        </Link>
       </RequireRole>
 
       <Pressable

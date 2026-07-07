@@ -66,6 +66,13 @@
     "submit": "Create",
     "errors": {
       "nameTooShort": "Name is too short"
+    },
+    "settings": {
+      "title": "Organization settings",
+      "defaultLanguageLabel": "Default language",
+      "save": "Save",
+      "saved": "Saved",
+      "loadError": "Couldn't load organization data"
     }
   },
   "users": {
