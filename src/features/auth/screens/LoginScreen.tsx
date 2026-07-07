@@ -12,6 +12,7 @@ import {
 import { useForm, Controller } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useRouter } from 'expo-router';
+import { useTranslation } from 'react-i18next';
 import { loginSchema, type LoginFormValues } from '@/features/auth/validators/login.schema';
 import { login } from '@/features/auth/services/auth.service';
 import { useTheme } from '@/theme/ThemeProvider';
@@ -19,6 +20,7 @@ import { useTheme } from '@/theme/ThemeProvider';
 export function LoginScreen() {
   const router = useRouter();
   const theme = useTheme();
+  const { t } = useTranslation();
   const [submitError, setSubmitError] = useState<string | null>(null);
 
   const {
@@ -52,22 +54,22 @@ export function LoginScreen() {
       <View style={styles.container}>
         <View style={styles.header}>
           <View style={styles.logoBadge}>
-            <Text style={styles.logoLetter}>R</Text>
+            <View style={styles.logoIcon} />
           </View>
-          <Text style={styles.title}>ReturnFlow</Text>
-          <Text style={styles.subtitle}>Управление возвратами поставщикам</Text>
+          <Text style={styles.title}>{t('app.name')}</Text>
+          <Text style={styles.subtitle}>{t('auth.login.subtitle')}</Text>
         </View>
 
         <View style={styles.form}>
           <View style={styles.field}>
-            <Text style={styles.label}>Email</Text>
+            <Text style={styles.label}>{t('auth.login.emailLabel')}</Text>
             <Controller
               control={control}
               name="email"
               render={({ field: { value, onChange, onBlur } }) => (
                 <TextInput
                   style={[styles.input, errors.email && styles.inputError]}
-                  placeholder="you@company.com"
+                  placeholder={t('auth.login.emailPlaceholder')}
                   placeholderTextColor={theme.colors.textSecondary}
                   autoCapitalize="none"
                   autoCorrect={false}
@@ -81,11 +83,13 @@ export function LoginScreen() {
                 />
               )}
             />
-            {errors.email ? <Text style={styles.errorText}>{errors.email.message}</Text> : null}
+            {errors.email ? (
+              <Text style={styles.errorText}>{t(errors.email.message ?? '')}</Text>
+            ) : null}
           </View>
 
           <View style={styles.field}>
-            <Text style={styles.label}>Пароль</Text>
+            <Text style={styles.label}>{t('auth.login.passwordLabel')}</Text>
             <Controller
               control={control}
               name="password"
@@ -105,7 +109,7 @@ export function LoginScreen() {
               )}
             />
             {errors.password ? (
-              <Text style={styles.errorText}>{errors.password.message}</Text>
+              <Text style={styles.errorText}>{t(errors.password.message ?? '')}</Text>
             ) : null}
           </View>
 
@@ -126,7 +130,7 @@ export function LoginScreen() {
             {isSubmitting ? (
               <ActivityIndicator color={theme.colors.textInverse} />
             ) : (
-              <Text style={styles.buttonText}>Войти</Text>
+              <Text style={styles.buttonText}>{t('auth.login.submit')}</Text>
             )}
           </Pressable>
         </View>
@@ -144,10 +148,7 @@ function createStyles(theme: ReturnType<typeof useTheme>) {
       justifyContent: 'center',
       paddingHorizontal: theme.spacing.xl,
     },
-    header: {
-      alignItems: 'center',
-      marginBottom: theme.spacing['3xl'],
-    },
+    header: { alignItems: 'center', marginBottom: theme.spacing['3xl'] },
     logoBadge: {
       width: 64,
       height: 64,
@@ -157,10 +158,13 @@ function createStyles(theme: ReturnType<typeof useTheme>) {
       justifyContent: 'center',
       marginBottom: theme.spacing.lg,
     },
-    logoLetter: {
-      color: theme.colors.textInverse,
-      fontSize: theme.fontSizes['2xl'],
-      fontWeight: theme.fontWeights.bold,
+    logoIcon: {
+      width: 26,
+      height: 26,
+      borderRadius: 13,
+      borderWidth: 4,
+      borderColor: theme.colors.textInverse,
+      borderRightColor: 'transparent',
     },
     title: {
       fontSize: theme.fontSizes['2xl'],
@@ -171,13 +175,10 @@ function createStyles(theme: ReturnType<typeof useTheme>) {
       fontSize: theme.fontSizes.sm,
       color: theme.colors.textSecondary,
       marginTop: theme.spacing.xs,
+      textAlign: 'center',
     },
-    form: {
-      gap: theme.spacing.lg,
-    },
-    field: {
-      gap: theme.spacing.xs,
-    },
+    form: { gap: theme.spacing.lg },
+    field: { gap: theme.spacing.xs },
     label: {
       fontSize: theme.fontSizes.sm,
       fontWeight: theme.fontWeights.medium,
@@ -193,13 +194,8 @@ function createStyles(theme: ReturnType<typeof useTheme>) {
       fontSize: theme.fontSizes.md,
       color: theme.colors.textPrimary,
     },
-    inputError: {
-      borderColor: theme.colors.danger,
-    },
-    errorText: {
-      fontSize: theme.fontSizes.xs,
-      color: theme.colors.danger,
-    },
+    inputError: { borderColor: theme.colors.danger },
+    errorText: { fontSize: theme.fontSizes.xs, color: theme.colors.danger },
     errorBanner: {
       backgroundColor: theme.colors.danger + '15',
       borderRadius: 10,
@@ -217,9 +213,7 @@ function createStyles(theme: ReturnType<typeof useTheme>) {
       alignItems: 'center',
       marginTop: theme.spacing.sm,
     },
-    buttonPressed: {
-      backgroundColor: theme.colors.primaryPressed,
-    },
+    buttonPressed: { backgroundColor: theme.colors.primaryPressed },
     buttonText: {
       color: theme.colors.textInverse,
       fontWeight: theme.fontWeights.semiBold,

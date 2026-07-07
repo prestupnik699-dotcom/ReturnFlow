@@ -218,3 +218,11 @@ DATABASE.md's 18-table list does not include a table to store invitation codes, 
 A new `invitations` table is added: `organization_id`, `store_id` (nullable, same semantics as `memberships.store_id`), `role`, optional `email`, a short human-typeable `code`, `status` (`pending`/`accepted`/`revoked`/`expired`), `invited_by`, `expires_at`, `accepted_at`.
 
 Accepting an invitation is handled by a dedicated `accept_invitation(code)` SQL function (security definer), rather than opening up the `memberships` table's INSERT policy to any newly-signed-up user. This keeps the existing membership-management policies (D-018) unchanged and narrow.
+
+### D-021 — Localization Infrastructure Pulled Forward (correction)
+
+Status: Accepted
+
+Screens built so far used hardcoded Russian text, violating AI_RULES.md Section 15 and ignoring PROJECT_SPECIFICATION.md Section 1.6 (primary language is Georgian, not Russian). This was a mistake, not a deliberate simplification.
+
+i18next infrastructure is built now (ahead of the formal Phase 4 slot, same reasoning as D-020) with `ka` as the default and fallback language, `en` and `ru` as secondary. All screens built from this point on use translation keys exclusively. Existing screens (LoginScreen, index) are corrected in the same step.

@@ -1,0 +1,21 @@
+{
+  "app": { "name": "ReturnFlow" },
+  "auth": {
+    "login": {
+      "subtitle": "Управление возвратами поставщикам",
+      "emailLabel": "Email",
+      "emailPlaceholder": "you@company.com",
+      "passwordLabel": "Пароль",
+      "submit": "Войти"
+    },
+    "errors": {
+      "emailRequired": "Введите email",
+      "emailInvalid": "Некорректный email",
+      "passwordTooShort": "Пароль слишком короткий"
+    }
+  },
+  "common": {
+    "loggedInAs": "Вы вошли как {{name}}",
+    "logOut": "Выйти"
+  }
+}

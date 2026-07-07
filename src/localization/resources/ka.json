@@ -1,0 +1,21 @@
+{
+  "app": { "name": "ReturnFlow" },
+  "auth": {
+    "login": {
+      "subtitle": "მომწოდებლების დაბრუნებების მართვა",
+      "emailLabel": "ელფოსტა",
+      "emailPlaceholder": "you@company.com",
+      "passwordLabel": "პაროლი",
+      "submit": "შესვლა"
+    },
+    "errors": {
+      "emailRequired": "ელფოსტა სავალდებულოა",
+      "emailInvalid": "არასწორი ელფოსტის ფორმატი",
+      "passwordTooShort": "პაროლი ძალიან მოკლეა"
+    }
+  },
+  "common": {
+    "loggedInAs": "შესული ხართ როგორც {{name}}",
+    "logOut": "გასვლა"
+  }
+}

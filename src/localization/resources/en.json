@@ -1,0 +1,21 @@
+{
+  "app": { "name": "ReturnFlow" },
+  "auth": {
+    "login": {
+      "subtitle": "Supplier return management",
+      "emailLabel": "Email",
+      "emailPlaceholder": "you@company.com",
+      "passwordLabel": "Password",
+      "submit": "Log In"
+    },
+    "errors": {
+      "emailRequired": "Email is required",
+      "emailInvalid": "Invalid email address",
+      "passwordTooShort": "Password is too short"
+    }
+  },
+  "common": {
+    "loggedInAs": "Logged in as {{name}}",
+    "logOut": "Log Out"
+  }
+}
