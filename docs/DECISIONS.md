@@ -244,3 +244,15 @@ Status: Accepted
 Without an in-app way to generate invitation codes, the invitation-based registration flow (API.md) is unusable by real business owners — only reachable via direct SQL access. A minimal version of ROADMAP.md Phase 7's "Invite User" is built now: Owner/Administrator generates an organization-wide invitation code (role selectable, `store_id` left null) and copies it to share manually.
 
 Deferred to when Phase 6 (Stores) and the rest of Phase 7 are built: store-scoped invitations, a list of pending/accepted invitations, revoking a code, and StoreManager's narrower invite ability (already supported by the existing RLS policy, D-018, just not exposed in this minimal UI yet).
+
+### D-024 — Fixing Duplicate-Looking Language Settings
+
+Status: Accepted (correction)
+
+`organizations.default_language` (D-008) existed in the schema but had no actual effect anywhere in the app, making its settings-screen picker look like a pointless duplicate of the personal `profiles.language` picker on Profile Settings.
+
+Fixed by giving it real behavior: `accept_invitation()` now seeds the new member's `profiles.language` from the organization's `default_language` at the moment they join. From then on it is purely a personal setting the user controls themselves via Profile Settings, independent of the organization.
+
+UI labels were also strengthened to make the distinction unmistakable without relying on a small hint text: the organization-level picker is labeled "Default language for new team members," the personal one "My language."
+
+This kind of visually-duplicate-but-semantically-different control must be caught during design, not after building both screens — a UI element that looks like another one anywhere in the app needs either a genuinely distinct label or should not exist as a separate control at all.
