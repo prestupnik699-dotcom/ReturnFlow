@@ -20,16 +20,22 @@ export function ProfileSettingsScreen() {
   const mode = useThemeStore((state) => state.mode);
   const setMode = useThemeStore((state) => state.setMode);
   const [saved, setSaved] = useState(false);
+  const [saveError, setSaveError] = useState<string | null>(null);
   const styles = createStyles(theme);
 
   const persist = async (nextLanguage: AppLanguage, nextMode: ThemeMode) => {
     if (!profile) return;
     setSaved(false);
+    setSaveError(null);
     try {
       await updateProfileSettings(profile.id, { language: nextLanguage, theme: nextMode });
       setSaved(true);
-    } catch {
-      // Non-critical: the UI already reflects the change locally.
+    } catch (error) {
+      const message = error instanceof Error ? error.message : 'Unknown error';
+      if (__DEV__) {
+        console.error('Failed to persist profile settings:', error);
+      }
+      setSaveError(message);
     }
   };
 
@@ -88,6 +94,12 @@ export function ProfileSettingsScreen() {
           </View>
         </View>
 
+        {saveError ? (
+          <View style={styles.errorBanner}>
+            <Text style={styles.errorBannerText}>{saveError}</Text>
+          </View>
+        ) : null}
+
         {saved ? (
           <View style={styles.successBanner}>
             <Text style={styles.successText}>{t('profile.saved')}</Text>
@@ -123,6 +135,16 @@ function createStyles(theme: ReturnType<typeof useTheme>) {
     chipActive: { backgroundColor: theme.colors.primary, borderColor: theme.colors.primary },
     chipText: { color: theme.colors.textPrimary, fontWeight: theme.fontWeights.medium },
     chipTextActive: { color: theme.colors.onPrimary },
+    errorBanner: {
+      backgroundColor: theme.colors.danger + '15',
+      borderRadius: 10,
+      padding: theme.spacing.md,
+    },
+    errorBannerText: {
+      color: theme.colors.danger,
+      fontSize: theme.fontSizes.sm,
+      textAlign: 'center',
+    },
     successBanner: {
       backgroundColor: theme.colors.success + '15',
       borderRadius: 10,
