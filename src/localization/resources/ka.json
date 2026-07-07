@@ -6,12 +6,29 @@
       "emailLabel": "ელფოსტა",
       "emailPlaceholder": "you@company.com",
       "passwordLabel": "პაროლი",
-      "submit": "შესვლა"
+      "submit": "შესვლა",
+      "noAccount": "არ გაქვთ ანგარიში?",
+      "registerLink": "რეგისტრაცია"
+    },
+    "register": {
+      "title": "რეგისტრაცია",
+      "firstNameLabel": "სახელი",
+      "lastNameLabel": "გვარი",
+      "invitationCodeLabel": "მოწვევის კოდი",
+      "confirmPasswordLabel": "გაიმეორეთ პაროლი",
+      "submit": "რეგისტრაცია",
+      "haveAccount": "უკვე გაქვთ ანგარიში?",
+      "logInLink": "შესვლა"
     },
     "errors": {
       "emailRequired": "ელფოსტა სავალდებულოა",
       "emailInvalid": "არასწორი ელფოსტის ფორმატი",
-      "passwordTooShort": "პაროლი ძალიან მოკლეა"
+      "passwordTooShort": "პაროლი ძალიან მოკლეა",
+      "firstNameRequired": "სახელი სავალდებულოა",
+      "lastNameRequired": "გვარი სავალდებულოა",
+      "confirmPasswordRequired": "გაიმეორეთ პაროლი",
+      "invitationCodeRequired": "მოწვევის კოდი სავალდებულოა",
+      "passwordsDoNotMatch": "პაროლები არ ემთხვევა"
     }
   },
   "common": {

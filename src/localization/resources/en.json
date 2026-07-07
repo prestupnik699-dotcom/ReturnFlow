@@ -6,12 +6,29 @@
       "emailLabel": "Email",
       "emailPlaceholder": "you@company.com",
       "passwordLabel": "Password",
-      "submit": "Log In"
+      "submit": "Log In",
+      "noAccount": "Don't have an account?",
+      "registerLink": "Sign up"
+    },
+    "register": {
+      "title": "Create account",
+      "firstNameLabel": "First name",
+      "lastNameLabel": "Last name",
+      "invitationCodeLabel": "Invitation code",
+      "confirmPasswordLabel": "Confirm password",
+      "submit": "Create account",
+      "haveAccount": "Already have an account?",
+      "logInLink": "Log in"
     },
     "errors": {
       "emailRequired": "Email is required",
       "emailInvalid": "Invalid email address",
-      "passwordTooShort": "Password is too short"
+      "passwordTooShort": "Password is too short",
+      "firstNameRequired": "First name is required",
+      "lastNameRequired": "Last name is required",
+      "confirmPasswordRequired": "Please confirm your password",
+      "invitationCodeRequired": "Invitation code is required",
+      "passwordsDoNotMatch": "Passwords do not match"
     }
   },
   "common": {

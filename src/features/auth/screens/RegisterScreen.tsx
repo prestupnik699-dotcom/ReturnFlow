@@ -8,17 +8,21 @@ import {
   StyleSheet,
   KeyboardAvoidingView,
   Platform,
+  ScrollView,
 } from 'react-native';
 import { useForm, Controller } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useRouter } from 'expo-router';
 import { useTranslation } from 'react-i18next';
-import { loginSchema, type LoginFormValues } from '@/features/auth/validators/login.schema';
-import { login } from '@/features/auth/services/auth.service';
+import {
+  registerSchema,
+  type RegisterFormValues,
+} from '@/features/auth/validators/register.schema';
+import { register } from '@/features/auth/services/auth.service';
 import { useTheme } from '@/theme/ThemeProvider';
 import { Logo } from '@/components/Logo';
 
-export function LoginScreen() {
+export function RegisterScreen() {
   const router = useRouter();
   const theme = useTheme();
   const { t } = useTranslation();
@@ -28,14 +32,21 @@ export function LoginScreen() {
     control,
     handleSubmit,
     formState: { errors, isSubmitting },
-  } = useForm<LoginFormValues>({
-    resolver: zodResolver(loginSchema),
-    defaultValues: { email: '', password: '' },
+  } = useForm<RegisterFormValues>({
+    resolver: zodResolver(registerSchema),
+    defaultValues: {
+      firstName: '',
+      lastName: '',
+      email: '',
+      password: '',
+      confirmPassword: '',
+      invitationCode: '',
+    },
   });
 
-  const onSubmit = async (values: LoginFormValues) => {
+  const onSubmit = async (values: RegisterFormValues) => {
     setSubmitError(null);
-    const result = await login(values.email, values.password);
+    const result = await register(values);
 
     if (!result.success) {
       setSubmitError(result.error.message);
@@ -47,70 +58,61 @@ export function LoginScreen() {
 
   const styles = createStyles(theme);
 
+  const fields: {
+    name: keyof RegisterFormValues;
+    labelKey: string;
+    secure?: boolean;
+    autoCapitalize?: 'none' | 'words';
+    keyboardType?: 'default' | 'email-address';
+  }[] = [
+    { name: 'firstName', labelKey: 'auth.register.firstNameLabel', autoCapitalize: 'words' },
+    { name: 'lastName', labelKey: 'auth.register.lastNameLabel', autoCapitalize: 'words' },
+    { name: 'email', labelKey: 'auth.login.emailLabel', keyboardType: 'email-address' },
+    { name: 'password', labelKey: 'auth.login.passwordLabel', secure: true },
+    { name: 'confirmPassword', labelKey: 'auth.register.confirmPasswordLabel', secure: true },
+    { name: 'invitationCode', labelKey: 'auth.register.invitationCodeLabel' },
+  ];
+
   return (
     <KeyboardAvoidingView
       style={styles.flex}
       behavior={Platform.OS === 'ios' ? 'padding' : undefined}
     >
-      <View style={styles.container}>
+      <ScrollView contentContainerStyle={styles.container} keyboardShouldPersistTaps="handled">
         <View style={styles.header}>
-          <Logo size={64} />
-          <Text style={styles.title}>{t('app.name')}</Text>
-          <Text style={styles.subtitle}>{t('auth.login.subtitle')}</Text>
+          <Logo size={56} />
+          <Text style={styles.title}>{t('auth.register.title')}</Text>
         </View>
 
         <View style={styles.form}>
-          <View style={styles.field}>
-            <Text style={styles.label}>{t('auth.login.emailLabel')}</Text>
-            <Controller
-              control={control}
-              name="email"
-              render={({ field: { value, onChange, onBlur } }) => (
-                <TextInput
-                  style={[styles.input, errors.email && styles.inputError]}
-                  placeholder={t('auth.login.emailPlaceholder')}
-                  placeholderTextColor={theme.colors.textSecondary}
-                  autoCapitalize="none"
-                  autoCorrect={false}
-                  keyboardType="email-address"
-                  value={value}
-                  onChangeText={(text) => {
-                    onChange(text);
-                    setSubmitError(null);
-                  }}
-                  onBlur={onBlur}
-                />
-              )}
-            />
-            {errors.email ? (
-              <Text style={styles.errorText}>{t(errors.email.message ?? '')}</Text>
-            ) : null}
-          </View>
-
-          <View style={styles.field}>
-            <Text style={styles.label}>{t('auth.login.passwordLabel')}</Text>
-            <Controller
-              control={control}
-              name="password"
-              render={({ field: { value, onChange, onBlur } }) => (
-                <TextInput
-                  style={[styles.input, errors.password && styles.inputError]}
-                  placeholder="••••••••"
-                  placeholderTextColor={theme.colors.textSecondary}
-                  secureTextEntry
-                  value={value}
-                  onChangeText={(text) => {
-                    onChange(text);
-                    setSubmitError(null);
-                  }}
-                  onBlur={onBlur}
-                />
-              )}
-            />
-            {errors.password ? (
-              <Text style={styles.errorText}>{t(errors.password.message ?? '')}</Text>
-            ) : null}
-          </View>
+          {fields.map((field) => (
+            <View style={styles.field} key={field.name}>
+              <Text style={styles.label}>{t(field.labelKey)}</Text>
+              <Controller
+                control={control}
+                name={field.name}
+                render={({ field: { value, onChange, onBlur } }) => (
+                  <TextInput
+                    style={[styles.input, errors[field.name] && styles.inputError]}
+                    placeholderTextColor={theme.colors.textSecondary}
+                    autoCapitalize={field.autoCapitalize ?? 'none'}
+                    autoCorrect={false}
+                    keyboardType={field.keyboardType ?? 'default'}
+                    secureTextEntry={field.secure}
+                    value={value}
+                    onChangeText={(text) => {
+                      onChange(text);
+                      setSubmitError(null);
+                    }}
+                    onBlur={onBlur}
+                  />
+                )}
+              />
+              {errors[field.name] ? (
+                <Text style={styles.errorText}>{t(errors[field.name]?.message ?? '')}</Text>
+              ) : null}
+            </View>
+          ))}
 
           {submitError ? (
             <View style={styles.errorBanner}>
@@ -129,18 +131,18 @@ export function LoginScreen() {
             {isSubmitting ? (
               <ActivityIndicator color={theme.colors.onPrimary} />
             ) : (
-              <Text style={styles.buttonText}>{t('auth.login.submit')}</Text>
+              <Text style={styles.buttonText}>{t('auth.register.submit')}</Text>
             )}
           </Pressable>
 
           <View style={styles.footer}>
-            <Text style={styles.footerText}>{t('auth.login.noAccount')} </Text>
-            <Pressable onPress={() => router.replace('/register')}>
-              <Text style={styles.footerLink}>{t('auth.login.registerLink')}</Text>
+            <Text style={styles.footerText}>{t('auth.register.haveAccount')} </Text>
+            <Pressable onPress={() => router.replace('/login')}>
+              <Text style={styles.footerLink}>{t('auth.register.logInLink')}</Text>
             </Pressable>
           </View>
         </View>
-      </View>
+      </ScrollView>
     </KeyboardAvoidingView>
   );
 }
@@ -149,24 +151,19 @@ function createStyles(theme: ReturnType<typeof useTheme>) {
   return StyleSheet.create({
     flex: { flex: 1 },
     container: {
-      flex: 1,
+      flexGrow: 1,
       backgroundColor: theme.colors.background,
       justifyContent: 'center',
       paddingHorizontal: theme.spacing.xl,
+      paddingVertical: theme.spacing['2xl'],
     },
-    header: { alignItems: 'center', marginBottom: theme.spacing['3xl'] },
+    header: { alignItems: 'center', marginBottom: theme.spacing['2xl'], gap: theme.spacing.sm },
     title: {
-      fontSize: theme.fontSizes['2xl'],
+      fontSize: theme.fontSizes.xl,
       fontWeight: theme.fontWeights.bold,
       color: theme.colors.textPrimary,
     },
-    subtitle: {
-      fontSize: theme.fontSizes.sm,
-      color: theme.colors.textSecondary,
-      marginTop: theme.spacing.xs,
-      textAlign: 'center',
-    },
-    form: { gap: theme.spacing.lg },
+    form: { gap: theme.spacing.md },
     field: { gap: theme.spacing.xs },
     label: {
       fontSize: theme.fontSizes.sm,
@@ -208,7 +205,7 @@ function createStyles(theme: ReturnType<typeof useTheme>) {
       fontWeight: theme.fontWeights.semiBold,
       fontSize: theme.fontSizes.md,
     },
-    footer: { flexDirection: 'row', justifyContent: 'center', marginTop: theme.spacing.lg },
+    footer: { flexDirection: 'row', justifyContent: 'center', marginTop: theme.spacing.md },
     footerText: { color: theme.colors.textSecondary, fontSize: theme.fontSizes.sm },
     footerLink: {
       color: theme.colors.primary,

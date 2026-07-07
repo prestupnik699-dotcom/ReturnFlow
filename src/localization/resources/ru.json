@@ -6,12 +6,29 @@
       "emailLabel": "Email",
       "emailPlaceholder": "you@company.com",
       "passwordLabel": "Пароль",
-      "submit": "Войти"
+      "submit": "Войти",
+      "noAccount": "Нет аккаунта?",
+      "registerLink": "Зарегистрироваться"
+    },
+    "register": {
+      "title": "Регистрация",
+      "firstNameLabel": "Имя",
+      "lastNameLabel": "Фамилия",
+      "invitationCodeLabel": "Код приглашения",
+      "confirmPasswordLabel": "Повторите пароль",
+      "submit": "Зарегистрироваться",
+      "haveAccount": "Уже есть аккаунт?",
+      "logInLink": "Войти"
     },
     "errors": {
       "emailRequired": "Введите email",
       "emailInvalid": "Некорректный email",
-      "passwordTooShort": "Пароль слишком короткий"
+      "passwordTooShort": "Пароль слишком короткий",
+      "firstNameRequired": "Введите имя",
+      "lastNameRequired": "Введите фамилию",
+      "confirmPasswordRequired": "Повторите пароль",
+      "invitationCodeRequired": "Введите код приглашения",
+      "passwordsDoNotMatch": "Пароли не совпадают"
     }
   },
   "common": {
