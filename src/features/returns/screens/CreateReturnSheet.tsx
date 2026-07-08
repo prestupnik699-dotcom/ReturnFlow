@@ -63,7 +63,11 @@ export function CreateReturnSheet({ visible, onClose }: Props) {
       presentationStyle="pageSheet"
       onRequestClose={handleClose}
     >
-      <ScrollView contentContainerStyle={styles.container} keyboardShouldPersistTaps="handled">
+      <ScrollView
+        style={styles.scrollView}
+        contentContainerStyle={styles.container}
+        keyboardShouldPersistTaps="handled"
+      >
         <Text style={styles.title}>{t('returns.create.title')}</Text>
 
         <View style={styles.field}>
@@ -191,11 +195,8 @@ export function CreateReturnSheet({ visible, onClose }: Props) {
 
 function createStyles(theme: ReturnType<typeof useTheme>) {
   return StyleSheet.create({
-    container: {
-      backgroundColor: theme.colors.background,
-      padding: theme.spacing.xl,
-      gap: theme.spacing.md,
-    },
+    scrollView: { flex: 1, backgroundColor: theme.colors.background },
+    container: { padding: theme.spacing.xl, gap: theme.spacing.md },
     title: {
       fontSize: theme.fontSizes.xl,
       fontWeight: theme.fontWeights.bold,

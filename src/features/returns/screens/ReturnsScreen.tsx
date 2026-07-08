@@ -9,6 +9,7 @@ import {
   Pressable,
 } from 'react-native';
 import { useTranslation } from 'react-i18next';
+import { Ionicons } from '@expo/vector-icons';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import Animated, { FadeInDown } from 'react-native-reanimated';
 import { useTheme } from '@/theme/ThemeProvider';
@@ -95,6 +96,7 @@ export function ReturnsScreen() {
               onPress={() => setStatusFilter(status)}
               style={[styles.filterChip, statusFilter === status && styles.filterChipActive]}
             >
+              <View style={[styles.filterDot, { backgroundColor: statusColors[status] }]} />
               <Text
                 style={[
                   styles.filterChipText,
@@ -131,13 +133,27 @@ export function ReturnsScreen() {
                     />
                     <View style={styles.info}>
                       <Text style={styles.itemTitle}>{item.title}</Text>
-                      <Text style={styles.meta}>
-                        {item.supplierName} · {t('returns.create.quantityLabel')}: {item.quantity}
+                      <View style={styles.metaRow}>
+                        <Ionicons
+                          name="cube-outline"
+                          size={12}
+                          color={theme.colors.textSecondary}
+                        />
+                        <Text style={styles.meta}>{item.supplierName}</Text>
+                        <Text style={styles.metaDot}>·</Text>
+                        <Text style={styles.meta}>×{item.quantity}</Text>
+                      </View>
+                    </View>
+                    <View
+                      style={[
+                        styles.statusPill,
+                        { backgroundColor: statusColors[item.status] + '22' },
+                      ]}
+                    >
+                      <Text style={[styles.statusPillText, { color: statusColors[item.status] }]}>
+                        {statusLabels[item.status]}
                       </Text>
                     </View>
-                    <Text style={[styles.statusBadge, { color: statusColors[item.status] }]}>
-                      {statusLabels[item.status]}
-                    </Text>
                   </View>
                 </Card>
               </Animated.View>
@@ -174,12 +190,16 @@ function createStyles(theme: ReturnType<typeof useTheme>) {
     emptyStateText: { color: theme.colors.textSecondary, textAlign: 'center' },
     filterRow: { gap: theme.spacing.sm, paddingVertical: theme.spacing.xs },
     filterChip: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      gap: 6,
       borderWidth: 1,
       borderColor: theme.colors.border,
       borderRadius: 20,
       paddingHorizontal: theme.spacing.md,
       paddingVertical: theme.spacing.sm,
     },
+    filterDot: { width: 6, height: 6, borderRadius: 3 },
     filterChipActive: { backgroundColor: theme.colors.primary, borderColor: theme.colors.primary },
     filterChipText: { color: theme.colors.textPrimary, fontSize: theme.fontSizes.sm },
     filterChipTextActive: { color: theme.colors.onPrimary, fontWeight: theme.fontWeights.semiBold },
@@ -194,17 +214,21 @@ function createStyles(theme: ReturnType<typeof useTheme>) {
       borderTopLeftRadius: 16,
       borderBottomLeftRadius: 16,
     },
-    info: { flex: 1, gap: 2, paddingVertical: theme.spacing.lg },
+    info: { flex: 1, gap: 3, paddingVertical: theme.spacing.lg },
     itemTitle: {
       fontSize: theme.fontSizes.md,
       fontWeight: theme.fontWeights.semiBold,
       color: theme.colors.textPrimary,
     },
+    metaRow: { flexDirection: 'row', alignItems: 'center', gap: 4 },
     meta: { fontSize: theme.fontSizes.sm, color: theme.colors.textSecondary },
-    statusBadge: {
-      fontSize: theme.fontSizes.xs,
-      fontWeight: theme.fontWeights.semiBold,
+    metaDot: { fontSize: theme.fontSizes.sm, color: theme.colors.textSecondary },
+    statusPill: {
+      borderRadius: 8,
+      paddingHorizontal: theme.spacing.sm,
+      paddingVertical: 4,
       marginRight: theme.spacing.lg,
     },
+    statusPillText: { fontSize: theme.fontSizes.xs, fontWeight: theme.fontWeights.semiBold },
   });
 }
