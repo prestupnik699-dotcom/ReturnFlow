@@ -63,6 +63,11 @@ export default function Index() {
               onPress={() => router.push('/invite-user')}
             />
             <MenuRow
+              icon="people-outline"
+              label={t('users.team.title')}
+              onPress={() => router.push('/team')}
+            />
+            <MenuRow
               icon="business-outline"
               label={t('organizations.settings.title')}
               onPress={() => router.push('/organization-settings')}

@@ -91,6 +91,19 @@
       "validFor": "მოქმედებს 7 დღე",
       "copy": "კოპირება",
       "copied": "დაკოპირდა"
+    },
+    "team": {
+      "title": "გუნდი",
+      "you": "(თქვენ)",
+      "statusActive": "აქტიური",
+      "statusVacation": "შვებულებაში",
+      "statusBlocked": "დაბლოკილი",
+      "roleLabel": "როლი",
+      "statusLabel": "სტატუსი",
+      "removeAccess": "წვდომის მოხსნა",
+      "removeConfirmTitle": "მოხსნათ წვდომა?",
+      "removeConfirmMessage": "ეს ადამიანი დაკარგავს წვდომას ორგანიზაციაზე.",
+      "empty": "გუნდის წევრები არ არის"
     }
   },
   "profile": {

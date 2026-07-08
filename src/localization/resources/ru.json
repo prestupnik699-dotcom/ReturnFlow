@@ -91,6 +91,19 @@
       "validFor": "Действителен 7 дней",
       "copy": "Скопировать",
       "copied": "Скопировано"
+    },
+    "team": {
+      "title": "Команда",
+      "you": "(Вы)",
+      "statusActive": "Активен",
+      "statusVacation": "В отпуске",
+      "statusBlocked": "Заблокирован",
+      "roleLabel": "Роль",
+      "statusLabel": "Статус",
+      "removeAccess": "Убрать доступ",
+      "removeConfirmTitle": "Убрать доступ?",
+      "removeConfirmMessage": "Этот человек потеряет доступ к организации.",
+      "empty": "В команде пока никого нет"
     }
   },
   "profile": {

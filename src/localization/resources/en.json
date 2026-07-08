@@ -91,6 +91,19 @@
       "validFor": "Valid for 7 days",
       "copy": "Copy",
       "copied": "Copied"
+    },
+    "team": {
+      "title": "Team",
+      "you": "(You)",
+      "statusActive": "Active",
+      "statusVacation": "On vacation",
+      "statusBlocked": "Blocked",
+      "roleLabel": "Role",
+      "statusLabel": "Status",
+      "removeAccess": "Remove access",
+      "removeConfirmTitle": "Remove access?",
+      "removeConfirmMessage": "This person will lose access to the organization.",
+      "empty": "No team members yet"
     }
   },
   "profile": {
