@@ -280,3 +280,14 @@ Status: Accepted
 `react-native-reanimated` (already installed as part of the Expo template) is the standard for all UI animation going forward — never the older `Animated` API, to keep one consistent, performant approach across the app.
 
 Baseline applied now: the shared `Button` component (D-025) gets a subtle press-scale animation, affecting every button in the app at once. List screens get a staggered fade/slide-in entrance for their items (applied first to Stores, the pattern to reuse for Suppliers and Returns lists later).
+
+### D-028 — Real Role Hierarchy and Enforced Blocked Status (security fix)
+
+Status: Accepted (correction)
+
+Two real holes found: (1) `Administrator` had equal power to `Owner` everywhere — able to change an Owner's role, block their profile, or remove their access entirely, which D-018's matrix never actually intended to allow; (2) `profiles.status = 'blocked'` had zero real effect anywhere in RLS — it was set and displayed, but never checked.
+
+Fixed:
+- All four RLS helper functions now also require the caller's own `profiles.status != 'blocked'`. A blocked user loses all access immediately, everywhere.
+- `Administrator` can no longer create, modify the role of, change the status of, or remove access for any `Owner` or `Administrator` membership — only `Owner` can. This applies to `memberships_insert`, `memberships_update`, `invitations_insert` RLS policies and the `set_member_status` function.
+- A new trigger (`enforce_last_owner_protection`) blocks removing or demoting the last remaining active `Owner` of an organization, regardless of who attempts it — including the Owner themselves.
