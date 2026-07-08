@@ -133,5 +133,26 @@
       "nameTooShort": "Слишком короткое название"
     },
     "activeStoreHint": "Нажмите на магазин, чтобы отредактировать, на кружок — чтобы сделать активным"
+  },
+  "suppliers": {
+    "title": "Поставщики",
+    "searchPlaceholder": "Поиск по названию",
+    "favoritesOnly": "Только избранные",
+    "empty": "Пока нет ни одного поставщика",
+    "addButton": "Добавить поставщика",
+    "create": {
+      "title": "Новый поставщик",
+      "nameLabel": "Название поставщика",
+      "contactNameLabel": "Контактное лицо",
+      "phoneLabel": "Телефон",
+      "emailLabel": "Email",
+      "submit": "Добавить"
+    },
+    "deleteConfirmTitle": "Удалить поставщика?",
+    "deleteConfirmMessage": "Поставщик будет удалён. Действие необратимо.",
+    "errors": {
+      "nameTooShort": "Слишком короткое название",
+      "emailInvalid": "Некорректный email"
+    }
   }
 }

@@ -133,5 +133,26 @@
       "nameTooShort": "სახელი ძალიან მოკლეა"
     },
     "activeStoreHint": "შეეხეთ მაღაზიას რედაქტირებისთვის, შეეხეთ წრეს — რომ დანიშნოთ აქტიურ მაღაზიად"
+  },
+  "suppliers": {
+    "title": "მომწოდებლები",
+    "searchPlaceholder": "ძებნა სახელით",
+    "favoritesOnly": "მხოლოდ რჩეულები",
+    "empty": "მომწოდებელი ჯერ არ არის დამატებული",
+    "addButton": "მომწოდებლის დამატება",
+    "create": {
+      "title": "ახალი მომწოდებელი",
+      "nameLabel": "მომწოდებლის სახელი",
+      "contactNameLabel": "საკონტაქტო პირი",
+      "phoneLabel": "ტელეფონი",
+      "emailLabel": "ელფოსტა",
+      "submit": "დამატება"
+    },
+    "deleteConfirmTitle": "წაშალოთ მომწოდებელი?",
+    "deleteConfirmMessage": "ეს წაშლის მომწოდებელს. მოქმედება შეუქცევადია.",
+    "errors": {
+      "nameTooShort": "სახელი ძალიან მოკლეა",
+      "emailInvalid": "არასწორი ელფოსტა"
+    }
   }
 }

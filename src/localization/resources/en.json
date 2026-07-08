@@ -133,5 +133,26 @@
       "nameTooShort": "Name is too short"
     },
     "activeStoreHint": "Tap a store to edit it, tap the circle to make it your active store"
+  },
+  "suppliers": {
+    "title": "Suppliers",
+    "searchPlaceholder": "Search by name",
+    "favoritesOnly": "Favorites only",
+    "empty": "No suppliers added yet",
+    "addButton": "Add supplier",
+    "create": {
+      "title": "New supplier",
+      "nameLabel": "Supplier name",
+      "contactNameLabel": "Contact person",
+      "phoneLabel": "Phone",
+      "emailLabel": "Email",
+      "submit": "Add"
+    },
+    "deleteConfirmTitle": "Delete supplier?",
+    "deleteConfirmMessage": "This will delete the supplier. This cannot be undone.",
+    "errors": {
+      "nameTooShort": "Name is too short",
+      "emailInvalid": "Invalid email"
+    }
   }
 }
