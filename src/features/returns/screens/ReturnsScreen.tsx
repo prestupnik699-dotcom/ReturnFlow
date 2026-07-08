@@ -188,7 +188,7 @@ function createStyles(theme: ReturnType<typeof useTheme>) {
       color: theme.colors.textPrimary,
     },
     emptyStateText: { color: theme.colors.textSecondary, textAlign: 'center' },
-    filterRow: { gap: 8, paddingVertical: 2 },
+    filterRow: { flexDirection: 'row', alignItems: 'center', gap: 8, paddingVertical: 2 },
     filterChip: {
       flexDirection: 'row',
       alignItems: 'center',
