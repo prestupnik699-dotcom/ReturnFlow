@@ -2,12 +2,13 @@ import { Modal, View, Text, Pressable, StyleSheet, Alert } from 'react-native';
 import { useTranslation } from 'react-i18next';
 import { useTheme } from '@/theme/ThemeProvider';
 import { Button } from '@/components/Button';
+import { useTeamMembers } from '@/features/users/hooks/useTeamMembers';
 import {
   useUpdateMemberRole,
   useSetMemberStatus,
   useRemoveMemberAccess,
 } from '@/features/users/hooks/useTeamMutations';
-import type { TeamMember, ProfileStatus } from '@/features/users/services/team.service';
+import type { ProfileStatus } from '@/features/users/services/team.service';
 import type { MembershipRole } from '@/features/auth/services/membership.service';
 import { useAuthStore } from '@/stores/auth.store';
 
@@ -21,16 +22,19 @@ const ROLES: MembershipRole[] = [
 ];
 const STATUSES: ProfileStatus[] = ['active', 'vacation', 'blocked'];
 
-type Props = { visible: boolean; onClose: () => void; member: TeamMember | null };
+type Props = { visible: boolean; onClose: () => void; membershipId: string | null };
 
-export function TeamMemberSheet({ visible, onClose, member }: Props) {
+export function TeamMemberSheet({ visible, onClose, membershipId }: Props) {
   const theme = useTheme();
   const { t } = useTranslation();
+  const { data: members } = useTeamMembers();
   const currentProfile = useAuthStore((state) => state.profile);
   const roleMutation = useUpdateMemberRole();
   const statusMutation = useSetMemberStatus();
   const removeMutation = useRemoveMemberAccess();
   const styles = createStyles(theme);
+
+  const member = members?.find((m) => m.membershipId === membershipId) ?? null;
 
   if (!member) return null;
 
@@ -86,6 +90,9 @@ export function TeamMemberSheet({ visible, onClose, member }: Props) {
               </Pressable>
             ))}
           </View>
+          {roleMutation.isError ? (
+            <Text style={styles.errorText}>{roleMutation.error.message}</Text>
+          ) : null}
         </View>
 
         <View style={styles.field}>
@@ -108,6 +115,9 @@ export function TeamMemberSheet({ visible, onClose, member }: Props) {
               </Pressable>
             ))}
           </View>
+          {statusMutation.isError ? (
+            <Text style={styles.errorText}>{statusMutation.error.message}</Text>
+          ) : null}
         </View>
 
         {!isSelf ? (
@@ -117,6 +127,10 @@ export function TeamMemberSheet({ visible, onClose, member }: Props) {
             onPress={handleRemove}
             loading={removeMutation.isPending}
           />
+        ) : null}
+
+        {removeMutation.isError ? (
+          <Text style={styles.errorText}>{removeMutation.error.message}</Text>
         ) : null}
 
         <Button label={t('common.back')} variant="outline" onPress={onClose} />
@@ -156,5 +170,6 @@ function createStyles(theme: ReturnType<typeof useTheme>) {
     chipDisabled: { opacity: 0.4 },
     chipText: { color: theme.colors.textPrimary, fontSize: theme.fontSizes.sm },
     chipTextActive: { color: theme.colors.onPrimary, fontWeight: theme.fontWeights.semiBold },
+    errorText: { fontSize: theme.fontSizes.xs, color: theme.colors.danger },
   });
 }

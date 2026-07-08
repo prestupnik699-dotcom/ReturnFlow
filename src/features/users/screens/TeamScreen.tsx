@@ -7,13 +7,13 @@ import { Screen } from '@/components/Screen';
 import { Card } from '@/components/Card';
 import { useTeamMembers } from '@/features/users/hooks/useTeamMembers';
 import { TeamMemberSheet } from '@/features/users/screens/TeamMemberSheet';
-import type { TeamMember, ProfileStatus } from '@/features/users/services/team.service';
+import type { ProfileStatus } from '@/features/users/services/team.service';
 
 export function TeamScreen() {
   const theme = useTheme();
   const { t } = useTranslation();
   const { data: members, isLoading, isError } = useTeamMembers();
-  const [selected, setSelected] = useState<TeamMember | null>(null);
+  const [selectedId, setSelectedId] = useState<string | null>(null);
   const styles = createStyles(theme);
 
   const statusLabels: Record<ProfileStatus, string> = {
@@ -54,7 +54,7 @@ export function TeamScreen() {
             renderItem={({ item, index }) => (
               <Animated.View entering={FadeInDown.delay(index * 60).duration(300)}>
                 <Card>
-                  <View style={styles.row} onTouchEnd={() => setSelected(item)}>
+                  <View style={styles.row} onTouchEnd={() => setSelectedId(item.membershipId)}>
                     <View style={styles.info}>
                       <Text style={styles.name}>
                         {item.firstName} {item.lastName}
@@ -75,7 +75,11 @@ export function TeamScreen() {
         )}
       </View>
 
-      <TeamMemberSheet visible={!!selected} onClose={() => setSelected(null)} member={selected} />
+      <TeamMemberSheet
+        visible={!!selectedId}
+        onClose={() => setSelectedId(null)}
+        membershipId={selectedId}
+      />
     </Screen>
   );
 }
