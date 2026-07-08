@@ -1,13 +1,5 @@
 import { useState } from 'react';
-import {
-  View,
-  Text,
-  FlatList,
-  ActivityIndicator,
-  StyleSheet,
-  ScrollView,
-  Pressable,
-} from 'react-native';
+import { View, Text, FlatList, ActivityIndicator, StyleSheet, Pressable } from 'react-native';
 import { useTranslation } from 'react-i18next';
 import { Ionicons } from '@expo/vector-icons';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
@@ -75,11 +67,7 @@ export function ReturnsScreen() {
       <View style={styles.container}>
         <Text style={styles.title}>{t('returns.title')}</Text>
 
-        <ScrollView
-          horizontal
-          showsHorizontalScrollIndicator={false}
-          contentContainerStyle={styles.filterRow}
-        >
+        <View style={styles.filterRow}>
           <Pressable
             onPress={() => setStatusFilter(null)}
             style={[styles.filterChip, statusFilter === null && styles.filterChipActive]}
@@ -107,7 +95,7 @@ export function ReturnsScreen() {
               </Text>
             </Pressable>
           ))}
-        </ScrollView>
+        </View>
 
         {isLoading ? (
           <View style={styles.center}>
@@ -161,16 +149,17 @@ export function ReturnsScreen() {
           />
         )}
 
-        {!suppliers || suppliers.length === 0 ? (
-          <Text style={styles.warningText}>{t('returns.noSuppliers')}</Text>
-        ) : (
-          <Button
-            label={t('returns.addButton')}
-            icon="add"
-            onPress={() => setFormVisible(true)}
-            style={{ marginBottom: insets.bottom + theme.spacing.lg }}
-          />
-        )}
+        <View style={[styles.footer, { paddingBottom: insets.bottom }]}>
+          {!suppliers || suppliers.length === 0 ? (
+            <Text style={styles.warningText}>{t('returns.noSuppliers')}</Text>
+          ) : (
+            <Button
+              label={t('returns.addButton')}
+              icon="add"
+              onPress={() => setFormVisible(true)}
+            />
+          )}
+        </View>
       </View>
 
       <CreateReturnSheet visible={formVisible} onClose={() => setFormVisible(false)} />
@@ -180,15 +169,22 @@ export function ReturnsScreen() {
 
 function createStyles(theme: ReturnType<typeof useTheme>) {
   return StyleSheet.create({
-    container: { flex: 1, gap: theme.spacing.sm },
+    container: { flex: 1 },
     center: { flex: 1, justifyContent: 'center', alignItems: 'center', padding: theme.spacing.xl },
     title: {
       fontSize: theme.fontSizes.xl,
       fontWeight: theme.fontWeights.bold,
       color: theme.colors.textPrimary,
+      marginBottom: theme.spacing.md,
     },
     emptyStateText: { color: theme.colors.textSecondary, textAlign: 'center' },
-    filterRow: { flexDirection: 'row', alignItems: 'center', gap: 8, paddingVertical: 2 },
+    filterRow: {
+      flexDirection: 'row',
+      flexWrap: 'wrap',
+      alignItems: 'center',
+      gap: 8,
+      marginBottom: theme.spacing.md,
+    },
     filterChip: {
       flexDirection: 'row',
       alignItems: 'center',
@@ -210,6 +206,7 @@ function createStyles(theme: ReturnType<typeof useTheme>) {
     empty: { color: theme.colors.textSecondary, textAlign: 'center', marginTop: theme.spacing.xl },
     errorText: { color: theme.colors.danger, textAlign: 'center' },
     warningText: { color: theme.colors.warning, textAlign: 'center', fontSize: theme.fontSizes.sm },
+    footer: { paddingTop: theme.spacing.sm },
     row: { flexDirection: 'row', alignItems: 'center', gap: theme.spacing.md },
     priorityBar: {
       width: 4,
