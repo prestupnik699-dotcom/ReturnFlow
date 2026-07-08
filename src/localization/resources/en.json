@@ -156,5 +156,35 @@
     },
     "sortByName": "By name",
     "sortByRecent": "Recently added"
+  },
+  "returns": {
+    "title": "Returns",
+    "noStore": "Select an active store before creating a return",
+    "noSuppliers": "Add at least one supplier first",
+    "empty": "No returns yet",
+    "addButton": "Add return",
+    "statusPending": "Pending",
+    "statusUrgent": "Urgent",
+    "statusReturned": "Returned",
+    "statusArchived": "Archived",
+    "priorityLow": "Low",
+    "priorityNormal": "Normal",
+    "priorityHigh": "High",
+    "priorityCritical": "Critical",
+    "create": {
+      "title": "New return",
+      "supplierLabel": "Supplier",
+      "titleLabel": "Title",
+      "quantityLabel": "Quantity",
+      "reasonLabel": "Reason",
+      "priorityLabel": "Priority",
+      "submit": "Create"
+    },
+    "errors": {
+      "supplierRequired": "Select a supplier",
+      "titleTooShort": "Title is too short",
+      "quantityInvalid": "Quantity must be at least 1"
+    },
+    "statusAll": "All"
   }
 }

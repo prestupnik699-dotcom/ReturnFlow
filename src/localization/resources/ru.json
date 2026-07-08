@@ -156,5 +156,35 @@
     },
     "sortByName": "По названию",
     "sortByRecent": "Недавно добавленные"
+  },
+  "returns": {
+    "title": "Возвраты",
+    "noStore": "Выберите активный магазин перед созданием возврата",
+    "noSuppliers": "Сначала добавьте хотя бы одного поставщика",
+    "empty": "Пока нет ни одного возврата",
+    "addButton": "Добавить возврат",
+    "statusPending": "В ожидании",
+    "statusUrgent": "Срочно",
+    "statusReturned": "Возвращено",
+    "statusArchived": "Архив",
+    "priorityLow": "Низкий",
+    "priorityNormal": "Обычный",
+    "priorityHigh": "Высокий",
+    "priorityCritical": "Критический",
+    "create": {
+      "title": "Новый возврат",
+      "supplierLabel": "Поставщик",
+      "titleLabel": "Название",
+      "quantityLabel": "Количество",
+      "reasonLabel": "Причина",
+      "priorityLabel": "Приоритет",
+      "submit": "Создать"
+    },
+    "errors": {
+      "supplierRequired": "Выберите поставщика",
+      "titleTooShort": "Слишком короткое название",
+      "quantityInvalid": "Количество должно быть не меньше 1"
+    },
+    "statusAll": "Все"
   }
 }

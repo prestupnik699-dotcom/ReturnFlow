@@ -156,5 +156,35 @@
     },
     "sortByName": "სახელით",
     "sortByRecent": "ბოლოს დამატებული"
+  },
+  "returns": {
+    "title": "დაბრუნებები",
+    "noStore": "აირჩიეთ აქტიური მაღაზია, სანამ დაბრუნებას შექმნით",
+    "noSuppliers": "ჯერ დაამატეთ მინიმუმ ერთი მომწოდებელი",
+    "empty": "დაბრუნებები ჯერ არ არის",
+    "addButton": "დაბრუნების დამატება",
+    "statusPending": "მოლოდინში",
+    "statusUrgent": "სასწრაფო",
+    "statusReturned": "დაბრუნებული",
+    "statusArchived": "არქივი",
+    "priorityLow": "დაბალი",
+    "priorityNormal": "ჩვეულებრივი",
+    "priorityHigh": "მაღალი",
+    "priorityCritical": "კრიტიკული",
+    "create": {
+      "title": "ახალი დაბრუნება",
+      "supplierLabel": "მომწოდებელი",
+      "titleLabel": "დასახელება",
+      "quantityLabel": "რაოდენობა",
+      "reasonLabel": "მიზეზი",
+      "priorityLabel": "პრიორიტეტი",
+      "submit": "შექმნა"
+    },
+    "errors": {
+      "supplierRequired": "აირჩიეთ მომწოდებელი",
+      "titleTooShort": "დასახელება ძალიან მოკლეა",
+      "quantityInvalid": "რაოდენობა უნდა იყოს მინიმუმ 1"
+    },
+    "statusAll": "ყველა"
   }
 }
