@@ -40,7 +40,6 @@ export type SupplierSort = 'name' | 'recent';
 
 type FetchSuppliersInput = {
   organizationId: string;
-  search?: string;
   favoritesOnly?: boolean;
   sort?: SupplierSort;
 };
@@ -56,13 +55,6 @@ export async function fetchSuppliers(
 
   if (input.favoritesOnly) {
     query = query.eq('favorite', true);
-  }
-
-  if (input.search && input.search.trim().length > 0) {
-    query = query.textSearch('search_vector', input.search.trim(), {
-      type: 'websearch',
-      config: 'simple',
-    });
   }
 
   query =

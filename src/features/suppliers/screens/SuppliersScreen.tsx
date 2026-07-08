@@ -18,7 +18,6 @@ import { Screen } from '@/components/Screen';
 import { Card } from '@/components/Card';
 import { Button } from '@/components/Button';
 import { RequireRole } from '@/components/RequireRole';
-import { useDebouncedValue } from '@/hooks/useDebouncedValue';
 import { useSuppliers } from '@/features/suppliers/hooks/useSuppliers';
 import {
   useDeleteSupplier,
@@ -34,9 +33,13 @@ export function SuppliersScreen() {
   const { t } = useTranslation();
   const insets = useSafeAreaInsets();
   const [searchInput, setSearchInput] = useState('');
-  const search = useDebouncedValue(searchInput, 300);
   const [favoritesOnly, setFavoritesOnly] = useState(false);
-  const { data: suppliers, isLoading, isError } = useSuppliers(search, favoritesOnly, 'name');
+  const { data: allSuppliers, isLoading, isError } = useSuppliers(favoritesOnly, 'name');
+
+  const query = searchInput.trim().toLowerCase();
+  const suppliers = query
+    ? allSuppliers?.filter((s) => s.name.toLowerCase().includes(query))
+    : allSuppliers;
   const deleteMutation = useDeleteSupplier();
   const favoriteMutation = useToggleSupplierFavorite();
   const [formVisible, setFormVisible] = useState(false);
