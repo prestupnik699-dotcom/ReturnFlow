@@ -153,6 +153,8 @@
     "errors": {
       "nameTooShort": "სახელი ძალიან მოკლეა",
       "emailInvalid": "არასწორი ელფოსტა"
-    }
+    },
+    "sortByName": "სახელით",
+    "sortByRecent": "ბოლოს დამატებული"
   }
 }

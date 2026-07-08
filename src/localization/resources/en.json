@@ -153,6 +153,8 @@
     "errors": {
       "nameTooShort": "Name is too short",
       "emailInvalid": "Invalid email"
-    }
+    },
+    "sortByName": "By name",
+    "sortByRecent": "Recently added"
   }
 }

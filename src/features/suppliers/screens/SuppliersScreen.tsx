@@ -24,7 +24,7 @@ import {
   useToggleSupplierFavorite,
 } from '@/features/suppliers/hooks/useSupplierMutations';
 import { SupplierFormSheet } from '@/features/suppliers/screens/SupplierFormSheet';
-import type { Supplier } from '@/features/suppliers/services/suppliers.service';
+import type { Supplier, SupplierSort } from '@/features/suppliers/services/suppliers.service';
 
 const EDIT_ROLES = ['Owner', 'Administrator', 'StoreManager', 'Receiver'] as const;
 
@@ -34,7 +34,8 @@ export function SuppliersScreen() {
   const insets = useSafeAreaInsets();
   const [searchInput, setSearchInput] = useState('');
   const [favoritesOnly, setFavoritesOnly] = useState(false);
-  const { data: allSuppliers, isLoading, isError } = useSuppliers(favoritesOnly, 'name');
+  const [sort, setSort] = useState<SupplierSort>('name');
+  const { data: allSuppliers, isLoading, isError } = useSuppliers(favoritesOnly, sort);
 
   const query = searchInput.trim().toLowerCase();
   const suppliers = query
@@ -83,14 +84,26 @@ export function SuppliersScreen() {
           />
         </View>
 
-        <Pressable style={styles.favoriteToggle} onPress={() => setFavoritesOnly((v) => !v)}>
-          <Ionicons
-            name={favoritesOnly ? 'star' : 'star-outline'}
-            size={18}
-            color={theme.colors.warning}
-          />
-          <Text style={styles.favoriteToggleText}>{t('suppliers.favoritesOnly')}</Text>
-        </Pressable>
+        <View style={styles.filterRow}>
+          <Pressable style={styles.favoriteToggle} onPress={() => setFavoritesOnly((v) => !v)}>
+            <Ionicons
+              name={favoritesOnly ? 'star' : 'star-outline'}
+              size={18}
+              color={theme.colors.warning}
+            />
+            <Text style={styles.favoriteToggleText}>{t('suppliers.favoritesOnly')}</Text>
+          </Pressable>
+
+          <Pressable
+            style={styles.sortToggle}
+            onPress={() => setSort((s) => (s === 'name' ? 'recent' : 'name'))}
+          >
+            <Ionicons name="swap-vertical" size={16} color={theme.colors.textSecondary} />
+            <Text style={styles.sortToggleText}>
+              {sort === 'name' ? t('suppliers.sortByName') : t('suppliers.sortByRecent')}
+            </Text>
+          </Pressable>
+        </View>
 
         {isLoading ? (
           <View style={styles.center}>
@@ -186,13 +199,11 @@ function createStyles(theme: ReturnType<typeof useTheme>) {
       color: theme.colors.textPrimary,
       fontSize: theme.fontSizes.md,
     },
-    favoriteToggle: {
-      flexDirection: 'row',
-      alignItems: 'center',
-      gap: theme.spacing.xs,
-      alignSelf: 'flex-start',
-    },
+    filterRow: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' },
+    favoriteToggle: { flexDirection: 'row', alignItems: 'center', gap: theme.spacing.xs },
     favoriteToggleText: { fontSize: theme.fontSizes.sm, color: theme.colors.textSecondary },
+    sortToggle: { flexDirection: 'row', alignItems: 'center', gap: theme.spacing.xs },
+    sortToggleText: { fontSize: theme.fontSizes.sm, color: theme.colors.textSecondary },
     list: { gap: theme.spacing.sm, paddingBottom: theme.spacing.md },
     empty: { color: theme.colors.textSecondary, textAlign: 'center', marginTop: theme.spacing.xl },
     errorText: { color: theme.colors.danger, textAlign: 'center' },

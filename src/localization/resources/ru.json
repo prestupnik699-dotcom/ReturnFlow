@@ -153,6 +153,8 @@
     "errors": {
       "nameTooShort": "Слишком короткое название",
       "emailInvalid": "Некорректный email"
-    }
+    },
+    "sortByName": "По названию",
+    "sortByRecent": "Недавно добавленные"
   }
 }
