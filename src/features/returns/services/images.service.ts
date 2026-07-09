@@ -1,7 +1,6 @@
 import { ImageManipulator, SaveFormat } from 'expo-image-manipulator';
-import * as FileSystem from 'expo-file-system';
+import { File } from 'expo-file-system';
 import * as Crypto from 'expo-crypto';
-import { decode } from 'base64-arraybuffer';
 import { supabase } from '@/lib/supabase';
 import { fromCaughtError, type ServiceResult } from '@/lib/result';
 
@@ -32,11 +31,9 @@ async function resizeAndCompress(uri: string, width: number, compress: number) {
   return rendered.saveAsync({ compress, format: SaveFormat.JPEG });
 }
 
-async function readAsArrayBuffer(uri: string): Promise<ArrayBuffer> {
-  const base64 = await FileSystem.readAsStringAsync(uri, {
-    encoding: FileSystem.EncodingType.Base64,
-  });
-  return decode(base64);
+async function readAsBytes(uri: string): Promise<Uint8Array> {
+  const file = new File(uri);
+  return file.bytes();
 }
 
 export async function uploadReturnImage(
@@ -52,14 +49,14 @@ export async function uploadReturnImage(
     const imagePath = `${returnItemId}/${id}.jpg`;
     const thumbnailPath = `${returnItemId}/${id}_thumb.jpg`;
 
-    const [fullBuffer, thumbBuffer] = await Promise.all([
-      readAsArrayBuffer(full.uri),
-      readAsArrayBuffer(thumb.uri),
+    const [fullBytes, thumbBytes] = await Promise.all([
+      readAsBytes(full.uri),
+      readAsBytes(thumb.uri),
     ]);
 
     const { error: uploadError } = await supabase.storage
       .from('returns')
-      .upload(imagePath, fullBuffer, { contentType: 'image/jpeg' });
+      .upload(imagePath, fullBytes, { contentType: 'image/jpeg' });
 
     if (uploadError) {
       return fromCaughtError(uploadError, 'UPLOAD_IMAGE_FAILED');
@@ -67,7 +64,7 @@ export async function uploadReturnImage(
 
     const { error: thumbError } = await supabase.storage
       .from('returns')
-      .upload(thumbnailPath, thumbBuffer, { contentType: 'image/jpeg' });
+      .upload(thumbnailPath, thumbBytes, { contentType: 'image/jpeg' });
 
     if (thumbError) {
       return fromCaughtError(thumbError, 'UPLOAD_THUMBNAIL_FAILED');
