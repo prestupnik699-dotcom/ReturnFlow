@@ -185,6 +185,16 @@
       "titleTooShort": "დასახელება ძალიან მოკლეა",
       "quantityInvalid": "რაოდენობა უნდა იყოს მინიმუმ 1"
     },
-    "statusAll": "ყველა"
+    "statusAll": "ყველა",
+    "detail": {
+      "historyTitle": "ისტორია",
+      "markReturned": "აღინიშნოს დაბრუნებულად",
+      "archive": "არქივში გადატანა",
+      "restore": "აღდგენა"
+    },
+    "history": {
+      "created": "შეიქმნა",
+      "statusChanged": "სტატუსი შეიცვალა"
+    }
   }
 }

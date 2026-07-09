@@ -185,6 +185,16 @@
       "titleTooShort": "Title is too short",
       "quantityInvalid": "Quantity must be at least 1"
     },
-    "statusAll": "All"
+    "statusAll": "All",
+    "detail": {
+      "historyTitle": "History",
+      "markReturned": "Mark as returned",
+      "archive": "Archive",
+      "restore": "Restore"
+    },
+    "history": {
+      "created": "Created",
+      "statusChanged": "Status changed"
+    }
   }
 }

@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { View, Text, FlatList, ActivityIndicator, StyleSheet, Pressable } from 'react-native';
 import { useTranslation } from 'react-i18next';
+import { useRouter } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import Animated, { FadeInDown } from 'react-native-reanimated';
@@ -19,6 +20,7 @@ const STATUSES: ReturnStatus[] = ['pending', 'urgent', 'returned', 'archived'];
 export function ReturnsScreen() {
   const theme = useTheme();
   const { t } = useTranslation();
+  const router = useRouter();
   const insets = useSafeAreaInsets();
   const activeStoreId = useMembershipStore((state) => state.activeStoreId);
   const [statusFilter, setStatusFilter] = useState<ReturnStatus | null>(null);
@@ -111,39 +113,41 @@ export function ReturnsScreen() {
             ListEmptyComponent={<Text style={styles.empty}>{t('returns.empty')}</Text>}
             renderItem={({ item, index }) => (
               <Animated.View entering={FadeInDown.delay(index * 50).duration(250)}>
-                <Card>
-                  <View style={styles.row}>
-                    <View
-                      style={[
-                        styles.priorityBar,
-                        { backgroundColor: priorityColors[item.priority] },
-                      ]}
-                    />
-                    <View style={styles.info}>
-                      <Text style={styles.itemTitle}>{item.title}</Text>
-                      <View style={styles.metaRow}>
-                        <Ionicons
-                          name="cube-outline"
-                          size={12}
-                          color={theme.colors.textSecondary}
-                        />
-                        <Text style={styles.meta}>{item.supplierName}</Text>
-                        <Text style={styles.metaDot}>·</Text>
-                        <Text style={styles.meta}>×{item.quantity}</Text>
+                <Pressable onPress={() => router.push(`/return/${item.id}`)}>
+                  <Card>
+                    <View style={styles.row}>
+                      <View
+                        style={[
+                          styles.priorityBar,
+                          { backgroundColor: priorityColors[item.priority] },
+                        ]}
+                      />
+                      <View style={styles.info}>
+                        <Text style={styles.itemTitle}>{item.title}</Text>
+                        <View style={styles.metaRow}>
+                          <Ionicons
+                            name="cube-outline"
+                            size={12}
+                            color={theme.colors.textSecondary}
+                          />
+                          <Text style={styles.meta}>{item.supplierName}</Text>
+                          <Text style={styles.metaDot}>·</Text>
+                          <Text style={styles.meta}>×{item.quantity}</Text>
+                        </View>
+                      </View>
+                      <View
+                        style={[
+                          styles.statusPill,
+                          { backgroundColor: statusColors[item.status] + '22' },
+                        ]}
+                      >
+                        <Text style={[styles.statusPillText, { color: statusColors[item.status] }]}>
+                          {statusLabels[item.status]}
+                        </Text>
                       </View>
                     </View>
-                    <View
-                      style={[
-                        styles.statusPill,
-                        { backgroundColor: statusColors[item.status] + '22' },
-                      ]}
-                    >
-                      <Text style={[styles.statusPillText, { color: statusColors[item.status] }]}>
-                        {statusLabels[item.status]}
-                      </Text>
-                    </View>
-                  </View>
-                </Card>
+                  </Card>
+                </Pressable>
               </Animated.View>
             )}
           />

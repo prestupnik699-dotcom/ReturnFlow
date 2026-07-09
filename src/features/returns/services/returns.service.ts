@@ -6,9 +6,11 @@ export type ReturnPriority = 'low' | 'normal' | 'high' | 'critical';
 
 export type ReturnItem = {
   id: string;
+  organizationId: string;
   storeId: string;
   supplierId: string;
   supplierName: string;
+  createdBy: string;
   title: string;
   quantity: number;
   reason: string | null;
@@ -21,8 +23,10 @@ export type ReturnItem = {
 
 type ReturnItemRow = {
   id: string;
+  organization_id: string;
   store_id: string;
   supplier_id: string;
+  created_by: string;
   title: string;
   quantity: number;
   reason: string | null;
@@ -37,9 +41,11 @@ type ReturnItemRow = {
 function mapReturn(row: ReturnItemRow): ReturnItem {
   return {
     id: row.id,
+    organizationId: row.organization_id,
     storeId: row.store_id,
     supplierId: row.supplier_id,
     supplierName: row.suppliers?.name ?? '',
+    createdBy: row.created_by,
     title: row.title,
     quantity: row.quantity,
     reason: row.reason,
@@ -52,7 +58,7 @@ function mapReturn(row: ReturnItemRow): ReturnItem {
 }
 
 const SELECT_FIELDS =
-  'id, store_id, supplier_id, title, quantity, reason, comment, status, priority, created_at, returned_at, suppliers(name)';
+  'id, organization_id, store_id, supplier_id, created_by, title, quantity, reason, comment, status, priority, created_at, returned_at, suppliers(name)';
 
 type FetchReturnsInput = {
   storeId: string;
@@ -80,6 +86,20 @@ export async function fetchReturns(input: FetchReturnsInput): Promise<ServiceRes
   }
 
   return { success: true, data: (data as unknown as ReturnItemRow[]).map(mapReturn) };
+}
+
+export async function fetchReturnById(returnId: string): Promise<ServiceResult<ReturnItem>> {
+  const { data, error } = await supabase
+    .from('return_items')
+    .select(SELECT_FIELDS)
+    .eq('id', returnId)
+    .single();
+
+  if (error || !data) {
+    return fromCaughtError(error, 'FETCH_RETURN_FAILED');
+  }
+
+  return { success: true, data: mapReturn(data as unknown as ReturnItemRow) };
 }
 
 type CreateReturnInput = {
@@ -114,4 +134,46 @@ export async function createReturn(input: CreateReturnInput): Promise<ServiceRes
   }
 
   return { success: true, data: mapReturn(data as unknown as ReturnItemRow) };
+}
+
+export async function markReturnAsReturned(
+  returnId: string,
+  profileId: string,
+): Promise<ServiceResult<null>> {
+  const { error } = await supabase
+    .from('return_items')
+    .update({ status: 'returned', returned_by: profileId, returned_at: new Date().toISOString() })
+    .eq('id', returnId);
+
+  if (error) {
+    return fromCaughtError(error, 'MARK_RETURNED_FAILED');
+  }
+
+  return { success: true, data: null };
+}
+
+export async function archiveReturn(returnId: string): Promise<ServiceResult<null>> {
+  const { error } = await supabase
+    .from('return_items')
+    .update({ status: 'archived' })
+    .eq('id', returnId);
+
+  if (error) {
+    return fromCaughtError(error, 'ARCHIVE_RETURN_FAILED');
+  }
+
+  return { success: true, data: null };
+}
+
+export async function restoreReturn(returnId: string): Promise<ServiceResult<null>> {
+  const { error } = await supabase
+    .from('return_items')
+    .update({ status: 'pending' })
+    .eq('id', returnId);
+
+  if (error) {
+    return fromCaughtError(error, 'RESTORE_RETURN_FAILED');
+  }
+
+  return { success: true, data: null };
 }
