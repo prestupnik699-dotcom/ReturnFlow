@@ -1,5 +1,7 @@
 import { ImageManipulator, SaveFormat } from 'expo-image-manipulator';
+import * as FileSystem from 'expo-file-system';
 import * as Crypto from 'expo-crypto';
+import { decode } from 'base64-arraybuffer';
 import { supabase } from '@/lib/supabase';
 import { fromCaughtError, type ServiceResult } from '@/lib/result';
 
@@ -30,6 +32,13 @@ async function resizeAndCompress(uri: string, width: number, compress: number) {
   return rendered.saveAsync({ compress, format: SaveFormat.JPEG });
 }
 
+async function readAsArrayBuffer(uri: string): Promise<ArrayBuffer> {
+  const base64 = await FileSystem.readAsStringAsync(uri, {
+    encoding: FileSystem.EncodingType.Base64,
+  });
+  return decode(base64);
+}
+
 export async function uploadReturnImage(
   returnItemId: string,
   localUri: string,
@@ -43,12 +52,14 @@ export async function uploadReturnImage(
     const imagePath = `${returnItemId}/${id}.jpg`;
     const thumbnailPath = `${returnItemId}/${id}_thumb.jpg`;
 
-    const fullBlob = await (await fetch(full.uri)).blob();
-    const thumbBlob = await (await fetch(thumb.uri)).blob();
+    const [fullBuffer, thumbBuffer] = await Promise.all([
+      readAsArrayBuffer(full.uri),
+      readAsArrayBuffer(thumb.uri),
+    ]);
 
     const { error: uploadError } = await supabase.storage
       .from('returns')
-      .upload(imagePath, fullBlob, { contentType: 'image/jpeg' });
+      .upload(imagePath, fullBuffer, { contentType: 'image/jpeg' });
 
     if (uploadError) {
       return fromCaughtError(uploadError, 'UPLOAD_IMAGE_FAILED');
@@ -56,7 +67,7 @@ export async function uploadReturnImage(
 
     const { error: thumbError } = await supabase.storage
       .from('returns')
-      .upload(thumbnailPath, thumbBlob, { contentType: 'image/jpeg' });
+      .upload(thumbnailPath, thumbBuffer, { contentType: 'image/jpeg' });
 
     if (thumbError) {
       return fromCaughtError(thumbError, 'UPLOAD_THUMBNAIL_FAILED');
