@@ -190,11 +190,16 @@
       "historyTitle": "ისტორია",
       "markReturned": "აღინიშნოს დაბრუნებულად",
       "archive": "არქივში გადატანა",
-      "restore": "აღდგენა"
+      "restore": "აღდგენა",
+      "commentsTitle": "კომენტარები",
+      "commentPlaceholder": "დაწერეთ კომენტარი",
+      "commentSend": "გაგზავნა",
+      "noComments": "კომენტარები ჯერ არ არის"
     },
     "history": {
       "created": "შეიქმნა",
-      "statusChanged": "სტატუსი შეიცვალა"
+      "statusChanged": "სტატუსი შეიცვალა",
+      "comment_added": "დაემატა კომენტარი"
     }
   }
 }

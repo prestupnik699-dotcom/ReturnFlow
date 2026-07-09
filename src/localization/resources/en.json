@@ -190,11 +190,16 @@
       "historyTitle": "History",
       "markReturned": "Mark as returned",
       "archive": "Archive",
-      "restore": "Restore"
+      "restore": "Restore",
+      "commentsTitle": "Comments",
+      "commentPlaceholder": "Write a comment",
+      "commentSend": "Send",
+      "noComments": "No comments yet"
     },
     "history": {
       "created": "Created",
-      "statusChanged": "Status changed"
+      "statusChanged": "Status changed",
+      "comment_added": "Comment added"
     }
   }
 }

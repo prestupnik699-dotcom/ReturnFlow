@@ -190,11 +190,16 @@
       "historyTitle": "История",
       "markReturned": "Отметить возвращённым",
       "archive": "Архивировать",
-      "restore": "Восстановить"
+      "restore": "Восстановить",
+      "commentsTitle": "Комментарии",
+      "commentPlaceholder": "Написать комментарий",
+      "commentSend": "Отправить",
+      "noComments": "Пока нет комментариев"
     },
     "history": {
       "created": "Создан",
-      "statusChanged": "Статус изменён"
+      "statusChanged": "Статус изменён",
+      "comment_added": "Добавлен комментарий"
     }
   }
 }

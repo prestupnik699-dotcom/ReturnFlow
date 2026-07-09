@@ -1,4 +1,5 @@
-import { View, Text, ScrollView, ActivityIndicator, StyleSheet } from 'react-native';
+import { useState } from 'react';
+import { View, Text, ScrollView, ActivityIndicator, StyleSheet, TextInput } from 'react-native';
 import { useTranslation } from 'react-i18next';
 import { useTheme } from '@/theme/ThemeProvider';
 import { Screen } from '@/components/Screen';
@@ -6,6 +7,8 @@ import { Card } from '@/components/Card';
 import { Button } from '@/components/Button';
 import { useReturn } from '@/features/returns/hooks/useReturn';
 import { useReturnHistory } from '@/features/returns/hooks/useReturnHistory';
+import { useReturnComments } from '@/features/returns/hooks/useReturnComments';
+import { useCreateReturnComment } from '@/features/returns/hooks/useCreateReturnComment';
 import {
   useMarkReturned,
   useArchiveReturn,
@@ -31,10 +34,13 @@ export function ReturnDetailScreen({ returnId }: Props) {
   const profile = useAuthStore((state) => state.profile);
   const { data: item, isLoading, isError } = useReturn(returnId);
   const { data: history } = useReturnHistory(returnId);
+  const { data: comments } = useReturnComments(returnId);
+  const commentMutation = useCreateReturnComment(returnId);
   const markReturnedMutation = useMarkReturned(returnId);
   const archiveMutation = useArchiveReturn(returnId);
   const restoreMutation = useRestoreReturn(returnId);
   const hasEditRole = useHasRole([...EDIT_ROLES]);
+  const [commentText, setCommentText] = useState('');
   const styles = createStyles(theme);
 
   if (isLoading) {
@@ -76,6 +82,13 @@ export function ReturnDetailScreen({ returnId }: Props) {
   const historyLabels: Record<string, string> = {
     created: t('returns.history.created'),
     status_changed: t('returns.history.statusChanged'),
+    comment_added: t('returns.history.comment_added'),
+  };
+
+  const handleSendComment = () => {
+    const text = commentText.trim();
+    if (!text) return;
+    commentMutation.mutate(text, { onSuccess: () => setCommentText('') });
   };
 
   return (
@@ -132,10 +145,43 @@ export function ReturnDetailScreen({ returnId }: Props) {
           </View>
         ) : null}
 
-        <Text style={styles.historyTitle}>{t('returns.detail.historyTitle')}</Text>
+        <Text style={styles.sectionTitle}>{t('returns.detail.commentsTitle')}</Text>
+        <Card>
+          {comments && comments.length > 0 ? (
+            comments.map((c, index) => (
+              <View key={c.id} style={[styles.commentRow, index === 0 && styles.rowFirst]}>
+                <Text style={styles.commentAuthor}>{c.authorName}</Text>
+                <Text style={styles.commentText}>{c.comment}</Text>
+                <Text style={styles.commentMeta}>{formatDateTime(c.createdAt)}</Text>
+              </View>
+            ))
+          ) : (
+            <View style={styles.emptyBox}>
+              <Text style={styles.emptyText}>{t('returns.detail.noComments')}</Text>
+            </View>
+          )}
+        </Card>
+
+        <View style={styles.commentInputRow}>
+          <TextInput
+            style={styles.commentInput}
+            placeholder={t('returns.detail.commentPlaceholder')}
+            placeholderTextColor={theme.colors.textSecondary}
+            value={commentText}
+            onChangeText={setCommentText}
+            multiline
+          />
+          <Button
+            label={t('returns.detail.commentSend')}
+            onPress={handleSendComment}
+            loading={commentMutation.isPending}
+          />
+        </View>
+
+        <Text style={styles.sectionTitle}>{t('returns.detail.historyTitle')}</Text>
         <Card>
           {(history ?? []).map((entry, index) => (
-            <View key={entry.id} style={[styles.historyRow, index === 0 && styles.historyRowFirst]}>
+            <View key={entry.id} style={[styles.historyRow, index === 0 && styles.rowFirst]}>
               <Text style={styles.historyAction}>
                 {historyLabels[entry.action] ?? entry.action}
               </Text>
@@ -177,11 +223,44 @@ function createStyles(theme: ReturnType<typeof useTheme>) {
     reasonLabel: { fontSize: theme.fontSizes.xs, color: theme.colors.textSecondary },
     reasonText: { fontSize: theme.fontSizes.md, color: theme.colors.textPrimary },
     actions: { gap: theme.spacing.sm },
-    historyTitle: {
+    sectionTitle: {
       fontSize: theme.fontSizes.sm,
       fontWeight: theme.fontWeights.semiBold,
       color: theme.colors.textSecondary,
       marginTop: theme.spacing.sm,
+    },
+    rowFirst: { borderTopWidth: 0 },
+    emptyBox: { padding: theme.spacing.lg },
+    emptyText: {
+      fontSize: theme.fontSizes.sm,
+      color: theme.colors.textSecondary,
+      textAlign: 'center',
+    },
+    commentRow: {
+      padding: theme.spacing.lg,
+      borderTopWidth: StyleSheet.hairlineWidth,
+      borderTopColor: theme.colors.border,
+      gap: 2,
+    },
+    commentAuthor: {
+      fontSize: theme.fontSizes.sm,
+      fontWeight: theme.fontWeights.semiBold,
+      color: theme.colors.textPrimary,
+    },
+    commentText: { fontSize: theme.fontSizes.md, color: theme.colors.textPrimary },
+    commentMeta: { fontSize: theme.fontSizes.xs, color: theme.colors.textSecondary },
+    commentInputRow: { flexDirection: 'row', gap: theme.spacing.sm, alignItems: 'flex-end' },
+    commentInput: {
+      flex: 1,
+      borderWidth: 1,
+      borderColor: theme.colors.border,
+      backgroundColor: theme.colors.surface,
+      borderRadius: 12,
+      paddingHorizontal: theme.spacing.md,
+      paddingVertical: theme.spacing.md,
+      fontSize: theme.fontSizes.md,
+      color: theme.colors.textPrimary,
+      maxHeight: 100,
     },
     historyRow: {
       padding: theme.spacing.lg,
@@ -189,7 +268,6 @@ function createStyles(theme: ReturnType<typeof useTheme>) {
       borderTopColor: theme.colors.border,
       gap: 2,
     },
-    historyRowFirst: { borderTopWidth: 0 },
     historyAction: {
       fontSize: theme.fontSizes.sm,
       fontWeight: theme.fontWeights.medium,
