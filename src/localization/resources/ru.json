@@ -194,12 +194,14 @@
       "commentsTitle": "Комментарии",
       "commentPlaceholder": "Написать комментарий",
       "commentSend": "Отправить",
-      "noComments": "Пока нет комментариев"
+      "noComments": "Пока нет комментариев",
+      "photosTitle": "Фото"
     },
     "history": {
       "created": "Создан",
       "statusChanged": "Статус изменён",
-      "comment_added": "Добавлен комментарий"
+      "comment_added": "Добавлен комментарий",
+      "photo_added": "Добавлено фото"
     }
   }
 }

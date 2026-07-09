@@ -194,12 +194,14 @@
       "commentsTitle": "Comments",
       "commentPlaceholder": "Write a comment",
       "commentSend": "Send",
-      "noComments": "No comments yet"
+      "noComments": "No comments yet",
+      "photosTitle": "Photos"
     },
     "history": {
       "created": "Created",
       "statusChanged": "Status changed",
-      "comment_added": "Comment added"
+      "comment_added": "Comment added",
+      "photo_added": "Photo added"
     }
   }
 }

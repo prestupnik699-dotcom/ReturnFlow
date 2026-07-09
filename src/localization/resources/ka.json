@@ -194,12 +194,14 @@
       "commentsTitle": "კომენტარები",
       "commentPlaceholder": "დაწერეთ კომენტარი",
       "commentSend": "გაგზავნა",
-      "noComments": "კომენტარები ჯერ არ არის"
+      "noComments": "კომენტარები ჯერ არ არის",
+      "photosTitle": "ფოტოები"
     },
     "history": {
       "created": "შეიქმნა",
       "statusChanged": "სტატუსი შეიცვალა",
-      "comment_added": "დაემატა კომენტარი"
+      "comment_added": "დაემატა კომენტარი",
+      "photo_added": "დაემატა ფოტო"
     }
   }
 }

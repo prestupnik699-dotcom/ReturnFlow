@@ -8,6 +8,7 @@ import { Button } from '@/components/Button';
 import { useReturn } from '@/features/returns/hooks/useReturn';
 import { useReturnHistory } from '@/features/returns/hooks/useReturnHistory';
 import { useReturnComments } from '@/features/returns/hooks/useReturnComments';
+import { ReturnPhotos } from '@/features/returns/components/ReturnPhotos';
 import { useCreateReturnComment } from '@/features/returns/hooks/useCreateReturnComment';
 import {
   useMarkReturned,
@@ -116,6 +117,8 @@ export function ReturnDetailScreen({ returnId }: Props) {
             </View>
           </Card>
         ) : null}
+
+        <ReturnPhotos returnId={returnId} canEdit={canEdit} />
 
         {canEdit ? (
           <View style={styles.actions}>
