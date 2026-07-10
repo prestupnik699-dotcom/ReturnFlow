@@ -14,34 +14,34 @@ export type ThemeColors = {
   warning: string;
 };
 
+export const darkColors: ThemeColors = {
+  background: '#0F141B',
+  surface: '#151B24',
+  surfaceVariant: '#1D2430',
+  border: '#2A3342',
+  textPrimary: '#F8FAFC',
+  textSecondary: '#94A3B8',
+  textInverse: '#0F141B',
+  onPrimary: '#FFFFFF',
+  primary: '#6C5CE7',
+  primaryPressed: '#5B4BD0',
+  danger: '#EF4444',
+  success: '#22C55E',
+  warning: '#F59E0B',
+};
+
 export const lightColors: ThemeColors = {
   background: '#F7F8FC',
   surface: '#FFFFFF',
-  surfaceVariant: '#F0F1F7',
-  border: 'rgba(15,23,42,0.08)',
-  textPrimary: '#12142B',
-  textSecondary: '#6B7280',
+  surfaceVariant: '#EEF0F6',
+  border: '#E2E5ED',
+  textPrimary: '#0F141B',
+  textSecondary: '#64748B',
   textInverse: '#FFFFFF',
   onPrimary: '#FFFFFF',
-  primary: '#6D5DFB',
-  primaryPressed: '#5A4AE0',
-  danger: '#E11D48',
-  success: '#059669',
+  primary: '#6C5CE7',
+  primaryPressed: '#5B4BD0',
+  danger: '#EF4444',
+  success: '#16A34A',
   warning: '#D97706',
-};
-
-export const darkColors: ThemeColors = {
-  background: '#0B0F1E',
-  surface: '#141A2E',
-  surfaceVariant: '#1D2438',
-  border: 'rgba(255,255,255,0.08)',
-  textPrimary: '#F5F6FA',
-  textSecondary: '#9AA3B8',
-  textInverse: '#0B0F1E',
-  onPrimary: '#FFFFFF',
-  primary: '#8B7CFF',
-  primaryPressed: '#6C5CE0',
-  danger: '#FF6B6B',
-  success: '#34D399',
-  warning: '#FBBF24',
 };

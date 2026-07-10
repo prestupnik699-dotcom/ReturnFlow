@@ -20,11 +20,11 @@ function createStyles(theme: ReturnType<typeof useTheme>) {
       ...Platform.select({
         ios: {
           shadowColor: '#000000',
-          shadowOffset: { width: 0, height: 6 },
-          shadowOpacity: theme.scheme === 'dark' ? 0.4 : 0.08,
-          shadowRadius: 20,
+          shadowOffset: { width: 0, height: 10 },
+          shadowOpacity: theme.scheme === 'dark' ? 0.5 : 0.1,
+          shadowRadius: 24,
         },
-        android: { elevation: 3 },
+        android: { elevation: 4 },
         default: {},
       }),
     },

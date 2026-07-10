@@ -4,6 +4,7 @@ import {
   ActivityIndicator,
   StyleSheet,
   Platform,
+  View,
   type StyleProp,
   type ViewStyle,
 } from 'react-native';
@@ -66,11 +67,11 @@ export function Button({
     <Pressable
       onPressIn={() => {
         // eslint-disable-next-line react-hooks/immutability
-        scale.value = withTiming(0.97, { duration: 100 });
+        scale.value = withTiming(0.96, { duration: 100 });
       }}
       onPressOut={() => {
         // eslint-disable-next-line react-hooks/immutability
-        scale.value = withTiming(1, { duration: 150 });
+        scale.value = withTiming(1, { duration: 180 });
       }}
       onPress={onPress}
       disabled={isDisabled}
@@ -86,7 +87,7 @@ export function Button({
             {inner}
           </LinearGradient>
         ) : (
-          <Animated.View style={styles.base}>{inner}</Animated.View>
+          <View style={styles.base}>{inner}</View>
         )}
       </Animated.View>
     </Pressable>
@@ -96,16 +97,16 @@ export function Button({
 function createStyles(theme: ReturnType<typeof useTheme>, variant: ButtonVariant) {
   return StyleSheet.create({
     shadow: {
-      borderRadius: theme.radius.md,
+      borderRadius: theme.radius.full,
       ...(variant === 'primary'
         ? Platform.select({
             ios: {
               shadowColor: theme.colors.primary,
-              shadowOffset: { width: 0, height: 8 },
-              shadowOpacity: 0.35,
-              shadowRadius: 16,
+              shadowOffset: { width: 0, height: 10 },
+              shadowOpacity: theme.scheme === 'dark' ? 0.55 : 0.3,
+              shadowRadius: 22,
             },
-            android: { elevation: 6 },
+            android: { elevation: 8 },
             default: {},
           })
         : {}),
@@ -114,10 +115,11 @@ function createStyles(theme: ReturnType<typeof useTheme>, variant: ButtonVariant
       flexDirection: 'row',
       alignItems: 'center',
       justifyContent: 'center',
-      borderRadius: theme.radius.md,
+      borderRadius: theme.radius.full,
       paddingVertical: theme.spacing.md,
-      paddingHorizontal: theme.spacing.lg,
-      minHeight: 52,
+      paddingHorizontal: theme.spacing.xl,
+      minHeight: 56,
+      overflow: 'hidden',
       backgroundColor: variant === 'outline' ? theme.colors.surface : 'transparent',
       borderWidth: variant === 'outline' || variant === 'danger' ? 1 : 0,
       borderColor: variant === 'danger' ? theme.colors.danger : theme.colors.border,
@@ -127,7 +129,7 @@ function createStyles(theme: ReturnType<typeof useTheme>, variant: ButtonVariant
     label: {
       fontWeight: theme.fontWeights.semiBold,
       fontSize: theme.fontSizes.md,
-      letterSpacing: 0.2,
+      letterSpacing: 0.3,
     },
   });
 }
