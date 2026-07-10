@@ -59,7 +59,11 @@
     "logOut": "Log Out",
     "back": "Back",
     "organization": "Organization",
-    "edit": "Edit"
+    "edit": "Edit",
+    "more": "More",
+    "account": "Account",
+    "notifications": "Notifications",
+    "notificationsComingSoon": "Notifications are coming soon"
   },
   "organizations": {
     "title": "Create your organization",

@@ -59,7 +59,11 @@
     "logOut": "გასვლა",
     "back": "უკან",
     "organization": "ორგანიზაცია",
-    "edit": "რედაქტირება"
+    "edit": "რედაქტირება",
+    "more": "მეტი",
+    "account": "ანგარიში",
+    "notifications": "შეტყობინებები",
+    "notificationsComingSoon": "შეტყობინებები მალე გამოჩნდება"
   },
   "organizations": {
     "title": "ორგანიზაციის შექმნა",

@@ -59,7 +59,11 @@
     "logOut": "Выйти",
     "back": "Назад",
     "organization": "Организация",
-    "edit": "Редактировать"
+    "edit": "Редактировать",
+    "more": "Ещё",
+    "account": "Аккаунт",
+    "notifications": "Уведомления",
+    "notificationsComingSoon": "Уведомления скоро появятся"
   },
   "organizations": {
     "title": "Создание организации",
