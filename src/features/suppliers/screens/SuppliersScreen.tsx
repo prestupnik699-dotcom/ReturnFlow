@@ -12,6 +12,7 @@ import {
 import { useTranslation } from 'react-i18next';
 import { Ionicons } from '@expo/vector-icons';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import { useTabBarClearance } from '@/hooks/useTabBarClearance';
 import Animated, { FadeInDown } from 'react-native-reanimated';
 import { useTheme } from '@/theme/ThemeProvider';
 import { Screen } from '@/components/Screen';
@@ -31,7 +32,7 @@ const EDIT_ROLES = ['Owner', 'Administrator', 'StoreManager', 'Receiver'] as con
 export function SuppliersScreen() {
   const theme = useTheme();
   const { t } = useTranslation();
-  const insets = useSafeAreaInsets();
+  const tabBarClearance = useTabBarClearance();
   const [searchInput, setSearchInput] = useState('');
   const [favoritesOnly, setFavoritesOnly] = useState(false);
   const [sort, setSort] = useState<SupplierSort>('name');
@@ -160,7 +161,7 @@ export function SuppliersScreen() {
             label={t('suppliers.addButton')}
             icon="add"
             onPress={handleAdd}
-            style={{ marginBottom: insets.bottom + theme.spacing.lg }}
+            style={{ marginBottom: tabBarClearance }}
           />
         </RequireRole>
       </View>

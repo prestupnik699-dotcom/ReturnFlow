@@ -11,6 +11,8 @@ const ICONS: Record<string, keyof typeof Ionicons.glyphMap> = {
   more: 'menu-outline',
 };
 
+const ICON_SIZE = 48;
+
 type TabBarProps = {
   state: {
     index: number;
@@ -74,6 +76,7 @@ function createStyles(theme: ReturnType<typeof useTheme>, insets: { bottom: numb
     },
     bar: {
       flexDirection: 'row',
+      alignItems: 'center',
       backgroundColor: theme.colors.surface,
       borderRadius: theme.radius.full,
       paddingHorizontal: theme.spacing.sm,
@@ -92,9 +95,9 @@ function createStyles(theme: ReturnType<typeof useTheme>, insets: { bottom: numb
     },
     tab: { alignItems: 'center', justifyContent: 'center' },
     iconWrap: {
-      width: 48,
-      height: 48,
-      borderRadius: theme.radius.full,
+      width: ICON_SIZE,
+      height: ICON_SIZE,
+      borderRadius: ICON_SIZE / 2,
       alignItems: 'center',
       justifyContent: 'center',
     },

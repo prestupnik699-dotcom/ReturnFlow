@@ -12,6 +12,7 @@ import Animated, { FadeInDown } from 'react-native-reanimated';
 import { useTranslation } from 'react-i18next';
 import { Ionicons } from '@expo/vector-icons';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import { useTabBarClearance } from '@/hooks/useTabBarClearance';
 import { useTheme } from '@/theme/ThemeProvider';
 import { Screen } from '@/components/Screen';
 import { Card } from '@/components/Card';
@@ -26,7 +27,7 @@ import type { Store } from '@/features/stores/services/stores.service';
 export function StoresScreen() {
   const theme = useTheme();
   const { t } = useTranslation();
-  const insets = useSafeAreaInsets();
+  const tabBarClearance = useTabBarClearance();
   const { data: stores, isLoading, isError } = useStores();
   const deleteMutation = useDeleteStore();
   const activeOrganizationId = useMembershipStore((state) => state.activeOrganizationId);
@@ -123,7 +124,7 @@ export function StoresScreen() {
             label={t('stores.addButton')}
             icon="add"
             onPress={handleAdd}
-            style={{ marginBottom: insets.bottom + theme.spacing.lg }}
+            style={{ marginBottom: tabBarClearance }}
           />
         </RequireRole>
       </View>

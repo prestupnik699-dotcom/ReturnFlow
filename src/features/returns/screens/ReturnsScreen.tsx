@@ -4,6 +4,7 @@ import { useTranslation } from 'react-i18next';
 import { useRouter } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import { useTabBarClearance } from '@/hooks/useTabBarClearance';
 import Animated, { FadeInDown } from 'react-native-reanimated';
 import { useTheme } from '@/theme/ThemeProvider';
 import { Screen } from '@/components/Screen';
@@ -21,7 +22,7 @@ export function ReturnsScreen() {
   const theme = useTheme();
   const { t } = useTranslation();
   const router = useRouter();
-  const insets = useSafeAreaInsets();
+  const tabBarClearance = useTabBarClearance();
   const activeStoreId = useMembershipStore((state) => state.activeStoreId);
   const [statusFilter, setStatusFilter] = useState<ReturnStatus | null>(null);
   const {
@@ -153,7 +154,7 @@ export function ReturnsScreen() {
           />
         )}
 
-        <View style={[styles.footer, { paddingBottom: insets.bottom }]}>
+        <View style={[styles.footer, { paddingBottom: tabBarClearance }]}>
           {!suppliers || suppliers.length === 0 ? (
             <Text style={styles.warningText}>{t('returns.noSuppliers')}</Text>
           ) : (
