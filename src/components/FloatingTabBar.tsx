@@ -7,6 +7,7 @@ const ICONS: Record<string, keyof typeof Ionicons.glyphMap> = {
   stores: 'storefront-outline',
   suppliers: 'cube-outline',
   returns: 'repeat-outline',
+  chat: 'chatbubble-outline',
   notifications: 'notifications-outline',
   more: 'menu-outline',
 };

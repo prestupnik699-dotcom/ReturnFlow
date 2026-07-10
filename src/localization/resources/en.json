@@ -212,5 +212,11 @@
       "title": "Edit return",
       "submit": "Save"
     }
+  },
+  "chat": {
+    "title": "Chat",
+    "placeholder": "Message...",
+    "noStore": "Select an active store to see its chat",
+    "empty": "No messages yet"
   }
 }

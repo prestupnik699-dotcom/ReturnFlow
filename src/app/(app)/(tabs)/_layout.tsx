@@ -7,6 +7,7 @@ export default function TabsLayout() {
       <Tabs.Screen name="stores" />
       <Tabs.Screen name="suppliers" />
       <Tabs.Screen name="returns" />
+      <Tabs.Screen name="chat" />
       <Tabs.Screen name="notifications" />
       <Tabs.Screen name="more" />
     </Tabs>

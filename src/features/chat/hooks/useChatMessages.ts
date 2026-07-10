@@ -1,0 +1,45 @@
+import { useEffect } from 'react';
+import { useQuery, useQueryClient } from '@tanstack/react-query';
+import { supabase } from '@/lib/supabase';
+import { fetchMessages } from '@/features/chat/services/chat.service';
+
+export function useChatMessages(roomId: string | null) {
+  const queryClient = useQueryClient();
+
+  const query = useQuery({
+    queryKey: ['chatMessages', roomId],
+    queryFn: async () => {
+      if (!roomId) throw new Error('No room id');
+      const result = await fetchMessages(roomId);
+      if (!result.success) throw new Error(result.error.message);
+      return result.data;
+    },
+    enabled: !!roomId,
+  });
+
+  useEffect(() => {
+    if (!roomId) return;
+
+    const channel = supabase
+      .channel(`chat_messages:${roomId}`)
+      .on(
+        'postgres_changes',
+        {
+          event: 'INSERT',
+          schema: 'public',
+          table: 'chat_messages',
+          filter: `room_id=eq.${roomId}`,
+        },
+        () => {
+          queryClient.invalidateQueries({ queryKey: ['chatMessages', roomId] });
+        },
+      )
+      .subscribe();
+
+    return () => {
+      supabase.removeChannel(channel);
+    };
+  }, [roomId, queryClient]);
+
+  return query;
+}
