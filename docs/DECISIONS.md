@@ -291,3 +291,9 @@ Fixed:
 - All four RLS helper functions now also require the caller's own `profiles.status != 'blocked'`. A blocked user loses all access immediately, everywhere.
 - `Administrator` can no longer create, modify the role of, change the status of, or remove access for any `Owner` or `Administrator` membership — only `Owner` can. This applies to `memberships_insert`, `memberships_update`, `invitations_insert` RLS policies and the `set_member_status` function.
 - A new trigger (`enforce_last_owner_protection`) blocks removing or demoting the last remaining active `Owner` of an organization, regardless of who attempts it — including the Owner themselves.
+
+### D-029 — Chat Scope for V1: One "General" Room Per Store
+
+Status: Accepted
+
+`chat_rooms.type` supports General/Returns/Announcements/Private, but building all of them at once is unnecessary scope for V1. Real daily usage is store-team communication, so V1 ships exactly one auto-created "General" room per store (trigger on store creation, mirroring the `app_settings` auto-creation pattern from D-025's era). Org-wide rooms, a "Returns" discussion room, and Attachments/Read Status are deferred to focused follow-up steps, not built in this first pass.
