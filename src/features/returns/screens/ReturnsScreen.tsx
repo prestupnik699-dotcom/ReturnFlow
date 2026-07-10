@@ -3,7 +3,6 @@ import { View, Text, FlatList, ActivityIndicator, StyleSheet, Pressable } from '
 import { useTranslation } from 'react-i18next';
 import { useRouter } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
-import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useTabBarClearance } from '@/hooks/useTabBarClearance';
 import Animated, { FadeInDown } from 'react-native-reanimated';
 import { useTheme } from '@/theme/ThemeProvider';

@@ -11,7 +11,6 @@ import {
 import Animated, { FadeInDown } from 'react-native-reanimated';
 import { useTranslation } from 'react-i18next';
 import { Ionicons } from '@expo/vector-icons';
-import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useTabBarClearance } from '@/hooks/useTabBarClearance';
 import { useTheme } from '@/theme/ThemeProvider';
 import { Screen } from '@/components/Screen';
