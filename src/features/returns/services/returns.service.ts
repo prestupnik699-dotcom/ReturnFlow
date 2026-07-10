@@ -136,6 +136,38 @@ export async function createReturn(input: CreateReturnInput): Promise<ServiceRes
   return { success: true, data: mapReturn(data as unknown as ReturnItemRow) };
 }
 
+type UpdateReturnInput = {
+  supplierId: string;
+  title: string;
+  quantity: number;
+  reason: string;
+  priority: ReturnPriority;
+};
+
+export async function updateReturn(
+  returnId: string,
+  input: UpdateReturnInput,
+): Promise<ServiceResult<ReturnItem>> {
+  const { data, error } = await supabase
+    .from('return_items')
+    .update({
+      supplier_id: input.supplierId,
+      title: input.title,
+      quantity: input.quantity,
+      reason: input.reason || null,
+      priority: input.priority,
+    })
+    .eq('id', returnId)
+    .select(SELECT_FIELDS)
+    .single();
+
+  if (error || !data) {
+    return fromCaughtError(error, 'UPDATE_RETURN_FAILED');
+  }
+
+  return { success: true, data: mapReturn(data as unknown as ReturnItemRow) };
+}
+
 export async function markReturnAsReturned(
   returnId: string,
   profileId: string,

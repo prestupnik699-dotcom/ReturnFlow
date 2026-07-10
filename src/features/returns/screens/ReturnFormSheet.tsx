@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect } from 'react';
 import { Modal, View, Text, TextInput, Pressable, ScrollView, StyleSheet } from 'react-native';
 import { useForm, useWatch, Controller } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -10,20 +10,23 @@ import {
   type CreateReturnFormValues,
 } from '@/features/returns/validators/create-return.schema';
 import { useCreateReturn } from '@/features/returns/hooks/useCreateReturn';
+import { useUpdateReturn } from '@/features/returns/hooks/useUpdateReturn';
 import { useSuppliers } from '@/features/suppliers/hooks/useSuppliers';
-import type { ReturnPriority } from '@/features/returns/services/returns.service';
+import type { ReturnItem, ReturnPriority } from '@/features/returns/services/returns.service';
 
 const PRIORITIES: ReturnPriority[] = ['low', 'normal', 'high', 'critical'];
 
-type Props = { visible: boolean; onClose: () => void };
+type Props = { visible: boolean; onClose: () => void; returnItem?: ReturnItem | null };
 
-export function CreateReturnSheet({ visible, onClose }: Props) {
+export function ReturnFormSheet({ visible, onClose, returnItem }: Props) {
   const theme = useTheme();
   const { t } = useTranslation();
   const { data: suppliers } = useSuppliers(false, 'name');
-  const mutation = useCreateReturn();
+  const isEditing = !!returnItem;
+  const createMutation = useCreateReturn();
+  const updateMutation = useUpdateReturn(returnItem?.id ?? '');
+  const mutation = isEditing ? updateMutation : createMutation;
   const styles = createStyles(theme);
-  const [selectedSupplierId, setSelectedSupplierId] = useState('');
 
   const {
     control,
@@ -37,11 +40,25 @@ export function CreateReturnSheet({ visible, onClose }: Props) {
   });
 
   const priority = useWatch({ control, name: 'priority' });
+  const supplierId = useWatch({ control, name: 'supplierId' });
+
+  useEffect(() => {
+    if (visible) {
+      reset({
+        supplierId: returnItem?.supplierId ?? '',
+        title: returnItem?.title ?? '',
+        quantity: returnItem ? String(returnItem.quantity) : '1',
+        reason: returnItem?.reason ?? '',
+        priority: returnItem?.priority ?? 'normal',
+      });
+      createMutation.reset();
+      updateMutation.reset();
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [visible, returnItem]);
 
   const handleClose = () => {
     reset();
-    setSelectedSupplierId('');
-    mutation.reset();
     onClose();
   };
 
@@ -68,7 +85,9 @@ export function CreateReturnSheet({ visible, onClose }: Props) {
         contentContainerStyle={styles.container}
         keyboardShouldPersistTaps="handled"
       >
-        <Text style={styles.title}>{t('returns.create.title')}</Text>
+        <Text style={styles.title}>
+          {isEditing ? t('returns.edit.title') : t('returns.create.title')}
+        </Text>
 
         <View style={styles.field}>
           <Text style={styles.label}>{t('returns.create.supplierLabel')}</Text>
@@ -76,15 +95,10 @@ export function CreateReturnSheet({ visible, onClose }: Props) {
             {(suppliers ?? []).map((s) => (
               <Pressable
                 key={s.id}
-                onPress={() => {
-                  setSelectedSupplierId(s.id);
-                  setValue('supplierId', s.id);
-                }}
-                style={[styles.chip, selectedSupplierId === s.id && styles.chipActive]}
+                onPress={() => setValue('supplierId', s.id)}
+                style={[styles.chip, supplierId === s.id && styles.chipActive]}
               >
-                <Text
-                  style={[styles.chipText, selectedSupplierId === s.id && styles.chipTextActive]}
-                >
+                <Text style={[styles.chipText, supplierId === s.id && styles.chipTextActive]}>
                   {s.name}
                 </Text>
               </Pressable>
@@ -182,7 +196,7 @@ export function CreateReturnSheet({ visible, onClose }: Props) {
             style={styles.flexButton}
           />
           <Button
-            label={t('returns.create.submit')}
+            label={isEditing ? t('returns.edit.submit') : t('returns.create.submit')}
             onPress={handleSubmit(onSubmit)}
             loading={mutation.isPending}
             style={styles.flexButton}

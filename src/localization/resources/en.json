@@ -58,7 +58,8 @@
     "loggedInAs": "Logged in as {{name}}",
     "logOut": "Log Out",
     "back": "Back",
-    "organization": "Organization"
+    "organization": "Organization",
+    "edit": "Edit"
   },
   "organizations": {
     "title": "Create your organization",
@@ -202,6 +203,10 @@
       "statusChanged": "Status changed",
       "comment_added": "Comment added",
       "photo_added": "Photo added"
+    },
+    "edit": {
+      "title": "Edit return",
+      "submit": "Save"
     }
   }
 }

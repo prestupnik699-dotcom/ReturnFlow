@@ -5,10 +5,11 @@ import { useTheme } from '@/theme/ThemeProvider';
 import { Screen } from '@/components/Screen';
 import { Card } from '@/components/Card';
 import { Button } from '@/components/Button';
+import { ReturnPhotos } from '@/features/returns/components/ReturnPhotos';
+import { ReturnFormSheet } from '@/features/returns/screens/ReturnFormSheet';
 import { useReturn } from '@/features/returns/hooks/useReturn';
 import { useReturnHistory } from '@/features/returns/hooks/useReturnHistory';
 import { useReturnComments } from '@/features/returns/hooks/useReturnComments';
-import { ReturnPhotos } from '@/features/returns/components/ReturnPhotos';
 import { useCreateReturnComment } from '@/features/returns/hooks/useCreateReturnComment';
 import {
   useMarkReturned,
@@ -42,6 +43,7 @@ export function ReturnDetailScreen({ returnId }: Props) {
   const restoreMutation = useRestoreReturn(returnId);
   const hasEditRole = useHasRole([...EDIT_ROLES]);
   const [commentText, setCommentText] = useState('');
+  const [editVisible, setEditVisible] = useState(false);
   const styles = createStyles(theme);
 
   if (isLoading) {
@@ -84,6 +86,7 @@ export function ReturnDetailScreen({ returnId }: Props) {
     created: t('returns.history.created'),
     status_changed: t('returns.history.statusChanged'),
     comment_added: t('returns.history.comment_added'),
+    photo_added: t('returns.history.photo_added'),
   };
 
   const handleSendComment = () => {
@@ -122,6 +125,11 @@ export function ReturnDetailScreen({ returnId }: Props) {
 
         {canEdit ? (
           <View style={styles.actions}>
+            <Button
+              label={t('common.edit')}
+              variant="outline"
+              onPress={() => setEditVisible(true)}
+            />
             {item.status === 'pending' || item.status === 'urgent' ? (
               <Button
                 label={t('returns.detail.markReturned')}
@@ -195,6 +203,12 @@ export function ReturnDetailScreen({ returnId }: Props) {
           ))}
         </Card>
       </ScrollView>
+
+      <ReturnFormSheet
+        visible={editVisible}
+        onClose={() => setEditVisible(false)}
+        returnItem={item}
+      />
     </Screen>
   );
 }

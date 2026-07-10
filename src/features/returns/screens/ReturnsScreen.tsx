@@ -11,7 +11,7 @@ import { Card } from '@/components/Card';
 import { Button } from '@/components/Button';
 import { useReturns } from '@/features/returns/hooks/useReturns';
 import { useSuppliers } from '@/features/suppliers/hooks/useSuppliers';
-import { CreateReturnSheet } from '@/features/returns/screens/CreateReturnSheet';
+import { ReturnFormSheet } from '@/features/returns/screens/ReturnFormSheet';
 import { useMembershipStore } from '@/stores/membership.store';
 import type { ReturnStatus, ReturnPriority } from '@/features/returns/services/returns.service';
 
@@ -166,7 +166,7 @@ export function ReturnsScreen() {
         </View>
       </View>
 
-      <CreateReturnSheet visible={formVisible} onClose={() => setFormVisible(false)} />
+      <ReturnFormSheet visible={formVisible} onClose={() => setFormVisible(false)} />
     </Screen>
   );
 }

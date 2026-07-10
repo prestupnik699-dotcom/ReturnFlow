@@ -58,7 +58,8 @@
     "loggedInAs": "Вы вошли как {{name}}",
     "logOut": "Выйти",
     "back": "Назад",
-    "organization": "Организация"
+    "organization": "Организация",
+    "edit": "Редактировать"
   },
   "organizations": {
     "title": "Создание организации",
@@ -202,6 +203,10 @@
       "statusChanged": "Статус изменён",
       "comment_added": "Добавлен комментарий",
       "photo_added": "Добавлено фото"
+    },
+    "edit": {
+      "title": "Редактировать возврат",
+      "submit": "Сохранить"
     }
   }
 }

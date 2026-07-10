@@ -58,7 +58,8 @@
     "loggedInAs": "შესული ხართ როგორც {{name}}",
     "logOut": "გასვლა",
     "back": "უკან",
-    "organization": "ორგანიზაცია"
+    "organization": "ორგანიზაცია",
+    "edit": "რედაქტირება"
   },
   "organizations": {
     "title": "ორგანიზაციის შექმნა",
@@ -202,6 +203,10 @@
       "statusChanged": "სტატუსი შეიცვალა",
       "comment_added": "დაემატა კომენტარი",
       "photo_added": "დაემატა ფოტო"
+    },
+    "edit": {
+      "title": "დაბრუნების რედაქტირება",
+      "submit": "შენახვა"
     }
   }
 }
