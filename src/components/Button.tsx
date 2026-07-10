@@ -75,8 +75,9 @@ export function Button({
       }}
       onPress={onPress}
       disabled={isDisabled}
+      style={[styles.pressable, style]}
     >
-      <Animated.View style={[styles.shadow, isDisabled && styles.disabled, animatedStyle, style]}>
+      <Animated.View style={[styles.shadow, isDisabled && styles.disabled, animatedStyle]}>
         {variant === 'primary' ? (
           <LinearGradient
             colors={[theme.colors.primary, theme.colors.primaryPressed]}
@@ -96,6 +97,10 @@ export function Button({
 
 function createStyles(theme: ReturnType<typeof useTheme>, variant: ButtonVariant) {
   return StyleSheet.create({
+    // alignSelf lives here, on the Pressable itself — the actual outermost
+    // element — so the touchable area shrinks to content width and centers,
+    // instead of stretching to fill the parent row like a full-width button.
+    pressable: { alignSelf: 'center' },
     shadow: {
       borderRadius: theme.radius.full,
       ...(variant === 'primary'
@@ -118,7 +123,7 @@ function createStyles(theme: ReturnType<typeof useTheme>, variant: ButtonVariant
       borderRadius: theme.radius.full,
       paddingVertical: theme.spacing.md,
       paddingHorizontal: theme.spacing.xl,
-      minHeight: 56,
+      minHeight: 52,
       overflow: 'hidden',
       backgroundColor: variant === 'outline' ? theme.colors.surface : 'transparent',
       borderWidth: variant === 'outline' || variant === 'danger' ? 1 : 0,
