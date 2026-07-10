@@ -49,7 +49,13 @@ export function FloatingTabBar({ state, navigation }: TabBarProps) {
           };
 
           return (
-            <Pressable key={route.key} onPress={onPress} style={styles.tab} hitSlop={8}>
+            <Pressable
+              key={route.key}
+              onPress={onPress}
+              style={styles.tab}
+              hitSlop={8}
+              android_ripple={{ color: 'transparent' }}
+            >
               <View style={[styles.iconWrap, isFocused && styles.iconWrapActive]}>
                 <Ionicons
                   name={icon}
@@ -93,11 +99,17 @@ function createStyles(theme: ReturnType<typeof useTheme>, insets: { bottom: numb
         default: {},
       }),
     },
-    tab: { alignItems: 'center', justifyContent: 'center' },
+    tab: {
+      alignItems: 'center',
+      justifyContent: 'center',
+      borderRadius: ICON_SIZE / 2,
+      overflow: 'hidden',
+    },
     iconWrap: {
       width: ICON_SIZE,
       height: ICON_SIZE,
       borderRadius: ICON_SIZE / 2,
+      overflow: 'hidden',
       alignItems: 'center',
       justifyContent: 'center',
     },
