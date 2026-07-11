@@ -28,9 +28,9 @@ type TabBarProps = {
 };
 
 export function FloatingTabBar({ state, navigation }: TabBarProps) {
-  const unreadCount = useUnreadCount();
   const theme = useTheme();
   const insets = useSafeAreaInsets();
+  const unreadCount = useUnreadCount();
   const styles = createStyles(theme, insets);
 
   return (
@@ -65,6 +65,9 @@ export function FloatingTabBar({ state, navigation }: TabBarProps) {
                   size={22}
                   color={isFocused ? theme.colors.onPrimary : theme.colors.textSecondary}
                 />
+                {route.name === 'notifications' && unreadCount > 0 ? (
+                  <View style={styles.badge} />
+                ) : null}
               </View>
             </Pressable>
           );
