@@ -32,6 +32,7 @@ export function useChatMessages(roomId: string | null) {
           filter: `room_id=eq.${roomId}`,
         },
         () => {
+          if (__DEV__) console.log('[chat realtime] event received for room', roomId);
           queryClient.invalidateQueries({ queryKey: ['chatMessages', roomId] });
         },
       )
