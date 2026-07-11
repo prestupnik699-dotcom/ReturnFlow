@@ -1,4 +1,4 @@
-import { View, Pressable, StyleSheet, Platform } from 'react-native';
+import { View, Text, Pressable, StyleSheet, Platform } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useTheme } from '@/theme/ThemeProvider';
@@ -66,7 +66,9 @@ export function FloatingTabBar({ state, navigation }: TabBarProps) {
                   color={isFocused ? theme.colors.onPrimary : theme.colors.textSecondary}
                 />
                 {route.name === 'notifications' && unreadCount > 0 ? (
-                  <View style={styles.badge} />
+                  <View style={styles.badge}>
+                    <Text style={styles.badgeText}>{unreadCount > 9 ? '9+' : unreadCount}</Text>
+                  </View>
                 ) : null}
               </View>
             </Pressable>
@@ -109,27 +111,31 @@ function createStyles(theme: ReturnType<typeof useTheme>, insets: { bottom: numb
       alignItems: 'center',
       justifyContent: 'center',
       borderRadius: ICON_SIZE / 2,
-      overflow: 'hidden',
+      overflow: 'visible',
     },
     iconWrap: {
       width: ICON_SIZE,
       height: ICON_SIZE,
       borderRadius: ICON_SIZE / 2,
-      overflow: 'hidden',
+      overflow: 'visible',
       alignItems: 'center',
       justifyContent: 'center',
     },
     iconWrapActive: { backgroundColor: theme.colors.primary },
     badge: {
       position: 'absolute',
-      top: 4,
-      right: 4,
-      width: 9,
-      height: 9,
-      borderRadius: 5,
+      top: 2,
+      right: -2,
+      minWidth: 18,
+      height: 18,
+      borderRadius: 9,
+      paddingHorizontal: 4,
       backgroundColor: theme.colors.danger,
       borderWidth: 1.5,
       borderColor: theme.colors.surface,
+      alignItems: 'center',
+      justifyContent: 'center',
     },
+    badgeText: { color: '#FFFFFF', fontSize: 10, fontWeight: theme.fontWeights.bold },
   });
 }
