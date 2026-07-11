@@ -35,7 +35,9 @@ export function useChatMessages(roomId: string | null) {
           queryClient.invalidateQueries({ queryKey: ['chatMessages', roomId] });
         },
       )
-      .subscribe();
+      .subscribe((status) => {
+        if (__DEV__) console.log('[chat realtime]', status, roomId);
+      });
 
     return () => {
       supabase.removeChannel(channel);

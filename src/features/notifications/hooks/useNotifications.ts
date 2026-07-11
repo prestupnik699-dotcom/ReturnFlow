@@ -40,7 +40,9 @@ export function useNotifications() {
           queryClient.invalidateQueries({ queryKey: ['notifications', profile.id] });
         },
       )
-      .subscribe();
+      .subscribe((status) => {
+        if (__DEV__) console.log('[notifications realtime]', status, profile.id);
+      });
 
     return () => {
       supabase.removeChannel(channel);
