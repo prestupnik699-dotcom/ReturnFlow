@@ -9,6 +9,7 @@ import {
 import { useCreateOrganization } from '@/features/organizations/hooks/useCreateOrganization';
 import { useTheme } from '@/theme/ThemeProvider';
 import { Logo } from '@/components/Logo';
+import { logout } from '@/features/auth/services/auth.service';
 
 export function CreateOrganizationScreen() {
   const theme = useTheme();
@@ -134,6 +135,8 @@ function createStyles(theme: ReturnType<typeof useTheme>) {
       fontSize: theme.fontSizes.sm,
       textAlign: 'center',
     },
+    logoutLink: { alignItems: 'center', marginTop: theme.spacing.sm },
+    logoutLinkText: { color: theme.colors.textSecondary, fontSize: theme.fontSizes.sm },
     button: {
       backgroundColor: theme.colors.primary,
       borderRadius: 12,

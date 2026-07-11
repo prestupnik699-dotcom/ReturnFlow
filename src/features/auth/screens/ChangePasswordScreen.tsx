@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { ScreenHeader } from '@/components/ScreenHeader';
 import { View, Text, TextInput, Pressable, ActivityIndicator, StyleSheet } from 'react-native';
 import { useForm, Controller } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -43,7 +44,7 @@ export function ChangePasswordScreen() {
 
   return (
     <View style={styles.container}>
-      <Text style={styles.title}>{t('auth.changePassword.title')}</Text>
+      <ScreenHeader title={t('auth.changePassword.title')} />
 
       {success ? (
         <>

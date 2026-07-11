@@ -13,6 +13,7 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { useTranslation } from 'react-i18next';
 import { useTheme } from '@/theme/ThemeProvider';
 import { Screen } from '@/components/Screen';
+import { ScreenHeader } from '@/components/ScreenHeader';
 import { useOrganization } from '@/features/organizations/hooks/useOrganization';
 import { useUpdateOrganization } from '@/features/organizations/hooks/useUpdateOrganization';
 import { useDeleteOrganization } from '@/features/organizations/hooks/useDeleteOrganization';
@@ -99,7 +100,7 @@ export function OrganizationSettingsScreen() {
   return (
     <Screen>
       <View style={styles.container}>
-        <Text style={styles.title}>{t('organizations.settings.title')}</Text>
+        <ScreenHeader title={t('organizations.settings.title')} />
 
         <View style={styles.field}>
           <Text style={styles.label}>{t('organizations.nameLabel')}</Text>

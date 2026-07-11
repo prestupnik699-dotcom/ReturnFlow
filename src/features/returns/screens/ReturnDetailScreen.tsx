@@ -3,6 +3,7 @@ import { View, Text, ScrollView, ActivityIndicator, StyleSheet, TextInput } from
 import { useTranslation } from 'react-i18next';
 import { useTheme } from '@/theme/ThemeProvider';
 import { Screen } from '@/components/Screen';
+import { ScreenHeader } from '@/components/ScreenHeader';
 import { Card } from '@/components/Card';
 import { Button } from '@/components/Button';
 import { ReturnPhotos } from '@/features/returns/components/ReturnPhotos';
@@ -98,7 +99,7 @@ export function ReturnDetailScreen({ returnId }: Props) {
   return (
     <Screen>
       <ScrollView contentContainerStyle={styles.container} showsVerticalScrollIndicator={false}>
-        <Text style={styles.title}>{item.title}</Text>
+        <ScreenHeader title={item.title} />
         <Text style={styles.subtitle}>
           {item.supplierName} · ×{item.quantity}
         </Text>

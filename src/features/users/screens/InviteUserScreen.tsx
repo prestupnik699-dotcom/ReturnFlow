@@ -4,6 +4,7 @@ import * as Clipboard from 'expo-clipboard';
 import { useTranslation } from 'react-i18next';
 import { useTheme } from '@/theme/ThemeProvider';
 import { Screen } from '@/components/Screen';
+import { ScreenHeader } from '@/components/ScreenHeader';
 import { useCreateInvitation } from '@/features/users/hooks/useCreateInvitation';
 import type { MembershipRole } from '@/features/auth/services/membership.service';
 
@@ -38,7 +39,7 @@ export function InviteUserScreen() {
   return (
     <Screen>
       <View style={styles.container}>
-        <Text style={styles.title}>{t('users.invite.title')}</Text>
+        <ScreenHeader title={t('users.invite.title')} />
         <Text style={styles.subtitle}>{t('users.invite.subtitle')}</Text>
 
         <View style={styles.roleGrid}>

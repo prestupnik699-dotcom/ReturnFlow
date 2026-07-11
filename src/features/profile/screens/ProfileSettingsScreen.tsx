@@ -3,6 +3,7 @@ import { View, Text, Pressable, StyleSheet } from 'react-native';
 import { useTranslation } from 'react-i18next';
 import { useTheme } from '@/theme/ThemeProvider';
 import { Screen } from '@/components/Screen';
+import { ScreenHeader } from '@/components/ScreenHeader';
 import { useAuthStore } from '@/stores/auth.store';
 import { useLanguageStore, type AppLanguage } from '@/stores/language.store';
 import { useThemeStore, type ThemeMode } from '@/stores/theme.store';
@@ -58,7 +59,7 @@ export function ProfileSettingsScreen() {
   return (
     <Screen>
       <View style={styles.container}>
-        <Text style={styles.title}>{t('profile.title')}</Text>
+        <ScreenHeader title={t('profile.title')} />
 
         <View style={styles.field}>
           <Text style={styles.label}>{t('profile.languageLabel')}</Text>

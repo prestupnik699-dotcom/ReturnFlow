@@ -4,6 +4,7 @@ import { useTranslation } from 'react-i18next';
 import Animated, { FadeInDown } from 'react-native-reanimated';
 import { useTheme } from '@/theme/ThemeProvider';
 import { Screen } from '@/components/Screen';
+import { ScreenHeader } from '@/components/ScreenHeader';
 import { Card } from '@/components/Card';
 import { useTeamMembers } from '@/features/users/hooks/useTeamMembers';
 import { TeamMemberSheet } from '@/features/users/screens/TeamMemberSheet';
@@ -41,7 +42,7 @@ export function TeamScreen() {
   return (
     <Screen>
       <View style={styles.container}>
-        <Text style={styles.title}>{t('users.team.title')}</Text>
+        <ScreenHeader title={t('users.team.title')} />
 
         {isError ? (
           <Text style={styles.errorText}>{t('organizations.settings.loadError')}</Text>
