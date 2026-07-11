@@ -1,5 +1,6 @@
 import { View, Text, FlatList, Pressable, ActivityIndicator, StyleSheet } from 'react-native';
 import { useTranslation } from 'react-i18next';
+import { useRouter } from 'expo-router';
 import Animated, { FadeInDown } from 'react-native-reanimated';
 import { useTheme } from '@/theme/ThemeProvider';
 import { Screen } from '@/components/Screen';
@@ -22,8 +23,9 @@ function formatDateTime(iso: string): string {
 export function NotificationsScreen() {
   const theme = useTheme();
   const { t } = useTranslation();
+  const router = useRouter();
   const tabBarClearance = useTabBarClearance();
-  const { data: notifications, isLoading } = useNotifications();
+  const { data: notifications, isLoading, isError, error } = useNotifications();
   const markReadMutation = useMarkNotificationRead();
   const markAllMutation = useMarkAllNotificationsRead();
   const styles = createStyles(theme);
@@ -32,6 +34,15 @@ export function NotificationsScreen() {
 
   const bodyOrTitle = (n: AppNotification) =>
     n.type === 'chat_message' ? t('chat.newMessage') : n.title;
+
+  const handlePress = (item: AppNotification) => {
+    if (!item.isRead) markReadMutation.mutate(item.id);
+    // Only one notification source exists today (D-030) — as more are added,
+    // this becomes a small type -> route lookup table instead of an if-chain.
+    if (item.type === 'chat_message') {
+      router.push('/chat');
+    }
+  };
 
   return (
     <Screen>
@@ -49,6 +60,10 @@ export function NotificationsScreen() {
           <View style={styles.center}>
             <ActivityIndicator color={theme.colors.primary} />
           </View>
+        ) : isError ? (
+          <View style={styles.center}>
+            <Text style={styles.errorText}>{error.message}</Text>
+          </View>
         ) : (
           <FlatList
             data={notifications}
@@ -57,7 +72,7 @@ export function NotificationsScreen() {
             ListEmptyComponent={<EmptyState icon="notifications-outline" title={t('chat.empty')} />}
             renderItem={({ item, index }) => (
               <Animated.View entering={FadeInDown.delay(index * 40).duration(220)}>
-                <Pressable onPress={() => !item.isRead && markReadMutation.mutate(item.id)}>
+                <Pressable onPress={() => handlePress(item)}>
                   <Card>
                     <View style={styles.row}>
                       {!item.isRead ? (
@@ -94,7 +109,7 @@ function createStyles(theme: ReturnType<typeof useTheme>) {
       flexDirection: 'row',
       justifyContent: 'space-between',
       alignItems: 'center',
-      marginBottom: theme.spacing.md,
+      marginBottom: theme.spacing.lg,
     },
     title: {
       fontSize: theme.fontSizes['2xl'],
@@ -106,6 +121,7 @@ function createStyles(theme: ReturnType<typeof useTheme>) {
       color: theme.colors.primary,
       fontWeight: theme.fontWeights.medium,
     },
+    errorText: { color: theme.colors.danger, textAlign: 'center' },
     list: { gap: theme.spacing.sm },
     row: { flexDirection: 'row', gap: theme.spacing.sm, padding: theme.spacing.lg },
     unreadDot: {
@@ -116,7 +132,7 @@ function createStyles(theme: ReturnType<typeof useTheme>) {
       marginTop: 6,
     },
     dotSpacer: { width: 8 },
-    info: { flex: 1, gap: 2 },
+    info: { flex: 1, gap: 3 },
     notifTitle: { fontSize: theme.fontSizes.md, color: theme.colors.textSecondary },
     notifTitleUnread: { color: theme.colors.textPrimary, fontWeight: theme.fontWeights.semiBold },
     notifBody: { fontSize: theme.fontSizes.sm, color: theme.colors.textSecondary },

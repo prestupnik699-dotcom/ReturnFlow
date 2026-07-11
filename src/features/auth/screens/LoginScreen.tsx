@@ -4,7 +4,6 @@ import {
   Text,
   TextInput,
   Pressable,
-  ActivityIndicator,
   StyleSheet,
   KeyboardAvoidingView,
   Platform,
@@ -17,6 +16,7 @@ import { loginSchema, type LoginFormValues } from '@/features/auth/validators/lo
 import { login } from '@/features/auth/services/auth.service';
 import { useTheme } from '@/theme/ThemeProvider';
 import { Logo } from '@/components/Logo';
+import { Button } from '@/components/Button';
 
 export function LoginScreen() {
   const router = useRouter();
@@ -118,20 +118,12 @@ export function LoginScreen() {
             </View>
           ) : null}
 
-          <Pressable
-            style={({ pressed }) => [
-              styles.button,
-              (isSubmitting || pressed) && styles.buttonPressed,
-            ]}
+          <Button
+            label={t('auth.login.submit')}
             onPress={handleSubmit(onSubmit)}
-            disabled={isSubmitting}
-          >
-            {isSubmitting ? (
-              <ActivityIndicator color={theme.colors.onPrimary} />
-            ) : (
-              <Text style={styles.buttonText}>{t('auth.login.submit')}</Text>
-            )}
-          </Pressable>
+            loading={isSubmitting}
+            style={styles.submitButton}
+          />
 
           <Pressable
             onPress={() => router.push('/forgot-password')}
@@ -184,7 +176,7 @@ function createStyles(theme: ReturnType<typeof useTheme>) {
       borderWidth: 1,
       borderColor: theme.colors.border,
       backgroundColor: theme.colors.surface,
-      borderRadius: 12,
+      borderRadius: theme.radius.md,
       paddingHorizontal: theme.spacing.md,
       paddingVertical: theme.spacing.md,
       fontSize: theme.fontSizes.md,
@@ -194,7 +186,7 @@ function createStyles(theme: ReturnType<typeof useTheme>) {
     errorText: { fontSize: theme.fontSizes.xs, color: theme.colors.danger },
     errorBanner: {
       backgroundColor: theme.colors.danger + '15',
-      borderRadius: 10,
+      borderRadius: theme.radius.sm,
       padding: theme.spacing.md,
     },
     errorBannerText: {
@@ -202,19 +194,7 @@ function createStyles(theme: ReturnType<typeof useTheme>) {
       fontSize: theme.fontSizes.sm,
       textAlign: 'center',
     },
-    button: {
-      backgroundColor: theme.colors.primary,
-      borderRadius: 12,
-      paddingVertical: theme.spacing.md,
-      alignItems: 'center',
-      marginTop: theme.spacing.sm,
-    },
-    buttonPressed: { backgroundColor: theme.colors.primaryPressed },
-    buttonText: {
-      color: theme.colors.onPrimary,
-      fontWeight: theme.fontWeights.semiBold,
-      fontSize: theme.fontSizes.md,
-    },
+    submitButton: { marginTop: theme.spacing.sm },
     forgotPasswordLink: { alignItems: 'center', marginTop: theme.spacing.sm },
     footer: { flexDirection: 'row', justifyContent: 'center', marginTop: theme.spacing.lg },
     footerText: { color: theme.colors.textSecondary, fontSize: theme.fontSizes.sm },

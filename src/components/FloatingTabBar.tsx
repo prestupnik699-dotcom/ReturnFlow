@@ -16,13 +16,7 @@ const ICONS: Record<string, keyof typeof Ionicons.glyphMap> = {
 const ICON_SIZE = 48;
 
 type TabBarProps = {
-  state: {
-    index: number;
-    routes: { key: string; name: string }[];
-  };
-  // Loosely typed on purpose: expo-router's navigation object is generic over
-  // its own internal event map, which conflicts with any narrower type we try
-  // to declare here. Only .emit() and .navigate() are used below.
+  state: { index: number; routes: { key: string; name: string }[] };
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   navigation: any;
 };
@@ -65,12 +59,12 @@ export function FloatingTabBar({ state, navigation }: TabBarProps) {
                   size={22}
                   color={isFocused ? theme.colors.onPrimary : theme.colors.textSecondary}
                 />
-                {route.name === 'notifications' && unreadCount > 0 ? (
-                  <View style={styles.badge}>
-                    <Text style={styles.badgeText}>{unreadCount > 9 ? '9+' : unreadCount}</Text>
-                  </View>
-                ) : null}
               </View>
+              {route.name === 'notifications' && unreadCount > 0 ? (
+                <View style={styles.badge}>
+                  <Text style={styles.badgeText}>{unreadCount > 9 ? '9+' : unreadCount}</Text>
+                </View>
+              ) : null}
             </Pressable>
           );
         })}
@@ -107,17 +101,12 @@ function createStyles(theme: ReturnType<typeof useTheme>, insets: { bottom: numb
         default: {},
       }),
     },
-    tab: {
-      alignItems: 'center',
-      justifyContent: 'center',
-      borderRadius: ICON_SIZE / 2,
-      overflow: 'visible',
-    },
+    tab: { alignItems: 'center', justifyContent: 'center' },
     iconWrap: {
       width: ICON_SIZE,
       height: ICON_SIZE,
       borderRadius: ICON_SIZE / 2,
-      overflow: 'visible',
+      overflow: 'hidden',
       alignItems: 'center',
       justifyContent: 'center',
     },
@@ -125,7 +114,7 @@ function createStyles(theme: ReturnType<typeof useTheme>, insets: { bottom: numb
     badge: {
       position: 'absolute',
       top: 2,
-      right: -2,
+      right: 2,
       minWidth: 18,
       height: 18,
       borderRadius: 9,
