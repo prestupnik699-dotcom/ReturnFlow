@@ -1,10 +1,11 @@
-import { useEffect } from 'react';
+import { useEffect, useId } from 'react';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { supabase } from '@/lib/supabase';
 import { fetchMessages } from '@/features/chat/services/chat.service';
 
 export function useChatMessages(roomId: string | null) {
   const queryClient = useQueryClient();
+  const instanceId = useId();
 
   const query = useQuery({
     queryKey: ['chatMessages', roomId],
@@ -21,7 +22,7 @@ export function useChatMessages(roomId: string | null) {
     if (!roomId) return;
 
     const channel = supabase
-      .channel(`chat_messages:${roomId}`)
+      .channel(`chat_messages:${roomId}:${instanceId}`)
       .on(
         'postgres_changes',
         {
@@ -39,7 +40,7 @@ export function useChatMessages(roomId: string | null) {
     return () => {
       supabase.removeChannel(channel);
     };
-  }, [roomId, queryClient]);
+  }, [roomId, instanceId, queryClient]);
 
   return query;
 }

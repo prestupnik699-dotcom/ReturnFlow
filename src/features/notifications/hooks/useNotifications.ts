@@ -1,4 +1,4 @@
-import { useEffect } from 'react';
+import { useEffect, useId } from 'react';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { supabase } from '@/lib/supabase';
 import { fetchNotifications } from '@/features/notifications/services/notifications.service';
@@ -7,6 +7,10 @@ import { useAuthStore } from '@/stores/auth.store';
 export function useNotifications() {
   const profile = useAuthStore((state) => state.profile);
   const queryClient = useQueryClient();
+  // Each mounted instance of this hook needs its own realtime channel name —
+  // it can be called from multiple places at once (tab badge + the screen
+  // itself), and Supabase refuses a second subscribe() on the same channel name.
+  const instanceId = useId();
 
   const query = useQuery({
     queryKey: ['notifications', profile?.id],
@@ -23,7 +27,7 @@ export function useNotifications() {
     if (!profile) return;
 
     const channel = supabase
-      .channel(`notifications:${profile.id}`)
+      .channel(`notifications:${profile.id}:${instanceId}`)
       .on(
         'postgres_changes',
         {
@@ -41,7 +45,7 @@ export function useNotifications() {
     return () => {
       supabase.removeChannel(channel);
     };
-  }, [profile, queryClient]);
+  }, [profile, instanceId, queryClient]);
 
   return query;
 }
