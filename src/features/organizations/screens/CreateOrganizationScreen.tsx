@@ -81,6 +81,10 @@ export function CreateOrganizationScreen() {
             <Text style={styles.buttonText}>{t('organizations.submit')}</Text>
           )}
         </Pressable>
+
+        <Pressable onPress={() => logout()} style={styles.logoutLink}>
+          <Text style={styles.logoutLinkText}>{t('common.logOut')}</Text>
+        </Pressable>
       </View>
     </View>
   );
