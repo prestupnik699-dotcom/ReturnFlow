@@ -44,11 +44,13 @@ export function ChatScreen() {
   const listRef = useRef<FlatList<ChatMessage>>(null);
   const styles = createStyles(theme);
 
+  const messageCount = messages?.length ?? 0;
+
   useEffect(() => {
-    if (messages && messages.length > 0) {
+    if (messageCount > 0) {
       setTimeout(() => listRef.current?.scrollToEnd({ animated: true }), 50);
     }
-  }, [messages?.length]);
+  }, [messageCount]);
 
   if (!activeStoreId) {
     return (
