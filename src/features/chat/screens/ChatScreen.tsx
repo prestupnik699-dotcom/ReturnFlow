@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import {
   View,
   Text,
@@ -19,6 +19,7 @@ import { useTabBarClearance } from '@/hooks/useTabBarClearance';
 import { useChatRoom } from '@/features/chat/hooks/useChatRoom';
 import { useChatMessages } from '@/features/chat/hooks/useChatMessages';
 import { useSendChatMessage } from '@/features/chat/hooks/useSendChatMessage';
+import { useStoreName } from '@/features/stores/hooks/useStoreName';
 import { useAuthStore } from '@/stores/auth.store';
 import { useMembershipStore } from '@/stores/membership.store';
 import type { ChatMessage } from '@/features/chat/services/chat.service';
@@ -35,11 +36,19 @@ export function ChatScreen() {
   const tabBarClearance = useTabBarClearance();
   const activeStoreId = useMembershipStore((state) => state.activeStoreId);
   const profile = useAuthStore((state) => state.profile);
+  const { data: storeName } = useStoreName(activeStoreId);
   const { data: roomId } = useChatRoom();
   const { data: messages, isLoading } = useChatMessages(roomId ?? null);
   const sendMutation = useSendChatMessage(roomId ?? '');
   const [text, setText] = useState('');
+  const listRef = useRef<FlatList<ChatMessage>>(null);
   const styles = createStyles(theme);
+
+  useEffect(() => {
+    if (messages && messages.length > 0) {
+      setTimeout(() => listRef.current?.scrollToEnd({ animated: true }), 50);
+    }
+  }, [messages?.length]);
 
   if (!activeStoreId) {
     return (
@@ -75,9 +84,13 @@ export function ChatScreen() {
     <Screen>
       <KeyboardAvoidingView
         style={styles.flex}
-        behavior={Platform.OS === 'ios' ? 'padding' : undefined}
+        behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+        keyboardVerticalOffset={Platform.OS === 'ios' ? 90 : 0}
       >
-        <Text style={styles.title}>{t('chat.title')}</Text>
+        <View style={styles.header}>
+          <Text style={styles.title}>{t('chat.title')}</Text>
+          {storeName ? <Text style={styles.subtitle}>{storeName}</Text> : null}
+        </View>
 
         {isLoading ? (
           <View style={styles.center}>
@@ -85,14 +98,19 @@ export function ChatScreen() {
           </View>
         ) : (
           <FlatList
-            data={[...(messages ?? [])].reverse()}
-            inverted
+            ref={listRef}
+            data={messages ?? []}
             keyExtractor={(item) => item.id}
             renderItem={renderItem}
             contentContainerStyle={styles.list}
             ListEmptyComponent={<EmptyState icon="chatbubbles-outline" title={t('chat.empty')} />}
+            onContentSizeChange={() => listRef.current?.scrollToEnd({ animated: false })}
           />
         )}
+
+        {sendMutation.isError ? (
+          <Text style={styles.errorText}>{sendMutation.error.message}</Text>
+        ) : null}
 
         <View style={[styles.inputRow, { marginBottom: tabBarClearance }]}>
           <TextInput
@@ -108,7 +126,11 @@ export function ChatScreen() {
             onPress={handleSend}
             disabled={sendMutation.isPending}
           >
-            <Ionicons name="arrow-up" size={20} color={theme.colors.onPrimary} />
+            {sendMutation.isPending ? (
+              <ActivityIndicator size="small" color={theme.colors.onPrimary} />
+            ) : (
+              <Ionicons name="arrow-up" size={20} color={theme.colors.onPrimary} />
+            )}
           </Pressable>
         </View>
       </KeyboardAvoidingView>
@@ -121,12 +143,13 @@ function createStyles(theme: ReturnType<typeof useTheme>) {
     flex: { flex: 1 },
     center: { flex: 1, justifyContent: 'center', alignItems: 'center' },
     noStoreText: { color: theme.colors.textSecondary, textAlign: 'center' },
+    header: { marginBottom: theme.spacing.sm },
     title: {
       fontSize: theme.fontSizes['2xl'],
       fontWeight: theme.fontWeights.bold,
       color: theme.colors.textPrimary,
-      marginBottom: theme.spacing.sm,
     },
+    subtitle: { fontSize: theme.fontSizes.sm, color: theme.colors.textSecondary, marginTop: 2 },
     list: { flexGrow: 1, gap: theme.spacing.xs, paddingVertical: theme.spacing.sm },
     bubbleRow: { flexDirection: 'row' },
     bubbleRowOwn: { justifyContent: 'flex-end' },
@@ -152,6 +175,12 @@ function createStyles(theme: ReturnType<typeof useTheme>) {
     messageTextOwn: { color: theme.colors.onPrimary },
     time: { fontSize: 10, color: theme.colors.textSecondary, marginTop: 2, alignSelf: 'flex-end' },
     timeOwn: { color: theme.colors.onPrimary, opacity: 0.7 },
+    errorText: {
+      fontSize: theme.fontSizes.xs,
+      color: theme.colors.danger,
+      textAlign: 'center',
+      marginBottom: 4,
+    },
     inputRow: {
       flexDirection: 'row',
       alignItems: 'flex-end',

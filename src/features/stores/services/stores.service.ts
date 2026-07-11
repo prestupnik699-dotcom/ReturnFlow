@@ -118,3 +118,13 @@ export async function updateStore(
 
   return { success: true, data: mapStore(data) };
 }
+
+export async function fetchStoreName(storeId: string): Promise<ServiceResult<string>> {
+  const { data, error } = await supabase.from('stores').select('name').eq('id', storeId).single();
+
+  if (error || !data) {
+    return fromCaughtError(error, 'FETCH_STORE_NAME_FAILED');
+  }
+
+  return { success: true, data: data.name };
+}
