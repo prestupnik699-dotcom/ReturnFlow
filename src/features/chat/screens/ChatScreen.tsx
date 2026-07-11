@@ -16,6 +16,7 @@ import { useTheme } from '@/theme/ThemeProvider';
 import { Screen } from '@/components/Screen';
 import { EmptyState } from '@/components/EmptyState';
 import { useTabBarClearance } from '@/hooks/useTabBarClearance';
+import { useKeyboardVisible } from '@/hooks/useKeyboardVisible';
 import { useChatRoom } from '@/features/chat/hooks/useChatRoom';
 import { useChatMessages } from '@/features/chat/hooks/useChatMessages';
 import { useSendChatMessage } from '@/features/chat/hooks/useSendChatMessage';
@@ -34,6 +35,7 @@ export function ChatScreen() {
   const theme = useTheme();
   const { t } = useTranslation();
   const tabBarClearance = useTabBarClearance();
+  const keyboardVisible = useKeyboardVisible();
   const activeStoreId = useMembershipStore((state) => state.activeStoreId);
   const profile = useAuthStore((state) => state.profile);
   const { data: storeName } = useStoreName(activeStoreId);
@@ -113,7 +115,7 @@ export function ChatScreen() {
           <Text style={styles.errorText}>{sendMutation.error.message}</Text>
         ) : null}
 
-        <View style={[styles.inputRow, { marginBottom: tabBarClearance }]}>
+        <View style={[styles.inputRow, { marginBottom: keyboardVisible ? 0 : tabBarClearance }]}>
           <TextInput
             style={styles.input}
             placeholder={t('chat.placeholder')}
