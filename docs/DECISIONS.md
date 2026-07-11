@@ -297,3 +297,11 @@ Fixed:
 Status: Accepted
 
 `chat_rooms.type` supports General/Returns/Announcements/Private, but building all of them at once is unnecessary scope for V1. Real daily usage is store-team communication, so V1 ships exactly one auto-created "General" room per store (trigger on store creation, mirroring the `app_settings` auto-creation pattern from D-025's era). Org-wide rooms, a "Returns" discussion room, and Attachments/Read Status are deferred to focused follow-up steps, not built in this first pass.
+
+### D-030 — Notifications V1 Scope: In-App Only, Chat Messages as First Trigger
+
+Status: Accepted
+
+Remote push notifications require a real native build (not testable in Expo Go), so V1 ships in-app notifications only — list, unread counter, mark-as-read. Push registration and delivery are deferred to Phase 17 (release build).
+
+`notifications` table existed since Phase 2 but nothing ever inserted into it. First (and only, for now) trigger: a new chat message notifies other members of that room. Other event sources (urgent returns, invitations, announcements) will get their own triggers when those flows are revisited, not all at once.
