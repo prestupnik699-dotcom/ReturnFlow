@@ -2,6 +2,7 @@ import { View, Pressable, StyleSheet, Platform } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useTheme } from '@/theme/ThemeProvider';
+import { useUnreadCount } from '@/features/notifications/hooks/useUnreadCount';
 
 const ICONS: Record<string, keyof typeof Ionicons.glyphMap> = {
   stores: 'storefront-outline',
@@ -27,6 +28,7 @@ type TabBarProps = {
 };
 
 export function FloatingTabBar({ state, navigation }: TabBarProps) {
+  const unreadCount = useUnreadCount();
   const theme = useTheme();
   const insets = useSafeAreaInsets();
   const styles = createStyles(theme, insets);
@@ -115,5 +117,16 @@ function createStyles(theme: ReturnType<typeof useTheme>, insets: { bottom: numb
       justifyContent: 'center',
     },
     iconWrapActive: { backgroundColor: theme.colors.primary },
+    badge: {
+      position: 'absolute',
+      top: 4,
+      right: 4,
+      width: 9,
+      height: 9,
+      borderRadius: 5,
+      backgroundColor: theme.colors.danger,
+      borderWidth: 1.5,
+      borderColor: theme.colors.surface,
+    },
   });
 }
