@@ -88,7 +88,7 @@ export function NotificationsScreen() {
 
 function createStyles(theme: ReturnType<typeof useTheme>) {
   return StyleSheet.create({
-    container: { flex: 1 },
+    container: { flex: 1, paddingTop: theme.spacing.xl },
     center: { flex: 1, justifyContent: 'center', alignItems: 'center' },
     header: {
       flexDirection: 'row',
