@@ -1,4 +1,6 @@
+import { useEffect } from 'react';
 import { View, Text, StyleSheet } from 'react-native';
+import Animated, { useAnimatedStyle, useSharedValue, withTiming } from 'react-native-reanimated';
 import { useTheme } from '@/theme/ThemeProvider';
 
 type Props = { label: string; value: number; maxValue: number; color?: string };
@@ -6,7 +8,16 @@ type Props = { label: string; value: number; maxValue: number; color?: string };
 export function StatBar({ label, value, maxValue, color }: Props) {
   const theme = useTheme();
   const styles = createStyles(theme);
-  const widthPercent = maxValue > 0 ? Math.max((value / maxValue) * 100, value > 0 ? 4 : 0) : 0;
+  const targetPercent = maxValue > 0 ? Math.max((value / maxValue) * 100, value > 0 ? 4 : 0) : 0;
+  const widthPercent = useSharedValue(0);
+
+  useEffect(() => {
+    widthPercent.value = withTiming(targetPercent, { duration: 700 });
+  }, [targetPercent, widthPercent]);
+
+  const animatedStyle = useAnimatedStyle(() => ({
+    width: `${widthPercent.value}%`,
+  }));
 
   return (
     <View style={styles.row}>
@@ -17,11 +28,8 @@ export function StatBar({ label, value, maxValue, color }: Props) {
         <Text style={styles.value}>{value}</Text>
       </View>
       <View style={styles.track}>
-        <View
-          style={[
-            styles.fill,
-            { width: `${widthPercent}%`, backgroundColor: color ?? theme.colors.primary },
-          ]}
+        <Animated.View
+          style={[styles.fill, { backgroundColor: color ?? theme.colors.primary }, animatedStyle]}
         />
       </View>
     </View>

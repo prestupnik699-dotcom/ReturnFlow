@@ -11,6 +11,7 @@ import { useTheme } from '@/theme/ThemeProvider';
 import { Logo } from '@/components/Logo';
 import { Button } from '@/components/Button';
 import { logout } from '@/features/auth/services/auth.service';
+import Animated, { FadeInDown, ZoomIn } from 'react-native-reanimated';
 
 export function CreateOrganizationScreen() {
   const theme = useTheme();
@@ -35,9 +36,15 @@ export function CreateOrganizationScreen() {
   return (
     <View style={styles.container}>
       <View style={styles.header}>
-        <Logo size={56} />
-        <Text style={styles.title}>{t('organizations.title')}</Text>
-        <Text style={styles.subtitle}>{t('organizations.subtitle')}</Text>
+        <Animated.View entering={ZoomIn.duration(500).springify()}>
+          <Logo size={56} />
+        </Animated.View>
+        <Animated.Text entering={FadeInDown.delay(150).duration(500)} style={styles.title}>
+          {t('organizations.title')}
+        </Animated.Text>
+        <Animated.Text entering={FadeInDown.delay(250).duration(500)} style={styles.subtitle}>
+          {t('organizations.subtitle')}
+        </Animated.Text>
       </View>
 
       <View style={styles.form}>

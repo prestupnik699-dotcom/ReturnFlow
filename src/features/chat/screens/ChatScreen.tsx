@@ -12,6 +12,7 @@ import {
 } from 'react-native';
 import { useTranslation } from 'react-i18next';
 import { Ionicons } from '@expo/vector-icons';
+import Animated, { FadeInUp } from 'react-native-reanimated';
 import { useTheme } from '@/theme/ThemeProvider';
 import { Screen } from '@/components/Screen';
 import { EmptyState } from '@/components/EmptyState';
@@ -101,13 +102,16 @@ export function ChatScreen() {
     const isOwn = item.authorId === profile?.id;
     return (
       <Pressable onLongPress={() => handleLongPressMessage(item)}>
-        <View style={[styles.bubbleRow, isOwn ? styles.bubbleRowOwn : styles.bubbleRowOther]}>
+        <Animated.View
+          entering={FadeInUp.duration(220)}
+          style={[styles.bubbleRow, isOwn ? styles.bubbleRowOwn : styles.bubbleRowOther]}
+        >
           <View style={[styles.bubble, isOwn ? styles.bubbleOwn : styles.bubbleOther]}>
             {!isOwn ? <Text style={styles.author}>{item.authorName}</Text> : null}
             <Text style={[styles.messageText, isOwn && styles.messageTextOwn]}>{item.message}</Text>
             <Text style={[styles.time, isOwn && styles.timeOwn]}>{formatTime(item.createdAt)}</Text>
           </View>
-        </View>
+        </Animated.View>
       </Pressable>
     );
   };

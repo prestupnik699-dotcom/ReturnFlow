@@ -15,6 +15,7 @@ import { useTabBarClearance } from '@/hooks/useTabBarClearance';
 import Animated, { FadeInDown } from 'react-native-reanimated';
 import { useTheme } from '@/theme/ThemeProvider';
 import { Screen } from '@/components/Screen';
+import { PressableScale } from '@/components/PressableScale';
 import { Card } from '@/components/Card';
 import { Button } from '@/components/Button';
 import { RequireRole } from '@/components/RequireRole';

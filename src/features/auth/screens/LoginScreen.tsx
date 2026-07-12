@@ -12,6 +12,7 @@ import { useForm, Controller } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useRouter } from 'expo-router';
 import { useTranslation } from 'react-i18next';
+import Animated, { FadeInDown, ZoomIn } from 'react-native-reanimated';
 import { loginSchema, type LoginFormValues } from '@/features/auth/validators/login.schema';
 import { login } from '@/features/auth/services/auth.service';
 import { useTheme } from '@/theme/ThemeProvider';
@@ -54,12 +55,18 @@ export function LoginScreen() {
     >
       <View style={styles.container}>
         <View style={styles.header}>
-          <Logo size={64} />
-          <Text style={styles.title}>{t('app.name')}</Text>
-          <Text style={styles.subtitle}>{t('auth.login.subtitle')}</Text>
+          <Animated.View entering={ZoomIn.duration(500).springify()}>
+            <Logo size={64} />
+          </Animated.View>
+          <Animated.Text entering={FadeInDown.delay(150).duration(500)} style={styles.title}>
+            {t('app.name')}
+          </Animated.Text>
+          <Animated.Text entering={FadeInDown.delay(250).duration(500)} style={styles.subtitle}>
+            {t('auth.login.subtitle')}
+          </Animated.Text>
         </View>
 
-        <View style={styles.form}>
+        <Animated.View entering={FadeInDown.delay(350).duration(500)} style={styles.form}>
           <View style={styles.field}>
             <Text style={styles.label}>{t('auth.login.emailLabel')}</Text>
             <Controller
@@ -138,7 +145,7 @@ export function LoginScreen() {
               <Text style={styles.footerLink}>{t('auth.login.registerLink')}</Text>
             </Pressable>
           </View>
-        </View>
+        </Animated.View>
       </View>
     </KeyboardAvoidingView>
   );

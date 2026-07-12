@@ -6,6 +6,7 @@ import { Ionicons } from '@expo/vector-icons';
 import { useTabBarClearance } from '@/hooks/useTabBarClearance';
 import { useTheme } from '@/theme/ThemeProvider';
 import { Screen } from '@/components/Screen';
+import { PressableScale } from '@/components/PressableScale';
 import { Card } from '@/components/Card';
 import { Button } from '@/components/Button';
 import { RequireRole } from '@/components/RequireRole';
