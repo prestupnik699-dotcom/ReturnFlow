@@ -212,7 +212,8 @@
       "title": "Edit return",
       "submit": "Save"
     },
-    "pendingSync": "Not synced yet"
+    "pendingSync": "Not synced yet",
+    "filterBySupplier": "Filter by supplier"
   },
   "chat": {
     "title": "Chat",

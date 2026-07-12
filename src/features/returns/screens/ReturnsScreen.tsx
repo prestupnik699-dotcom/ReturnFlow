@@ -21,6 +21,7 @@ import { useTabBarClearance } from '@/hooks/useTabBarClearance';
 import { useReturns } from '@/features/returns/hooks/useReturns';
 import { useSuppliers } from '@/features/suppliers/hooks/useSuppliers';
 import { ReturnFormSheet } from '@/features/returns/screens/ReturnFormSheet';
+import { SupplierFilterSheet } from '@/features/returns/screens/SupplierFilterSheet';
 import { useMembershipStore } from '@/stores/membership.store';
 import type {
   ReturnItem,
@@ -38,6 +39,8 @@ export function ReturnsScreen() {
   const tabBarClearance = useTabBarClearance();
   const activeStoreId = useMembershipStore((state) => state.activeStoreId);
   const [statusFilter, setStatusFilter] = useState<ReturnStatus | null>(null);
+  const [supplierFilter, setSupplierFilter] = useState<string | null>(null);
+  const [supplierSheetVisible, setSupplierSheetVisible] = useState(false);
   const [searchInput, setSearchInput] = useState('');
   const [sortMode, setSortMode] = useState<SortMode>('recent');
   const {
@@ -50,21 +53,21 @@ export function ReturnsScreen() {
   const styles = createStyles(theme);
 
   const query = searchInput.trim().toLowerCase();
-  const filtered = query
-    ? allReturns?.filter(
-        (r) =>
-          r.title.toLowerCase().includes(query) || r.supplierName.toLowerCase().includes(query),
-      )
-    : allReturns;
-  const sorted = filtered
-    ? [...filtered].sort((a, b) => {
-        if (a.pendingSync && !b.pendingSync) return -1;
-        if (!a.pendingSync && b.pendingSync) return 1;
-        return sortMode === 'recent'
-          ? new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
-          : new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime();
-      })
-    : filtered;
+  const filtered = (allReturns ?? [])
+    .filter((r) => !supplierFilter || r.supplierId === supplierFilter)
+    .filter(
+      (r) =>
+        !query ||
+        r.title.toLowerCase().includes(query) ||
+        r.supplierName.toLowerCase().includes(query),
+    );
+  const sorted = [...filtered].sort((a, b) => {
+    if (a.pendingSync && !b.pendingSync) return -1;
+    if (!a.pendingSync && b.pendingSync) return 1;
+    return sortMode === 'recent'
+      ? new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
+      : new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime();
+  });
 
   const statusLabels: Record<ReturnStatus, string> = {
     pending: t('returns.statusPending'),
@@ -86,6 +89,10 @@ export function ReturnsScreen() {
     returned: theme.colors.success,
     archived: theme.colors.textSecondary,
   };
+
+  const selectedSupplierName = supplierFilter
+    ? suppliers?.find((s) => s.id === supplierFilter)?.name
+    : null;
 
   if (!activeStoreId) {
     return (
@@ -116,6 +123,13 @@ export function ReturnsScreen() {
             value={searchInput}
             onChangeText={setSearchInput}
           />
+          <Pressable onPress={() => setSupplierSheetVisible(true)} hitSlop={8}>
+            <Ionicons
+              name="funnel-outline"
+              size={18}
+              color={supplierFilter ? theme.colors.primary : theme.colors.textSecondary}
+            />
+          </Pressable>
           <Pressable
             onPress={() => setSortMode((s) => (s === 'recent' ? 'oldest' : 'recent'))}
             hitSlop={8}
@@ -123,6 +137,13 @@ export function ReturnsScreen() {
             <Ionicons name="swap-vertical" size={18} color={theme.colors.textSecondary} />
           </Pressable>
         </View>
+
+        {selectedSupplierName ? (
+          <Pressable style={styles.activeSupplierChip} onPress={() => setSupplierFilter(null)}>
+            <Text style={styles.activeSupplierChipText}>{selectedSupplierName}</Text>
+            <Ionicons name="close-circle" size={16} color={theme.colors.onPrimary} />
+          </Pressable>
+        ) : null}
 
         <View style={styles.filterRow}>
           <Pressable
@@ -173,23 +194,25 @@ export function ReturnsScreen() {
                     <View style={styles.row}>
                       <View
                         style={[
-                          styles.priorityBar,
+                          styles.priorityDot,
                           { backgroundColor: priorityColors[item.priority] },
                         ]}
                       />
+
                       <View style={styles.info}>
-                        <Text style={styles.itemTitle}>{item.title}</Text>
+                        <Text style={styles.itemTitle} numberOfLines={1}>
+                          {item.title}
+                        </Text>
                         <View style={styles.metaRow}>
-                          <Ionicons
-                            name="cube-outline"
-                            size={12}
-                            color={theme.colors.textSecondary}
-                          />
-                          <Text style={styles.meta}>{item.supplierName}</Text>
-                          <Text style={styles.metaDot}>·</Text>
-                          <Text style={styles.meta}>×{item.quantity}</Text>
+                          <Text style={styles.meta} numberOfLines={1}>
+                            {item.supplierName}
+                          </Text>
+                          <View style={styles.qtyTag}>
+                            <Text style={styles.qtyTagText}>×{item.quantity}</Text>
+                          </View>
                         </View>
                       </View>
+
                       {item.pendingSync ? (
                         <View style={styles.pendingBadge}>
                           <Ionicons
@@ -235,6 +258,12 @@ export function ReturnsScreen() {
       </View>
 
       <ReturnFormSheet visible={formVisible} onClose={() => setFormVisible(false)} />
+      <SupplierFilterSheet
+        visible={supplierSheetVisible}
+        onClose={() => setSupplierSheetVisible(false)}
+        selectedSupplierId={supplierFilter}
+        onSelect={setSupplierFilter}
+      />
     </Screen>
   );
 }
@@ -267,6 +296,22 @@ function createStyles(theme: ReturnType<typeof useTheme>) {
       color: theme.colors.textPrimary,
       fontSize: theme.fontSizes.md,
     },
+    activeSupplierChip: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      alignSelf: 'flex-start',
+      gap: 6,
+      backgroundColor: theme.colors.primary,
+      borderRadius: theme.radius.full,
+      paddingHorizontal: theme.spacing.md,
+      paddingVertical: 6,
+      marginBottom: theme.spacing.sm,
+    },
+    activeSupplierChipText: {
+      color: theme.colors.onPrimary,
+      fontSize: theme.fontSizes.xs,
+      fontWeight: theme.fontWeights.semiBold,
+    },
     filterRow: {
       flexDirection: 'row',
       flexWrap: 'wrap',
@@ -295,27 +340,36 @@ function createStyles(theme: ReturnType<typeof useTheme>) {
     errorText: { color: theme.colors.danger, textAlign: 'center' },
     warningText: { color: theme.colors.warning, textAlign: 'center', fontSize: theme.fontSizes.sm },
     footer: { paddingTop: theme.spacing.sm },
-    row: { flexDirection: 'row', alignItems: 'center', gap: theme.spacing.md },
-    priorityBar: {
-      width: 4,
-      alignSelf: 'stretch',
-      borderTopLeftRadius: theme.radius.lg,
-      borderBottomLeftRadius: theme.radius.lg,
+    row: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      gap: theme.spacing.md,
+      padding: theme.spacing.lg,
     },
-    info: { flex: 1, gap: 3, paddingVertical: theme.spacing.lg },
+    priorityDot: { width: 8, height: 8, borderRadius: 4 },
+    info: { flex: 1, gap: 4 },
     itemTitle: {
       fontSize: theme.fontSizes.md,
       fontWeight: theme.fontWeights.semiBold,
       color: theme.colors.textPrimary,
     },
-    metaRow: { flexDirection: 'row', alignItems: 'center', gap: 4 },
-    meta: { fontSize: theme.fontSizes.sm, color: theme.colors.textSecondary },
-    metaDot: { fontSize: theme.fontSizes.sm, color: theme.colors.textSecondary },
+    metaRow: { flexDirection: 'row', alignItems: 'center', gap: theme.spacing.sm },
+    meta: { flex: 1, fontSize: theme.fontSizes.sm, color: theme.colors.textSecondary },
+    qtyTag: {
+      backgroundColor: theme.colors.surfaceVariant,
+      borderRadius: theme.radius.sm,
+      paddingHorizontal: 6,
+      paddingVertical: 2,
+    },
+    qtyTagText: {
+      fontSize: theme.fontSizes.xs,
+      color: theme.colors.textSecondary,
+      fontWeight: theme.fontWeights.medium,
+    },
     statusPill: {
       borderRadius: theme.radius.sm,
       paddingHorizontal: theme.spacing.sm,
       paddingVertical: 4,
-      marginRight: theme.spacing.lg,
     },
     statusPillText: { fontSize: theme.fontSizes.xs, fontWeight: theme.fontWeights.semiBold },
     pendingBadge: {
@@ -326,7 +380,6 @@ function createStyles(theme: ReturnType<typeof useTheme>) {
       borderRadius: theme.radius.sm,
       paddingHorizontal: theme.spacing.sm,
       paddingVertical: 4,
-      marginRight: theme.spacing.lg,
     },
     pendingBadgeText: {
       fontSize: theme.fontSizes.xs,
