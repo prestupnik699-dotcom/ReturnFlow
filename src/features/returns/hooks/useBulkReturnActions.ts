@@ -1,5 +1,9 @@
 import { useMutation, useQueryClient } from '@tanstack/react-query';
-import { markReturnAsReturned, archiveReturn } from '@/features/returns/services/returns.service';
+import {
+  markReturnAsReturned,
+  archiveReturn,
+  deleteReturn,
+} from '@/features/returns/services/returns.service';
 import { useAuthStore } from '@/stores/auth.store';
 import { useMembershipStore } from '@/stores/membership.store';
 
@@ -26,6 +30,20 @@ export function useBulkArchive() {
   return useMutation({
     mutationFn: async (ids: string[]) => {
       const results = await Promise.all(ids.map((id) => archiveReturn(id)));
+      const failed = results.filter((r) => !r.success);
+      if (failed.length > 0) throw new Error(`${failed.length} of ${ids.length} failed`);
+    },
+    onSuccess: () => queryClient.invalidateQueries({ queryKey: ['returns', activeStoreId] }),
+  });
+}
+
+export function useBulkDeleteReturns() {
+  const activeStoreId = useMembershipStore((state) => state.activeStoreId);
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: async (ids: string[]) => {
+      const results = await Promise.all(ids.map((id) => deleteReturn(id)));
       const failed = results.filter((r) => !r.success);
       if (failed.length > 0) throw new Error(`${failed.length} of ${ids.length} failed`);
     },

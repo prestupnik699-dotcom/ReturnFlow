@@ -215,3 +215,16 @@ export async function restoreReturn(returnId: string): Promise<ServiceResult<nul
 
   return { success: true, data: null };
 }
+
+export async function deleteReturn(returnId: string): Promise<ServiceResult<null>> {
+  const { error } = await supabase
+    .from('return_items')
+    .update({ deleted_at: new Date().toISOString() })
+    .eq('id', returnId);
+
+  if (error) {
+    return fromCaughtError(error, 'DELETE_RETURN_FAILED');
+  }
+
+  return { success: true, data: null };
+}

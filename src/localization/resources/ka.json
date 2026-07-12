@@ -219,7 +219,9 @@
     "selectedCount": "არჩეულია: {{count}}",
     "bulkMarkReturned": "დაბრუნებულად მონიშვნა",
     "bulkArchive": "არქივში გადატანა",
-    "cancelSelection": "გაუქმება"
+    "cancelSelection": "გაუქმება",
+    "bulkDeleteConfirmTitle": "წაშალოთ არჩეულები?",
+    "bulkDeleteConfirmMessage": "ეს ხელახლა ვერ დაბრუნდება."
   },
   "chat": {
     "title": "ჩატი",

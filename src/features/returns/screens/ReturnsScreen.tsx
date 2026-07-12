@@ -16,13 +16,19 @@ import { useTheme } from '@/theme/ThemeProvider';
 import { Screen } from '@/components/Screen';
 import { Button } from '@/components/Button';
 import { EmptyState } from '@/components/EmptyState';
+import { ConfirmDialog } from '@/components/ConfirmDialog';
 import { useTabBarClearance } from '@/hooks/useTabBarClearance';
 import { useReturns } from '@/features/returns/hooks/useReturns';
 import { useSuppliers } from '@/features/suppliers/hooks/useSuppliers';
 import { ReturnFormSheet } from '@/features/returns/screens/ReturnFormSheet';
 import { SupplierFilterSheet } from '@/features/returns/screens/SupplierFilterSheet';
 import { ReturnListRow } from '@/features/returns/components/ReturnListRow';
-import { useBulkMarkReturned, useBulkArchive } from '@/features/returns/hooks/useBulkReturnActions';
+import {
+  useBulkMarkReturned,
+  useBulkArchive,
+  useBulkDeleteReturns,
+} from '@/features/returns/hooks/useBulkReturnActions';
+import { useHasRole } from '@/features/auth/hooks/usePermissions';
 import { useMembershipStore } from '@/stores/membership.store';
 import type {
   ReturnItem,
@@ -39,12 +45,14 @@ export function ReturnsScreen() {
   const router = useRouter();
   const tabBarClearance = useTabBarClearance();
   const activeStoreId = useMembershipStore((state) => state.activeStoreId);
+  const canDelete = useHasRole(['Owner', 'Administrator', 'StoreManager']);
   const [statusFilter, setStatusFilter] = useState<ReturnStatus | null>(null);
   const [supplierFilter, setSupplierFilter] = useState<string | null>(null);
   const [supplierSheetVisible, setSupplierSheetVisible] = useState(false);
   const [searchInput, setSearchInput] = useState('');
   const [sortMode, setSortMode] = useState<SortMode>('recent');
   const [selectedIds, setSelectedIds] = useState<string[]>([]);
+  const [deleteConfirmVisible, setDeleteConfirmVisible] = useState(false);
   const {
     data: allReturns,
     isLoading,
@@ -54,6 +62,7 @@ export function ReturnsScreen() {
   const [formVisible, setFormVisible] = useState(false);
   const bulkMarkReturnedMutation = useBulkMarkReturned();
   const bulkArchiveMutation = useBulkArchive();
+  const bulkDeleteMutation = useBulkDeleteReturns();
   const styles = createStyles(theme);
 
   const selectionMode = selectedIds.length > 0;
@@ -129,6 +138,16 @@ export function ReturnsScreen() {
     } else {
       bulkMarkReturnedMutation.mutate(ids, { onSuccess: () => setSelectedIds([]) });
     }
+  };
+
+  const confirmBulkDelete = () => {
+    const ids = [...selectedIds];
+    bulkDeleteMutation.mutate(ids, {
+      onSuccess: () => {
+        setSelectedIds([]);
+        setDeleteConfirmVisible(false);
+      },
+    });
   };
 
   if (!activeStoreId) {
@@ -240,21 +259,35 @@ export function ReturnsScreen() {
         <View style={[styles.footer, { paddingBottom: tabBarClearance }]}>
           {selectionMode ? (
             <View style={styles.bulkBar}>
-              <View style={styles.bulkBarLeft}>
-                <Pressable onPress={() => setSelectedIds([])}>
+              <View style={styles.bulkBarTop}>
+                <Pressable style={styles.cancelButton} onPress={() => setSelectedIds([])}>
                   <Text style={styles.cancelText}>{t('returns.cancelSelection')}</Text>
                 </Pressable>
                 <Text style={styles.countText}>
                   {t('returns.selectedCount', { count: selectedIds.length })}
                 </Text>
               </View>
-              <Button
-                label={
-                  allSelectedAreReturned ? t('returns.bulkArchive') : t('returns.bulkMarkReturned')
-                }
-                onPress={handleBulkAction}
-                loading={bulkMarkReturnedMutation.isPending || bulkArchiveMutation.isPending}
-              />
+              <View style={styles.bulkBarActions}>
+                {canDelete ? (
+                  <Pressable
+                    style={styles.deleteIconButton}
+                    onPress={() => setDeleteConfirmVisible(true)}
+                    hitSlop={8}
+                  >
+                    <Ionicons name="trash-outline" size={20} color={theme.colors.danger} />
+                  </Pressable>
+                ) : null}
+                <Button
+                  label={
+                    allSelectedAreReturned
+                      ? t('returns.bulkArchive')
+                      : t('returns.bulkMarkReturned')
+                  }
+                  onPress={handleBulkAction}
+                  loading={bulkMarkReturnedMutation.isPending || bulkArchiveMutation.isPending}
+                  style={styles.flexButton}
+                />
+              </View>
             </View>
           ) : !suppliers || suppliers.length === 0 ? (
             <Text style={styles.warningText}>{t('returns.noSuppliers')}</Text>
@@ -274,6 +307,17 @@ export function ReturnsScreen() {
         onClose={() => setSupplierSheetVisible(false)}
         selectedSupplierId={supplierFilter}
         onSelect={setSupplierFilter}
+      />
+      <ConfirmDialog
+        visible={deleteConfirmVisible}
+        title={t('returns.bulkDeleteConfirmTitle')}
+        message={t('returns.bulkDeleteConfirmMessage')}
+        confirmLabel={t('organizations.settings.deleteConfirmButton')}
+        cancelLabel={t('organizations.settings.cancelButton')}
+        destructive
+        loading={bulkDeleteMutation.isPending}
+        onConfirm={confirmBulkDelete}
+        onCancel={() => setDeleteConfirmVisible(false)}
       />
     </Screen>
   );
@@ -350,19 +394,40 @@ function createStyles(theme: ReturnType<typeof useTheme>) {
     list: { gap: theme.spacing.sm },
     errorText: { color: theme.colors.danger, textAlign: 'center' },
     warningText: { color: theme.colors.warning, textAlign: 'center', fontSize: theme.fontSizes.sm },
-    footer: { paddingTop: theme.spacing.sm },
-    bulkBar: {
-      flexDirection: 'row',
-      alignItems: 'center',
-      justifyContent: 'space-between',
-      gap: theme.spacing.sm,
+    footer: {
+      paddingTop: theme.spacing.md,
+      borderTopWidth: StyleSheet.hairlineWidth,
+      borderTopColor: theme.colors.border,
     },
-    bulkBarLeft: { gap: 2 },
-    cancelText: { color: theme.colors.textSecondary, fontSize: theme.fontSizes.sm },
-    countText: {
+    bulkBar: { gap: theme.spacing.md },
+    bulkBarTop: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' },
+    cancelButton: {
+      borderWidth: 1,
+      borderColor: theme.colors.border,
+      borderRadius: theme.radius.full,
+      paddingHorizontal: theme.spacing.md,
+      paddingVertical: 8,
+    },
+    cancelText: {
       color: theme.colors.textPrimary,
+      fontSize: theme.fontSizes.sm,
+      fontWeight: theme.fontWeights.medium,
+    },
+    countText: {
+      color: theme.colors.textSecondary,
       fontSize: theme.fontSizes.sm,
       fontWeight: theme.fontWeights.semiBold,
     },
+    bulkBarActions: { flexDirection: 'row', alignItems: 'center', gap: theme.spacing.sm },
+    deleteIconButton: {
+      width: 52,
+      height: 52,
+      borderRadius: theme.radius.md,
+      borderWidth: 1,
+      borderColor: theme.colors.danger,
+      alignItems: 'center',
+      justifyContent: 'center',
+    },
+    flexButton: { flex: 1 },
   });
 }

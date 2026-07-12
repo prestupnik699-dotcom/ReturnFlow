@@ -219,7 +219,9 @@
     "selectedCount": "Выбрано: {{count}}",
     "bulkMarkReturned": "Отметить возвращёнными",
     "bulkArchive": "Архивировать",
-    "cancelSelection": "Отмена"
+    "cancelSelection": "Отмена",
+    "bulkDeleteConfirmTitle": "Удалить выбранные?",
+    "bulkDeleteConfirmMessage": "Действие необратимо."
   },
   "chat": {
     "title": "Чат",

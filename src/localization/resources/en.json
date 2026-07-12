@@ -219,7 +219,9 @@
     "selectedCount": "{{count}} selected",
     "bulkMarkReturned": "Mark returned",
     "bulkArchive": "Archive",
-    "cancelSelection": "Cancel"
+    "cancelSelection": "Cancel",
+    "bulkDeleteConfirmTitle": "Delete selected?",
+    "bulkDeleteConfirmMessage": "This cannot be undone."
   },
   "chat": {
     "title": "Chat",
