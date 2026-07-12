@@ -240,12 +240,14 @@ export function ReturnsScreen() {
         <View style={[styles.footer, { paddingBottom: tabBarClearance }]}>
           {selectionMode ? (
             <View style={styles.bulkBar}>
-              <Pressable onPress={() => setSelectedIds([])}>
-                <Text style={styles.cancelText}>{t('returns.cancelSelection')}</Text>
-              </Pressable>
-              <Text style={styles.countText}>
-                {t('returns.selectedCount', { count: selectedIds.length })}
-              </Text>
+              <View style={styles.bulkBarLeft}>
+                <Pressable onPress={() => setSelectedIds([])}>
+                  <Text style={styles.cancelText}>{t('returns.cancelSelection')}</Text>
+                </Pressable>
+                <Text style={styles.countText}>
+                  {t('returns.selectedCount', { count: selectedIds.length })}
+                </Text>
+              </View>
               <Button
                 label={
                   allSelectedAreReturned ? t('returns.bulkArchive') : t('returns.bulkMarkReturned')
@@ -355,6 +357,7 @@ function createStyles(theme: ReturnType<typeof useTheme>) {
       justifyContent: 'space-between',
       gap: theme.spacing.sm,
     },
+    bulkBarLeft: { gap: 2 },
     cancelText: { color: theme.colors.textSecondary, fontSize: theme.fontSizes.sm },
     countText: {
       color: theme.colors.textPrimary,
