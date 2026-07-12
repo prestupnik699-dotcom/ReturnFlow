@@ -20,7 +20,6 @@ SplashScreen.preventAutoHideAsync();
 
 export default function RootLayout() {
   useSessionBootstrap();
-  useSyncOnReconnect();
   const isInitializing = useAuthStore((state) => state.isInitializing);
 
   useEffect(() => {
@@ -43,6 +42,11 @@ export default function RootLayout() {
 }
 
 function RootNavigator() {
+  // Must live inside QueryClientProvider's subtree — it calls useQueryClient()
+  // internally to invalidate queries after a sync, and RootLayout itself
+  // renders above the provider, not inside it.
+  useSyncOnReconnect();
+
   const session = useAuthStore((state) => state.session);
   const memberships = useMembershipStore((state) => state.memberships);
   const hasOrganization = memberships.length > 0;
