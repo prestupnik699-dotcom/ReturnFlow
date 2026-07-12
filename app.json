@@ -7,9 +7,14 @@
     "scheme": "returnflow",
     "userInterfaceStyle": "automatic",
     "newArchEnabled": true,
+    "icon": "./assets/images/icon.png",
     "android": {
       "package": "com.returnflow.app",
-      "softwareKeyboardLayoutMode": "pan"
+      "softwareKeyboardLayoutMode": "pan",
+      "adaptiveIcon": {
+        "foregroundImage": "./assets/images/adaptive-icon.png",
+        "backgroundColor": "#6C5CE7"
+      }
     },
     "ios": {
       "supportsTablet": true,
@@ -21,6 +26,14 @@
         "expo-camera",
         {
           "cameraPermission": "ReturnFlow использует камеру для сканирования штрихкодов товаров"
+        }
+      ],
+      [
+        "expo-splash-screen",
+        {
+          "backgroundColor": "#0F141B",
+          "image": "./assets/images/splash-icon.png",
+          "imageWidth": 220
         }
       ]
     ]

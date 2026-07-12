@@ -54,9 +54,6 @@ export async function register(input: RegisterInput): Promise<ServiceResult<Sess
     return serviceError('REGISTER_FAILED', 'No session was returned by the server.');
   }
 
-  // The auth user and profile now exist. Consuming the invitation code is a
-  // separate step so a bad code produces a clear, specific error rather than
-  // failing signUp itself.
   const { error: invitationError } = await supabase.rpc('accept_invitation', {
     invitation_code: input.invitationCode,
   });
@@ -69,7 +66,9 @@ export async function register(input: RegisterInput): Promise<ServiceResult<Sess
 }
 
 export async function requestPasswordReset(email: string): Promise<ServiceResult<null>> {
-  const { error } = await supabase.auth.resetPasswordForEmail(email);
+  const { error } = await supabase.auth.resetPasswordForEmail(email, {
+    redirectTo: 'returnflow://reset-password',
+  });
 
   if (error) {
     return fromCaughtError(error, 'PASSWORD_RESET_FAILED');
@@ -86,4 +85,41 @@ export async function changePassword(newPassword: string): Promise<ServiceResult
   }
 
   return { success: true, data: null };
+}
+
+// Supabase can deliver the recovery token in the link two different ways
+// depending on project auth settings — a `code` query param (PKCE, needs
+// exchangeCodeForSession) or access_token/refresh_token in the URL fragment
+// (implicit flow, needs setSession). This handles both without needing to
+// know in advance which one a given project uses.
+export async function establishRecoverySession(url: string): Promise<ServiceResult<Session>> {
+  const codeMatch = url.match(/[?&]code=([^&]+)/);
+
+  if (codeMatch && codeMatch[1]) {
+    const { data, error } = await supabase.auth.exchangeCodeForSession(codeMatch[1]);
+    if (error || !data.session) {
+      return fromCaughtError(error, 'INVALID_RECOVERY_LINK');
+    }
+    return { success: true, data: data.session };
+  }
+
+  const hashIndex = url.indexOf('#');
+  if (hashIndex !== -1) {
+    const params = new URLSearchParams(url.slice(hashIndex + 1));
+    const accessToken = params.get('access_token');
+    const refreshToken = params.get('refresh_token');
+
+    if (accessToken && refreshToken) {
+      const { data, error } = await supabase.auth.setSession({
+        access_token: accessToken,
+        refresh_token: refreshToken,
+      });
+      if (error || !data.session) {
+        return fromCaughtError(error, 'INVALID_RECOVERY_LINK');
+      }
+      return { success: true, data: data.session };
+    }
+  }
+
+  return serviceError('INVALID_RECOVERY_LINK', 'This link is invalid or has expired.');
 }
