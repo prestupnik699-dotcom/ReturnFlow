@@ -3,6 +3,7 @@ import { View, Text, Pressable, StyleSheet } from 'react-native';
 import ReanimatedSwipeable, {
   type SwipeableMethods,
 } from 'react-native-gesture-handler/ReanimatedSwipeable';
+import { useAnimatedReaction, runOnJS, type SharedValue } from 'react-native-reanimated';
 import { Ionicons } from '@expo/vector-icons';
 import { useTranslation } from 'react-i18next';
 import { useTheme } from '@/theme/ThemeProvider';
@@ -17,6 +18,86 @@ import type {
   ReturnStatus,
   ReturnPriority,
 } from '@/features/returns/services/returns.service';
+
+type ActionSpec = {
+  label: string;
+  icon: keyof typeof Ionicons.glyphMap;
+  color: string;
+  run: () => void;
+};
+
+type Theme = ReturnType<typeof import('@/theme/ThemeProvider').useTheme>;
+
+// Watches its OWN panel's open-progress only — no left/right direction
+// enum involved anywhere, so there is no possibility of the two actions
+// getting cross-wired. Fires once when the panel settles fully open
+// (progress === 1), whether that's from a full drag or a partial
+// drag-past-threshold-then-release (Swipeable auto-snaps open either way).
+function SwipeActionPanel({
+  progress,
+  action,
+  theme,
+  alignLeft,
+  onTriggered,
+}: {
+  progress: SharedValue<number>;
+  action: ActionSpec;
+  theme: Theme;
+  alignLeft: boolean;
+  onTriggered: () => void;
+}) {
+  const firedRef = useRef(false);
+  const styles = createPanelStyles(theme, alignLeft);
+
+  useAnimatedReaction(
+    () => progress.value,
+    (value) => {
+      if (value >= 1 && !firedRef.current) {
+        firedRef.current = true;
+        runOnJS(onTriggered)();
+      } else if (value < 0.9) {
+        firedRef.current = false;
+      }
+    },
+  );
+
+  return (
+    <View style={[styles.actionContainer, { backgroundColor: action.color }]}>
+      <Pressable style={styles.actionButton} onPress={onTriggered}>
+        <Ionicons name={action.icon} size={20} color="#fff" />
+        <Text style={styles.actionLabel} numberOfLines={2}>
+          {action.label}
+        </Text>
+      </Pressable>
+    </View>
+  );
+}
+
+function createPanelStyles(theme: Theme, alignLeft: boolean) {
+  return StyleSheet.create({
+    actionContainer: {
+      width: 110,
+      borderRadius: theme.radius.lg,
+      marginLeft: alignLeft ? 0 : theme.spacing.sm,
+      marginRight: alignLeft ? theme.spacing.sm : 0,
+      overflow: 'hidden',
+    },
+    actionButton: {
+      flex: 1,
+      alignItems: 'center',
+      justifyContent: 'center',
+      gap: 4,
+      paddingHorizontal: theme.spacing.xs,
+    },
+    actionLabel: {
+      color: '#fff',
+      fontSize: 11,
+      fontWeight: theme.fontWeights.semiBold,
+      textAlign: 'center',
+      lineHeight: 14,
+    },
+  });
+}
 
 type Props = {
   item: ReturnItem;
@@ -49,77 +130,62 @@ export function ReturnListRow({
   const restoreMutation = useRestoreReturn(item.id);
   const styles = createStyles(theme);
 
-  // Revealed by swiping the row LEFT (panel sits on the right).
-  const rightAction =
+  const rightAction: ActionSpec =
     item.status === 'pending' || item.status === 'urgent'
       ? {
           label: t('returns.detail.markReturned'),
-          icon: 'checkmark-circle-outline' as const,
+          icon: 'checkmark-circle-outline',
           color: theme.colors.success,
           run: () => markReturnedMutation.mutate(),
         }
       : item.status === 'returned'
         ? {
             label: t('returns.detail.archive'),
-            icon: 'archive-outline' as const,
+            icon: 'archive-outline',
             color: theme.colors.textSecondary,
             run: () => archiveMutation.mutate(),
           }
         : {
             label: t('returns.detail.restore'),
-            icon: 'refresh-outline' as const,
+            icon: 'refresh-outline',
             color: theme.colors.primary,
             run: () => restoreMutation.mutate(),
           };
 
-  // Revealed by swiping the row RIGHT (panel sits on the left). Only for
-  // items already marked returned — undoing back to pending.
-  const leftAction =
+  const leftAction: ActionSpec | null =
     item.status === 'returned'
       ? {
           label: t('returns.detail.cancelReturn'),
-          icon: 'arrow-undo-outline' as const,
+          icon: 'arrow-undo-outline',
           color: theme.colors.warning,
           run: () => restoreMutation.mutate(),
         }
       : null;
 
-  // Deliberately tap-to-confirm, not auto-fire-on-full-swipe: the library's
-  // onSwipeableOpen callback fired unreliably alongside the button's own
-  // onPress, causing both actions to race and the wrong one to "win". This
-  // is the same reveal-then-tap pattern Gmail uses for most swipe actions.
-  const runAndClose = (run: () => void) => () => {
-    run();
+  const trigger = (action: ActionSpec) => () => {
+    action.run();
     swipeableRef.current?.close();
   };
 
-  const renderRightActions = () => (
-    <View style={[styles.actionContainer, { backgroundColor: rightAction.color }]}>
-      <Pressable style={styles.actionButton} onPress={runAndClose(rightAction.run)}>
-        <Ionicons name={rightAction.icon} size={20} color="#fff" />
-        <Text style={styles.actionLabel} numberOfLines={2}>
-          {rightAction.label}
-        </Text>
-      </Pressable>
-    </View>
+  const renderRightActions = (progress: SharedValue<number>) => (
+    <SwipeActionPanel
+      progress={progress}
+      action={rightAction}
+      theme={theme}
+      alignLeft={false}
+      onTriggered={trigger(rightAction)}
+    />
   );
 
   const renderLeftActions = leftAction
-    ? () => (
-        <View
-          style={[
-            styles.actionContainer,
-            styles.actionContainerLeft,
-            { backgroundColor: leftAction.color },
-          ]}
-        >
-          <Pressable style={styles.actionButton} onPress={runAndClose(leftAction.run)}>
-            <Ionicons name={leftAction.icon} size={20} color="#fff" />
-            <Text style={styles.actionLabel} numberOfLines={2}>
-              {leftAction.label}
-            </Text>
-          </Pressable>
-        </View>
+    ? (progress: SharedValue<number>) => (
+        <SwipeActionPanel
+          progress={progress}
+          action={leftAction}
+          theme={theme}
+          alignLeft={true}
+          onTriggered={trigger(leftAction)}
+        />
       )
     : undefined;
 
@@ -185,7 +251,7 @@ export function ReturnListRow({
   );
 }
 
-function createStyles(theme: ReturnType<typeof useTheme>) {
+function createStyles(theme: Theme) {
   return StyleSheet.create({
     row: {
       flexDirection: 'row',
@@ -220,27 +286,6 @@ function createStyles(theme: ReturnType<typeof useTheme>) {
       fontSize: theme.fontSizes.xs,
       fontWeight: theme.fontWeights.semiBold,
       color: theme.colors.warning,
-    },
-    actionContainer: {
-      width: 110,
-      borderRadius: theme.radius.lg,
-      marginLeft: theme.spacing.sm,
-      overflow: 'hidden',
-    },
-    actionContainerLeft: { marginLeft: 0, marginRight: theme.spacing.sm },
-    actionButton: {
-      flex: 1,
-      alignItems: 'center',
-      justifyContent: 'center',
-      gap: 4,
-      paddingHorizontal: theme.spacing.xs,
-    },
-    actionLabel: {
-      color: '#fff',
-      fontSize: 11,
-      fontWeight: theme.fontWeights.semiBold,
-      textAlign: 'center',
-      lineHeight: 14,
     },
   });
 }
