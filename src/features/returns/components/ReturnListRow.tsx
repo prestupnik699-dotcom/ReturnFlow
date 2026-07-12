@@ -1,6 +1,7 @@
 import { useRef } from 'react';
 import { View, Text, Pressable, StyleSheet } from 'react-native';
 import ReanimatedSwipeable, {
+  SwipeDirection,
   type SwipeableMethods,
 } from 'react-native-gesture-handler/ReanimatedSwipeable';
 import { Ionicons } from '@expo/vector-icons';
@@ -86,14 +87,10 @@ export function ReturnListRow({
     swipeableRef.current?.close();
   };
 
-  const handleSwipeableOpen = (direction: unknown) => {
-    if (__DEV__) console.log('[swipe] direction value:', direction, typeof direction);
-    if (String(direction).toLowerCase().includes('right') || direction === 1) {
+  const handleSwipeableOpen = (direction: SwipeDirection) => {
+    if (direction === SwipeDirection.RIGHT) {
       closeAfter(rightAction.run)();
-    } else if (
-      (String(direction).toLowerCase().includes('left') || direction === 0) &&
-      leftAction
-    ) {
+    } else if (direction === SwipeDirection.LEFT && leftAction) {
       closeAfter(leftAction.run)();
     }
   };
