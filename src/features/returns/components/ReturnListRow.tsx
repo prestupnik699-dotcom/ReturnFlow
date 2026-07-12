@@ -49,7 +49,8 @@ export function ReturnListRow({
   const restoreMutation = useRestoreReturn(item.id);
   const styles = createStyles(theme);
 
-  const swipeAction =
+  // Primary action, revealed by swiping left (right-side panel).
+  const rightAction =
     item.status === 'pending' || item.status === 'urgent'
       ? {
           label: t('returns.detail.markReturned'),
@@ -71,19 +72,56 @@ export function ReturnListRow({
             run: () => restoreMutation.mutate(),
           };
 
-  const runAction = () => {
-    swipeAction.run();
+  // Secondary "undo" action, revealed by swiping right (left-side panel).
+  // Only makes sense for items already marked returned — nothing to undo otherwise.
+  const leftAction =
+    item.status === 'returned'
+      ? {
+          label: t('returns.detail.cancelReturn'),
+          icon: 'arrow-undo-outline' as const,
+          color: theme.colors.warning,
+          run: () => restoreMutation.mutate(),
+        }
+      : null;
+
+  const closeAfter = (run: () => void) => () => {
+    run();
     swipeableRef.current?.close();
   };
 
+  const handleSwipeableOpen = (direction: 'left' | 'right') => {
+    if (direction === 'right') {
+      closeAfter(rightAction.run)();
+    } else if (direction === 'left' && leftAction) {
+      closeAfter(leftAction.run)();
+    }
+  };
+
   const renderRightActions = () => (
-    <View style={[styles.actionContainer, { backgroundColor: swipeAction.color }]}>
-      <Pressable style={styles.actionButton} onPress={runAction}>
-        <Ionicons name={swipeAction.icon} size={22} color="#fff" />
-        <Text style={styles.actionLabel}>{swipeAction.label}</Text>
+    <View style={[styles.actionContainer, { backgroundColor: rightAction.color }]}>
+      <Pressable style={styles.actionButton} onPress={closeAfter(rightAction.run)}>
+        <Ionicons name={rightAction.icon} size={22} color="#fff" />
+        <Text style={styles.actionLabel}>{rightAction.label}</Text>
       </Pressable>
     </View>
   );
+
+  const renderLeftActions = leftAction
+    ? () => (
+        <View
+          style={[
+            styles.actionContainer,
+            styles.actionContainerLeft,
+            { backgroundColor: leftAction.color },
+          ]}
+        >
+          <Pressable style={styles.actionButton} onPress={closeAfter(leftAction.run)}>
+            <Ionicons name={leftAction.icon} size={22} color="#fff" />
+            <Text style={styles.actionLabel}>{leftAction.label}</Text>
+          </Pressable>
+        </View>
+      )
+    : undefined;
 
   const content = (
     <Pressable onPress={onPress} onLongPress={onLongPress}>
@@ -136,9 +174,12 @@ export function ReturnListRow({
       ref={swipeableRef}
       friction={2}
       rightThreshold={40}
+      leftThreshold={40}
       renderRightActions={renderRightActions}
+      renderLeftActions={renderLeftActions}
       overshootRight={false}
-      onSwipeableOpen={runAction}
+      overshootLeft={false}
+      onSwipeableOpen={handleSwipeableOpen}
     >
       {content}
     </ReanimatedSwipeable>
@@ -187,6 +228,7 @@ function createStyles(theme: ReturnType<typeof useTheme>) {
       marginLeft: theme.spacing.sm,
       overflow: 'hidden',
     },
+    actionContainerLeft: { marginLeft: 0, marginRight: theme.spacing.sm },
     actionButton: { flex: 1, alignItems: 'center', justifyContent: 'center', gap: 4 },
     actionLabel: {
       color: '#fff',

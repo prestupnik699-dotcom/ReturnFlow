@@ -200,7 +200,8 @@
       "commentPlaceholder": "Write a comment",
       "commentSend": "Send",
       "noComments": "No comments yet",
-      "photosTitle": "Photos"
+      "photosTitle": "Photos",
+      "cancelReturn": "Undo return"
     },
     "history": {
       "created": "Created",

@@ -200,7 +200,8 @@
       "commentPlaceholder": "Написать комментарий",
       "commentSend": "Отправить",
       "noComments": "Пока нет комментариев",
-      "photosTitle": "Фото"
+      "photosTitle": "Фото",
+      "cancelReturn": "Отменить возврат"
     },
     "history": {
       "created": "Создан",
