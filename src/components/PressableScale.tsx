@@ -15,8 +15,11 @@ type Props = {
   hitSlop?: number;
 };
 
-// Same proven pattern as Button's own press animation — reused here instead
-// of duplicated, so any list row can get the same tactile feedback.
+// The layout-relevant `style` (e.g. flex: 1) goes on the outer Pressable
+// itself, so it participates correctly in the parent row's flex layout —
+// exactly like a plain Pressable would. The inner Animated.View carries
+// only the scale transform, never layout, to avoid breaking sibling
+// alignment (this exact mistake shifted the trash icon in Stores/Suppliers).
 export function PressableScale({ children, onPress, onLongPress, style, hitSlop }: Props) {
   const scale = useSharedValue(1);
   const animatedStyle = useAnimatedStyle(() => ({ transform: [{ scale: scale.value }] }));
@@ -26,6 +29,7 @@ export function PressableScale({ children, onPress, onLongPress, style, hitSlop 
       onPress={onPress}
       onLongPress={onLongPress}
       hitSlop={hitSlop}
+      style={style}
       onPressIn={() => {
         // eslint-disable-next-line react-hooks/immutability
         scale.value = withTiming(0.97, { duration: 100 });
@@ -35,7 +39,7 @@ export function PressableScale({ children, onPress, onLongPress, style, hitSlop 
         scale.value = withTiming(1, { duration: 150 });
       }}
     >
-      <Animated.View style={[animatedStyle, style]}>{children}</Animated.View>
+      <Animated.View style={animatedStyle}>{children}</Animated.View>
     </Pressable>
   );
 }
