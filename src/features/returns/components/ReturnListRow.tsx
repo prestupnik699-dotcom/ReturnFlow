@@ -49,7 +49,6 @@ export function ReturnListRow({
   const restoreMutation = useRestoreReturn(item.id);
   const styles = createStyles(theme);
 
-  // Primary action, revealed by swiping left (right-side panel).
   const rightAction =
     item.status === 'pending' || item.status === 'urgent'
       ? {
@@ -72,8 +71,6 @@ export function ReturnListRow({
             run: () => restoreMutation.mutate(),
           };
 
-  // Secondary "undo" action, revealed by swiping right (left-side panel).
-  // Only makes sense for items already marked returned — nothing to undo otherwise.
   const leftAction =
     item.status === 'returned'
       ? {
@@ -89,10 +86,14 @@ export function ReturnListRow({
     swipeableRef.current?.close();
   };
 
-  const handleSwipeableOpen = (direction: 'left' | 'right') => {
-    if (direction === 'right') {
+  const handleSwipeableOpen = (direction: unknown) => {
+    if (__DEV__) console.log('[swipe] direction value:', direction, typeof direction);
+    if (String(direction).toLowerCase().includes('right') || direction === 1) {
       closeAfter(rightAction.run)();
-    } else if (direction === 'left' && leftAction) {
+    } else if (
+      (String(direction).toLowerCase().includes('left') || direction === 0) &&
+      leftAction
+    ) {
       closeAfter(leftAction.run)();
     }
   };
