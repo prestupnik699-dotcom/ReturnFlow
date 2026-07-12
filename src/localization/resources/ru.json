@@ -220,5 +220,17 @@
     "empty": "Уведомлений нет",
     "markAllRead": "Отметить все прочитанными",
     "newMessage": "Новое сообщение в чате"
+  },
+  "statistics": {
+    "title": "Статистика",
+    "periodToday": "Сегодня",
+    "periodWeek": "Неделя",
+    "periodMonth": "Месяц",
+    "periodAll": "Всё время",
+    "totalReturns": "Всего возвратов",
+    "totalQuantity": "Всего единиц",
+    "byStatus": "По статусам",
+    "topSuppliers": "Топ поставщиков",
+    "noData": "Нет данных за этот период"
   }
 }

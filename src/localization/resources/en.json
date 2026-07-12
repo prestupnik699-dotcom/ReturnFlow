@@ -220,5 +220,17 @@
     "empty": "No notifications",
     "markAllRead": "Mark all as read",
     "newMessage": "New chat message"
+  },
+  "statistics": {
+    "title": "Statistics",
+    "periodToday": "Today",
+    "periodWeek": "Week",
+    "periodMonth": "Month",
+    "periodAll": "All time",
+    "totalReturns": "Total returns",
+    "totalQuantity": "Total quantity",
+    "byStatus": "By status",
+    "topSuppliers": "Top suppliers",
+    "noData": "No data for this period"
   }
 }

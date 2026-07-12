@@ -41,6 +41,11 @@ export default function More() {
         <Text style={styles.sectionLabel}>{t('common.account')}</Text>
         <Card>
           <MenuRow
+            icon="bar-chart-outline"
+            label={t('statistics.title')}
+            onPress={() => router.push('/statistics')}
+          />
+          <MenuRow
             icon="person-circle-outline"
             label={t('profile.title')}
             onPress={() => router.push('/profile-settings')}

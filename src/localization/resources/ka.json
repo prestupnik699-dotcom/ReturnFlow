@@ -220,5 +220,17 @@
     "empty": "შეტყობინებები არ არის",
     "markAllRead": "ყველას წაკითხულად მონიშვნა",
     "newMessage": "ახალი შეტყობინება ჩატში"
+  },
+  "statistics": {
+    "title": "სტატისტიკა",
+    "periodToday": "დღეს",
+    "periodWeek": "კვირა",
+    "periodMonth": "თვე",
+    "periodAll": "ყველა დრო",
+    "totalReturns": "სულ დაბრუნება",
+    "totalQuantity": "სულ რაოდენობა",
+    "byStatus": "სტატუსების მიხედვით",
+    "topSuppliers": "ტოპ მომწოდებლები",
+    "noData": "ამ პერიოდში მონაცემები არ არის"
   }
 }
