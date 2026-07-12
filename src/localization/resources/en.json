@@ -226,7 +226,11 @@
     "noStore": "Select an active store to see its chat",
     "empty": "No notifications",
     "markAllRead": "Mark all as read",
-    "newMessage": "New chat message"
+    "newMessage": "New chat message",
+    "deleteConfirmTitle": "Delete message?",
+    "deleteConfirmMessage": "This message will be deleted for everyone.",
+    "deleteAction": "Delete",
+    "deletedMessage": "Message deleted"
   },
   "statistics": {
     "title": "Statistics",

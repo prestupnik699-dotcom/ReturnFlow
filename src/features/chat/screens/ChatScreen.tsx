@@ -9,6 +9,7 @@ import {
   StyleSheet,
   KeyboardAvoidingView,
   Platform,
+  Alert,
 } from 'react-native';
 import { useTranslation } from 'react-i18next';
 import { Ionicons } from '@expo/vector-icons';
@@ -16,13 +17,14 @@ import { useTheme } from '@/theme/ThemeProvider';
 import { Screen } from '@/components/Screen';
 import { EmptyState } from '@/components/EmptyState';
 import { useTabBarClearance } from '@/hooks/useTabBarClearance';
-import { useKeyboardVisible } from '@/hooks/useKeyboardVisible';
 import { useChatRoom } from '@/features/chat/hooks/useChatRoom';
 import { useChatMessages } from '@/features/chat/hooks/useChatMessages';
 import { useSendChatMessage } from '@/features/chat/hooks/useSendChatMessage';
+import { useDeleteChatMessage } from '@/features/chat/hooks/useDeleteChatMessage';
 import { useStoreName } from '@/features/stores/hooks/useStoreName';
 import { useAuthStore } from '@/stores/auth.store';
 import { useMembershipStore } from '@/stores/membership.store';
+import { useHasRole } from '@/features/auth/hooks/usePermissions';
 import type { ChatMessage } from '@/features/chat/services/chat.service';
 
 function formatTime(iso: string): string {
@@ -35,13 +37,14 @@ export function ChatScreen() {
   const theme = useTheme();
   const { t } = useTranslation();
   const tabBarClearance = useTabBarClearance();
-  const keyboardVisible = useKeyboardVisible();
   const activeStoreId = useMembershipStore((state) => state.activeStoreId);
   const profile = useAuthStore((state) => state.profile);
+  const hasModeratorRole = useHasRole(['Owner', 'Administrator']);
   const { data: storeName } = useStoreName(activeStoreId);
   const { data: roomId } = useChatRoom();
   const { data: messages, isLoading } = useChatMessages(roomId ?? null);
   const sendMutation = useSendChatMessage(roomId ?? '');
+  const deleteMutation = useDeleteChatMessage(roomId ?? null);
   const [text, setText] = useState('');
   const listRef = useRef<FlatList<ChatMessage>>(null);
   const styles = createStyles(theme);
@@ -66,21 +69,41 @@ export function ChatScreen() {
 
   const handleSend = () => {
     const trimmed = text.trim();
-    if (!trimmed || !roomId) return;
+    if (!trimmed) return;
+    if (!roomId) {
+      if (__DEV__) console.error('Chat room not found for active store');
+      return;
+    }
     setText('');
     sendMutation.mutate(trimmed);
+  };
+
+  const handleLongPressMessage = (message: ChatMessage) => {
+    const canDelete = message.authorId === profile?.id || hasModeratorRole;
+    if (!canDelete) return;
+
+    Alert.alert(t('chat.deleteConfirmTitle'), t('chat.deleteConfirmMessage'), [
+      { text: t('organizations.settings.cancelButton'), style: 'cancel' },
+      {
+        text: t('chat.deleteAction'),
+        style: 'destructive',
+        onPress: () => deleteMutation.mutate(message.id),
+      },
+    ]);
   };
 
   const renderItem = ({ item }: { item: ChatMessage }) => {
     const isOwn = item.authorId === profile?.id;
     return (
-      <View style={[styles.bubbleRow, isOwn ? styles.bubbleRowOwn : styles.bubbleRowOther]}>
-        <View style={[styles.bubble, isOwn ? styles.bubbleOwn : styles.bubbleOther]}>
-          {!isOwn ? <Text style={styles.author}>{item.authorName}</Text> : null}
-          <Text style={[styles.messageText, isOwn && styles.messageTextOwn]}>{item.message}</Text>
-          <Text style={[styles.time, isOwn && styles.timeOwn]}>{formatTime(item.createdAt)}</Text>
+      <Pressable onLongPress={() => handleLongPressMessage(item)}>
+        <View style={[styles.bubbleRow, isOwn ? styles.bubbleRowOwn : styles.bubbleRowOther]}>
+          <View style={[styles.bubble, isOwn ? styles.bubbleOwn : styles.bubbleOther]}>
+            {!isOwn ? <Text style={styles.author}>{item.authorName}</Text> : null}
+            <Text style={[styles.messageText, isOwn && styles.messageTextOwn]}>{item.message}</Text>
+            <Text style={[styles.time, isOwn && styles.timeOwn]}>{formatTime(item.createdAt)}</Text>
+          </View>
         </View>
-      </View>
+      </Pressable>
     );
   };
 
@@ -115,7 +138,7 @@ export function ChatScreen() {
           <Text style={styles.errorText}>{sendMutation.error.message}</Text>
         ) : null}
 
-        <View style={[styles.inputRow, { marginBottom: keyboardVisible ? 0 : tabBarClearance }]}>
+        <View style={[styles.inputRow, { marginBottom: tabBarClearance }]}>
           <TextInput
             style={styles.input}
             placeholder={t('chat.placeholder')}

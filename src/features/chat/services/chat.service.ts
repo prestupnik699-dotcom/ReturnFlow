@@ -83,3 +83,16 @@ export async function sendChatMessage(
 
   return { success: true, data: null };
 }
+
+export async function deleteChatMessage(messageId: string): Promise<ServiceResult<null>> {
+  const { error } = await supabase
+    .from('chat_messages')
+    .update({ deleted_at: new Date().toISOString() })
+    .eq('id', messageId);
+
+  if (error) {
+    return fromCaughtError(error, 'DELETE_MESSAGE_FAILED');
+  }
+
+  return { success: true, data: null };
+}

@@ -226,7 +226,11 @@
     "noStore": "Выберите активный магазин, чтобы увидеть чат",
     "empty": "Уведомлений нет",
     "markAllRead": "Отметить все прочитанными",
-    "newMessage": "Новое сообщение в чате"
+    "newMessage": "Новое сообщение в чате",
+    "deleteConfirmTitle": "Удалить сообщение?",
+    "deleteConfirmMessage": "Сообщение будет удалено для всех.",
+    "deleteAction": "Удалить",
+    "deletedMessage": "Сообщение удалено"
   },
   "statistics": {
     "title": "Статистика",
