@@ -3,6 +3,7 @@ import '@/features/returns/sync/returnsSyncHandler';
 import { useEffect } from 'react';
 import { Stack } from 'expo-router';
 import * as SplashScreen from 'expo-splash-screen';
+import * as Notifications from 'expo-notifications';
 import { QueryClientProvider } from '@tanstack/react-query';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
@@ -11,6 +12,7 @@ import { ThemeProvider } from '@/theme/ThemeProvider';
 import { useSessionBootstrap } from '@/features/auth/hooks/useSessionBootstrap';
 import { useSyncOnReconnect } from '@/hooks/useSyncOnReconnect';
 import { useHandleAuthDeepLink } from '@/features/auth/hooks/useHandleAuthDeepLink';
+import { usePushNotificationRegistration } from '@/features/notifications/hooks/usePushNotificationRegistration';
 import { getDatabase } from '@/lib/database';
 import { useAuthStore } from '@/stores/auth.store';
 import { useMembershipStore } from '@/stores/membership.store';
@@ -19,6 +21,15 @@ import { ErrorBoundary } from '@/components/ErrorBoundary';
 getDatabase();
 
 SplashScreen.preventAutoHideAsync();
+
+Notifications.setNotificationHandler({
+  handleNotification: async () => ({
+    shouldShowBanner: true,
+    shouldShowList: true,
+    shouldPlaySound: true,
+    shouldSetBadge: false,
+  }),
+});
 
 export default function RootLayout() {
   useSessionBootstrap();
@@ -48,6 +59,7 @@ export default function RootLayout() {
 function RootNavigator() {
   useSyncOnReconnect();
   useHandleAuthDeepLink();
+  usePushNotificationRegistration();
 
   const session = useAuthStore((state) => state.session);
   const isPasswordRecovery = useAuthStore((state) => state.isPasswordRecovery);
