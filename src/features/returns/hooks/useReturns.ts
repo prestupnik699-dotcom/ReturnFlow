@@ -11,14 +11,19 @@ export function useReturns(statusFilter?: ReturnStatus[]) {
     queryFn: async () => {
       if (!activeStoreId) throw new Error('No active store');
 
-      const [result, pending] = await Promise.all([
-        fetchReturns({ storeId: activeStoreId, statusFilter }),
-        fetchPendingReturns(activeStoreId),
-      ]);
+      const pending = await fetchPendingReturns(activeStoreId);
 
-      if (!result.success) throw new Error(result.error.message);
-
-      return [...pending, ...result.data];
+      try {
+        const result = await fetchReturns({ storeId: activeStoreId, statusFilter });
+        if (!result.success) throw new Error(result.error.message);
+        return [...pending, ...result.data];
+      } catch (error) {
+        // Offline or network failure: still show whatever is queued locally
+        // instead of blanking the whole screen (D-031). Only surface the
+        // error if there's truly nothing to show at all.
+        if (pending.length > 0) return pending;
+        throw error;
+      }
     },
     enabled: !!activeStoreId,
   });
