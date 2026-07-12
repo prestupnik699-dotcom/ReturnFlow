@@ -323,3 +323,9 @@ Extends D-031 to the two other everyday offline scenarios: changing a return's s
 Offline status changes and comments apply an optimistic local patch (visible immediately, marked with a small "not synced" cloud icon) instead of the normal server round-trip + cache invalidation — invalidating while offline would trigger a failed refetch and could wipe the already-loaded list from view. The real invalidation happens once `useSyncOnReconnect` successfully processes the queue after reconnecting.
 
 Photos remain excluded from offline support (per D-031's original scope note) — file upload sync is a meaningfully larger problem than JSON payloads and is not part of this pass.
+
+### D-033 — Barcode Scanner: Learn-Once, Instant-After
+
+Status: Accepted
+
+No product catalog exists in this app (returns are freeform text, D-002/D-007 lineage) and a barcode alone can't tell us the supplier. So: first scan of a barcode looks up the product name via the free Open Food Facts API to pre-fill the existing create-return form, where the user picks the supplier once; that (barcode, supplier, title) triple is saved per-store in a new `barcode_shortcuts` table. Every later scan of the same barcode at the same store creates the return immediately, no form, no taps — matching what the user actually wants ("scan and it's just added"), without inventing product data we can't reliably know from a barcode alone.
