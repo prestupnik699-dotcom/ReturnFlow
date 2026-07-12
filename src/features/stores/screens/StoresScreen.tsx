@@ -95,14 +95,14 @@ export function StoresScreen() {
                       />
                     </Pressable>
 
-                    <Pressable style={styles.storeInfo} onPress={() => handleEdit(item)}>
+                    <PressableScale style={styles.storeInfo} onPress={() => handleEdit(item)}>
                       <Text style={styles.storeName} numberOfLines={1}>
                         {item.name}
                       </Text>
                       <Text style={styles.storeMeta} numberOfLines={1}>
                         {storeSubtitle(item, t('stores.noAddress'))}
                       </Text>
-                    </Pressable>
+                    </PressableScale>
 
                     <RequireRole roles={['Owner', 'Administrator']}>
                       <Pressable onPress={() => setPendingDelete(item)} hitSlop={12}>
