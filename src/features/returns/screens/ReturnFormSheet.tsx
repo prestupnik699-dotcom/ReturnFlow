@@ -1,10 +1,11 @@
 import { useEffect } from 'react';
-import { Modal, View, Text, TextInput, Pressable, ScrollView, StyleSheet } from 'react-native';
+import { Modal, View, Text, TextInput, ScrollView, StyleSheet } from 'react-native';
 import { useForm, useWatch, Controller } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useTranslation } from 'react-i18next';
 import { useTheme } from '@/theme/ThemeProvider';
 import { Button } from '@/components/Button';
+import { Chip } from '@/components/Chip';
 import {
   createReturnSchema,
   type CreateReturnFormValues,
@@ -93,15 +94,12 @@ export function ReturnFormSheet({ visible, onClose, returnItem }: Props) {
           <Text style={styles.label}>{t('returns.create.supplierLabel')}</Text>
           <View style={styles.chipRow}>
             {(suppliers ?? []).map((s) => (
-              <Pressable
+              <Chip
                 key={s.id}
+                label={s.name}
+                selected={supplierId === s.id}
                 onPress={() => setValue('supplierId', s.id)}
-                style={[styles.chip, supplierId === s.id && styles.chipActive]}
-              >
-                <Text style={[styles.chipText, supplierId === s.id && styles.chipTextActive]}>
-                  {s.name}
-                </Text>
-              </Pressable>
+              />
             ))}
           </View>
           {errors.supplierId ? (
@@ -169,15 +167,12 @@ export function ReturnFormSheet({ visible, onClose, returnItem }: Props) {
           <Text style={styles.label}>{t('returns.create.priorityLabel')}</Text>
           <View style={styles.chipRow}>
             {PRIORITIES.map((p) => (
-              <Pressable
+              <Chip
                 key={p}
+                label={priorityLabels[p]}
+                selected={priority === p}
                 onPress={() => setValue('priority', p)}
-                style={[styles.chip, priority === p && styles.chipActive]}
-              >
-                <Text style={[styles.chipText, priority === p && styles.chipTextActive]}>
-                  {priorityLabels[p]}
-                </Text>
-              </Pressable>
+              />
             ))}
           </View>
         </View>
@@ -210,7 +205,7 @@ export function ReturnFormSheet({ visible, onClose, returnItem }: Props) {
 function createStyles(theme: ReturnType<typeof useTheme>) {
   return StyleSheet.create({
     scrollView: { flex: 1, backgroundColor: theme.colors.background },
-    container: { padding: theme.spacing.xl, gap: theme.spacing.md },
+    container: { padding: theme.spacing.xl, gap: theme.spacing.lg },
     title: {
       fontSize: theme.fontSizes.xl,
       fontWeight: theme.fontWeights.bold,
@@ -227,7 +222,7 @@ function createStyles(theme: ReturnType<typeof useTheme>) {
       borderWidth: 1,
       borderColor: theme.colors.border,
       backgroundColor: theme.colors.surface,
-      borderRadius: 12,
+      borderRadius: theme.radius.md,
       paddingHorizontal: theme.spacing.md,
       paddingVertical: theme.spacing.md,
       fontSize: theme.fontSizes.md,
@@ -237,7 +232,7 @@ function createStyles(theme: ReturnType<typeof useTheme>) {
     errorText: { fontSize: theme.fontSizes.xs, color: theme.colors.danger },
     errorBanner: {
       backgroundColor: theme.colors.danger + '15',
-      borderRadius: 10,
+      borderRadius: theme.radius.sm,
       padding: theme.spacing.md,
     },
     errorBannerText: {
@@ -246,16 +241,6 @@ function createStyles(theme: ReturnType<typeof useTheme>) {
       textAlign: 'center',
     },
     chipRow: { flexDirection: 'row', flexWrap: 'wrap', gap: theme.spacing.sm },
-    chip: {
-      borderWidth: 1,
-      borderColor: theme.colors.border,
-      borderRadius: 20,
-      paddingHorizontal: theme.spacing.md,
-      paddingVertical: theme.spacing.sm,
-    },
-    chipActive: { backgroundColor: theme.colors.primary, borderColor: theme.colors.primary },
-    chipText: { color: theme.colors.textPrimary, fontSize: theme.fontSizes.sm },
-    chipTextActive: { color: theme.colors.onPrimary, fontWeight: theme.fontWeights.semiBold },
     actions: { flexDirection: 'row', gap: theme.spacing.md, marginTop: theme.spacing.md },
     flexButton: { flex: 1 },
   });

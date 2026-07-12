@@ -1,10 +1,12 @@
 import { useState } from 'react';
-import { View, Text, Pressable, ActivityIndicator, StyleSheet } from 'react-native';
+import { View, Text, StyleSheet } from 'react-native';
 import * as Clipboard from 'expo-clipboard';
 import { useTranslation } from 'react-i18next';
 import { useTheme } from '@/theme/ThemeProvider';
 import { Screen } from '@/components/Screen';
 import { ScreenHeader } from '@/components/ScreenHeader';
+import { Button } from '@/components/Button';
+import { Chip } from '@/components/Chip';
 import { useCreateInvitation } from '@/features/users/hooks/useCreateInvitation';
 import type { MembershipRole } from '@/features/auth/services/membership.service';
 
@@ -44,34 +46,20 @@ export function InviteUserScreen() {
 
         <View style={styles.roleGrid}>
           {ROLES.map((role) => (
-            <Pressable
+            <Chip
               key={role}
+              label={role}
+              selected={selectedRole === role}
               onPress={() => setSelectedRole(role)}
-              style={[styles.roleChip, selectedRole === role && styles.roleChipActive]}
-            >
-              <Text
-                style={[styles.roleChipText, selectedRole === role && styles.roleChipTextActive]}
-              >
-                {role}
-              </Text>
-            </Pressable>
+            />
           ))}
         </View>
 
-        <Pressable
-          style={({ pressed }) => [
-            styles.button,
-            (mutation.isPending || pressed) && styles.buttonPressed,
-          ]}
+        <Button
+          label={t('users.invite.generate')}
           onPress={handleGenerate}
-          disabled={mutation.isPending}
-        >
-          {mutation.isPending ? (
-            <ActivityIndicator color={theme.colors.onPrimary} />
-          ) : (
-            <Text style={styles.buttonText}>{t('users.invite.generate')}</Text>
-          )}
-        </Pressable>
+          loading={mutation.isPending}
+        />
 
         {mutation.isError ? (
           <View style={styles.errorBanner}>
@@ -84,11 +72,11 @@ export function InviteUserScreen() {
             <Text style={styles.codeLabel}>{t('users.invite.codeLabel')}</Text>
             <Text style={styles.code}>{mutation.data.code}</Text>
             <Text style={styles.validFor}>{t('users.invite.validFor')}</Text>
-            <Pressable style={styles.copyButton} onPress={handleCopy}>
-              <Text style={styles.copyButtonText}>
-                {copied ? t('users.invite.copied') : t('users.invite.copy')}
-              </Text>
-            </Pressable>
+            <Button
+              label={copied ? t('users.invite.copied') : t('users.invite.copy')}
+              variant="outline"
+              onPress={handleCopy}
+            />
           </View>
         ) : null}
       </View>
@@ -98,39 +86,12 @@ export function InviteUserScreen() {
 
 function createStyles(theme: ReturnType<typeof useTheme>) {
   return StyleSheet.create({
-    container: { flex: 1, gap: theme.spacing.lg },
-    title: {
-      fontSize: theme.fontSizes.xl,
-      fontWeight: theme.fontWeights.bold,
-      color: theme.colors.textPrimary,
-    },
+    container: { flex: 1, gap: theme.spacing.xl },
     subtitle: { fontSize: theme.fontSizes.sm, color: theme.colors.textSecondary },
     roleGrid: { flexDirection: 'row', flexWrap: 'wrap', gap: theme.spacing.sm },
-    roleChip: {
-      borderWidth: 1,
-      borderColor: theme.colors.border,
-      borderRadius: 20,
-      paddingHorizontal: theme.spacing.md,
-      paddingVertical: theme.spacing.sm,
-    },
-    roleChipActive: { backgroundColor: theme.colors.primary, borderColor: theme.colors.primary },
-    roleChipText: { color: theme.colors.textPrimary, fontSize: theme.fontSizes.sm },
-    roleChipTextActive: { color: theme.colors.onPrimary, fontWeight: theme.fontWeights.semiBold },
-    button: {
-      backgroundColor: theme.colors.primary,
-      borderRadius: 12,
-      paddingVertical: theme.spacing.md,
-      alignItems: 'center',
-    },
-    buttonPressed: { backgroundColor: theme.colors.primaryPressed },
-    buttonText: {
-      color: theme.colors.onPrimary,
-      fontWeight: theme.fontWeights.semiBold,
-      fontSize: theme.fontSizes.md,
-    },
     errorBanner: {
       backgroundColor: theme.colors.danger + '15',
-      borderRadius: 10,
+      borderRadius: theme.radius.sm,
       padding: theme.spacing.md,
     },
     errorBannerText: {
@@ -142,10 +103,10 @@ function createStyles(theme: ReturnType<typeof useTheme>) {
       backgroundColor: theme.colors.surface,
       borderWidth: 1,
       borderColor: theme.colors.border,
-      borderRadius: 12,
+      borderRadius: theme.radius.lg,
       padding: theme.spacing.lg,
       alignItems: 'center',
-      gap: theme.spacing.xs,
+      gap: theme.spacing.sm,
     },
     codeLabel: { fontSize: theme.fontSizes.sm, color: theme.colors.textSecondary },
     code: {
@@ -155,13 +116,5 @@ function createStyles(theme: ReturnType<typeof useTheme>) {
       letterSpacing: 2,
     },
     validFor: { fontSize: theme.fontSizes.xs, color: theme.colors.textSecondary },
-    copyButton: {
-      marginTop: theme.spacing.sm,
-      backgroundColor: theme.colors.surfaceVariant,
-      borderRadius: 10,
-      paddingHorizontal: theme.spacing.lg,
-      paddingVertical: theme.spacing.sm,
-    },
-    copyButtonText: { color: theme.colors.textPrimary, fontWeight: theme.fontWeights.medium },
   });
 }

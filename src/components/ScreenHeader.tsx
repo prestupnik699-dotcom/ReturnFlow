@@ -3,9 +3,14 @@ import { useRouter } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
 import { useTheme } from '@/theme/ThemeProvider';
 
-type Props = { title: string; onBack?: () => void };
+type Props = {
+  title: string;
+  onBack?: () => void;
+  rightIcon?: keyof typeof Ionicons.glyphMap;
+  onRightPress?: () => void;
+};
 
-export function ScreenHeader({ title, onBack }: Props) {
+export function ScreenHeader({ title, onBack, rightIcon, onRightPress }: Props) {
   const theme = useTheme();
   const router = useRouter();
   const styles = createStyles(theme);
@@ -14,13 +19,19 @@ export function ScreenHeader({ title, onBack }: Props) {
 
   return (
     <View style={styles.header}>
-      <Pressable onPress={handleBack} hitSlop={12} style={styles.backButton}>
+      <Pressable onPress={handleBack} hitSlop={12} style={styles.iconButton}>
         <Ionicons name="chevron-back" size={22} color={theme.colors.textPrimary} />
       </Pressable>
       <Text style={styles.title} numberOfLines={1}>
         {title}
       </Text>
-      <View style={styles.spacer} />
+      {rightIcon && onRightPress ? (
+        <Pressable onPress={onRightPress} hitSlop={12} style={styles.iconButton}>
+          <Ionicons name={rightIcon} size={20} color={theme.colors.primary} />
+        </Pressable>
+      ) : (
+        <View style={styles.spacer} />
+      )}
     </View>
   );
 }
@@ -33,10 +44,10 @@ function createStyles(theme: ReturnType<typeof useTheme>) {
       gap: theme.spacing.sm,
       marginBottom: theme.spacing.lg,
     },
-    backButton: {
+    iconButton: {
       width: 36,
       height: 36,
-      borderRadius: 18,
+      borderRadius: theme.radius.full,
       backgroundColor: theme.colors.surfaceVariant,
       alignItems: 'center',
       justifyContent: 'center',

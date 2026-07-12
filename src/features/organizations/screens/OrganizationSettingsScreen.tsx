@@ -1,19 +1,13 @@
 import { useEffect, useState } from 'react';
-import {
-  View,
-  Text,
-  TextInput,
-  Pressable,
-  ActivityIndicator,
-  StyleSheet,
-  Alert,
-} from 'react-native';
+import { View, Text, TextInput, ActivityIndicator, StyleSheet, Alert } from 'react-native';
 import { useForm, useWatch, Controller } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useTranslation } from 'react-i18next';
 import { useTheme } from '@/theme/ThemeProvider';
 import { Screen } from '@/components/Screen';
 import { ScreenHeader } from '@/components/ScreenHeader';
+import { Button } from '@/components/Button';
+import { Chip } from '@/components/Chip';
 import { useOrganization } from '@/features/organizations/hooks/useOrganization';
 import { useUpdateOrganization } from '@/features/organizations/hooks/useUpdateOrganization';
 import { useDeleteOrganization } from '@/features/organizations/hooks/useDeleteOrganization';
@@ -91,7 +85,7 @@ export function OrganizationSettingsScreen() {
     return (
       <Screen>
         <View style={styles.center}>
-          <Text style={styles.errorBannerText}>{t('organizations.settings.loadError')}</Text>
+          <Text style={styles.errorText}>{t('organizations.settings.loadError')}</Text>
         </View>
       </Screen>
     );
@@ -127,25 +121,17 @@ export function OrganizationSettingsScreen() {
 
         <View style={styles.field}>
           <Text style={styles.label}>{t('organizations.settings.defaultLanguageLabel')}</Text>
-          <View style={styles.languageRow}>
+          <View style={styles.chipRow}>
             {LANGUAGES.map((lang) => (
-              <Pressable
+              <Chip
                 key={lang}
+                label={lang.toUpperCase()}
+                selected={selectedLanguage === lang}
                 onPress={() => {
                   setValue('defaultLanguage', lang);
                   setSaved(false);
                 }}
-                style={[styles.langChip, selectedLanguage === lang && styles.langChipActive]}
-              >
-                <Text
-                  style={[
-                    styles.langChipText,
-                    selectedLanguage === lang && styles.langChipTextActive,
-                  ]}
-                >
-                  {lang.toUpperCase()}
-                </Text>
-              </Pressable>
+              />
             ))}
           </View>
         </View>
@@ -162,39 +148,20 @@ export function OrganizationSettingsScreen() {
           </View>
         ) : null}
 
-        <Pressable
-          style={({ pressed }) => [
-            styles.button,
-            (mutation.isPending || pressed) && styles.buttonPressed,
-          ]}
+        <Button
+          label={t('organizations.settings.save')}
           onPress={handleSubmit(onSubmit)}
-          disabled={mutation.isPending}
-        >
-          {mutation.isPending ? (
-            <ActivityIndicator color={theme.colors.onPrimary} />
-          ) : (
-            <Text style={styles.buttonText}>{t('organizations.settings.save')}</Text>
-          )}
-        </Pressable>
+          loading={mutation.isPending}
+        />
 
         <View style={styles.dangerZone}>
           <Text style={styles.dangerZoneTitle}>{t('organizations.settings.dangerZoneTitle')}</Text>
-          <Pressable
-            style={({ pressed }) => [
-              styles.deleteButton,
-              (deleteMutation.isPending || pressed) && styles.buttonPressed,
-            ]}
+          <Button
+            label={t('organizations.settings.deleteButton')}
+            variant="danger"
             onPress={handleDelete}
-            disabled={deleteMutation.isPending}
-          >
-            {deleteMutation.isPending ? (
-              <ActivityIndicator color={theme.colors.danger} />
-            ) : (
-              <Text style={styles.deleteButtonText}>
-                {t('organizations.settings.deleteButton')}
-              </Text>
-            )}
-          </Pressable>
+            loading={deleteMutation.isPending}
+          />
           {deleteMutation.isError ? (
             <Text style={styles.errorText}>{deleteMutation.error.message}</Text>
           ) : null}
@@ -206,14 +173,9 @@ export function OrganizationSettingsScreen() {
 
 function createStyles(theme: ReturnType<typeof useTheme>) {
   return StyleSheet.create({
-    container: { flex: 1, gap: theme.spacing.lg },
+    container: { flex: 1, gap: theme.spacing.xl },
     center: { flex: 1, justifyContent: 'center', alignItems: 'center' },
-    title: {
-      fontSize: theme.fontSizes.xl,
-      fontWeight: theme.fontWeights.bold,
-      color: theme.colors.textPrimary,
-    },
-    field: { gap: theme.spacing.xs },
+    field: { gap: theme.spacing.sm },
     label: {
       fontSize: theme.fontSizes.sm,
       fontWeight: theme.fontWeights.medium,
@@ -223,28 +185,18 @@ function createStyles(theme: ReturnType<typeof useTheme>) {
       borderWidth: 1,
       borderColor: theme.colors.border,
       backgroundColor: theme.colors.surface,
-      borderRadius: 12,
+      borderRadius: theme.radius.md,
       paddingHorizontal: theme.spacing.md,
       paddingVertical: theme.spacing.md,
       fontSize: theme.fontSizes.md,
       color: theme.colors.textPrimary,
     },
     inputError: { borderColor: theme.colors.danger },
-    errorText: { fontSize: theme.fontSizes.xs, color: theme.colors.danger },
-    languageRow: { flexDirection: 'row', gap: theme.spacing.sm },
-    langChip: {
-      borderWidth: 1,
-      borderColor: theme.colors.border,
-      borderRadius: 10,
-      paddingHorizontal: theme.spacing.lg,
-      paddingVertical: theme.spacing.sm,
-    },
-    langChipActive: { backgroundColor: theme.colors.primary, borderColor: theme.colors.primary },
-    langChipText: { color: theme.colors.textPrimary, fontWeight: theme.fontWeights.medium },
-    langChipTextActive: { color: theme.colors.onPrimary },
+    errorText: { fontSize: theme.fontSizes.xs, color: theme.colors.danger, textAlign: 'center' },
+    chipRow: { flexDirection: 'row', gap: theme.spacing.sm },
     errorBanner: {
       backgroundColor: theme.colors.danger + '15',
-      borderRadius: 10,
+      borderRadius: theme.radius.sm,
       padding: theme.spacing.md,
     },
     errorBannerText: {
@@ -254,24 +206,12 @@ function createStyles(theme: ReturnType<typeof useTheme>) {
     },
     successBanner: {
       backgroundColor: theme.colors.success + '15',
-      borderRadius: 10,
+      borderRadius: theme.radius.sm,
       padding: theme.spacing.md,
     },
     successText: { color: theme.colors.success, fontSize: theme.fontSizes.sm, textAlign: 'center' },
-    button: {
-      backgroundColor: theme.colors.primary,
-      borderRadius: 12,
-      paddingVertical: theme.spacing.md,
-      alignItems: 'center',
-    },
-    buttonPressed: { backgroundColor: theme.colors.primaryPressed },
-    buttonText: {
-      color: theme.colors.onPrimary,
-      fontWeight: theme.fontWeights.semiBold,
-      fontSize: theme.fontSizes.md,
-    },
     dangerZone: {
-      marginTop: theme.spacing.xl,
+      marginTop: theme.spacing.lg,
       paddingTop: theme.spacing.lg,
       borderTopWidth: 1,
       borderTopColor: theme.colors.border,
@@ -281,18 +221,6 @@ function createStyles(theme: ReturnType<typeof useTheme>) {
       fontSize: theme.fontSizes.sm,
       fontWeight: theme.fontWeights.semiBold,
       color: theme.colors.danger,
-    },
-    deleteButton: {
-      borderWidth: 1,
-      borderColor: theme.colors.danger,
-      borderRadius: 12,
-      paddingVertical: theme.spacing.md,
-      alignItems: 'center',
-    },
-    deleteButtonText: {
-      color: theme.colors.danger,
-      fontWeight: theme.fontWeights.semiBold,
-      fontSize: theme.fontSizes.md,
     },
   });
 }

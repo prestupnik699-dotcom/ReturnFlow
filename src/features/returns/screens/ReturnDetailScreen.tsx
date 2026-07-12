@@ -1,6 +1,15 @@
 import { useState } from 'react';
-import { View, Text, ScrollView, ActivityIndicator, StyleSheet, TextInput } from 'react-native';
+import {
+  View,
+  Text,
+  ScrollView,
+  ActivityIndicator,
+  StyleSheet,
+  TextInput,
+  Pressable,
+} from 'react-native';
 import { useTranslation } from 'react-i18next';
+import { Ionicons } from '@expo/vector-icons';
 import { useTheme } from '@/theme/ThemeProvider';
 import { Screen } from '@/components/Screen';
 import { ScreenHeader } from '@/components/ScreenHeader';
@@ -45,6 +54,7 @@ export function ReturnDetailScreen({ returnId }: Props) {
   const hasEditRole = useHasRole([...EDIT_ROLES]);
   const [commentText, setCommentText] = useState('');
   const [editVisible, setEditVisible] = useState(false);
+  const [historyOpen, setHistoryOpen] = useState(false);
   const styles = createStyles(theme);
 
   if (isLoading) {
@@ -93,23 +103,50 @@ export function ReturnDetailScreen({ returnId }: Props) {
   const handleSendComment = () => {
     const text = commentText.trim();
     if (!text) return;
-    commentMutation.mutate(text, { onSuccess: () => setCommentText('') });
+    setCommentText('');
+    commentMutation.mutate(text);
   };
+
+  const primaryAction = !canEdit
+    ? null
+    : item.status === 'pending' || item.status === 'urgent'
+      ? {
+          label: t('returns.detail.markReturned'),
+          onPress: () => markReturnedMutation.mutate(),
+          loading: markReturnedMutation.isPending,
+        }
+      : item.status === 'returned'
+        ? {
+            label: t('returns.detail.archive'),
+            onPress: () => archiveMutation.mutate(),
+            loading: archiveMutation.isPending,
+          }
+        : {
+            label: t('returns.detail.restore'),
+            onPress: () => restoreMutation.mutate(),
+            loading: restoreMutation.isPending,
+          };
 
   return (
     <Screen>
       <ScrollView contentContainerStyle={styles.container} showsVerticalScrollIndicator={false}>
-        <ScreenHeader title={item.title} />
-        <Text style={styles.subtitle}>
-          {item.supplierName} · ×{item.quantity}
-        </Text>
+        <ScreenHeader
+          title={item.title}
+          rightIcon={canEdit ? 'create-outline' : undefined}
+          onRightPress={canEdit ? () => setEditVisible(true) : undefined}
+        />
 
-        <View style={styles.badgeRow}>
-          <View style={styles.badge}>
-            <Text style={styles.badgeText}>{statusLabels[item.status]}</Text>
-          </View>
-          <View style={styles.badge}>
-            <Text style={styles.badgeText}>{priorityLabels[item.priority]}</Text>
+        <View style={styles.summary}>
+          <Text style={styles.subtitle}>
+            {item.supplierName} · ×{item.quantity}
+          </Text>
+          <View style={styles.badgeRow}>
+            <View style={styles.badge}>
+              <Text style={styles.badgeText}>{statusLabels[item.status]}</Text>
+            </View>
+            <View style={styles.badge}>
+              <Text style={styles.badgeText}>{priorityLabels[item.priority]}</Text>
+            </View>
           </View>
         </View>
 
@@ -122,87 +159,78 @@ export function ReturnDetailScreen({ returnId }: Props) {
           </Card>
         ) : null}
 
-        <ReturnPhotos returnId={returnId} canEdit={canEdit} />
-
-        {canEdit ? (
-          <View style={styles.actions}>
-            <Button
-              label={t('common.edit')}
-              variant="outline"
-              onPress={() => setEditVisible(true)}
-            />
-            {item.status === 'pending' || item.status === 'urgent' ? (
-              <Button
-                label={t('returns.detail.markReturned')}
-                onPress={() => markReturnedMutation.mutate()}
-                loading={markReturnedMutation.isPending}
-              />
-            ) : null}
-            {item.status === 'returned' ? (
-              <Button
-                label={t('returns.detail.archive')}
-                variant="outline"
-                onPress={() => archiveMutation.mutate()}
-                loading={archiveMutation.isPending}
-              />
-            ) : null}
-            {item.status === 'archived' ? (
-              <Button
-                label={t('returns.detail.restore')}
-                variant="outline"
-                onPress={() => restoreMutation.mutate()}
-                loading={restoreMutation.isPending}
-              />
-            ) : null}
-          </View>
+        {primaryAction ? (
+          <Button
+            label={primaryAction.label}
+            onPress={primaryAction.onPress}
+            loading={primaryAction.loading}
+          />
         ) : null}
 
-        <Text style={styles.sectionTitle}>{t('returns.detail.commentsTitle')}</Text>
-        <Card>
-          {comments && comments.length > 0 ? (
-            comments.map((c, index) => (
-              <View key={c.id} style={[styles.commentRow, index === 0 && styles.rowFirst]}>
-                <Text style={styles.commentAuthor}>{c.authorName}</Text>
-                <Text style={styles.commentText}>{c.comment}</Text>
-                <Text style={styles.commentMeta}>{formatDateTime(c.createdAt)}</Text>
-              </View>
-            ))
-          ) : (
-            <View style={styles.emptyBox}>
-              <Text style={styles.emptyText}>{t('returns.detail.noComments')}</Text>
-            </View>
-          )}
-        </Card>
+        <ReturnPhotos returnId={returnId} canEdit={canEdit} />
 
-        <View style={styles.commentInputRow}>
-          <TextInput
-            style={styles.commentInput}
-            placeholder={t('returns.detail.commentPlaceholder')}
-            placeholderTextColor={theme.colors.textSecondary}
-            value={commentText}
-            onChangeText={setCommentText}
-            multiline
-          />
-          <Button
-            label={t('returns.detail.commentSend')}
-            onPress={handleSendComment}
-            loading={commentMutation.isPending}
-          />
+        <View style={styles.section}>
+          <Text style={styles.sectionTitle}>{t('returns.detail.commentsTitle')}</Text>
+          <Card>
+            {comments && comments.length > 0 ? (
+              comments.map((c, index) => (
+                <View key={c.id} style={[styles.commentRow, index === 0 && styles.rowFirst]}>
+                  <Text style={styles.commentAuthor}>{c.authorName}</Text>
+                  <Text style={styles.commentText}>{c.comment}</Text>
+                  <Text style={styles.commentMeta}>{formatDateTime(c.createdAt)}</Text>
+                </View>
+              ))
+            ) : (
+              <View style={styles.emptyBox}>
+                <Text style={styles.emptyText}>{t('returns.detail.noComments')}</Text>
+              </View>
+            )}
+          </Card>
+
+          <View style={styles.commentInputRow}>
+            <TextInput
+              style={styles.commentInput}
+              placeholder={t('returns.detail.commentPlaceholder')}
+              placeholderTextColor={theme.colors.textSecondary}
+              value={commentText}
+              onChangeText={setCommentText}
+              multiline
+            />
+            <Button
+              label={t('returns.detail.commentSend')}
+              onPress={handleSendComment}
+              loading={commentMutation.isPending}
+            />
+          </View>
         </View>
 
-        <Text style={styles.sectionTitle}>{t('returns.detail.historyTitle')}</Text>
-        <Card>
-          {(history ?? []).map((entry, index) => (
-            <View key={entry.id} style={[styles.historyRow, index === 0 && styles.rowFirst]}>
-              <Text style={styles.historyAction}>
-                {historyLabels[entry.action] ?? entry.action}
-              </Text>
-              <Text style={styles.historyMeta}>
-                {entry.userName} · {formatDateTime(entry.createdAt)}
-              </Text>
-            </View>
-          ))}
-        </Card>
+        <View style={styles.section}>
+          <Pressable style={styles.historyToggle} onPress={() => setHistoryOpen((v) => !v)}>
+            <Text style={styles.sectionTitle}>
+              {t('returns.detail.historyTitle')} ({history?.length ?? 0})
+            </Text>
+            <Ionicons
+              name={historyOpen ? 'chevron-up' : 'chevron-down'}
+              size={18}
+              color={theme.colors.textSecondary}
+            />
+          </Pressable>
+
+          {historyOpen ? (
+            <Card>
+              {(history ?? []).map((entry, index) => (
+                <View key={entry.id} style={[styles.historyRow, index === 0 && styles.rowFirst]}>
+                  <Text style={styles.historyAction}>
+                    {historyLabels[entry.action] ?? entry.action}
+                  </Text>
+                  <Text style={styles.historyMeta}>
+                    {entry.userName} · {formatDateTime(entry.createdAt)}
+                  </Text>
+                </View>
+              ))}
+            </Card>
+          ) : null}
+        </View>
       </ScrollView>
 
       <ReturnFormSheet
@@ -216,19 +244,15 @@ export function ReturnDetailScreen({ returnId }: Props) {
 
 function createStyles(theme: ReturnType<typeof useTheme>) {
   return StyleSheet.create({
-    container: { gap: theme.spacing.md, paddingBottom: theme.spacing.xl },
+    container: { gap: theme.spacing.xl, paddingBottom: theme.spacing['2xl'] },
     center: { flex: 1, justifyContent: 'center', alignItems: 'center' },
     errorText: { color: theme.colors.danger, textAlign: 'center' },
-    title: {
-      fontSize: theme.fontSizes.xl,
-      fontWeight: theme.fontWeights.bold,
-      color: theme.colors.textPrimary,
-    },
+    summary: { gap: theme.spacing.sm },
     subtitle: { fontSize: theme.fontSizes.sm, color: theme.colors.textSecondary },
     badgeRow: { flexDirection: 'row', gap: theme.spacing.sm },
     badge: {
       backgroundColor: theme.colors.surfaceVariant,
-      borderRadius: 10,
+      borderRadius: theme.radius.sm,
       paddingHorizontal: theme.spacing.sm,
       paddingVertical: 4,
     },
@@ -240,13 +264,13 @@ function createStyles(theme: ReturnType<typeof useTheme>) {
     reasonBox: { padding: theme.spacing.lg, gap: 4 },
     reasonLabel: { fontSize: theme.fontSizes.xs, color: theme.colors.textSecondary },
     reasonText: { fontSize: theme.fontSizes.md, color: theme.colors.textPrimary },
-    actions: { gap: theme.spacing.sm },
+    section: { gap: theme.spacing.md },
     sectionTitle: {
       fontSize: theme.fontSizes.sm,
       fontWeight: theme.fontWeights.semiBold,
       color: theme.colors.textSecondary,
-      marginTop: theme.spacing.sm,
     },
+    historyToggle: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' },
     rowFirst: { borderTopWidth: 0 },
     emptyBox: { padding: theme.spacing.lg },
     emptyText: {
@@ -273,7 +297,7 @@ function createStyles(theme: ReturnType<typeof useTheme>) {
       borderWidth: 1,
       borderColor: theme.colors.border,
       backgroundColor: theme.colors.surface,
-      borderRadius: 12,
+      borderRadius: theme.radius.lg,
       paddingHorizontal: theme.spacing.md,
       paddingVertical: theme.spacing.md,
       fontSize: theme.fontSizes.md,

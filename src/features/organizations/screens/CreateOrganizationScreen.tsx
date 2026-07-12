@@ -1,4 +1,4 @@
-import { View, Text, TextInput, Pressable, ActivityIndicator, StyleSheet } from 'react-native';
+import { View, Text, TextInput, StyleSheet } from 'react-native';
 import { useForm, Controller } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useTranslation } from 'react-i18next';
@@ -9,6 +9,7 @@ import {
 import { useCreateOrganization } from '@/features/organizations/hooks/useCreateOrganization';
 import { useTheme } from '@/theme/ThemeProvider';
 import { Logo } from '@/components/Logo';
+import { Button } from '@/components/Button';
 import { logout } from '@/features/auth/services/auth.service';
 
 export function CreateOrganizationScreen() {
@@ -67,24 +68,12 @@ export function CreateOrganizationScreen() {
           </View>
         ) : null}
 
-        <Pressable
-          style={({ pressed }) => [
-            styles.button,
-            (mutation.isPending || pressed) && styles.buttonPressed,
-          ]}
+        <Button
+          label={t('organizations.submit')}
           onPress={handleSubmit(onSubmit)}
-          disabled={mutation.isPending}
-        >
-          {mutation.isPending ? (
-            <ActivityIndicator color={theme.colors.onPrimary} />
-          ) : (
-            <Text style={styles.buttonText}>{t('organizations.submit')}</Text>
-          )}
-        </Pressable>
-
-        <Pressable onPress={() => logout()} style={styles.logoutLink}>
-          <Text style={styles.logoutLinkText}>{t('common.logOut')}</Text>
-        </Pressable>
+          loading={mutation.isPending}
+        />
+        <Button label={t('common.logOut')} variant="outline" onPress={() => logout()} />
       </View>
     </View>
   );
@@ -121,7 +110,7 @@ function createStyles(theme: ReturnType<typeof useTheme>) {
       borderWidth: 1,
       borderColor: theme.colors.border,
       backgroundColor: theme.colors.surface,
-      borderRadius: 12,
+      borderRadius: theme.radius.md,
       paddingHorizontal: theme.spacing.md,
       paddingVertical: theme.spacing.md,
       fontSize: theme.fontSizes.md,
@@ -131,28 +120,13 @@ function createStyles(theme: ReturnType<typeof useTheme>) {
     errorText: { fontSize: theme.fontSizes.xs, color: theme.colors.danger },
     errorBanner: {
       backgroundColor: theme.colors.danger + '15',
-      borderRadius: 10,
+      borderRadius: theme.radius.sm,
       padding: theme.spacing.md,
     },
     errorBannerText: {
       color: theme.colors.danger,
       fontSize: theme.fontSizes.sm,
       textAlign: 'center',
-    },
-    logoutLink: { alignItems: 'center', marginTop: theme.spacing.sm },
-    logoutLinkText: { color: theme.colors.textSecondary, fontSize: theme.fontSizes.sm },
-    button: {
-      backgroundColor: theme.colors.primary,
-      borderRadius: 12,
-      paddingVertical: theme.spacing.md,
-      alignItems: 'center',
-      marginTop: theme.spacing.sm,
-    },
-    buttonPressed: { backgroundColor: theme.colors.primaryPressed },
-    buttonText: {
-      color: theme.colors.onPrimary,
-      fontWeight: theme.fontWeights.semiBold,
-      fontSize: theme.fontSizes.md,
     },
   });
 }

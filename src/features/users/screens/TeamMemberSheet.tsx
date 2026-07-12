@@ -1,7 +1,8 @@
-import { Modal, View, Text, Pressable, StyleSheet, Alert } from 'react-native';
+import { Modal, View, Text, StyleSheet, Alert } from 'react-native';
 import { useTranslation } from 'react-i18next';
 import { useTheme } from '@/theme/ThemeProvider';
 import { Button } from '@/components/Button';
+import { Chip } from '@/components/Chip';
 import { useTeamMembers } from '@/features/users/hooks/useTeamMembers';
 import {
   useUpdateMemberRole,
@@ -51,9 +52,7 @@ export function TeamMemberSheet({ visible, onClose, membershipId }: Props) {
       {
         text: t('users.team.removeAccess'),
         style: 'destructive',
-        onPress: () => {
-          removeMutation.mutate(member.membershipId, { onSuccess: onClose });
-        },
+        onPress: () => removeMutation.mutate(member.membershipId, { onSuccess: onClose }),
       },
     ]);
   };
@@ -74,20 +73,13 @@ export function TeamMemberSheet({ visible, onClose, membershipId }: Props) {
           <Text style={styles.label}>{t('users.team.roleLabel')}</Text>
           <View style={styles.chipRow}>
             {ROLES.map((role) => (
-              <Pressable
+              <Chip
                 key={role}
+                label={role}
+                selected={member.role === role}
                 disabled={isSelf}
                 onPress={() => roleMutation.mutate({ membershipId: member.membershipId, role })}
-                style={[
-                  styles.chip,
-                  member.role === role && styles.chipActive,
-                  isSelf && styles.chipDisabled,
-                ]}
-              >
-                <Text style={[styles.chipText, member.role === role && styles.chipTextActive]}>
-                  {role}
-                </Text>
-              </Pressable>
+              />
             ))}
           </View>
           {roleMutation.isError ? (
@@ -99,20 +91,13 @@ export function TeamMemberSheet({ visible, onClose, membershipId }: Props) {
           <Text style={styles.label}>{t('users.team.statusLabel')}</Text>
           <View style={styles.chipRow}>
             {STATUSES.map((status) => (
-              <Pressable
+              <Chip
                 key={status}
+                label={statusLabels[status]}
+                selected={member.status === status}
                 disabled={isSelf}
                 onPress={() => statusMutation.mutate({ membershipId: member.membershipId, status })}
-                style={[
-                  styles.chip,
-                  member.status === status && styles.chipActive,
-                  isSelf && styles.chipDisabled,
-                ]}
-              >
-                <Text style={[styles.chipText, member.status === status && styles.chipTextActive]}>
-                  {statusLabels[status]}
-                </Text>
-              </Pressable>
+              />
             ))}
           </View>
           {statusMutation.isError ? (
@@ -145,7 +130,7 @@ function createStyles(theme: ReturnType<typeof useTheme>) {
       flex: 1,
       backgroundColor: theme.colors.background,
       padding: theme.spacing.xl,
-      gap: theme.spacing.lg,
+      gap: theme.spacing.xl,
     },
     title: {
       fontSize: theme.fontSizes.lg,
@@ -159,17 +144,6 @@ function createStyles(theme: ReturnType<typeof useTheme>) {
       color: theme.colors.textSecondary,
     },
     chipRow: { flexDirection: 'row', flexWrap: 'wrap', gap: theme.spacing.sm },
-    chip: {
-      borderWidth: 1,
-      borderColor: theme.colors.border,
-      borderRadius: 20,
-      paddingHorizontal: theme.spacing.md,
-      paddingVertical: theme.spacing.sm,
-    },
-    chipActive: { backgroundColor: theme.colors.primary, borderColor: theme.colors.primary },
-    chipDisabled: { opacity: 0.4 },
-    chipText: { color: theme.colors.textPrimary, fontSize: theme.fontSizes.sm },
-    chipTextActive: { color: theme.colors.onPrimary, fontWeight: theme.fontWeights.semiBold },
     errorText: { fontSize: theme.fontSizes.xs, color: theme.colors.danger },
   });
 }

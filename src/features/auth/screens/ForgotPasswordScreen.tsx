@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { View, Text, TextInput, Pressable, ActivityIndicator, StyleSheet } from 'react-native';
+import { View, Text, TextInput, StyleSheet } from 'react-native';
 import { useForm, Controller } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useRouter } from 'expo-router';
@@ -10,6 +10,7 @@ import {
 } from '@/features/auth/validators/forgot-password.schema';
 import { requestPasswordReset } from '@/features/auth/services/auth.service';
 import { useTheme } from '@/theme/ThemeProvider';
+import { Button } from '@/components/Button';
 
 export function ForgotPasswordScreen() {
   const router = useRouter();
@@ -50,9 +51,11 @@ export function ForgotPasswordScreen() {
           <View style={styles.successBanner}>
             <Text style={styles.successText}>{t('auth.forgotPassword.success')}</Text>
           </View>
-          <Pressable style={styles.button} onPress={() => router.replace('/login')}>
-            <Text style={styles.buttonText}>{t('common.back')}</Text>
-          </Pressable>
+          <Button
+            label={t('common.back')}
+            variant="outline"
+            onPress={() => router.replace('/login')}
+          />
         </>
       ) : (
         <View style={styles.form}>
@@ -91,20 +94,11 @@ export function ForgotPasswordScreen() {
             </View>
           ) : null}
 
-          <Pressable
-            style={({ pressed }) => [
-              styles.button,
-              (isSubmitting || pressed) && styles.buttonPressed,
-            ]}
+          <Button
+            label={t('auth.forgotPassword.submit')}
             onPress={handleSubmit(onSubmit)}
-            disabled={isSubmitting}
-          >
-            {isSubmitting ? (
-              <ActivityIndicator color={theme.colors.onPrimary} />
-            ) : (
-              <Text style={styles.buttonText}>{t('auth.forgotPassword.submit')}</Text>
-            )}
-          </Pressable>
+            loading={isSubmitting}
+          />
         </View>
       )}
     </View>
@@ -142,7 +136,7 @@ function createStyles(theme: ReturnType<typeof useTheme>) {
       borderWidth: 1,
       borderColor: theme.colors.border,
       backgroundColor: theme.colors.surface,
-      borderRadius: 12,
+      borderRadius: theme.radius.md,
       paddingHorizontal: theme.spacing.md,
       paddingVertical: theme.spacing.md,
       fontSize: theme.fontSizes.md,
@@ -152,7 +146,7 @@ function createStyles(theme: ReturnType<typeof useTheme>) {
     errorText: { fontSize: theme.fontSizes.xs, color: theme.colors.danger },
     errorBanner: {
       backgroundColor: theme.colors.danger + '15',
-      borderRadius: 10,
+      borderRadius: theme.radius.sm,
       padding: theme.spacing.md,
     },
     errorBannerText: {
@@ -162,21 +156,9 @@ function createStyles(theme: ReturnType<typeof useTheme>) {
     },
     successBanner: {
       backgroundColor: theme.colors.success + '15',
-      borderRadius: 10,
+      borderRadius: theme.radius.sm,
       padding: theme.spacing.md,
     },
     successText: { color: theme.colors.success, fontSize: theme.fontSizes.sm, textAlign: 'center' },
-    button: {
-      backgroundColor: theme.colors.primary,
-      borderRadius: 12,
-      paddingVertical: theme.spacing.md,
-      alignItems: 'center',
-    },
-    buttonPressed: { backgroundColor: theme.colors.primaryPressed },
-    buttonText: {
-      color: theme.colors.onPrimary,
-      fontWeight: theme.fontWeights.semiBold,
-      fontSize: theme.fontSizes.md,
-    },
   });
 }

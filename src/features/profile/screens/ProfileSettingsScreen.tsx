@@ -1,9 +1,10 @@
 import { useState } from 'react';
-import { View, Text, Pressable, StyleSheet } from 'react-native';
+import { View, Text, StyleSheet } from 'react-native';
 import { useTranslation } from 'react-i18next';
 import { useTheme } from '@/theme/ThemeProvider';
 import { Screen } from '@/components/Screen';
 import { ScreenHeader } from '@/components/ScreenHeader';
+import { Chip } from '@/components/Chip';
 import { useAuthStore } from '@/stores/auth.store';
 import { useLanguageStore, type AppLanguage } from '@/stores/language.store';
 import { useThemeStore, type ThemeMode } from '@/stores/theme.store';
@@ -33,9 +34,7 @@ export function ProfileSettingsScreen() {
       setSaved(true);
     } catch (error) {
       const message = error instanceof Error ? error.message : 'Unknown error';
-      if (__DEV__) {
-        console.error('Failed to persist profile settings:', error);
-      }
+      if (__DEV__) console.error('Failed to persist profile settings:', error);
       setSaveError(message);
     }
   };
@@ -65,15 +64,12 @@ export function ProfileSettingsScreen() {
           <Text style={styles.label}>{t('profile.languageLabel')}</Text>
           <View style={styles.row}>
             {LANGUAGES.map((lang) => (
-              <Pressable
+              <Chip
                 key={lang}
+                label={lang.toUpperCase()}
+                selected={language === lang}
                 onPress={() => handleLanguageChange(lang)}
-                style={[styles.chip, language === lang && styles.chipActive]}
-              >
-                <Text style={[styles.chipText, language === lang && styles.chipTextActive]}>
-                  {lang.toUpperCase()}
-                </Text>
-              </Pressable>
+              />
             ))}
           </View>
         </View>
@@ -82,15 +78,12 @@ export function ProfileSettingsScreen() {
           <Text style={styles.label}>{t('profile.themeLabel')}</Text>
           <View style={styles.row}>
             {THEME_MODES.map((m) => (
-              <Pressable
+              <Chip
                 key={m}
+                label={themeLabels[m]}
+                selected={mode === m}
                 onPress={() => handleModeChange(m)}
-                style={[styles.chip, mode === m && styles.chipActive]}
-              >
-                <Text style={[styles.chipText, mode === m && styles.chipTextActive]}>
-                  {themeLabels[m]}
-                </Text>
-              </Pressable>
+              />
             ))}
           </View>
         </View>
@@ -113,12 +106,7 @@ export function ProfileSettingsScreen() {
 
 function createStyles(theme: ReturnType<typeof useTheme>) {
   return StyleSheet.create({
-    container: { flex: 1, gap: theme.spacing.lg },
-    title: {
-      fontSize: theme.fontSizes.xl,
-      fontWeight: theme.fontWeights.bold,
-      color: theme.colors.textPrimary,
-    },
+    container: { flex: 1, gap: theme.spacing.xl },
     field: { gap: theme.spacing.sm },
     label: {
       fontSize: theme.fontSizes.sm,
@@ -126,19 +114,9 @@ function createStyles(theme: ReturnType<typeof useTheme>) {
       color: theme.colors.textSecondary,
     },
     row: { flexDirection: 'row', gap: theme.spacing.sm },
-    chip: {
-      borderWidth: 1,
-      borderColor: theme.colors.border,
-      borderRadius: 10,
-      paddingHorizontal: theme.spacing.lg,
-      paddingVertical: theme.spacing.sm,
-    },
-    chipActive: { backgroundColor: theme.colors.primary, borderColor: theme.colors.primary },
-    chipText: { color: theme.colors.textPrimary, fontWeight: theme.fontWeights.medium },
-    chipTextActive: { color: theme.colors.onPrimary },
     errorBanner: {
       backgroundColor: theme.colors.danger + '15',
-      borderRadius: 10,
+      borderRadius: theme.radius.sm,
       padding: theme.spacing.md,
     },
     errorBannerText: {
@@ -148,7 +126,7 @@ function createStyles(theme: ReturnType<typeof useTheme>) {
     },
     successBanner: {
       backgroundColor: theme.colors.success + '15',
-      borderRadius: 10,
+      borderRadius: theme.radius.sm,
       padding: theme.spacing.md,
     },
     successText: { color: theme.colors.success, fontSize: theme.fontSizes.sm, textAlign: 'center' },

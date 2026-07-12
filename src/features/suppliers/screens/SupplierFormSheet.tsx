@@ -134,7 +134,7 @@ function createStyles(theme: ReturnType<typeof useTheme>) {
       flex: 1,
       backgroundColor: theme.colors.background,
       padding: theme.spacing.xl,
-      gap: theme.spacing.md,
+      gap: theme.spacing.lg,
     },
     title: {
       fontSize: theme.fontSizes.xl,
@@ -152,7 +152,7 @@ function createStyles(theme: ReturnType<typeof useTheme>) {
       borderWidth: 1,
       borderColor: theme.colors.border,
       backgroundColor: theme.colors.surface,
-      borderRadius: 12,
+      borderRadius: theme.radius.md,
       paddingHorizontal: theme.spacing.md,
       paddingVertical: theme.spacing.md,
       fontSize: theme.fontSizes.md,
@@ -162,7 +162,7 @@ function createStyles(theme: ReturnType<typeof useTheme>) {
     errorText: { fontSize: theme.fontSizes.xs, color: theme.colors.danger },
     errorBanner: {
       backgroundColor: theme.colors.danger + '15',
-      borderRadius: 10,
+      borderRadius: theme.radius.sm,
       padding: theme.spacing.md,
     },
     errorBannerText: {
