@@ -213,7 +213,11 @@
       "submit": "შენახვა"
     },
     "pendingSync": "სინქრონიზაციის მოლოდინში",
-    "filterBySupplier": "მომწოდებლის მიხედვით"
+    "filterBySupplier": "მომწოდებლის მიხედვით",
+    "selectedCount": "არჩეულია: {{count}}",
+    "bulkMarkReturned": "დაბრუნებულად მონიშვნა",
+    "bulkArchive": "არქივში გადატანა",
+    "cancelSelection": "გაუქმება"
   },
   "chat": {
     "title": "ჩატი",

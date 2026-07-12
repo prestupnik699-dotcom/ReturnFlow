@@ -213,7 +213,11 @@
       "submit": "Сохранить"
     },
     "pendingSync": "Ещё не отправлено",
-    "filterBySupplier": "Фильтр по поставщику"
+    "filterBySupplier": "Фильтр по поставщику",
+    "selectedCount": "Выбрано: {{count}}",
+    "bulkMarkReturned": "Отметить возвращёнными",
+    "bulkArchive": "Архивировать",
+    "cancelSelection": "Отмена"
   },
   "chat": {
     "title": "Чат",

@@ -213,7 +213,11 @@
       "submit": "Save"
     },
     "pendingSync": "Not synced yet",
-    "filterBySupplier": "Filter by supplier"
+    "filterBySupplier": "Filter by supplier",
+    "selectedCount": "{{count}} selected",
+    "bulkMarkReturned": "Mark returned",
+    "bulkArchive": "Archive",
+    "cancelSelection": "Cancel"
   },
   "chat": {
     "title": "Chat",

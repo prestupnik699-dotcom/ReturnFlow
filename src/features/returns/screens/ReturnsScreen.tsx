@@ -22,6 +22,7 @@ import { useSuppliers } from '@/features/suppliers/hooks/useSuppliers';
 import { ReturnFormSheet } from '@/features/returns/screens/ReturnFormSheet';
 import { SupplierFilterSheet } from '@/features/returns/screens/SupplierFilterSheet';
 import { ReturnListRow } from '@/features/returns/components/ReturnListRow';
+import { useBulkMarkReturned, useBulkArchive } from '@/features/returns/hooks/useBulkReturnActions';
 import { useMembershipStore } from '@/stores/membership.store';
 import type {
   ReturnItem,
@@ -43,6 +44,7 @@ export function ReturnsScreen() {
   const [supplierSheetVisible, setSupplierSheetVisible] = useState(false);
   const [searchInput, setSearchInput] = useState('');
   const [sortMode, setSortMode] = useState<SortMode>('recent');
+  const [selectedIds, setSelectedIds] = useState<string[]>([]);
   const {
     data: allReturns,
     isLoading,
@@ -50,7 +52,11 @@ export function ReturnsScreen() {
   } = useReturns(statusFilter ? [statusFilter] : undefined);
   const { data: suppliers } = useSuppliers(false, 'name');
   const [formVisible, setFormVisible] = useState(false);
+  const bulkMarkReturnedMutation = useBulkMarkReturned();
+  const bulkArchiveMutation = useBulkArchive();
   const styles = createStyles(theme);
+
+  const selectionMode = selectedIds.length > 0;
 
   const query = searchInput.trim().toLowerCase();
   const filtered = (allReturns ?? [])
@@ -94,6 +100,37 @@ export function ReturnsScreen() {
     ? suppliers?.find((s) => s.id === supplierFilter)?.name
     : null;
 
+  const selectedItems = sorted.filter((r) => selectedIds.includes(r.id));
+  const allSelectedAreReturned =
+    selectedItems.length > 0 && selectedItems.every((r) => r.status === 'returned');
+
+  const toggleSelect = (id: string) => {
+    setSelectedIds((prev) => (prev.includes(id) ? prev.filter((x) => x !== id) : [...prev, id]));
+  };
+
+  const handleLongPress = (item: ReturnItem) => {
+    if (item.pendingSync) return;
+    toggleSelect(item.id);
+  };
+
+  const handlePress = (item: ReturnItem) => {
+    if (item.pendingSync) return;
+    if (selectionMode) {
+      toggleSelect(item.id);
+      return;
+    }
+    router.push(`/return/${item.id}`);
+  };
+
+  const handleBulkAction = () => {
+    const ids = [...selectedIds];
+    if (allSelectedAreReturned) {
+      bulkArchiveMutation.mutate(ids, { onSuccess: () => setSelectedIds([]) });
+    } else {
+      bulkMarkReturnedMutation.mutate(ids, { onSuccess: () => setSelectedIds([]) });
+    }
+  };
+
   if (!activeStoreId) {
     return (
       <Screen>
@@ -103,11 +140,6 @@ export function ReturnsScreen() {
       </Screen>
     );
   }
-
-  const handlePress = (item: ReturnItem) => {
-    if (item.pendingSync) return;
-    router.push(`/return/${item.id}`);
-  };
 
   return (
     <Screen>
@@ -196,6 +228,9 @@ export function ReturnsScreen() {
                   statusColors={statusColors}
                   pendingLabel={t('returns.pendingSync')}
                   onPress={() => handlePress(item)}
+                  onLongPress={() => handleLongPress(item)}
+                  selectionMode={selectionMode}
+                  selected={selectedIds.includes(item.id)}
                 />
               </Animated.View>
             )}
@@ -203,7 +238,23 @@ export function ReturnsScreen() {
         )}
 
         <View style={[styles.footer, { paddingBottom: tabBarClearance }]}>
-          {!suppliers || suppliers.length === 0 ? (
+          {selectionMode ? (
+            <View style={styles.bulkBar}>
+              <Pressable onPress={() => setSelectedIds([])}>
+                <Text style={styles.cancelText}>{t('returns.cancelSelection')}</Text>
+              </Pressable>
+              <Text style={styles.countText}>
+                {t('returns.selectedCount', { count: selectedIds.length })}
+              </Text>
+              <Button
+                label={
+                  allSelectedAreReturned ? t('returns.bulkArchive') : t('returns.bulkMarkReturned')
+                }
+                onPress={handleBulkAction}
+                loading={bulkMarkReturnedMutation.isPending || bulkArchiveMutation.isPending}
+              />
+            </View>
+          ) : !suppliers || suppliers.length === 0 ? (
             <Text style={styles.warningText}>{t('returns.noSuppliers')}</Text>
           ) : (
             <Button
@@ -298,5 +349,17 @@ function createStyles(theme: ReturnType<typeof useTheme>) {
     errorText: { color: theme.colors.danger, textAlign: 'center' },
     warningText: { color: theme.colors.warning, textAlign: 'center', fontSize: theme.fontSizes.sm },
     footer: { paddingTop: theme.spacing.sm },
+    bulkBar: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      justifyContent: 'space-between',
+      gap: theme.spacing.sm,
+    },
+    cancelText: { color: theme.colors.textSecondary, fontSize: theme.fontSizes.sm },
+    countText: {
+      color: theme.colors.textPrimary,
+      fontSize: theme.fontSizes.sm,
+      fontWeight: theme.fontWeights.semiBold,
+    },
   });
 }

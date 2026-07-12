@@ -25,6 +25,9 @@ type Props = {
   statusColors: Record<ReturnStatus, string>;
   pendingLabel: string;
   onPress: () => void;
+  onLongPress: () => void;
+  selectionMode: boolean;
+  selected: boolean;
 };
 
 export function ReturnListRow({
@@ -34,6 +37,9 @@ export function ReturnListRow({
   statusColors,
   pendingLabel,
   onPress,
+  onLongPress,
+  selectionMode,
+  selected,
 }: Props) {
   const theme = useTheme();
   const { t } = useTranslation();
@@ -80,10 +86,20 @@ export function ReturnListRow({
   );
 
   const content = (
-    <Pressable onPress={onPress}>
+    <Pressable onPress={onPress} onLongPress={onLongPress}>
       <Card>
         <View style={styles.row}>
-          <View style={[styles.priorityDot, { backgroundColor: priorityColors[item.priority] }]} />
+          {selectionMode ? (
+            <Ionicons
+              name={selected ? 'checkmark-circle' : 'ellipse-outline'}
+              size={22}
+              color={selected ? theme.colors.primary : theme.colors.textSecondary}
+            />
+          ) : (
+            <View
+              style={[styles.priorityDot, { backgroundColor: priorityColors[item.priority] }]}
+            />
+          )}
           <View style={styles.info}>
             <Text style={styles.itemTitle} numberOfLines={1}>
               {item.title}
@@ -111,7 +127,7 @@ export function ReturnListRow({
     </Pressable>
   );
 
-  if (item.pendingSync) {
+  if (item.pendingSync || selectionMode) {
     return content;
   }
 
