@@ -1,7 +1,6 @@
 import { useRef } from 'react';
 import { View, Text, Pressable, StyleSheet } from 'react-native';
 import ReanimatedSwipeable, {
-  SwipeDirection,
   type SwipeableMethods,
 } from 'react-native-gesture-handler/ReanimatedSwipeable';
 import { Ionicons } from '@expo/vector-icons';
@@ -50,6 +49,7 @@ export function ReturnListRow({
   const restoreMutation = useRestoreReturn(item.id);
   const styles = createStyles(theme);
 
+  // Revealed by swiping the row LEFT (panel sits on the right).
   const rightAction =
     item.status === 'pending' || item.status === 'urgent'
       ? {
@@ -72,6 +72,8 @@ export function ReturnListRow({
             run: () => restoreMutation.mutate(),
           };
 
+  // Revealed by swiping the row RIGHT (panel sits on the left). Only for
+  // items already marked returned — undoing back to pending.
   const leftAction =
     item.status === 'returned'
       ? {
@@ -82,24 +84,22 @@ export function ReturnListRow({
         }
       : null;
 
-  const closeAfter = (run: () => void) => () => {
+  // Deliberately tap-to-confirm, not auto-fire-on-full-swipe: the library's
+  // onSwipeableOpen callback fired unreliably alongside the button's own
+  // onPress, causing both actions to race and the wrong one to "win". This
+  // is the same reveal-then-tap pattern Gmail uses for most swipe actions.
+  const runAndClose = (run: () => void) => () => {
     run();
     swipeableRef.current?.close();
   };
 
-  const handleSwipeableOpen = (direction: SwipeDirection) => {
-    if (direction === SwipeDirection.RIGHT) {
-      closeAfter(rightAction.run)();
-    } else if (direction === SwipeDirection.LEFT && leftAction) {
-      closeAfter(leftAction.run)();
-    }
-  };
-
   const renderRightActions = () => (
     <View style={[styles.actionContainer, { backgroundColor: rightAction.color }]}>
-      <Pressable style={styles.actionButton} onPress={closeAfter(rightAction.run)}>
-        <Ionicons name={rightAction.icon} size={22} color="#fff" />
-        <Text style={styles.actionLabel}>{rightAction.label}</Text>
+      <Pressable style={styles.actionButton} onPress={runAndClose(rightAction.run)}>
+        <Ionicons name={rightAction.icon} size={20} color="#fff" />
+        <Text style={styles.actionLabel} numberOfLines={2}>
+          {rightAction.label}
+        </Text>
       </Pressable>
     </View>
   );
@@ -113,9 +113,11 @@ export function ReturnListRow({
             { backgroundColor: leftAction.color },
           ]}
         >
-          <Pressable style={styles.actionButton} onPress={closeAfter(leftAction.run)}>
-            <Ionicons name={leftAction.icon} size={22} color="#fff" />
-            <Text style={styles.actionLabel}>{leftAction.label}</Text>
+          <Pressable style={styles.actionButton} onPress={runAndClose(leftAction.run)}>
+            <Ionicons name={leftAction.icon} size={20} color="#fff" />
+            <Text style={styles.actionLabel} numberOfLines={2}>
+              {leftAction.label}
+            </Text>
           </Pressable>
         </View>
       )
@@ -177,7 +179,6 @@ export function ReturnListRow({
       renderLeftActions={renderLeftActions}
       overshootRight={false}
       overshootLeft={false}
-      onSwipeableOpen={handleSwipeableOpen}
     >
       {content}
     </ReanimatedSwipeable>
@@ -221,18 +222,25 @@ function createStyles(theme: ReturnType<typeof useTheme>) {
       color: theme.colors.warning,
     },
     actionContainer: {
-      width: 90,
+      width: 110,
       borderRadius: theme.radius.lg,
       marginLeft: theme.spacing.sm,
       overflow: 'hidden',
     },
     actionContainerLeft: { marginLeft: 0, marginRight: theme.spacing.sm },
-    actionButton: { flex: 1, alignItems: 'center', justifyContent: 'center', gap: 4 },
+    actionButton: {
+      flex: 1,
+      alignItems: 'center',
+      justifyContent: 'center',
+      gap: 4,
+      paddingHorizontal: theme.spacing.xs,
+    },
     actionLabel: {
       color: '#fff',
-      fontSize: theme.fontSizes.xs,
+      fontSize: 11,
       fontWeight: theme.fontWeights.semiBold,
       textAlign: 'center',
+      lineHeight: 14,
     },
   });
 }
