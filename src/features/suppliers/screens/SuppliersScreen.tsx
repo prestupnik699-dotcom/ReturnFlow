@@ -135,14 +135,14 @@ export function SuppliersScreen() {
                       />
                     </Pressable>
 
-                    <Pressable style={styles.info} onPress={() => handleEdit(item)}>
+                    <PressableScale style={styles.info} onPress={() => handleEdit(item)}>
                       <Text style={styles.name}>{item.name}</Text>
                       {item.contactName || item.phone ? (
                         <Text style={styles.meta}>
                           {[item.contactName, item.phone].filter(Boolean).join(' · ')}
                         </Text>
                       ) : null}
-                    </Pressable>
+                    </PressableScale>
 
                     <RequireRole roles={[...EDIT_ROLES]}>
                       <Pressable onPress={() => handleDelete(item)} hitSlop={12}>
