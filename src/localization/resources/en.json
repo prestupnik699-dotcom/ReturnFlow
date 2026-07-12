@@ -137,7 +137,8 @@
     "errors": {
       "nameTooShort": "Name is too short"
     },
-    "activeStoreHint": "Tap a store to edit it, tap the circle to make it your active store"
+    "activeStoreHint": "Tap a store to edit it, tap the circle to make it your active store",
+    "noAddress": "No address specified"
   },
   "suppliers": {
     "title": "Suppliers",

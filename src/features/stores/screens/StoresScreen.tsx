@@ -1,13 +1,5 @@
 import { useState } from 'react';
-import {
-  View,
-  Text,
-  FlatList,
-  ActivityIndicator,
-  StyleSheet,
-  Alert,
-  Pressable,
-} from 'react-native';
+import { View, Text, FlatList, ActivityIndicator, StyleSheet, Pressable } from 'react-native';
 import Animated, { FadeInDown } from 'react-native-reanimated';
 import { useTranslation } from 'react-i18next';
 import { Ionicons } from '@expo/vector-icons';
@@ -17,11 +9,17 @@ import { Screen } from '@/components/Screen';
 import { Card } from '@/components/Card';
 import { Button } from '@/components/Button';
 import { RequireRole } from '@/components/RequireRole';
+import { ConfirmDialog } from '@/components/ConfirmDialog';
 import { useStores } from '@/features/stores/hooks/useStores';
 import { useDeleteStore } from '@/features/stores/hooks/useDeleteStore';
 import { StoreFormSheet } from '@/features/stores/screens/StoreFormSheet';
 import { useMembershipStore } from '@/stores/membership.store';
 import type { Store } from '@/features/stores/services/stores.service';
+
+function storeSubtitle(store: Store, fallback: string): string {
+  const parts = [store.city, store.address].filter(Boolean);
+  return parts.length > 0 ? parts.join(', ') : fallback;
+}
 
 export function StoresScreen() {
   const theme = useTheme();
@@ -34,18 +32,8 @@ export function StoresScreen() {
   const setActiveContext = useMembershipStore((state) => state.setActiveContext);
   const [formVisible, setFormVisible] = useState(false);
   const [editingStore, setEditingStore] = useState<Store | null>(null);
+  const [pendingDelete, setPendingDelete] = useState<Store | null>(null);
   const styles = createStyles(theme);
-
-  const handleDelete = (store: Store) => {
-    Alert.alert(t('stores.deleteConfirmTitle'), t('stores.deleteConfirmMessage'), [
-      { text: t('organizations.settings.cancelButton'), style: 'cancel' },
-      {
-        text: t('organizations.settings.deleteConfirmButton'),
-        style: 'destructive',
-        onPress: () => deleteMutation.mutate(store.id),
-      },
-    ]);
-  };
 
   const handleAdd = () => {
     setEditingStore(null);
@@ -59,6 +47,11 @@ export function StoresScreen() {
 
   const handleSelectActive = (store: Store) => {
     setActiveContext(activeOrganizationId, store.id);
+  };
+
+  const confirmDelete = () => {
+    if (!pendingDelete) return;
+    deleteMutation.mutate(pendingDelete.id, { onSuccess: () => setPendingDelete(null) });
   };
 
   if (isLoading) {
@@ -102,12 +95,16 @@ export function StoresScreen() {
                     </Pressable>
 
                     <Pressable style={styles.storeInfo} onPress={() => handleEdit(item)}>
-                      <Text style={styles.storeName}>{item.name}</Text>
-                      {item.city ? <Text style={styles.storeMeta}>{item.city}</Text> : null}
+                      <Text style={styles.storeName} numberOfLines={1}>
+                        {item.name}
+                      </Text>
+                      <Text style={styles.storeMeta} numberOfLines={1}>
+                        {storeSubtitle(item, t('stores.noAddress'))}
+                      </Text>
                     </Pressable>
 
                     <RequireRole roles={['Owner', 'Administrator']}>
-                      <Pressable onPress={() => handleDelete(item)} hitSlop={12}>
+                      <Pressable onPress={() => setPendingDelete(item)} hitSlop={12}>
                         <Ionicons name="trash-outline" size={20} color={theme.colors.danger} />
                       </Pressable>
                     </RequireRole>
@@ -132,6 +129,18 @@ export function StoresScreen() {
         visible={formVisible}
         onClose={() => setFormVisible(false)}
         store={editingStore}
+      />
+
+      <ConfirmDialog
+        visible={!!pendingDelete}
+        title={t('stores.deleteConfirmTitle')}
+        message={t('stores.deleteConfirmMessage')}
+        confirmLabel={t('organizations.settings.deleteConfirmButton')}
+        cancelLabel={t('organizations.settings.cancelButton')}
+        destructive
+        loading={deleteMutation.isPending}
+        onConfirm={confirmDelete}
+        onCancel={() => setPendingDelete(null)}
       />
     </Screen>
   );
