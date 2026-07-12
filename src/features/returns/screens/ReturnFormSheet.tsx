@@ -17,9 +17,15 @@ import type { ReturnItem, ReturnPriority } from '@/features/returns/services/ret
 
 const PRIORITIES: ReturnPriority[] = ['low', 'normal', 'high', 'critical'];
 
-type Props = { visible: boolean; onClose: () => void; returnItem?: ReturnItem | null };
+type Props = {
+  visible: boolean;
+  onClose: () => void;
+  returnItem?: ReturnItem | null;
+  prefillTitle?: string;
+  onCreated?: (values: { supplierId: string; title: string }) => void;
+};
 
-export function ReturnFormSheet({ visible, onClose, returnItem }: Props) {
+export function ReturnFormSheet({ visible, onClose, returnItem, prefillTitle, onCreated }: Props) {
   const theme = useTheme();
   const { t } = useTranslation();
   const { data: suppliers } = useSuppliers(false, 'name');
@@ -47,7 +53,7 @@ export function ReturnFormSheet({ visible, onClose, returnItem }: Props) {
     if (visible) {
       reset({
         supplierId: returnItem?.supplierId ?? '',
-        title: returnItem?.title ?? '',
+        title: returnItem?.title ?? prefillTitle ?? '',
         quantity: returnItem ? String(returnItem.quantity) : '1',
         reason: returnItem?.reason ?? '',
         priority: returnItem?.priority ?? 'normal',
@@ -56,7 +62,7 @@ export function ReturnFormSheet({ visible, onClose, returnItem }: Props) {
       updateMutation.reset();
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [visible, returnItem]);
+  }, [visible, returnItem, prefillTitle]);
 
   const handleClose = () => {
     reset();
@@ -64,7 +70,14 @@ export function ReturnFormSheet({ visible, onClose, returnItem }: Props) {
   };
 
   const onSubmit = (values: CreateReturnFormValues) => {
-    mutation.mutate(values, { onSuccess: handleClose });
+    mutation.mutate(values, {
+      onSuccess: () => {
+        if (!isEditing) {
+          onCreated?.({ supplierId: values.supplierId, title: values.title });
+        }
+        handleClose();
+      },
+    });
   };
 
   const priorityLabels: Record<ReturnPriority, string> = {

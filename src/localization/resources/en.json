@@ -249,5 +249,14 @@
     "byStatus": "By status",
     "topSuppliers": "Top suppliers",
     "noData": "No data for this period"
+  },
+  "scanner": {
+    "title": "Scanner",
+    "requestingPermission": "Requesting camera access...",
+    "noPermission": "Camera access not granted",
+    "openSettings": "Open settings",
+    "instructions": "Point the camera at a barcode",
+    "lookingUp": "Looking up product...",
+    "instantAdded": "Added automatically"
   }
 }

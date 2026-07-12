@@ -15,6 +15,14 @@
       "supportsTablet": true,
       "bundleIdentifier": "com.returnflow.app"
     },
-    "plugins": ["expo-router"]
+    "plugins": [
+      "expo-router",
+      [
+        "expo-camera",
+        {
+          "cameraPermission": "ReturnFlow использует камеру для сканирования штрихкодов товаров"
+        }
+      ]
+    ]
   }
 }

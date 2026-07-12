@@ -163,7 +163,12 @@ export function ReturnsScreen() {
   return (
     <Screen>
       <View style={styles.container}>
-        <Text style={styles.title}>{t('returns.title')}</Text>
+        <View style={styles.headerRow}>
+          <Text style={styles.title}>{t('returns.title')}</Text>
+          <Pressable style={styles.scanButton} onPress={() => router.push('/scanner')} hitSlop={8}>
+            <Ionicons name="scan-outline" size={20} color={theme.colors.primary} />
+          </Pressable>
+        </View>
 
         <View style={styles.searchRow}>
           <Ionicons name="search" size={18} color={theme.colors.textSecondary} />
@@ -327,11 +332,24 @@ function createStyles(theme: ReturnType<typeof useTheme>) {
   return StyleSheet.create({
     container: { flex: 1 },
     center: { flex: 1, justifyContent: 'center', alignItems: 'center', padding: theme.spacing.xl },
+    headerRow: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      justifyContent: 'space-between',
+      marginBottom: theme.spacing.md,
+    },
     title: {
       fontSize: theme.fontSizes['2xl'],
       fontWeight: theme.fontWeights.bold,
       color: theme.colors.textPrimary,
-      marginBottom: theme.spacing.md,
+    },
+    scanButton: {
+      width: 40,
+      height: 40,
+      borderRadius: theme.radius.full,
+      backgroundColor: theme.colors.primary + '15',
+      alignItems: 'center',
+      justifyContent: 'center',
     },
     emptyStateText: { color: theme.colors.textSecondary, textAlign: 'center' },
     searchRow: {

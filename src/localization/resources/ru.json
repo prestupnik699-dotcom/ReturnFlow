@@ -249,5 +249,14 @@
     "byStatus": "По статусам",
     "topSuppliers": "Топ поставщиков",
     "noData": "Нет данных за этот период"
+  },
+  "scanner": {
+    "title": "Сканер",
+    "requestingPermission": "Запрашивается доступ к камере...",
+    "noPermission": "Нет доступа к камере",
+    "openSettings": "Открыть настройки",
+    "instructions": "Наведите камеру на штрихкод",
+    "lookingUp": "Ищем товар...",
+    "instantAdded": "Добавлено автоматически"
   }
 }
