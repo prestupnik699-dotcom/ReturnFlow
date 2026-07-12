@@ -305,3 +305,11 @@ Status: Accepted
 Remote push notifications require a real native build (not testable in Expo Go), so V1 ships in-app notifications only — list, unread counter, mark-as-read. Push registration and delivery are deferred to Phase 17 (release build).
 
 `notifications` table existed since Phase 2 but nothing ever inserted into it. First (and only, for now) trigger: a new chat message notifies other members of that room. Other event sources (urgent returns, invitations, announcements) will get their own triggers when those flows are revisited, not all at once.
+
+### D-031 — Offline Support V1: Create Return Only, Text Fields Only
+
+Status: Accepted
+
+The offline foundation (expo-sqlite queue, network detector, sync processor) was built in Phase 4 but never used. V1 wires it up for exactly one, highest-value scenario: creating a return while offline (title/quantity/reason/priority/supplier). Status changes, comments, and photos while offline are explicitly out of scope for this pass — each needs its own sync handler and, for photos, local file persistence across app restarts, which is meaningfully more complex than a JSON payload.
+
+Pending (not-yet-synced) returns show in the list with a visual "not synced yet" indicator and are not tappable into the detail screen (they don't have a real server ID yet). Retries are not fully idempotent yet — a return could theoretically double-insert if a sync attempt partially succeeds before failing; this is a known, accepted limitation for V1, not a silent gap.

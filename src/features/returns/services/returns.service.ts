@@ -19,6 +19,9 @@ export type ReturnItem = {
   priority: ReturnPriority;
   createdAt: string;
   returnedAt: string | null;
+  // true only for locally-queued, not-yet-synced items (D-031). Never set for
+  // anything fetched from the server.
+  pendingSync?: boolean;
 };
 
 type ReturnItemRow = {

@@ -22,7 +22,11 @@ import { useReturns } from '@/features/returns/hooks/useReturns';
 import { useSuppliers } from '@/features/suppliers/hooks/useSuppliers';
 import { ReturnFormSheet } from '@/features/returns/screens/ReturnFormSheet';
 import { useMembershipStore } from '@/stores/membership.store';
-import type { ReturnStatus, ReturnPriority } from '@/features/returns/services/returns.service';
+import type {
+  ReturnItem,
+  ReturnStatus,
+  ReturnPriority,
+} from '@/features/returns/services/returns.service';
 
 const STATUSES: ReturnStatus[] = ['pending', 'urgent', 'returned', 'archived'];
 type SortMode = 'recent' | 'oldest';
@@ -53,11 +57,13 @@ export function ReturnsScreen() {
       )
     : allReturns;
   const sorted = filtered
-    ? [...filtered].sort((a, b) =>
-        sortMode === 'recent'
+    ? [...filtered].sort((a, b) => {
+        if (a.pendingSync && !b.pendingSync) return -1;
+        if (!a.pendingSync && b.pendingSync) return 1;
+        return sortMode === 'recent'
           ? new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
-          : new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime(),
-      )
+          : new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime();
+      })
     : filtered;
 
   const statusLabels: Record<ReturnStatus, string> = {
@@ -90,6 +96,11 @@ export function ReturnsScreen() {
       </Screen>
     );
   }
+
+  const handlePress = (item: ReturnItem) => {
+    if (item.pendingSync) return;
+    router.push(`/return/${item.id}`);
+  };
 
   return (
     <Screen>
@@ -157,7 +168,7 @@ export function ReturnsScreen() {
             ListEmptyComponent={<EmptyState icon="repeat-outline" title={t('returns.empty')} />}
             renderItem={({ item, index }) => (
               <Animated.View entering={FadeInDown.delay(index * 50).duration(250)}>
-                <Pressable onPress={() => router.push(`/return/${item.id}`)}>
+                <Pressable onPress={() => handlePress(item)}>
                   <Card>
                     <View style={styles.row}>
                       <View
@@ -179,16 +190,29 @@ export function ReturnsScreen() {
                           <Text style={styles.meta}>×{item.quantity}</Text>
                         </View>
                       </View>
-                      <View
-                        style={[
-                          styles.statusPill,
-                          { backgroundColor: statusColors[item.status] + '22' },
-                        ]}
-                      >
-                        <Text style={[styles.statusPillText, { color: statusColors[item.status] }]}>
-                          {statusLabels[item.status]}
-                        </Text>
-                      </View>
+                      {item.pendingSync ? (
+                        <View style={styles.pendingBadge}>
+                          <Ionicons
+                            name="cloud-upload-outline"
+                            size={12}
+                            color={theme.colors.warning}
+                          />
+                          <Text style={styles.pendingBadgeText}>{t('returns.pendingSync')}</Text>
+                        </View>
+                      ) : (
+                        <View
+                          style={[
+                            styles.statusPill,
+                            { backgroundColor: statusColors[item.status] + '22' },
+                          ]}
+                        >
+                          <Text
+                            style={[styles.statusPillText, { color: statusColors[item.status] }]}
+                          >
+                            {statusLabels[item.status]}
+                          </Text>
+                        </View>
+                      )}
                     </View>
                   </Card>
                 </Pressable>
@@ -294,5 +318,20 @@ function createStyles(theme: ReturnType<typeof useTheme>) {
       marginRight: theme.spacing.lg,
     },
     statusPillText: { fontSize: theme.fontSizes.xs, fontWeight: theme.fontWeights.semiBold },
+    pendingBadge: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      gap: 4,
+      backgroundColor: theme.colors.warning + '22',
+      borderRadius: theme.radius.sm,
+      paddingHorizontal: theme.spacing.sm,
+      paddingVertical: 4,
+      marginRight: theme.spacing.lg,
+    },
+    pendingBadgeText: {
+      fontSize: theme.fontSizes.xs,
+      fontWeight: theme.fontWeights.semiBold,
+      color: theme.colors.warning,
+    },
   });
 }

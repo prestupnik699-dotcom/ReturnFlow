@@ -1,4 +1,5 @@
 import '@/localization/i18n';
+import '@/features/returns/sync/returnsSyncHandler';
 import { useEffect } from 'react';
 import { Stack } from 'expo-router';
 import * as SplashScreen from 'expo-splash-screen';

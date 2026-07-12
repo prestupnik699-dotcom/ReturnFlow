@@ -1,10 +1,12 @@
 import { useEffect, useRef } from 'react';
+import { useQueryClient } from '@tanstack/react-query';
 import { useNetworkStatus } from '@/hooks/useNetworkStatus';
 import { processSyncQueue } from '@/lib/sync/syncProcessor';
 
 export function useSyncOnReconnect(): void {
   const isConnected = useNetworkStatus();
   const wasOffline = useRef(false);
+  const queryClient = useQueryClient();
 
   useEffect(() => {
     if (!isConnected) {
@@ -14,11 +16,17 @@ export function useSyncOnReconnect(): void {
 
     if (wasOffline.current) {
       wasOffline.current = false;
-      processSyncQueue().catch((error) => {
-        if (__DEV__) {
-          console.error('Sync queue processing failed:', error);
-        }
-      });
+      processSyncQueue()
+        .then(() => {
+          // Broad invalidation on purpose: as more operation types get their
+          // own handler, this stays correct without needing per-type wiring.
+          queryClient.invalidateQueries({ queryKey: ['returns'] });
+        })
+        .catch((error) => {
+          if (__DEV__) {
+            console.error('Sync queue processing failed:', error);
+          }
+        });
     }
-  }, [isConnected]);
+  }, [isConnected, queryClient]);
 }

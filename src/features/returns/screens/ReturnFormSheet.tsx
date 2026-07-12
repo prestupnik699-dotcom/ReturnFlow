@@ -24,7 +24,7 @@ export function ReturnFormSheet({ visible, onClose, returnItem }: Props) {
   const { t } = useTranslation();
   const { data: suppliers } = useSuppliers(false, 'name');
   const isEditing = !!returnItem;
-  const createMutation = useCreateReturn();
+  const createMutation = useCreateReturn(suppliers ?? []);
   const updateMutation = useUpdateReturn(returnItem?.id ?? '');
   const mutation = isEditing ? updateMutation : createMutation;
   const styles = createStyles(theme);

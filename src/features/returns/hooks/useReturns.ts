@@ -1,5 +1,6 @@
 import { useQuery } from '@tanstack/react-query';
 import { fetchReturns, type ReturnStatus } from '@/features/returns/services/returns.service';
+import { fetchPendingReturns } from '@/features/returns/services/offlineReturns.service';
 import { useMembershipStore } from '@/stores/membership.store';
 
 export function useReturns(statusFilter?: ReturnStatus[]) {
@@ -9,9 +10,15 @@ export function useReturns(statusFilter?: ReturnStatus[]) {
     queryKey: ['returns', activeStoreId, statusFilter],
     queryFn: async () => {
       if (!activeStoreId) throw new Error('No active store');
-      const result = await fetchReturns({ storeId: activeStoreId, statusFilter });
+
+      const [result, pending] = await Promise.all([
+        fetchReturns({ storeId: activeStoreId, statusFilter }),
+        fetchPendingReturns(activeStoreId),
+      ]);
+
       if (!result.success) throw new Error(result.error.message);
-      return result.data;
+
+      return [...pending, ...result.data];
     },
     enabled: !!activeStoreId,
   });

@@ -211,7 +211,8 @@
     "edit": {
       "title": "Edit return",
       "submit": "Save"
-    }
+    },
+    "pendingSync": "Not synced yet"
   },
   "chat": {
     "title": "Chat",
