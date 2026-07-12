@@ -9,6 +9,9 @@ export function useSyncOnReconnect(): void {
   const queryClient = useQueryClient();
 
   useEffect(() => {
+    if (__DEV__)
+      console.log('[sync] network status changed:', isConnected, 'wasOffline:', wasOffline.current);
+
     if (!isConnected) {
       wasOffline.current = true;
       return;
@@ -16,16 +19,14 @@ export function useSyncOnReconnect(): void {
 
     if (wasOffline.current) {
       wasOffline.current = false;
+      if (__DEV__) console.log('[sync] reconnected, processing queue...');
       processSyncQueue()
         .then(() => {
-          // Broad invalidation on purpose: as more operation types get their
-          // own handler, this stays correct without needing per-type wiring.
+          if (__DEV__) console.log('[sync] queue processed successfully');
           queryClient.invalidateQueries({ queryKey: ['returns'] });
         })
         .catch((error) => {
-          if (__DEV__) {
-            console.error('Sync queue processing failed:', error);
-          }
+          if (__DEV__) console.error('[sync] queue processing failed:', error);
         });
     }
   }, [isConnected, queryClient]);
