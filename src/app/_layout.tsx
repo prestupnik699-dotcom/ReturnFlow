@@ -5,6 +5,7 @@ import { Stack } from 'expo-router';
 import * as SplashScreen from 'expo-splash-screen';
 import { QueryClientProvider } from '@tanstack/react-query';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
+import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import { queryClient } from '@/lib/query-client';
 import { ThemeProvider } from '@/theme/ThemeProvider';
 import { useSessionBootstrap } from '@/features/auth/hooks/useSessionBootstrap';
@@ -29,22 +30,21 @@ export default function RootLayout() {
   }, [isInitializing]);
 
   return (
-    <SafeAreaProvider>
-      <QueryClientProvider client={queryClient}>
-        <ThemeProvider>
-          <ErrorBoundary>
-            <RootNavigator />
-          </ErrorBoundary>
-        </ThemeProvider>
-      </QueryClientProvider>
-    </SafeAreaProvider>
+    <GestureHandlerRootView style={{ flex: 1 }}>
+      <SafeAreaProvider>
+        <QueryClientProvider client={queryClient}>
+          <ThemeProvider>
+            <ErrorBoundary>
+              <RootNavigator />
+            </ErrorBoundary>
+          </ThemeProvider>
+        </QueryClientProvider>
+      </SafeAreaProvider>
+    </GestureHandlerRootView>
   );
 }
 
 function RootNavigator() {
-  // Must live inside QueryClientProvider's subtree — it calls useQueryClient()
-  // internally to invalidate queries after a sync, and RootLayout itself
-  // renders above the provider, not inside it.
   useSyncOnReconnect();
 
   const session = useAuthStore((state) => state.session);

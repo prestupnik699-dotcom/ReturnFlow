@@ -14,7 +14,6 @@ import { Ionicons } from '@expo/vector-icons';
 import Animated, { FadeInDown } from 'react-native-reanimated';
 import { useTheme } from '@/theme/ThemeProvider';
 import { Screen } from '@/components/Screen';
-import { Card } from '@/components/Card';
 import { Button } from '@/components/Button';
 import { EmptyState } from '@/components/EmptyState';
 import { useTabBarClearance } from '@/hooks/useTabBarClearance';
@@ -22,6 +21,7 @@ import { useReturns } from '@/features/returns/hooks/useReturns';
 import { useSuppliers } from '@/features/suppliers/hooks/useSuppliers';
 import { ReturnFormSheet } from '@/features/returns/screens/ReturnFormSheet';
 import { SupplierFilterSheet } from '@/features/returns/screens/SupplierFilterSheet';
+import { ReturnListRow } from '@/features/returns/components/ReturnListRow';
 import { useMembershipStore } from '@/stores/membership.store';
 import type {
   ReturnItem,
@@ -189,51 +189,14 @@ export function ReturnsScreen() {
             ListEmptyComponent={<EmptyState icon="repeat-outline" title={t('returns.empty')} />}
             renderItem={({ item, index }) => (
               <Animated.View entering={FadeInDown.delay(index * 50).duration(250)}>
-                <Pressable onPress={() => handlePress(item)}>
-                  <Card>
-                    <View style={styles.row}>
-                      <View
-                        style={[
-                          styles.priorityDot,
-                          { backgroundColor: priorityColors[item.priority] },
-                        ]}
-                      />
-
-                      <View style={styles.info}>
-                        <Text style={styles.itemTitle} numberOfLines={1}>
-                          {item.title}
-                        </Text>
-                        <Text style={styles.meta} numberOfLines={1}>
-                          {item.supplierName} · ×{item.quantity}
-                        </Text>
-                      </View>
-
-                      {item.pendingSync ? (
-                        <View style={styles.pendingBadge}>
-                          <Ionicons
-                            name="cloud-upload-outline"
-                            size={12}
-                            color={theme.colors.warning}
-                          />
-                          <Text style={styles.pendingBadgeText}>{t('returns.pendingSync')}</Text>
-                        </View>
-                      ) : (
-                        <View
-                          style={[
-                            styles.statusPill,
-                            { backgroundColor: statusColors[item.status] + '22' },
-                          ]}
-                        >
-                          <Text
-                            style={[styles.statusPillText, { color: statusColors[item.status] }]}
-                          >
-                            {statusLabels[item.status]}
-                          </Text>
-                        </View>
-                      )}
-                    </View>
-                  </Card>
-                </Pressable>
+                <ReturnListRow
+                  item={item}
+                  statusLabels={statusLabels}
+                  priorityColors={priorityColors}
+                  statusColors={statusColors}
+                  pendingLabel={t('returns.pendingSync')}
+                  onPress={() => handlePress(item)}
+                />
               </Animated.View>
             )}
           />
@@ -335,39 +298,5 @@ function createStyles(theme: ReturnType<typeof useTheme>) {
     errorText: { color: theme.colors.danger, textAlign: 'center' },
     warningText: { color: theme.colors.warning, textAlign: 'center', fontSize: theme.fontSizes.sm },
     footer: { paddingTop: theme.spacing.sm },
-    row: {
-      flexDirection: 'row',
-      alignItems: 'center',
-      gap: theme.spacing.md,
-      padding: theme.spacing.lg,
-    },
-    priorityDot: { width: 8, height: 8, borderRadius: 4 },
-    info: { flex: 1, gap: 4 },
-    itemTitle: {
-      fontSize: theme.fontSizes.md,
-      fontWeight: theme.fontWeights.semiBold,
-      color: theme.colors.textPrimary,
-    },
-    meta: { fontSize: theme.fontSizes.sm, color: theme.colors.textSecondary },
-    statusPill: {
-      borderRadius: theme.radius.sm,
-      paddingHorizontal: theme.spacing.sm,
-      paddingVertical: 4,
-    },
-    statusPillText: { fontSize: theme.fontSizes.xs, fontWeight: theme.fontWeights.semiBold },
-    pendingBadge: {
-      flexDirection: 'row',
-      alignItems: 'center',
-      gap: 4,
-      backgroundColor: theme.colors.warning + '22',
-      borderRadius: theme.radius.sm,
-      paddingHorizontal: theme.spacing.sm,
-      paddingVertical: 4,
-    },
-    pendingBadgeText: {
-      fontSize: theme.fontSizes.xs,
-      fontWeight: theme.fontWeights.semiBold,
-      color: theme.colors.warning,
-    },
   });
 }
