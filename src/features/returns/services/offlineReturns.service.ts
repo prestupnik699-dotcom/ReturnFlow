@@ -1,5 +1,9 @@
 import { enqueueOperation, getPendingOperations } from '@/lib/sync/syncQueue';
-import type { ReturnItem, ReturnPriority } from '@/features/returns/services/returns.service';
+import type {
+  ReturnItem,
+  ReturnPriority,
+  ReturnStatus,
+} from '@/features/returns/services/returns.service';
 
 export type CreateReturnQueuePayload = {
   organizationId: string;
@@ -13,8 +17,30 @@ export type CreateReturnQueuePayload = {
   priority: ReturnPriority;
 };
 
+export type UpdateReturnStatusQueuePayload = {
+  returnId: string;
+  action: 'mark_returned' | 'archive' | 'restore';
+  profileId: string;
+};
+
+export type CreateCommentQueuePayload = {
+  returnItemId: string;
+  authorId: string;
+  comment: string;
+};
+
 export async function enqueueCreateReturn(payload: CreateReturnQueuePayload): Promise<void> {
   await enqueueOperation('create_return', payload);
+}
+
+export async function enqueueUpdateReturnStatus(
+  payload: UpdateReturnStatusQueuePayload,
+): Promise<void> {
+  await enqueueOperation('update_return_status', payload);
+}
+
+export async function enqueueCreateComment(payload: CreateCommentQueuePayload): Promise<void> {
+  await enqueueOperation('create_comment', payload);
 }
 
 export async function fetchPendingReturns(storeId: string): Promise<ReturnItem[]> {
@@ -35,7 +61,7 @@ export async function fetchPendingReturns(storeId: string): Promise<ReturnItem[]
       quantity: payload.quantity,
       reason: payload.reason,
       comment: null,
-      status: 'pending' as const,
+      status: 'pending' as ReturnStatus,
       priority: payload.priority,
       createdAt: op.createdAt,
       returnedAt: null,

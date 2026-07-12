@@ -7,6 +7,7 @@ export type ReturnComment = {
   authorId: string;
   authorName: string;
   createdAt: string;
+  pendingSync?: boolean;
 };
 
 type CommentRow = {

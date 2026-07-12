@@ -22,6 +22,9 @@ export type ReturnItem = {
   // true only for locally-queued, not-yet-synced items (D-031). Never set for
   // anything fetched from the server.
   pendingSync?: boolean;
+  // true only right after an offline status change was applied optimistically
+  // (D-032), until the queue syncs and the real value comes back from the server.
+  pendingStatusSync?: boolean;
 };
 
 type ReturnItemRow = {
