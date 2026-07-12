@@ -1,5 +1,8 @@
+import { useRef } from 'react';
 import { View, Text, Pressable, StyleSheet } from 'react-native';
-import ReanimatedSwipeable from 'react-native-gesture-handler/ReanimatedSwipeable';
+import ReanimatedSwipeable, {
+  type SwipeableMethods,
+} from 'react-native-gesture-handler/ReanimatedSwipeable';
 import { Ionicons } from '@expo/vector-icons';
 import { useTranslation } from 'react-i18next';
 import { useTheme } from '@/theme/ThemeProvider';
@@ -34,6 +37,7 @@ export function ReturnListRow({
 }: Props) {
   const theme = useTheme();
   const { t } = useTranslation();
+  const swipeableRef = useRef<SwipeableMethods>(null);
   const markReturnedMutation = useMarkReturned(item.id);
   const archiveMutation = useArchiveReturn(item.id);
   const restoreMutation = useRestoreReturn(item.id);
@@ -45,25 +49,30 @@ export function ReturnListRow({
           label: t('returns.detail.markReturned'),
           icon: 'checkmark-circle-outline' as const,
           color: theme.colors.success,
-          onPress: () => markReturnedMutation.mutate(),
+          run: () => markReturnedMutation.mutate(),
         }
       : item.status === 'returned'
         ? {
             label: t('returns.detail.archive'),
             icon: 'archive-outline' as const,
             color: theme.colors.textSecondary,
-            onPress: () => archiveMutation.mutate(),
+            run: () => archiveMutation.mutate(),
           }
         : {
             label: t('returns.detail.restore'),
             icon: 'refresh-outline' as const,
             color: theme.colors.primary,
-            onPress: () => restoreMutation.mutate(),
+            run: () => restoreMutation.mutate(),
           };
+
+  const runAction = () => {
+    swipeAction.run();
+    swipeableRef.current?.close();
+  };
 
   const renderRightActions = () => (
     <View style={[styles.actionContainer, { backgroundColor: swipeAction.color }]}>
-      <Pressable style={styles.actionButton} onPress={swipeAction.onPress}>
+      <Pressable style={styles.actionButton} onPress={runAction}>
         <Ionicons name={swipeAction.icon} size={22} color="#fff" />
         <Text style={styles.actionLabel}>{swipeAction.label}</Text>
       </Pressable>
@@ -108,10 +117,12 @@ export function ReturnListRow({
 
   return (
     <ReanimatedSwipeable
+      ref={swipeableRef}
       friction={2}
       rightThreshold={40}
       renderRightActions={renderRightActions}
       overshootRight={false}
+      onSwipeableOpen={runAction}
     >
       {content}
     </ReanimatedSwipeable>
