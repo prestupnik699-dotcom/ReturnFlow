@@ -9,18 +9,19 @@ import {
   StyleSheet,
   KeyboardAvoidingView,
   Platform,
-  Alert,
 } from 'react-native';
 import { useTranslation } from 'react-i18next';
 import { Ionicons } from '@expo/vector-icons';
 import { useTheme } from '@/theme/ThemeProvider';
 import { Screen } from '@/components/Screen';
 import { EmptyState } from '@/components/EmptyState';
+import { ConfirmDialog } from '@/components/ConfirmDialog';
 import { useTabBarClearance } from '@/hooks/useTabBarClearance';
 import { useChatRoom } from '@/features/chat/hooks/useChatRoom';
 import { useChatMessages } from '@/features/chat/hooks/useChatMessages';
 import { useSendChatMessage } from '@/features/chat/hooks/useSendChatMessage';
 import { useDeleteChatMessage } from '@/features/chat/hooks/useDeleteChatMessage';
+import { useClearChat } from '@/features/chat/hooks/useClearChat';
 import { useStoreName } from '@/features/stores/hooks/useStoreName';
 import { useAuthStore } from '@/stores/auth.store';
 import { useMembershipStore } from '@/stores/membership.store';
@@ -45,7 +46,10 @@ export function ChatScreen() {
   const { data: messages, isLoading } = useChatMessages(roomId ?? null);
   const sendMutation = useSendChatMessage(roomId ?? '');
   const deleteMutation = useDeleteChatMessage(roomId ?? null);
+  const clearMutation = useClearChat(roomId ?? null);
   const [text, setText] = useState('');
+  const [pendingDelete, setPendingDelete] = useState<ChatMessage | null>(null);
+  const [clearConfirmVisible, setClearConfirmVisible] = useState(false);
   const listRef = useRef<FlatList<ChatMessage>>(null);
   const styles = createStyles(theme);
 
@@ -81,15 +85,16 @@ export function ChatScreen() {
   const handleLongPressMessage = (message: ChatMessage) => {
     const canDelete = message.authorId === profile?.id || hasModeratorRole;
     if (!canDelete) return;
+    setPendingDelete(message);
+  };
 
-    Alert.alert(t('chat.deleteConfirmTitle'), t('chat.deleteConfirmMessage'), [
-      { text: t('organizations.settings.cancelButton'), style: 'cancel' },
-      {
-        text: t('chat.deleteAction'),
-        style: 'destructive',
-        onPress: () => deleteMutation.mutate(message.id),
-      },
-    ]);
+  const confirmDeleteMessage = () => {
+    if (!pendingDelete) return;
+    deleteMutation.mutate(pendingDelete.id, { onSuccess: () => setPendingDelete(null) });
+  };
+
+  const confirmClearChat = () => {
+    clearMutation.mutate(undefined, { onSuccess: () => setClearConfirmVisible(false) });
   };
 
   const renderItem = ({ item }: { item: ChatMessage }) => {
@@ -114,8 +119,19 @@ export function ChatScreen() {
         behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
       >
         <View style={styles.header}>
-          <Text style={styles.title}>{t('chat.title')}</Text>
-          {storeName ? <Text style={styles.subtitle}>{storeName}</Text> : null}
+          <View style={styles.headerText}>
+            <Text style={styles.title}>{t('chat.title')}</Text>
+            {storeName ? <Text style={styles.subtitle}>{storeName}</Text> : null}
+          </View>
+          {hasModeratorRole && messageCount > 0 ? (
+            <Pressable
+              style={styles.headerIcon}
+              onPress={() => setClearConfirmVisible(true)}
+              hitSlop={8}
+            >
+              <Ionicons name="trash-outline" size={18} color={theme.colors.danger} />
+            </Pressable>
+          ) : null}
         </View>
 
         {isLoading ? (
@@ -160,6 +176,30 @@ export function ChatScreen() {
           </Pressable>
         </View>
       </KeyboardAvoidingView>
+
+      <ConfirmDialog
+        visible={!!pendingDelete}
+        title={t('chat.deleteConfirmTitle')}
+        message={t('chat.deleteConfirmMessage')}
+        confirmLabel={t('chat.deleteAction')}
+        cancelLabel={t('organizations.settings.cancelButton')}
+        destructive
+        loading={deleteMutation.isPending}
+        onConfirm={confirmDeleteMessage}
+        onCancel={() => setPendingDelete(null)}
+      />
+
+      <ConfirmDialog
+        visible={clearConfirmVisible}
+        title={t('chat.clearChatConfirmTitle')}
+        message={t('chat.clearChatConfirmMessage')}
+        confirmLabel={t('chat.clearChat')}
+        cancelLabel={t('organizations.settings.cancelButton')}
+        destructive
+        loading={clearMutation.isPending}
+        onConfirm={confirmClearChat}
+        onCancel={() => setClearConfirmVisible(false)}
+      />
     </Screen>
   );
 }
@@ -169,13 +209,27 @@ function createStyles(theme: ReturnType<typeof useTheme>) {
     flex: { flex: 1 },
     center: { flex: 1, justifyContent: 'center', alignItems: 'center' },
     noStoreText: { color: theme.colors.textSecondary, textAlign: 'center' },
-    header: { marginBottom: theme.spacing.sm },
+    header: {
+      flexDirection: 'row',
+      alignItems: 'flex-start',
+      justifyContent: 'space-between',
+      marginBottom: theme.spacing.sm,
+    },
+    headerText: { flex: 1 },
     title: {
       fontSize: theme.fontSizes['2xl'],
       fontWeight: theme.fontWeights.bold,
       color: theme.colors.textPrimary,
     },
     subtitle: { fontSize: theme.fontSizes.sm, color: theme.colors.textSecondary, marginTop: 2 },
+    headerIcon: {
+      width: 36,
+      height: 36,
+      borderRadius: theme.radius.full,
+      backgroundColor: theme.colors.danger + '15',
+      alignItems: 'center',
+      justifyContent: 'center',
+    },
     list: { flexGrow: 1, gap: theme.spacing.xs, paddingVertical: theme.spacing.sm },
     bubbleRow: { flexDirection: 'row' },
     bubbleRowOwn: { justifyContent: 'flex-end' },

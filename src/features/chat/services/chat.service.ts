@@ -96,3 +96,17 @@ export async function deleteChatMessage(messageId: string): Promise<ServiceResul
 
   return { success: true, data: null };
 }
+
+export async function clearChatMessages(roomId: string): Promise<ServiceResult<null>> {
+  const { error } = await supabase
+    .from('chat_messages')
+    .update({ deleted_at: new Date().toISOString() })
+    .eq('room_id', roomId)
+    .is('deleted_at', null);
+
+  if (error) {
+    return fromCaughtError(error, 'CLEAR_CHAT_FAILED');
+  }
+
+  return { success: true, data: null };
+}

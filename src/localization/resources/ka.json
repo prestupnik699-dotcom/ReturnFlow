@@ -230,7 +230,10 @@
     "deleteConfirmTitle": "წაშალოთ შეტყობინება?",
     "deleteConfirmMessage": "ეს შეტყობინება წაიშლება ყველასთვის.",
     "deleteAction": "წაშლა",
-    "deletedMessage": "შეტყობინება წაშლილია"
+    "deletedMessage": "შეტყობინება წაშლილია",
+    "clearChat": "ჩატის გასუფთავება",
+    "clearChatConfirmTitle": "გავასუფთაოთ ჩატი?",
+    "clearChatConfirmMessage": "ყველა შეტყობინება წაიშლება. მოქმედება შეუქცევადია."
   },
   "statistics": {
     "title": "სტატისტიკა",

@@ -230,7 +230,10 @@
     "deleteConfirmTitle": "Delete message?",
     "deleteConfirmMessage": "This message will be deleted for everyone.",
     "deleteAction": "Delete",
-    "deletedMessage": "Message deleted"
+    "deletedMessage": "Message deleted",
+    "clearChat": "Clear chat",
+    "clearChatConfirmTitle": "Clear the chat?",
+    "clearChatConfirmMessage": "All messages will be deleted. This cannot be undone."
   },
   "statistics": {
     "title": "Statistics",

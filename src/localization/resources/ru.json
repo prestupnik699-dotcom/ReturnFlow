@@ -230,7 +230,10 @@
     "deleteConfirmTitle": "Удалить сообщение?",
     "deleteConfirmMessage": "Сообщение будет удалено для всех.",
     "deleteAction": "Удалить",
-    "deletedMessage": "Сообщение удалено"
+    "deletedMessage": "Сообщение удалено",
+    "clearChat": "Очистить чат",
+    "clearChatConfirmTitle": "Очистить чат?",
+    "clearChatConfirmMessage": "Все сообщения будут удалены. Действие необратимо."
   },
   "statistics": {
     "title": "Статистика",
