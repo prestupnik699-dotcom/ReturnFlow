@@ -203,14 +203,9 @@ export function ReturnsScreen() {
                         <Text style={styles.itemTitle} numberOfLines={1}>
                           {item.title}
                         </Text>
-                        <View style={styles.metaRow}>
-                          <Text style={styles.meta} numberOfLines={1}>
-                            {item.supplierName}
-                          </Text>
-                          <View style={styles.qtyTag}>
-                            <Text style={styles.qtyTagText}>×{item.quantity}</Text>
-                          </View>
-                        </View>
+                        <Text style={styles.meta} numberOfLines={1}>
+                          {item.supplierName} · ×{item.quantity}
+                        </Text>
                       </View>
 
                       {item.pendingSync ? (
@@ -353,19 +348,7 @@ function createStyles(theme: ReturnType<typeof useTheme>) {
       fontWeight: theme.fontWeights.semiBold,
       color: theme.colors.textPrimary,
     },
-    metaRow: { flexDirection: 'row', alignItems: 'center', gap: theme.spacing.sm },
-    meta: { flex: 1, fontSize: theme.fontSizes.sm, color: theme.colors.textSecondary },
-    qtyTag: {
-      backgroundColor: theme.colors.surfaceVariant,
-      borderRadius: theme.radius.sm,
-      paddingHorizontal: 6,
-      paddingVertical: 2,
-    },
-    qtyTagText: {
-      fontSize: theme.fontSizes.xs,
-      color: theme.colors.textSecondary,
-      fontWeight: theme.fontWeights.medium,
-    },
+    meta: { fontSize: theme.fontSizes.sm, color: theme.colors.textSecondary },
     statusPill: {
       borderRadius: theme.radius.sm,
       paddingHorizontal: theme.spacing.sm,
