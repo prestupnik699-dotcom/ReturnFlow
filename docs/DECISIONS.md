@@ -337,3 +337,9 @@ Status: Accepted
 Extends D-030/D-011: every insert into `notifications` now also fires an async HTTP call (via `pg_net`) to a single Edge Function (`send-push`), which looks up the recipient's push tokens and forwards to Expo's Push API. This is the one funnel point — any future notification-generating event (new chat message, now also new return created) gets real push delivery automatically, with zero additional wiring per event type.
 
 Push notification title text is a neutral, non-localized string per notification type (Russian) chosen inside the Edge Function, not translated per-user-language — full localization of server-sent push text is deferred as a known, accepted limitation, not silently skipped.
+
+### D-035 — Barcode Field and "Exchange" Flag on Return Items
+
+Status: Accepted
+
+Real workflow reported by the user: some damaged items aren't simply returned — the distributor takes the damaged unit and drops off a replacement in exchange, off the books (no rs.ge invoice), tracked by hand in a notebook until crossed off when the replacement arrives. Rather than modeling this as a separate entity, `return_items` gets two additive fields: `barcode` (optional, auto-filled when created via the scanner, D-033) and `is_exchange` (boolean toggle in the create form). The existing pending → returned → archived lifecycle is unchanged — this is informational/filterable, not a new state machine, keeping the change small and consistent with the rest of the app.
