@@ -329,3 +329,11 @@ Photos remain excluded from offline support (per D-031's original scope note) �
 Status: Accepted
 
 No product catalog exists in this app (returns are freeform text, D-002/D-007 lineage) and a barcode alone can't tell us the supplier. So: first scan of a barcode looks up the product name via the free Open Food Facts API to pre-fill the existing create-return form, where the user picks the supplier once; that (barcode, supplier, title) triple is saved per-store in a new `barcode_shortcuts` table. Every later scan of the same barcode at the same store creates the return immediately, no form, no taps — matching what the user actually wants ("scan and it's just added"), without inventing product data we can't reliably know from a barcode alone.
+
+### D-034 — Real Push Delivery via pg_net + Edge Function, Return Creation Added as Second Trigger Source
+
+Status: Accepted
+
+Extends D-030/D-011: every insert into `notifications` now also fires an async HTTP call (via `pg_net`) to a single Edge Function (`send-push`), which looks up the recipient's push tokens and forwards to Expo's Push API. This is the one funnel point — any future notification-generating event (new chat message, now also new return created) gets real push delivery automatically, with zero additional wiring per event type.
+
+Push notification title text is a neutral, non-localized string per notification type (Russian) chosen inside the Edge Function, not translated per-user-language — full localization of server-sent push text is deferred as a known, accepted limitation, not silently skipped.
