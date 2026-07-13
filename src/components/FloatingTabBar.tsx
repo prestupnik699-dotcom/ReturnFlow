@@ -1,8 +1,9 @@
-import { View, Text, Pressable, StyleSheet, Platform } from 'react-native';
+import { View, Pressable, StyleSheet, Platform } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useTheme } from '@/theme/ThemeProvider';
 import { useUnreadCount } from '@/features/notifications/hooks/useUnreadCount';
+import { useKeyboardVisible } from '@/hooks/useKeyboardVisible';
 
 const ICONS: Record<string, keyof typeof Ionicons.glyphMap> = {
   stores: 'storefront-outline',
@@ -25,7 +26,16 @@ export function FloatingTabBar({ state, navigation }: TabBarProps) {
   const theme = useTheme();
   const insets = useSafeAreaInsets();
   const unreadCount = useUnreadCount();
+  const keyboardVisible = useKeyboardVisible();
   const styles = createStyles(theme, insets);
+
+  // Hidden while the keyboard is open, rather than relying on a global
+  // OS-level "pan" window mode — pan shifts the ENTIRE screen (including
+  // fixed headers on other screens) to make room, which broke screens that
+  // have both a top header and a bottom input (e.g. Chat).
+  if (keyboardVisible) {
+    return null;
+  }
 
   return (
     <View style={styles.wrapper} pointerEvents="box-none">
@@ -62,7 +72,7 @@ export function FloatingTabBar({ state, navigation }: TabBarProps) {
               </View>
               {route.name === 'notifications' && unreadCount > 0 ? (
                 <View style={styles.badge}>
-                  <Text style={styles.badgeText}>{unreadCount > 9 ? '9+' : unreadCount}</Text>
+                  <View style={styles.badgeInner} />
                 </View>
               ) : null}
             </Pressable>
@@ -101,7 +111,12 @@ function createStyles(theme: ReturnType<typeof useTheme>, insets: { bottom: numb
         default: {},
       }),
     },
-    tab: { alignItems: 'center', justifyContent: 'center' },
+    tab: {
+      alignItems: 'center',
+      justifyContent: 'center',
+      borderRadius: ICON_SIZE / 2,
+      overflow: 'hidden',
+    },
     iconWrap: {
       width: ICON_SIZE,
       height: ICON_SIZE,
@@ -113,18 +128,17 @@ function createStyles(theme: ReturnType<typeof useTheme>, insets: { bottom: numb
     iconWrapActive: { backgroundColor: theme.colors.primary },
     badge: {
       position: 'absolute',
-      top: 2,
-      right: 2,
-      minWidth: 18,
-      height: 18,
-      borderRadius: 9,
-      paddingHorizontal: 4,
+      top: 4,
+      right: 4,
+      width: 9,
+      height: 9,
+      borderRadius: 5,
       backgroundColor: theme.colors.danger,
       borderWidth: 1.5,
       borderColor: theme.colors.surface,
       alignItems: 'center',
       justifyContent: 'center',
     },
-    badgeText: { color: '#FFFFFF', fontSize: 10, fontWeight: theme.fontWeights.bold },
+    badgeInner: { display: 'none' },
   });
 }
