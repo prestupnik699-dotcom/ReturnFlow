@@ -147,7 +147,18 @@ export function ReturnDetailScreen({ returnId }: Props) {
             <View style={styles.badge}>
               <Text style={styles.badgeText}>{priorityLabels[item.priority]}</Text>
             </View>
+            {item.isExchange ? (
+              <View style={styles.exchangeBadge}>
+                <Text style={styles.exchangeBadgeText}>{t('returns.create.exchangeLabel')}</Text>
+              </View>
+            ) : null}
           </View>
+          {item.barcode ? (
+            <View style={styles.barcodeRow}>
+              <Ionicons name="barcode-outline" size={14} color={theme.colors.textSecondary} />
+              <Text style={styles.barcodeText}>{item.barcode}</Text>
+            </View>
+          ) : null}
         </View>
 
         {item.reason ? (
@@ -249,7 +260,7 @@ function createStyles(theme: ReturnType<typeof useTheme>) {
     errorText: { color: theme.colors.danger, textAlign: 'center' },
     summary: { gap: theme.spacing.sm },
     subtitle: { fontSize: theme.fontSizes.sm, color: theme.colors.textSecondary },
-    badgeRow: { flexDirection: 'row', gap: theme.spacing.sm },
+    badgeRow: { flexDirection: 'row', flexWrap: 'wrap', gap: theme.spacing.sm },
     badge: {
       backgroundColor: theme.colors.surfaceVariant,
       borderRadius: theme.radius.sm,
@@ -260,6 +271,23 @@ function createStyles(theme: ReturnType<typeof useTheme>) {
       fontSize: theme.fontSizes.xs,
       fontWeight: theme.fontWeights.medium,
       color: theme.colors.textPrimary,
+    },
+    exchangeBadge: {
+      backgroundColor: theme.colors.primary + '22',
+      borderRadius: theme.radius.sm,
+      paddingHorizontal: theme.spacing.sm,
+      paddingVertical: 4,
+    },
+    exchangeBadgeText: {
+      fontSize: theme.fontSizes.xs,
+      fontWeight: theme.fontWeights.semiBold,
+      color: theme.colors.primary,
+    },
+    barcodeRow: { flexDirection: 'row', alignItems: 'center', gap: 6 },
+    barcodeText: {
+      fontSize: theme.fontSizes.sm,
+      color: theme.colors.textSecondary,
+      fontVariant: ['tabular-nums'],
     },
     reasonBox: { padding: theme.spacing.lg, gap: 4 },
     reasonLabel: { fontSize: theme.fontSizes.xs, color: theme.colors.textSecondary },
