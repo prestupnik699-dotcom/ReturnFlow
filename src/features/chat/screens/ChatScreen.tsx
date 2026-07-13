@@ -268,7 +268,6 @@ function createStyles(theme: ReturnType<typeof useTheme>) {
       flexDirection: 'row',
       alignItems: 'flex-end',
       gap: theme.spacing.sm,
-      paddingTop: theme.spacing.sm,
       backgroundColor: theme.colors.background,
     },
     input: {
