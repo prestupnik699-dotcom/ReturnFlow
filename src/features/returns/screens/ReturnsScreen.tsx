@@ -261,7 +261,13 @@ export function ReturnsScreen() {
           />
         )}
 
-        <View style={[styles.footer, { paddingBottom: tabBarClearance }]}>
+        <View
+          style={[
+            styles.footer,
+            selectionMode && styles.footerSelectionMode,
+            { paddingBottom: tabBarClearance },
+          ]}
+        >
           {selectionMode ? (
             <View style={styles.bulkBar}>
               <View style={styles.bulkBarTop}>
@@ -412,8 +418,8 @@ function createStyles(theme: ReturnType<typeof useTheme>) {
     list: { gap: theme.spacing.sm },
     errorText: { color: theme.colors.danger, textAlign: 'center' },
     warningText: { color: theme.colors.warning, textAlign: 'center', fontSize: theme.fontSizes.sm },
-    footer: {
-      paddingTop: theme.spacing.md,
+    footer: { paddingTop: theme.spacing.md },
+    footerSelectionMode: {
       borderTopWidth: StyleSheet.hairlineWidth,
       borderTopColor: theme.colors.border,
     },

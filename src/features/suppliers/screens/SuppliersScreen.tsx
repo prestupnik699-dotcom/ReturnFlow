@@ -5,7 +5,6 @@ import {
   FlatList,
   ActivityIndicator,
   StyleSheet,
-  Alert,
   Pressable,
   TextInput,
 } from 'react-native';
@@ -19,6 +18,7 @@ import { PressableScale } from '@/components/PressableScale';
 import { Card } from '@/components/Card';
 import { Button } from '@/components/Button';
 import { RequireRole } from '@/components/RequireRole';
+import { ConfirmDialog } from '@/components/ConfirmDialog';
 import { useSuppliers } from '@/features/suppliers/hooks/useSuppliers';
 import {
   useDeleteSupplier,
@@ -46,6 +46,7 @@ export function SuppliersScreen() {
   const favoriteMutation = useToggleSupplierFavorite();
   const [formVisible, setFormVisible] = useState(false);
   const [editingId, setEditingId] = useState<string | null>(null);
+  const [pendingDelete, setPendingDelete] = useState<Supplier | null>(null);
   const styles = createStyles(theme);
 
   const handleAdd = () => {
@@ -58,15 +59,9 @@ export function SuppliersScreen() {
     setFormVisible(true);
   };
 
-  const handleDelete = (supplier: Supplier) => {
-    Alert.alert(t('suppliers.deleteConfirmTitle'), t('suppliers.deleteConfirmMessage'), [
-      { text: t('organizations.settings.cancelButton'), style: 'cancel' },
-      {
-        text: t('organizations.settings.deleteConfirmButton'),
-        style: 'destructive',
-        onPress: () => deleteMutation.mutate(supplier.id),
-      },
-    ]);
+  const confirmDelete = () => {
+    if (!pendingDelete) return;
+    deleteMutation.mutate(pendingDelete.id, { onSuccess: () => setPendingDelete(null) });
   };
 
   return (
@@ -145,7 +140,7 @@ export function SuppliersScreen() {
                     </PressableScale>
 
                     <RequireRole roles={[...EDIT_ROLES]}>
-                      <Pressable onPress={() => handleDelete(item)} hitSlop={12}>
+                      <Pressable onPress={() => setPendingDelete(item)} hitSlop={12}>
                         <Ionicons name="trash-outline" size={20} color={theme.colors.danger} />
                       </Pressable>
                     </RequireRole>
@@ -170,6 +165,18 @@ export function SuppliersScreen() {
         visible={formVisible}
         onClose={() => setFormVisible(false)}
         supplierId={editingId}
+      />
+
+      <ConfirmDialog
+        visible={!!pendingDelete}
+        title={t('suppliers.deleteConfirmTitle')}
+        message={t('suppliers.deleteConfirmMessage')}
+        confirmLabel={t('organizations.settings.deleteConfirmButton')}
+        cancelLabel={t('organizations.settings.cancelButton')}
+        destructive
+        loading={deleteMutation.isPending}
+        onConfirm={confirmDelete}
+        onCancel={() => setPendingDelete(null)}
       />
     </Screen>
   );

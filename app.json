@@ -14,7 +14,8 @@
       "adaptiveIcon": {
         "foregroundImage": "./assets/images/adaptive-icon.png",
         "backgroundColor": "#6C5CE7"
-      }
+      },
+      "permissions": ["android.permission.CAMERA", "android.permission.RECORD_AUDIO"]
     },
     "ios": {
       "supportsTablet": true,
@@ -43,6 +44,13 @@
           "color": "#6C5CE7"
         }
       ]
-    ]
+    ],
+    "extra": {
+      "router": {},
+      "eas": {
+        "projectId": "8c1938bc-1efc-4a3d-8f36-7e051f114642"
+      }
+    },
+    "owner": "hovoo"
   }
 }

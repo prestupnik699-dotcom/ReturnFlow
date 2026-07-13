@@ -1,8 +1,10 @@
-import { Modal, View, Text, StyleSheet, Alert } from 'react-native';
+import { useState } from 'react';
+import { Modal, View, Text, StyleSheet } from 'react-native';
 import { useTranslation } from 'react-i18next';
 import { useTheme } from '@/theme/ThemeProvider';
 import { Button } from '@/components/Button';
 import { Chip } from '@/components/Chip';
+import { ConfirmDialog } from '@/components/ConfirmDialog';
 import { useTeamMembers } from '@/features/users/hooks/useTeamMembers';
 import {
   useUpdateMemberRole,
@@ -33,6 +35,7 @@ export function TeamMemberSheet({ visible, onClose, membershipId }: Props) {
   const roleMutation = useUpdateMemberRole();
   const statusMutation = useSetMemberStatus();
   const removeMutation = useRemoveMemberAccess();
+  const [removeConfirmVisible, setRemoveConfirmVisible] = useState(false);
   const styles = createStyles(theme);
 
   const member = members?.find((m) => m.membershipId === membershipId) ?? null;
@@ -46,15 +49,13 @@ export function TeamMemberSheet({ visible, onClose, membershipId }: Props) {
     blocked: t('users.team.statusBlocked'),
   };
 
-  const handleRemove = () => {
-    Alert.alert(t('users.team.removeConfirmTitle'), t('users.team.removeConfirmMessage'), [
-      { text: t('organizations.settings.cancelButton'), style: 'cancel' },
-      {
-        text: t('users.team.removeAccess'),
-        style: 'destructive',
-        onPress: () => removeMutation.mutate(member.membershipId, { onSuccess: onClose }),
+  const confirmRemove = () => {
+    removeMutation.mutate(member.membershipId, {
+      onSuccess: () => {
+        setRemoveConfirmVisible(false);
+        onClose();
       },
-    ]);
+    });
   };
 
   return (
@@ -109,7 +110,7 @@ export function TeamMemberSheet({ visible, onClose, membershipId }: Props) {
           <Button
             label={t('users.team.removeAccess')}
             variant="danger"
-            onPress={handleRemove}
+            onPress={() => setRemoveConfirmVisible(true)}
             loading={removeMutation.isPending}
           />
         ) : null}
@@ -120,6 +121,18 @@ export function TeamMemberSheet({ visible, onClose, membershipId }: Props) {
 
         <Button label={t('common.back')} variant="outline" onPress={onClose} />
       </View>
+
+      <ConfirmDialog
+        visible={removeConfirmVisible}
+        title={t('users.team.removeConfirmTitle')}
+        message={t('users.team.removeConfirmMessage')}
+        confirmLabel={t('users.team.removeAccess')}
+        cancelLabel={t('organizations.settings.cancelButton')}
+        destructive
+        loading={removeMutation.isPending}
+        onConfirm={confirmRemove}
+        onCancel={() => setRemoveConfirmVisible(false)}
+      />
     </Modal>
   );
 }

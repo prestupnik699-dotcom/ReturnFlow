@@ -12,12 +12,12 @@ import {
 } from 'react-native';
 import { useTranslation } from 'react-i18next';
 import { Ionicons } from '@expo/vector-icons';
-import Animated, { FadeInUp } from 'react-native-reanimated';
 import { useTheme } from '@/theme/ThemeProvider';
 import { Screen } from '@/components/Screen';
 import { EmptyState } from '@/components/EmptyState';
 import { ConfirmDialog } from '@/components/ConfirmDialog';
 import { useTabBarClearance } from '@/hooks/useTabBarClearance';
+import { useKeyboardVisible } from '@/hooks/useKeyboardVisible';
 import { useChatRoom } from '@/features/chat/hooks/useChatRoom';
 import { useChatMessages } from '@/features/chat/hooks/useChatMessages';
 import { useSendChatMessage } from '@/features/chat/hooks/useSendChatMessage';
@@ -28,6 +28,7 @@ import { useAuthStore } from '@/stores/auth.store';
 import { useMembershipStore } from '@/stores/membership.store';
 import { useHasRole } from '@/features/auth/hooks/usePermissions';
 import type { ChatMessage } from '@/features/chat/services/chat.service';
+import Animated, { FadeInUp } from 'react-native-reanimated';
 
 function formatTime(iso: string): string {
   const d = new Date(iso);
@@ -39,6 +40,7 @@ export function ChatScreen() {
   const theme = useTheme();
   const { t } = useTranslation();
   const tabBarClearance = useTabBarClearance();
+  const keyboardVisible = useKeyboardVisible();
   const activeStoreId = useMembershipStore((state) => state.activeStoreId);
   const profile = useAuthStore((state) => state.profile);
   const hasModeratorRole = useHasRole(['Owner', 'Administrator']);
@@ -149,6 +151,7 @@ export function ChatScreen() {
             keyExtractor={(item) => item.id}
             renderItem={renderItem}
             contentContainerStyle={styles.list}
+            showsVerticalScrollIndicator={false}
             ListEmptyComponent={<EmptyState icon="chatbubbles-outline" title={t('chat.empty')} />}
             onContentSizeChange={() => listRef.current?.scrollToEnd({ animated: false })}
           />
@@ -158,7 +161,12 @@ export function ChatScreen() {
           <Text style={styles.errorText}>{sendMutation.error.message}</Text>
         ) : null}
 
-        <View style={[styles.inputRow, { marginBottom: tabBarClearance }]}>
+        <View
+          style={[
+            styles.inputRow,
+            { marginBottom: keyboardVisible ? theme.spacing.sm : tabBarClearance },
+          ]}
+        >
           <TextInput
             style={styles.input}
             placeholder={t('chat.placeholder')}

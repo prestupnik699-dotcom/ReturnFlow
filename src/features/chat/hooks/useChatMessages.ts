@@ -21,24 +21,20 @@ export function useChatMessages(roomId: string | null) {
   useEffect(() => {
     if (!roomId) return;
 
+    // Listens to every change type (not just INSERT) — a soft-delete is an
+    // UPDATE (deleted_at gets set), and both single-message delete and
+    // clear-whole-chat rely on this to actually reach other people's
+    // screens in real time, not just the device that performed the action.
     const channel = supabase
       .channel(`chat_messages:${roomId}:${instanceId}`)
       .on(
         'postgres_changes',
-        {
-          event: 'INSERT',
-          schema: 'public',
-          table: 'chat_messages',
-          filter: `room_id=eq.${roomId}`,
-        },
+        { event: '*', schema: 'public', table: 'chat_messages', filter: `room_id=eq.${roomId}` },
         () => {
-          if (__DEV__) console.log('[chat realtime] event received for room', roomId);
           queryClient.invalidateQueries({ queryKey: ['chatMessages', roomId] });
         },
       )
-      .subscribe((status) => {
-        if (__DEV__) console.log('[chat realtime]', status, roomId);
-      });
+      .subscribe();
 
     return () => {
       supabase.removeChannel(channel);

@@ -1,9 +1,14 @@
-import { useRef } from 'react';
+import { useEffect, useRef } from 'react';
 import { View, Text, Pressable, StyleSheet } from 'react-native';
 import ReanimatedSwipeable, {
   type SwipeableMethods,
 } from 'react-native-gesture-handler/ReanimatedSwipeable';
-import { useAnimatedReaction, runOnJS, type SharedValue } from 'react-native-reanimated';
+import Animated, {
+  useAnimatedStyle,
+  useSharedValue,
+  withSequence,
+  withTiming,
+} from 'react-native-reanimated';
 import { Ionicons } from '@expo/vector-icons';
 import { useTranslation } from 'react-i18next';
 import { useTheme } from '@/theme/ThemeProvider';
@@ -19,86 +24,6 @@ import type {
   ReturnPriority,
 } from '@/features/returns/services/returns.service';
 
-type ActionSpec = {
-  label: string;
-  icon: keyof typeof Ionicons.glyphMap;
-  color: string;
-  run: () => void;
-};
-
-type Theme = ReturnType<typeof import('@/theme/ThemeProvider').useTheme>;
-
-// Watches its OWN panel's open-progress only — no left/right direction
-// enum involved anywhere, so there is no possibility of the two actions
-// getting cross-wired. Fires once when the panel settles fully open
-// (progress === 1), whether that's from a full drag or a partial
-// drag-past-threshold-then-release (Swipeable auto-snaps open either way).
-function SwipeActionPanel({
-  progress,
-  action,
-  theme,
-  alignLeft,
-  onTriggered,
-}: {
-  progress: SharedValue<number>;
-  action: ActionSpec;
-  theme: Theme;
-  alignLeft: boolean;
-  onTriggered: () => void;
-}) {
-  const firedRef = useRef(false);
-  const styles = createPanelStyles(theme, alignLeft);
-
-  useAnimatedReaction(
-    () => progress.value,
-    (value) => {
-      if (value >= 1 && !firedRef.current) {
-        firedRef.current = true;
-        runOnJS(onTriggered)();
-      } else if (value < 0.9) {
-        firedRef.current = false;
-      }
-    },
-  );
-
-  return (
-    <View style={[styles.actionContainer, { backgroundColor: action.color }]}>
-      <Pressable style={styles.actionButton} onPress={onTriggered}>
-        <Ionicons name={action.icon} size={20} color="#fff" />
-        <Text style={styles.actionLabel} numberOfLines={2}>
-          {action.label}
-        </Text>
-      </Pressable>
-    </View>
-  );
-}
-
-function createPanelStyles(theme: Theme, alignLeft: boolean) {
-  return StyleSheet.create({
-    actionContainer: {
-      width: 110,
-      borderRadius: theme.radius.lg,
-      marginLeft: alignLeft ? 0 : theme.spacing.sm,
-      marginRight: alignLeft ? theme.spacing.sm : 0,
-      overflow: 'hidden',
-    },
-    actionButton: {
-      flex: 1,
-      alignItems: 'center',
-      justifyContent: 'center',
-      gap: 4,
-      paddingHorizontal: theme.spacing.xs,
-    },
-    actionLabel: {
-      color: '#fff',
-      fontSize: 11,
-      fontWeight: theme.fontWeights.semiBold,
-      textAlign: 'center',
-      lineHeight: 14,
-    },
-  });
-}
-
 type Props = {
   item: ReturnItem;
   statusLabels: Record<ReturnStatus, string>;
@@ -110,6 +35,38 @@ type Props = {
   selectionMode: boolean;
   selected: boolean;
 };
+
+function SelectionCheckbox({
+  selected,
+  color,
+  inactiveColor,
+}: {
+  selected: boolean;
+  color: string;
+  inactiveColor: string;
+}) {
+  const scale = useSharedValue(1);
+
+  useEffect(() => {
+    // eslint-disable-next-line react-hooks/immutability
+    scale.value = withSequence(
+      withTiming(1.3, { duration: 100 }),
+      withTiming(1, { duration: 150 }),
+    );
+  }, [selected, scale]);
+
+  const animatedStyle = useAnimatedStyle(() => ({ transform: [{ scale: scale.value }] }));
+
+  return (
+    <Animated.View style={animatedStyle}>
+      <Ionicons
+        name={selected ? 'checkmark-circle' : 'ellipse-outline'}
+        size={22}
+        color={selected ? color : inactiveColor}
+      />
+    </Animated.View>
+  );
+}
 
 export function ReturnListRow({
   item,
@@ -130,62 +87,70 @@ export function ReturnListRow({
   const restoreMutation = useRestoreReturn(item.id);
   const styles = createStyles(theme);
 
-  const rightAction: ActionSpec =
+  const rightAction =
     item.status === 'pending' || item.status === 'urgent'
       ? {
           label: t('returns.detail.markReturned'),
-          icon: 'checkmark-circle-outline',
+          icon: 'checkmark-circle-outline' as const,
           color: theme.colors.success,
           run: () => markReturnedMutation.mutate(),
         }
       : item.status === 'returned'
         ? {
             label: t('returns.detail.archive'),
-            icon: 'archive-outline',
+            icon: 'archive-outline' as const,
             color: theme.colors.textSecondary,
             run: () => archiveMutation.mutate(),
           }
         : {
             label: t('returns.detail.restore'),
-            icon: 'refresh-outline',
+            icon: 'refresh-outline' as const,
             color: theme.colors.primary,
             run: () => restoreMutation.mutate(),
           };
 
-  const leftAction: ActionSpec | null =
+  const leftAction =
     item.status === 'returned'
       ? {
           label: t('returns.detail.cancelReturn'),
-          icon: 'arrow-undo-outline',
+          icon: 'arrow-undo-outline' as const,
           color: theme.colors.warning,
           run: () => restoreMutation.mutate(),
         }
       : null;
 
-  const trigger = (action: ActionSpec) => () => {
-    action.run();
+  const runAndClose = (run: () => void) => () => {
+    run();
     swipeableRef.current?.close();
   };
 
-  const renderRightActions = (progress: SharedValue<number>) => (
-    <SwipeActionPanel
-      progress={progress}
-      action={rightAction}
-      theme={theme}
-      alignLeft={false}
-      onTriggered={trigger(rightAction)}
-    />
+  const renderRightActions = () => (
+    <View style={[styles.actionContainer, { backgroundColor: rightAction.color }]}>
+      <Pressable style={styles.actionButton} onPress={runAndClose(rightAction.run)}>
+        <Ionicons name={rightAction.icon} size={20} color="#fff" />
+        <Text style={styles.actionLabel} numberOfLines={2}>
+          {rightAction.label}
+        </Text>
+      </Pressable>
+    </View>
   );
 
   const renderLeftActions = leftAction
-    ? (progress: SharedValue<number>) => (
-        <SwipeActionPanel
-          progress={progress}
-          action={leftAction}
-          theme={theme}
-          alignLeft={true}
-          onTriggered={trigger(leftAction)}
-        />
+    ? () => (
+        <View
+          style={[
+            styles.actionContainer,
+            styles.actionContainerLeft,
+            { backgroundColor: leftAction.color },
+          ]}
+        >
+          <Pressable style={styles.actionButton} onPress={runAndClose(leftAction.run)}>
+            <Ionicons name={leftAction.icon} size={20} color="#fff" />
+            <Text style={styles.actionLabel} numberOfLines={2}>
+              {leftAction.label}
+            </Text>
+          </Pressable>
+        </View>
       )
     : undefined;
 
@@ -194,10 +159,10 @@ export function ReturnListRow({
       <Card>
         <View style={styles.row}>
           {selectionMode ? (
-            <Ionicons
-              name={selected ? 'checkmark-circle' : 'ellipse-outline'}
-              size={22}
-              color={selected ? theme.colors.primary : theme.colors.textSecondary}
+            <SelectionCheckbox
+              selected={selected}
+              color={theme.colors.primary}
+              inactiveColor={theme.colors.textSecondary}
             />
           ) : (
             <View
@@ -251,7 +216,7 @@ export function ReturnListRow({
   );
 }
 
-function createStyles(theme: Theme) {
+function createStyles(theme: ReturnType<typeof useTheme>) {
   return StyleSheet.create({
     row: {
       flexDirection: 'row',
@@ -286,6 +251,27 @@ function createStyles(theme: Theme) {
       fontSize: theme.fontSizes.xs,
       fontWeight: theme.fontWeights.semiBold,
       color: theme.colors.warning,
+    },
+    actionContainer: {
+      width: 110,
+      borderRadius: theme.radius.lg,
+      marginLeft: theme.spacing.sm,
+      overflow: 'hidden',
+    },
+    actionContainerLeft: { marginLeft: 0, marginRight: theme.spacing.sm },
+    actionButton: {
+      flex: 1,
+      alignItems: 'center',
+      justifyContent: 'center',
+      gap: 4,
+      paddingHorizontal: theme.spacing.xs,
+    },
+    actionLabel: {
+      color: '#fff',
+      fontSize: 11,
+      fontWeight: theme.fontWeights.semiBold,
+      textAlign: 'center',
+      lineHeight: 14,
     },
   });
 }
