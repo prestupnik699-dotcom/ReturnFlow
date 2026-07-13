@@ -3,7 +3,6 @@ import '@/features/returns/sync/returnsSyncHandler';
 import { useEffect } from 'react';
 import { Stack } from 'expo-router';
 import * as SplashScreen from 'expo-splash-screen';
-import * as Notifications from 'expo-notifications';
 import Constants, { ExecutionEnvironment } from 'expo-constants';
 import { QueryClientProvider } from '@tanstack/react-query';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
@@ -23,20 +22,24 @@ getDatabase();
 
 SplashScreen.preventAutoHideAsync();
 
-// expo-notifications' remote-push functionality was removed from Expo Go
-// entirely as of SDK 53 — even just calling setNotificationHandler() throws
-// there. Everything notification-related is skipped in Expo Go and only
-// runs in a real dev/production build.
+// expo-notifications throws just from being IMPORTED in Expo Go on SDK 53+
+// (not merely from calling its functions) — so the module must never be
+// loaded at all there, not just left unused. A dynamic import, only
+// reached when we're NOT in Expo Go, achieves that; a static top-level
+// import cannot, since it would already have run by the time any check
+// inside this file executes.
 const isExpoGo = Constants.executionEnvironment === ExecutionEnvironment.StoreClient;
 
 if (!isExpoGo) {
-  Notifications.setNotificationHandler({
-    handleNotification: async () => ({
-      shouldShowBanner: true,
-      shouldShowList: true,
-      shouldPlaySound: true,
-      shouldSetBadge: false,
-    }),
+  import('expo-notifications').then((Notifications) => {
+    Notifications.setNotificationHandler({
+      handleNotification: async () => ({
+        shouldShowBanner: true,
+        shouldShowList: true,
+        shouldPlaySound: true,
+        shouldSetBadge: false,
+      }),
+    });
   });
 }
 

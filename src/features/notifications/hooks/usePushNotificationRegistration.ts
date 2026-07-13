@@ -1,23 +1,20 @@
 import { useEffect } from 'react';
 import { Platform } from 'react-native';
-import * as Notifications from 'expo-notifications';
 import * as Device from 'expo-device';
 import Constants, { ExecutionEnvironment } from 'expo-constants';
 import { savePushToken } from '@/features/notifications/services/pushTokens.service';
 import { useAuthStore } from '@/stores/auth.store';
 
 async function registerForPushNotifications(profileId: string): Promise<void> {
-  // Remote push was removed from Expo Go entirely as of SDK 53 — calling
-  // any expo-notifications API here would throw. Only real dev/production
-  // builds get this far.
+  // Must check BEFORE importing expo-notifications at all — the module
+  // throws on import (not just on use) in Expo Go on SDK 53+.
   if (Constants.executionEnvironment === ExecutionEnvironment.StoreClient) return;
-
-  // Simulators/emulators never get a real push token.
   if (!Device.isDevice) return;
 
-  // Populated automatically once `eas init` links this project.
   const projectId = Constants.expoConfig?.extra?.eas?.projectId;
   if (!projectId) return;
+
+  const Notifications = await import('expo-notifications');
 
   if (Platform.OS === 'android') {
     await Notifications.setNotificationChannelAsync('default', {
