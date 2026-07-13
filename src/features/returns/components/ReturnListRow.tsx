@@ -48,7 +48,6 @@ function SelectionCheckbox({
   const scale = useSharedValue(1);
 
   useEffect(() => {
-    // eslint-disable-next-line react-hooks/immutability
     scale.value = withSequence(
       withTiming(1.3, { duration: 100 }),
       withTiming(1, { duration: 150 }),
