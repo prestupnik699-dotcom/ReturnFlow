@@ -7,9 +7,8 @@ import {
   Pressable,
   ActivityIndicator,
   StyleSheet,
-  KeyboardAvoidingView,
-  Platform,
 } from 'react-native';
+import { KeyboardStickyView } from 'react-native-keyboard-controller';
 import { useTranslation } from 'react-i18next';
 import { Ionicons } from '@expo/vector-icons';
 import { useTheme } from '@/theme/ThemeProvider';
@@ -17,7 +16,6 @@ import { Screen } from '@/components/Screen';
 import { EmptyState } from '@/components/EmptyState';
 import { ConfirmDialog } from '@/components/ConfirmDialog';
 import { useTabBarClearance } from '@/hooks/useTabBarClearance';
-import { useKeyboardVisible } from '@/hooks/useKeyboardVisible';
 import { useChatRoom } from '@/features/chat/hooks/useChatRoom';
 import { useChatMessages } from '@/features/chat/hooks/useChatMessages';
 import { useSendChatMessage } from '@/features/chat/hooks/useSendChatMessage';
@@ -40,7 +38,6 @@ export function ChatScreen() {
   const theme = useTheme();
   const { t } = useTranslation();
   const tabBarClearance = useTabBarClearance();
-  const keyboardVisible = useKeyboardVisible();
   const activeStoreId = useMembershipStore((state) => state.activeStoreId);
   const profile = useAuthStore((state) => state.profile);
   const hasModeratorRole = useHasRole(['Owner', 'Administrator']);
@@ -120,10 +117,7 @@ export function ChatScreen() {
 
   return (
     <Screen>
-      <KeyboardAvoidingView
-        style={styles.flex}
-        behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
-      >
+      <View style={styles.flex}>
         <View style={styles.header}>
           <View style={styles.headerText}>
             <Text style={styles.title}>{t('chat.title')}</Text>
@@ -161,33 +155,30 @@ export function ChatScreen() {
           <Text style={styles.errorText}>{sendMutation.error.message}</Text>
         ) : null}
 
-        <View
-          style={[
-            styles.inputRow,
-            { marginBottom: keyboardVisible ? theme.spacing.sm : tabBarClearance },
-          ]}
-        >
-          <TextInput
-            style={styles.input}
-            placeholder={t('chat.placeholder')}
-            placeholderTextColor={theme.colors.textSecondary}
-            value={text}
-            onChangeText={setText}
-            multiline
-          />
-          <Pressable
-            style={styles.sendButton}
-            onPress={handleSend}
-            disabled={sendMutation.isPending}
-          >
-            {sendMutation.isPending ? (
-              <ActivityIndicator size="small" color={theme.colors.onPrimary} />
-            ) : (
-              <Ionicons name="arrow-up" size={20} color={theme.colors.onPrimary} />
-            )}
-          </Pressable>
-        </View>
-      </KeyboardAvoidingView>
+        <KeyboardStickyView offset={{ closed: 0, opened: 0 }}>
+          <View style={[styles.inputRow, { marginBottom: tabBarClearance }]}>
+            <TextInput
+              style={styles.input}
+              placeholder={t('chat.placeholder')}
+              placeholderTextColor={theme.colors.textSecondary}
+              value={text}
+              onChangeText={setText}
+              multiline
+            />
+            <Pressable
+              style={styles.sendButton}
+              onPress={handleSend}
+              disabled={sendMutation.isPending}
+            >
+              {sendMutation.isPending ? (
+                <ActivityIndicator size="small" color={theme.colors.onPrimary} />
+              ) : (
+                <Ionicons name="arrow-up" size={20} color={theme.colors.onPrimary} />
+              )}
+            </Pressable>
+          </View>
+        </KeyboardStickyView>
+      </View>
 
       <ConfirmDialog
         visible={!!pendingDelete}
@@ -223,7 +214,7 @@ function createStyles(theme: ReturnType<typeof useTheme>) {
     noStoreText: { color: theme.colors.textSecondary, textAlign: 'center' },
     header: {
       flexDirection: 'row',
-      alignItems: 'flex-start',
+      alignItems: 'center',
       justifyContent: 'space-between',
       marginBottom: theme.spacing.sm,
     },
@@ -278,6 +269,7 @@ function createStyles(theme: ReturnType<typeof useTheme>) {
       alignItems: 'flex-end',
       gap: theme.spacing.sm,
       paddingTop: theme.spacing.sm,
+      backgroundColor: theme.colors.background,
     },
     input: {
       flex: 1,
