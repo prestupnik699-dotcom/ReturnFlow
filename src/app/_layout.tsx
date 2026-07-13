@@ -4,6 +4,7 @@ import { useEffect } from 'react';
 import { Stack } from 'expo-router';
 import * as SplashScreen from 'expo-splash-screen';
 import * as Notifications from 'expo-notifications';
+import Constants, { ExecutionEnvironment } from 'expo-constants';
 import { QueryClientProvider } from '@tanstack/react-query';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
@@ -22,14 +23,22 @@ getDatabase();
 
 SplashScreen.preventAutoHideAsync();
 
-Notifications.setNotificationHandler({
-  handleNotification: async () => ({
-    shouldShowBanner: true,
-    shouldShowList: true,
-    shouldPlaySound: true,
-    shouldSetBadge: false,
-  }),
-});
+// expo-notifications' remote-push functionality was removed from Expo Go
+// entirely as of SDK 53 — even just calling setNotificationHandler() throws
+// there. Everything notification-related is skipped in Expo Go and only
+// runs in a real dev/production build.
+const isExpoGo = Constants.executionEnvironment === ExecutionEnvironment.StoreClient;
+
+if (!isExpoGo) {
+  Notifications.setNotificationHandler({
+    handleNotification: async () => ({
+      shouldShowBanner: true,
+      shouldShowList: true,
+      shouldPlaySound: true,
+      shouldSetBadge: false,
+    }),
+  });
+}
 
 export default function RootLayout() {
   useSessionBootstrap();

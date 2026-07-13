@@ -2,17 +2,20 @@ import { useEffect } from 'react';
 import { Platform } from 'react-native';
 import * as Notifications from 'expo-notifications';
 import * as Device from 'expo-device';
-import Constants from 'expo-constants';
+import Constants, { ExecutionEnvironment } from 'expo-constants';
 import { savePushToken } from '@/features/notifications/services/pushTokens.service';
 import { useAuthStore } from '@/stores/auth.store';
 
 async function registerForPushNotifications(profileId: string): Promise<void> {
+  // Remote push was removed from Expo Go entirely as of SDK 53 — calling
+  // any expo-notifications API here would throw. Only real dev/production
+  // builds get this far.
+  if (Constants.executionEnvironment === ExecutionEnvironment.StoreClient) return;
+
   // Simulators/emulators never get a real push token.
   if (!Device.isDevice) return;
 
-  // Populated automatically once `eas init` links this project — until then
-  // there's nothing to register against, so we bail out quietly rather than
-  // throw. This is expected during Expo Go testing, not an error.
+  // Populated automatically once `eas init` links this project.
   const projectId = Constants.expoConfig?.extra?.eas?.projectId;
   if (!projectId) return;
 
