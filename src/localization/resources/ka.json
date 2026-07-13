@@ -225,7 +225,15 @@
     "bulkArchive": "არქივში გადატანა",
     "cancelSelection": "გაუქმება",
     "bulkDeleteConfirmTitle": "წაშალოთ არჩეულები?",
-    "bulkDeleteConfirmMessage": "ეს ხელახლა ვერ დაბრუნდება."
+    "bulkDeleteConfirmMessage": "ეს ხელახლა ვერ დაბრუნდება.",
+    "batch": {
+      "title": "სწრაფი ჩანაწერი",
+      "subtitle": "აირჩიეთ მომწოდებელი ერთხელ, დაამატეთ პოზიციები სწრაფად, ერთდროულად შეინახეთ",
+      "addLineLabel": "პოზიციის დამატება",
+      "barcodeShort": "კოდი",
+      "empty": "პოზიცია ჯერ არ არის დამატებული",
+      "saveAll": "ყველას შენახვა ({{count}})"
+    }
   },
   "chat": {
     "title": "ჩატი",

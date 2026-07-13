@@ -225,7 +225,15 @@
     "bulkArchive": "Архивировать",
     "cancelSelection": "Отмена",
     "bulkDeleteConfirmTitle": "Удалить выбранные?",
-    "bulkDeleteConfirmMessage": "Действие необратимо."
+    "bulkDeleteConfirmMessage": "Действие необратимо.",
+    "batch": {
+      "title": "Быстрая запись",
+      "subtitle": "Выберите поставщика один раз, быстро добавьте позиции, сохраните всё разом",
+      "addLineLabel": "Добавить позицию",
+      "barcodeShort": "Код",
+      "empty": "Пока нет ни одной позиции",
+      "saveAll": "Сохранить всё ({{count}})"
+    }
   },
   "chat": {
     "title": "Чат",

@@ -225,7 +225,15 @@
     "bulkArchive": "Archive",
     "cancelSelection": "Cancel",
     "bulkDeleteConfirmTitle": "Delete selected?",
-    "bulkDeleteConfirmMessage": "This cannot be undone."
+    "bulkDeleteConfirmMessage": "This cannot be undone.",
+    "batch": {
+      "title": "Quick entry",
+      "subtitle": "Pick a supplier once, add items quickly, save them all at once",
+      "addLineLabel": "Add item",
+      "barcodeShort": "Code",
+      "empty": "No items added yet",
+      "saveAll": "Save all ({{count}})"
+    }
   },
   "chat": {
     "title": "Chat",

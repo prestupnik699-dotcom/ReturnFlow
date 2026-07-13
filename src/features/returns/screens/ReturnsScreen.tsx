@@ -22,6 +22,7 @@ import { useReturns } from '@/features/returns/hooks/useReturns';
 import { useSuppliers } from '@/features/suppliers/hooks/useSuppliers';
 import { ReturnFormSheet } from '@/features/returns/screens/ReturnFormSheet';
 import { SupplierFilterSheet } from '@/features/returns/screens/SupplierFilterSheet';
+import { BatchReturnSheet } from '@/features/returns/screens/BatchReturnSheet';
 import { ReturnListRow } from '@/features/returns/components/ReturnListRow';
 import {
   useBulkMarkReturned,
@@ -60,6 +61,7 @@ export function ReturnsScreen() {
   } = useReturns(statusFilter ? [statusFilter] : undefined);
   const { data: suppliers } = useSuppliers(false, 'name');
   const [formVisible, setFormVisible] = useState(false);
+  const [batchVisible, setBatchVisible] = useState(false);
   const bulkMarkReturnedMutation = useBulkMarkReturned();
   const bulkArchiveMutation = useBulkArchive();
   const bulkDeleteMutation = useBulkDeleteReturns();
@@ -185,6 +187,9 @@ export function ReturnsScreen() {
               size={18}
               color={supplierFilter ? theme.colors.primary : theme.colors.textSecondary}
             />
+          </Pressable>
+          <Pressable onPress={() => setBatchVisible(true)} hitSlop={8}>
+            <Ionicons name="flash-outline" size={18} color={theme.colors.textSecondary} />
           </Pressable>
           <Pressable
             onPress={() => setSortMode((s) => (s === 'recent' ? 'oldest' : 'recent'))}
@@ -314,6 +319,7 @@ export function ReturnsScreen() {
       </View>
 
       <ReturnFormSheet visible={formVisible} onClose={() => setFormVisible(false)} />
+      <BatchReturnSheet visible={batchVisible} onClose={() => setBatchVisible(false)} />
       <SupplierFilterSheet
         visible={supplierSheetVisible}
         onClose={() => setSupplierSheetVisible(false)}

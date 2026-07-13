@@ -343,3 +343,9 @@ Push notification title text is a neutral, non-localized string per notification
 Status: Accepted
 
 Real workflow reported by the user: some damaged items aren't simply returned — the distributor takes the damaged unit and drops off a replacement in exchange, off the books (no rs.ge invoice), tracked by hand in a notebook until crossed off when the replacement arrives. Rather than modeling this as a separate entity, `return_items` gets two additive fields: `barcode` (optional, auto-filled when created via the scanner, D-033) and `is_exchange` (boolean toggle in the create form). The existing pending → returned → archived lifecycle is unchanged — this is informational/filterable, not a new state machine, keeping the change small and consistent with the rest of the app.
+
+### D-036 — Quick Batch Entry ("Быстрая запись")
+
+Status: Accepted
+
+Real workflow: a distributor visit often involves multiple different damaged items collected at once (e.g. "5 plates, 3 glasses with code 56685"), and the existing one-item-per-form flow was reported as slower than a paper notebook. New flow: pick the supplier once, then rapidly add name/barcode/quantity lines one after another without closing any dialog, then save all lines as separate return_items in one action, sharing supplier and the exchange flag. Online-only for this first version — offline queueing for batch entries is deferred, not silently unsupported without a plan.
