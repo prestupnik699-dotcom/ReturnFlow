@@ -1,8 +1,9 @@
 import { useEffect } from 'react';
-import { Modal, View, Text, TextInput, ScrollView, StyleSheet } from 'react-native';
+import { Modal, View, Text, TextInput, Pressable, ScrollView, StyleSheet } from 'react-native';
 import { useForm, useWatch, Controller } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useTranslation } from 'react-i18next';
+import { Ionicons } from '@expo/vector-icons';
 import { useTheme } from '@/theme/ThemeProvider';
 import { Button } from '@/components/Button';
 import { Chip } from '@/components/Chip';
@@ -22,10 +23,18 @@ type Props = {
   onClose: () => void;
   returnItem?: ReturnItem | null;
   prefillTitle?: string;
+  prefillBarcode?: string;
   onCreated?: (values: { supplierId: string; title: string }) => void;
 };
 
-export function ReturnFormSheet({ visible, onClose, returnItem, prefillTitle, onCreated }: Props) {
+export function ReturnFormSheet({
+  visible,
+  onClose,
+  returnItem,
+  prefillTitle,
+  prefillBarcode,
+  onCreated,
+}: Props) {
   const theme = useTheme();
   const { t } = useTranslation();
   const { data: suppliers } = useSuppliers(false, 'name');
@@ -43,11 +52,20 @@ export function ReturnFormSheet({ visible, onClose, returnItem, prefillTitle, on
     formState: { errors },
   } = useForm<CreateReturnFormValues>({
     resolver: zodResolver(createReturnSchema),
-    defaultValues: { supplierId: '', title: '', quantity: '1', reason: '', priority: 'normal' },
+    defaultValues: {
+      supplierId: '',
+      title: '',
+      quantity: '1',
+      reason: '',
+      priority: 'normal',
+      barcode: '',
+      isExchange: false,
+    },
   });
 
   const priority = useWatch({ control, name: 'priority' });
   const supplierId = useWatch({ control, name: 'supplierId' });
+  const isExchange = useWatch({ control, name: 'isExchange' });
 
   useEffect(() => {
     if (visible) {
@@ -57,12 +75,14 @@ export function ReturnFormSheet({ visible, onClose, returnItem, prefillTitle, on
         quantity: returnItem ? String(returnItem.quantity) : '1',
         reason: returnItem?.reason ?? '',
         priority: returnItem?.priority ?? 'normal',
+        barcode: returnItem?.barcode ?? prefillBarcode ?? '',
+        isExchange: returnItem?.isExchange ?? false,
       });
       createMutation.reset();
       updateMutation.reset();
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [visible, returnItem, prefillTitle]);
+  }, [visible, returnItem, prefillTitle, prefillBarcode]);
 
   const handleClose = () => {
     reset();
@@ -160,6 +180,28 @@ export function ReturnFormSheet({ visible, onClose, returnItem, prefillTitle, on
         </View>
 
         <View style={styles.field}>
+          <Text style={styles.label}>{t('returns.create.barcodeLabel')}</Text>
+          <Controller
+            control={control}
+            name="barcode"
+            render={({ field: { value, onChange, onBlur } }) => (
+              <View style={styles.barcodeRow}>
+                <Ionicons name="barcode-outline" size={18} color={theme.colors.textSecondary} />
+                <TextInput
+                  style={styles.barcodeInput}
+                  value={value}
+                  onChangeText={onChange}
+                  onBlur={onBlur}
+                  placeholder={t('returns.create.barcodePlaceholder')}
+                  placeholderTextColor={theme.colors.textSecondary}
+                  keyboardType="number-pad"
+                />
+              </View>
+            )}
+          />
+        </View>
+
+        <View style={styles.field}>
           <Text style={styles.label}>{t('returns.create.reasonLabel')}</Text>
           <Controller
             control={control}
@@ -189,6 +231,21 @@ export function ReturnFormSheet({ visible, onClose, returnItem, prefillTitle, on
             ))}
           </View>
         </View>
+
+        <Pressable
+          style={styles.exchangeToggle}
+          onPress={() => setValue('isExchange', !isExchange)}
+        >
+          <Ionicons
+            name={isExchange ? 'checkbox' : 'square-outline'}
+            size={22}
+            color={isExchange ? theme.colors.primary : theme.colors.textSecondary}
+          />
+          <View style={styles.exchangeTextWrap}>
+            <Text style={styles.exchangeLabel}>{t('returns.create.exchangeLabel')}</Text>
+            <Text style={styles.exchangeHint}>{t('returns.create.exchangeHint')}</Text>
+          </View>
+        </Pressable>
 
         {mutation.isError ? (
           <View style={styles.errorBanner}>
@@ -241,6 +298,22 @@ function createStyles(theme: ReturnType<typeof useTheme>) {
       fontSize: theme.fontSizes.md,
       color: theme.colors.textPrimary,
     },
+    barcodeRow: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      gap: theme.spacing.sm,
+      borderWidth: 1,
+      borderColor: theme.colors.border,
+      backgroundColor: theme.colors.surface,
+      borderRadius: theme.radius.md,
+      paddingHorizontal: theme.spacing.md,
+    },
+    barcodeInput: {
+      flex: 1,
+      paddingVertical: theme.spacing.md,
+      fontSize: theme.fontSizes.md,
+      color: theme.colors.textPrimary,
+    },
     inputError: { borderColor: theme.colors.danger },
     errorText: { fontSize: theme.fontSizes.xs, color: theme.colors.danger },
     errorBanner: {
@@ -254,6 +327,21 @@ function createStyles(theme: ReturnType<typeof useTheme>) {
       textAlign: 'center',
     },
     chipRow: { flexDirection: 'row', flexWrap: 'wrap', gap: theme.spacing.sm },
+    exchangeToggle: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      gap: theme.spacing.sm,
+      backgroundColor: theme.colors.surfaceVariant,
+      borderRadius: theme.radius.md,
+      padding: theme.spacing.md,
+    },
+    exchangeTextWrap: { flex: 1, gap: 2 },
+    exchangeLabel: {
+      fontSize: theme.fontSizes.sm,
+      fontWeight: theme.fontWeights.semiBold,
+      color: theme.colors.textPrimary,
+    },
+    exchangeHint: { fontSize: theme.fontSizes.xs, color: theme.colors.textSecondary },
     actions: { flexDirection: 'row', gap: theme.spacing.md, marginTop: theme.spacing.md },
     flexButton: { flex: 1 },
   });

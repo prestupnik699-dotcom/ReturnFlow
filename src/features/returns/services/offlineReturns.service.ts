@@ -15,6 +15,8 @@ export type CreateReturnQueuePayload = {
   quantity: number;
   reason: string;
   priority: ReturnPriority;
+  barcode: string;
+  isExchange: boolean;
 };
 
 export type UpdateReturnStatusQueuePayload = {
@@ -63,6 +65,8 @@ export async function fetchPendingReturns(storeId: string): Promise<ReturnItem[]
       comment: null,
       status: 'pending' as ReturnStatus,
       priority: payload.priority,
+      barcode: payload.barcode || null,
+      isExchange: payload.isExchange,
       createdAt: op.createdAt,
       returnedAt: null,
       pendingSync: true,

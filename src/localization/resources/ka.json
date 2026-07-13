@@ -184,7 +184,11 @@
       "quantityLabel": "რაოდენობა",
       "reasonLabel": "მიზეზი",
       "priorityLabel": "პრიორიტეტი",
-      "submit": "შექმნა"
+      "submit": "შექმნა",
+      "barcodeLabel": "შტრიხკოდი",
+      "barcodePlaceholder": "არასავალდებულო",
+      "exchangeLabel": "საქონლის შეცვლა",
+      "exchangeHint": "დისტრიბუტორმა წაიღო დაზიანებული, მოიტანა ახალი — rs.ge-ზე ატვირთვის გარეშე"
     },
     "errors": {
       "supplierRequired": "აირჩიეთ მომწოდებელი",

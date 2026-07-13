@@ -184,7 +184,11 @@
       "quantityLabel": "Quantity",
       "reasonLabel": "Reason",
       "priorityLabel": "Priority",
-      "submit": "Create"
+      "submit": "Create",
+      "barcodeLabel": "Barcode",
+      "barcodePlaceholder": "Optional",
+      "exchangeLabel": "Product exchange",
+      "exchangeHint": "Distributor took the damaged item and dropped off a replacement — no rs.ge invoice"
     },
     "errors": {
       "supplierRequired": "Select a supplier",

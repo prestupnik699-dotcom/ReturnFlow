@@ -24,6 +24,8 @@ registerSyncHandler('create_return', async (rawPayload) => {
     quantity: payload.quantity,
     reason: payload.reason,
     priority: payload.priority,
+    barcode: payload.barcode,
+    isExchange: payload.isExchange,
   });
 
   if (!result.success) {

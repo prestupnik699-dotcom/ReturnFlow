@@ -30,6 +30,8 @@ export function useCreateReturn(suppliers: SupplierLookup[] = []) {
         quantity: Number(values.quantity),
         reason: values.reason,
         priority: values.priority,
+        barcode: values.barcode,
+        isExchange: values.isExchange,
       };
 
       if (!isOnline) {

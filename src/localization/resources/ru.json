@@ -184,7 +184,11 @@
       "quantityLabel": "Количество",
       "reasonLabel": "Причина",
       "priorityLabel": "Приоритет",
-      "submit": "Создать"
+      "submit": "Создать",
+      "barcodeLabel": "Штрихкод",
+      "barcodePlaceholder": "Необязательно",
+      "exchangeLabel": "Замена товара",
+      "exchangeHint": "Дистрибьютор забрал испорченный и принёс новый — без проводки на rs.ge"
     },
     "errors": {
       "supplierRequired": "Выберите поставщика",

@@ -11,6 +11,8 @@ export const createReturnSchema = z.object({
     ),
   reason: z.string(),
   priority: z.enum(['low', 'normal', 'high', 'critical']),
+  barcode: z.string(),
+  isExchange: z.boolean(),
 });
 
 export type CreateReturnFormValues = z.infer<typeof createReturnSchema>;

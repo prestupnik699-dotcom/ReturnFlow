@@ -17,13 +17,11 @@ export type ReturnItem = {
   comment: string | null;
   status: ReturnStatus;
   priority: ReturnPriority;
+  barcode: string | null;
+  isExchange: boolean;
   createdAt: string;
   returnedAt: string | null;
-  // true only for locally-queued, not-yet-synced items (D-031). Never set for
-  // anything fetched from the server.
   pendingSync?: boolean;
-  // true only right after an offline status change was applied optimistically
-  // (D-032), until the queue syncs and the real value comes back from the server.
   pendingStatusSync?: boolean;
 };
 
@@ -39,6 +37,8 @@ type ReturnItemRow = {
   comment: string | null;
   status: ReturnStatus;
   priority: ReturnPriority;
+  barcode: string | null;
+  is_exchange: boolean;
   created_at: string;
   returned_at: string | null;
   suppliers: { name: string } | null;
@@ -58,13 +58,15 @@ function mapReturn(row: ReturnItemRow): ReturnItem {
     comment: row.comment,
     status: row.status,
     priority: row.priority,
+    barcode: row.barcode,
+    isExchange: row.is_exchange,
     createdAt: row.created_at,
     returnedAt: row.returned_at,
   };
 }
 
 const SELECT_FIELDS =
-  'id, organization_id, store_id, supplier_id, created_by, title, quantity, reason, comment, status, priority, created_at, returned_at, suppliers(name)';
+  'id, organization_id, store_id, supplier_id, created_by, title, quantity, reason, comment, status, priority, barcode, is_exchange, created_at, returned_at, suppliers(name)';
 
 type FetchReturnsInput = {
   storeId: string;
@@ -117,6 +119,8 @@ type CreateReturnInput = {
   quantity: number;
   reason: string;
   priority: ReturnPriority;
+  barcode?: string;
+  isExchange?: boolean;
 };
 
 export async function createReturn(input: CreateReturnInput): Promise<ServiceResult<ReturnItem>> {
@@ -131,6 +135,8 @@ export async function createReturn(input: CreateReturnInput): Promise<ServiceRes
       quantity: input.quantity,
       reason: input.reason || null,
       priority: input.priority,
+      barcode: input.barcode || null,
+      is_exchange: input.isExchange ?? false,
     })
     .select(SELECT_FIELDS)
     .single();
@@ -148,6 +154,8 @@ type UpdateReturnInput = {
   quantity: number;
   reason: string;
   priority: ReturnPriority;
+  barcode?: string;
+  isExchange?: boolean;
 };
 
 export async function updateReturn(
@@ -162,6 +170,8 @@ export async function updateReturn(
       quantity: input.quantity,
       reason: input.reason || null,
       priority: input.priority,
+      barcode: input.barcode || null,
+      is_exchange: input.isExchange ?? false,
     })
     .eq('id', returnId)
     .select(SELECT_FIELDS)

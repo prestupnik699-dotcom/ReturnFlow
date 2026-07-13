@@ -1,4 +1,4 @@
-import { useRef, useState } from 'react';
+import { useState } from 'react';
 import { View, Text, StyleSheet, ActivityIndicator } from 'react-native';
 import { CameraView, useCameraPermissions } from 'expo-camera';
 import { useRouter } from 'expo-router';
@@ -33,11 +33,11 @@ export function ScannerScreen() {
   const [instantMessage, setInstantMessage] = useState<string | null>(null);
   const [formVisible, setFormVisible] = useState(false);
   const [prefillTitle, setPrefillTitle] = useState('');
-  const currentBarcodeRef = useRef<string | null>(null);
+  const [currentBarcode, setCurrentBarcode] = useState<string | null>(null);
   const styles = createStyles(theme);
 
   const resumeScanning = () => {
-    currentBarcodeRef.current = null;
+    setCurrentBarcode(null);
     setIsPaused(false);
     setInstantMessage(null);
   };
@@ -45,7 +45,7 @@ export function ScannerScreen() {
   const handleBarcodeScanned = async ({ data }: { data: string }) => {
     if (isPaused || !activeStoreId || !activeOrganizationId || !profile) return;
 
-    currentBarcodeRef.current = data;
+    setCurrentBarcode(data);
     setIsPaused(true);
 
     const shortcut = await getBarcodeShortcut(activeStoreId, data);
@@ -60,6 +60,7 @@ export function ScannerScreen() {
         quantity: 1,
         reason: '',
         priority: 'normal',
+        barcode: data,
       });
 
       if (result.success) {
@@ -83,7 +84,7 @@ export function ScannerScreen() {
   };
 
   const handleCreated = (values: { supplierId: string; title: string }) => {
-    const barcode = currentBarcodeRef.current;
+    const barcode = currentBarcode;
     if (!barcode || !activeOrganizationId || !activeStoreId || !profile) return;
 
     saveShortcutMutation.mutate({
@@ -161,6 +162,7 @@ export function ScannerScreen() {
         visible={formVisible}
         onClose={handleFormClosed}
         prefillTitle={prefillTitle}
+        prefillBarcode={currentBarcode ?? ''}
         onCreated={handleCreated}
       />
     </Screen>
