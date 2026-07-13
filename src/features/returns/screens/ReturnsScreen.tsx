@@ -242,6 +242,7 @@ export function ReturnsScreen() {
             data={sorted}
             keyExtractor={(item) => item.id}
             contentContainerStyle={[styles.list, { paddingBottom: tabBarClearance }]}
+            showsVerticalScrollIndicator={false}
             ListEmptyComponent={<EmptyState icon="repeat-outline" title={t('returns.empty')} />}
             renderItem={({ item, index }) => (
               <Animated.View entering={FadeInDown.delay(index * 50).duration(250)}>
