@@ -10,7 +10,7 @@
     "icon": "./assets/images/icon.png",
     "android": {
       "package": "com.returnflow.app",
-      "softwareKeyboardLayoutMode": "resize",
+      "softwareKeyboardLayoutMode": "pan",
       "adaptiveIcon": {
         "foregroundImage": "./assets/images/adaptive-icon.png",
         "backgroundColor": "#6C5CE7"
