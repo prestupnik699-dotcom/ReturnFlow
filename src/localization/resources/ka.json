@@ -118,7 +118,15 @@
     "themeLight": "ღია",
     "themeDark": "მუქი",
     "themeSystem": "სისტემური",
-    "saved": "შენახულია"
+    "saved": "შენახულია",
+    "deleteAccount": {
+      "dangerZoneTitle": "საშიში ზონა",
+      "deleteAccountButton": "ანგარიშის წაშლა",
+      "deleteAccountConfirmTitle": "დარწმუნებული ხართ?",
+      "deleteAccountConfirmMessage": "თქვენი ანგარიში სამუდამოდ წაიშლება. მოქმედება შეუქცევადია.",
+      "hasTeammatesTitle": "ჯერ ვერ წაიშლება",
+      "hasTeammates": "ორგანიზაცია \"{{org}}\" სხვა თანამშრომლებსაც ეკუთვნით. ჯერ გადასცით მფლობელობა სხვას, ან წაშალეთ ორგანიზაცია მთლიანად პარამეტრებში."
+    }
   },
   "stores": {
     "title": "მაღაზიები",

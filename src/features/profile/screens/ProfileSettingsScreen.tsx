@@ -5,10 +5,13 @@ import { useTheme } from '@/theme/ThemeProvider';
 import { Screen } from '@/components/Screen';
 import { ScreenHeader } from '@/components/ScreenHeader';
 import { Chip } from '@/components/Chip';
+import { Button } from '@/components/Button';
+import { ConfirmDialog } from '@/components/ConfirmDialog';
 import { useAuthStore } from '@/stores/auth.store';
 import { useLanguageStore, type AppLanguage } from '@/stores/language.store';
 import { useThemeStore, type ThemeMode } from '@/stores/theme.store';
 import { updateProfileSettings } from '@/features/auth/services/profile.service';
+import { useDeleteAccount } from '@/features/profile/hooks/useDeleteAccount';
 
 const LANGUAGES: AppLanguage[] = ['ka', 'en', 'ru'];
 const THEME_MODES: ThemeMode[] = ['light', 'dark', 'system'];
@@ -23,6 +26,9 @@ export function ProfileSettingsScreen() {
   const setMode = useThemeStore((state) => state.setMode);
   const [saved, setSaved] = useState(false);
   const [saveError, setSaveError] = useState<string | null>(null);
+  const [deleteConfirmVisible, setDeleteConfirmVisible] = useState(false);
+  const [blockedInfo, setBlockedInfo] = useState<string | null>(null);
+  const deleteAccountMutation = useDeleteAccount();
   const styles = createStyles(theme);
 
   const persist = async (nextLanguage: AppLanguage, nextMode: ThemeMode) => {
@@ -47,6 +53,22 @@ export function ProfileSettingsScreen() {
   const handleModeChange = (nextMode: ThemeMode) => {
     setMode(nextMode);
     persist(language, nextMode);
+  };
+
+  const confirmDeleteAccount = () => {
+    setBlockedInfo(null);
+    deleteAccountMutation.mutate(undefined, {
+      onError: (error) => {
+        setDeleteConfirmVisible(false);
+        const message = error.message;
+        if (message.startsWith('profile.deleteAccount.hasTeammates::')) {
+          const orgName = message.split('::')[1] ?? '';
+          setBlockedInfo(t('profile.deleteAccount.hasTeammates', { org: orgName }));
+        } else {
+          setBlockedInfo(message);
+        }
+      },
+    });
   };
 
   const themeLabels: Record<ThemeMode, string> = {
@@ -99,7 +121,29 @@ export function ProfileSettingsScreen() {
             <Text style={styles.successText}>{t('profile.saved')}</Text>
           </View>
         ) : null}
+
+        <View style={styles.dangerZone}>
+          <Text style={styles.dangerZoneTitle}>{t('profile.deleteAccount.dangerZoneTitle')}</Text>
+          <Button
+            label={t('profile.deleteAccount.deleteAccountButton')}
+            variant="danger"
+            onPress={() => setDeleteConfirmVisible(true)}
+          />
+          {blockedInfo ? <Text style={styles.blockedText}>{blockedInfo}</Text> : null}
+        </View>
       </View>
+
+      <ConfirmDialog
+        visible={deleteConfirmVisible}
+        title={t('profile.deleteAccount.deleteAccountConfirmTitle')}
+        message={t('profile.deleteAccount.deleteAccountConfirmMessage')}
+        confirmLabel={t('profile.deleteAccount.deleteAccountButton')}
+        cancelLabel={t('organizations.settings.cancelButton')}
+        destructive
+        loading={deleteAccountMutation.isPending}
+        onConfirm={confirmDeleteAccount}
+        onCancel={() => setDeleteConfirmVisible(false)}
+      />
     </Screen>
   );
 }
@@ -130,5 +174,18 @@ function createStyles(theme: ReturnType<typeof useTheme>) {
       padding: theme.spacing.md,
     },
     successText: { color: theme.colors.success, fontSize: theme.fontSizes.sm, textAlign: 'center' },
+    dangerZone: {
+      marginTop: theme.spacing.lg,
+      paddingTop: theme.spacing.lg,
+      borderTopWidth: 1,
+      borderTopColor: theme.colors.border,
+      gap: theme.spacing.sm,
+    },
+    dangerZoneTitle: {
+      fontSize: theme.fontSizes.sm,
+      fontWeight: theme.fontWeights.semiBold,
+      color: theme.colors.danger,
+    },
+    blockedText: { fontSize: theme.fontSizes.sm, color: theme.colors.warning, lineHeight: 20 },
   });
 }

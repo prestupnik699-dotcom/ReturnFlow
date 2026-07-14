@@ -118,7 +118,15 @@
     "themeLight": "Светлая",
     "themeDark": "Тёмная",
     "themeSystem": "Системная",
-    "saved": "Сохранено"
+    "saved": "Сохранено",
+    "deleteAccount": {
+      "dangerZoneTitle": "Опасная зона",
+      "deleteAccountButton": "Удалить аккаунт",
+      "deleteAccountConfirmTitle": "Вы уверены?",
+      "deleteAccountConfirmMessage": "Ваш аккаунт будет удалён навсегда. Действие необратимо.",
+      "hasTeammatesTitle": "Пока нельзя удалить",
+      "hasTeammates": "В организации «{{org}}» ещё остались другие сотрудники. Сначала передайте права владельца кому-то из них, либо удалите организацию целиком в её настройках."
+    }
   },
   "stores": {
     "title": "Магазины",

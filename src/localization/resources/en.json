@@ -118,7 +118,15 @@
     "themeLight": "Light",
     "themeDark": "Dark",
     "themeSystem": "System",
-    "saved": "Saved"
+    "saved": "Saved",
+    "deleteAccount": {
+      "dangerZoneTitle": "Danger zone",
+      "deleteAccountButton": "Delete account",
+      "deleteAccountConfirmTitle": "Are you sure?",
+      "deleteAccountConfirmMessage": "Your account will be permanently deleted. This cannot be undone.",
+      "hasTeammatesTitle": "Can't delete yet",
+      "hasTeammates": "The organization \"{{org}}\" still has other teammates. Transfer ownership first, or delete the organization entirely from its settings."
+    }
   },
   "stores": {
     "title": "Stores",
