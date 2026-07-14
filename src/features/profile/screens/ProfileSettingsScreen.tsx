@@ -180,6 +180,7 @@ function createStyles(theme: ReturnType<typeof useTheme>) {
       borderTopWidth: 1,
       borderTopColor: theme.colors.border,
       gap: theme.spacing.sm,
+      alignItems: 'center',
     },
     dangerZoneTitle: {
       fontSize: theme.fontSizes.sm,

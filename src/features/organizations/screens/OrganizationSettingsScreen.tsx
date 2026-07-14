@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { View, Text, TextInput, ActivityIndicator, StyleSheet, Alert } from 'react-native';
+import { View, Text, TextInput, ActivityIndicator, StyleSheet } from 'react-native';
 import { useForm, useWatch, Controller } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useTranslation } from 'react-i18next';
@@ -8,6 +8,7 @@ import { Screen } from '@/components/Screen';
 import { ScreenHeader } from '@/components/ScreenHeader';
 import { Button } from '@/components/Button';
 import { Chip } from '@/components/Chip';
+import { ConfirmDialog } from '@/components/ConfirmDialog';
 import { useOrganization } from '@/features/organizations/hooks/useOrganization';
 import { useUpdateOrganization } from '@/features/organizations/hooks/useUpdateOrganization';
 import { useDeleteOrganization } from '@/features/organizations/hooks/useDeleteOrganization';
@@ -25,6 +26,7 @@ export function OrganizationSettingsScreen() {
   const mutation = useUpdateOrganization();
   const deleteMutation = useDeleteOrganization();
   const [saved, setSaved] = useState(false);
+  const [deleteConfirmVisible, setDeleteConfirmVisible] = useState(false);
   const styles = createStyles(theme);
 
   const {
@@ -51,19 +53,8 @@ export function OrganizationSettingsScreen() {
 
   const selectedLanguage = useWatch({ control, name: 'defaultLanguage' });
 
-  const handleDelete = () => {
-    Alert.alert(
-      t('organizations.settings.deleteConfirmTitle'),
-      t('organizations.settings.deleteConfirmMessage'),
-      [
-        { text: t('organizations.settings.cancelButton'), style: 'cancel' },
-        {
-          text: t('organizations.settings.deleteConfirmButton'),
-          style: 'destructive',
-          onPress: () => deleteMutation.mutate(),
-        },
-      ],
-    );
+  const confirmDelete = () => {
+    deleteMutation.mutate(undefined, { onSuccess: () => setDeleteConfirmVisible(false) });
   };
 
   const onSubmit = (values: EditOrganizationFormValues) => {
@@ -159,7 +150,7 @@ export function OrganizationSettingsScreen() {
           <Button
             label={t('organizations.settings.deleteButton')}
             variant="danger"
-            onPress={handleDelete}
+            onPress={() => setDeleteConfirmVisible(true)}
             loading={deleteMutation.isPending}
           />
           {deleteMutation.isError ? (
@@ -167,6 +158,18 @@ export function OrganizationSettingsScreen() {
           ) : null}
         </View>
       </View>
+
+      <ConfirmDialog
+        visible={deleteConfirmVisible}
+        title={t('organizations.settings.deleteConfirmTitle')}
+        message={t('organizations.settings.deleteConfirmMessage')}
+        confirmLabel={t('organizations.settings.deleteConfirmButton')}
+        cancelLabel={t('organizations.settings.cancelButton')}
+        destructive
+        loading={deleteMutation.isPending}
+        onConfirm={confirmDelete}
+        onCancel={() => setDeleteConfirmVisible(false)}
+      />
     </Screen>
   );
 }
@@ -216,6 +219,7 @@ function createStyles(theme: ReturnType<typeof useTheme>) {
       borderTopWidth: 1,
       borderTopColor: theme.colors.border,
       gap: theme.spacing.sm,
+      alignItems: 'center',
     },
     dangerZoneTitle: {
       fontSize: theme.fontSizes.sm,
