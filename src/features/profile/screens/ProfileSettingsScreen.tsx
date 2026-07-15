@@ -12,6 +12,7 @@ import { useLanguageStore, type AppLanguage } from '@/stores/language.store';
 import { useThemeStore, type ThemeMode } from '@/stores/theme.store';
 import { updateProfileSettings } from '@/features/auth/services/profile.service';
 import { useDeleteAccount } from '@/features/profile/hooks/useDeleteAccount';
+import * as Sentry from '@sentry/react-native';
 
 const LANGUAGES: AppLanguage[] = ['ka', 'en', 'ru'];
 const THEME_MODES: ThemeMode[] = ['light', 'dark', 'system'];
@@ -130,6 +131,15 @@ export function ProfileSettingsScreen() {
             onPress={() => setDeleteConfirmVisible(true)}
           />
           {blockedInfo ? <Text style={styles.blockedText}>{blockedInfo}</Text> : null}
+          <Button
+            label="[ТЕСТ] Вызвать ошибку для Sentry"
+            variant="outline"
+            onPress={() => {
+              Sentry.captureException(
+                new Error('Тестовая ошибка ReturnFlow — можно удалить эту кнопку'),
+              );
+            }}
+          />
         </View>
       </View>
 
