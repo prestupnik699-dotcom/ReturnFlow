@@ -268,7 +268,17 @@
     "totalQuantity": "Всего единиц",
     "byStatus": "По статусам",
     "topSuppliers": "Топ поставщиков",
-    "noData": "Нет данных за этот период"
+    "noData": "Нет данных за этот период",
+    "export": {
+      "title": "Экспорт",
+      "csv": "CSV (Excel)",
+      "pdf": "PDF",
+      "empty": "Нет данных для экспорта за этот период",
+      "dateColumn": "Дата",
+      "yes": "Да",
+      "no": "Нет",
+      "reportTitle": "ReturnFlow — Отчёт по возвратам"
+    }
   },
   "scanner": {
     "title": "Сканер",

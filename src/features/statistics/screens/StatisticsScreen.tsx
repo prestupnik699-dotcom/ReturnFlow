@@ -1,6 +1,7 @@
 import { useState } from 'react';
-import { View, Text, ScrollView, ActivityIndicator, StyleSheet } from 'react-native';
+import { View, Text, ScrollView, ActivityIndicator, StyleSheet, Pressable } from 'react-native';
 import { useTranslation } from 'react-i18next';
+import { Ionicons } from '@expo/vector-icons';
 import { useTheme } from '@/theme/ThemeProvider';
 import { Screen } from '@/components/Screen';
 import { ScreenHeader } from '@/components/ScreenHeader';
@@ -9,30 +10,80 @@ import { Chip } from '@/components/Chip';
 import { StatBar } from '@/components/StatBar';
 import { EmptyState } from '@/components/EmptyState';
 import { useReturnStats, type StatsPeriod } from '@/features/statistics/hooks/useReturnStats';
-import type { ReturnStatus } from '@/features/returns/services/returns.service';
+import { useExportReturns } from '@/features/statistics/hooks/useExportReturns';
+import { useMembershipStore } from '@/stores/membership.store';
+import type { ReturnStatus, ReturnPriority } from '@/features/returns/services/returns.service';
 
 const PERIODS: StatsPeriod[] = ['today', 'week', 'month', 'all'];
 const STATUSES: ReturnStatus[] = ['pending', 'urgent', 'returned', 'archived'];
 
+function periodToSinceIso(period: StatsPeriod): string | null {
+  const now = new Date();
+  if (period === 'today')
+    return new Date(now.getFullYear(), now.getMonth(), now.getDate()).toISOString();
+  if (period === 'week') {
+    const d = new Date(now);
+    d.setDate(d.getDate() - 7);
+    return d.toISOString();
+  }
+  if (period === 'month') {
+    const d = new Date(now);
+    d.setDate(d.getDate() - 30);
+    return d.toISOString();
+  }
+  return null;
+}
+
 export function StatisticsScreen() {
   const theme = useTheme();
   const { t } = useTranslation();
+  const activeStoreId = useMembershipStore((state) => state.activeStoreId);
   const [period, setPeriod] = useState<StatsPeriod>('week');
   const { data: stats, isLoading } = useReturnStats(period);
   const styles = createStyles(theme);
-
-  const periodLabels: Record<StatsPeriod, string> = {
-    today: t('statistics.periodToday'),
-    week: t('statistics.periodWeek'),
-    month: t('statistics.periodMonth'),
-    all: t('statistics.periodAll'),
-  };
 
   const statusLabels: Record<ReturnStatus, string> = {
     pending: t('returns.statusPending'),
     urgent: t('returns.statusUrgent'),
     returned: t('returns.statusReturned'),
     archived: t('returns.statusArchived'),
+  };
+
+  const priorityLabels: Record<ReturnPriority, string> = {
+    low: t('returns.priorityLow'),
+    normal: t('returns.priorityNormal'),
+    high: t('returns.priorityHigh'),
+    critical: t('returns.priorityCritical'),
+  };
+
+  const {
+    runExport,
+    isExporting,
+    error: exportError,
+  } = useExportReturns(activeStoreId, periodToSinceIso(period), {
+    columns: {
+      title: t('returns.create.titleLabel'),
+      supplier: t('returns.create.supplierLabel'),
+      quantity: t('returns.create.quantityLabel'),
+      status: t('statistics.byStatus'),
+      priority: t('returns.create.priorityLabel'),
+      barcode: t('returns.create.barcodeLabel'),
+      exchange: t('returns.create.exchangeLabel'),
+      reason: t('returns.create.reasonLabel'),
+      date: t('statistics.export.dateColumn'),
+    },
+    statusLabels,
+    priorityLabels,
+    yes: t('statistics.export.yes'),
+    no: t('statistics.export.no'),
+    reportTitle: t('statistics.export.reportTitle'),
+  });
+
+  const periodLabels: Record<StatsPeriod, string> = {
+    today: t('statistics.periodToday'),
+    week: t('statistics.periodWeek'),
+    month: t('statistics.periodMonth'),
+    all: t('statistics.periodAll'),
   };
 
   const statusColors: Record<ReturnStatus, string> = {
@@ -119,6 +170,41 @@ export function StatisticsScreen() {
                 </Card>
               </View>
             ) : null}
+
+            <View style={styles.section}>
+              <Text style={styles.sectionTitle}>{t('statistics.export.title')}</Text>
+              <View style={styles.exportRow}>
+                <Pressable
+                  style={styles.exportButton}
+                  onPress={() => runExport('csv')}
+                  disabled={isExporting !== null}
+                >
+                  {isExporting === 'csv' ? (
+                    <ActivityIndicator size="small" color={theme.colors.primary} />
+                  ) : (
+                    <Ionicons name="grid-outline" size={18} color={theme.colors.primary} />
+                  )}
+                  <Text style={styles.exportButtonText}>{t('statistics.export.csv')}</Text>
+                </Pressable>
+                <Pressable
+                  style={styles.exportButton}
+                  onPress={() => runExport('pdf')}
+                  disabled={isExporting !== null}
+                >
+                  {isExporting === 'pdf' ? (
+                    <ActivityIndicator size="small" color={theme.colors.primary} />
+                  ) : (
+                    <Ionicons name="document-text-outline" size={18} color={theme.colors.primary} />
+                  )}
+                  <Text style={styles.exportButtonText}>{t('statistics.export.pdf')}</Text>
+                </Pressable>
+              </View>
+              {exportError === 'EMPTY' ? (
+                <Text style={styles.exportErrorText}>{t('statistics.export.empty')}</Text>
+              ) : exportError ? (
+                <Text style={styles.exportErrorText}>{exportError}</Text>
+              ) : null}
+            </View>
           </>
         )}
       </ScrollView>
@@ -150,5 +236,27 @@ function createStyles(theme: ReturnType<typeof useTheme>) {
       color: theme.colors.textSecondary,
     },
     statList: { padding: theme.spacing.lg, gap: theme.spacing.md },
+    exportRow: { flexDirection: 'row', gap: theme.spacing.md },
+    exportButton: {
+      flex: 1,
+      flexDirection: 'row',
+      alignItems: 'center',
+      justifyContent: 'center',
+      gap: theme.spacing.sm,
+      borderWidth: 1,
+      borderColor: theme.colors.primary,
+      borderRadius: theme.radius.md,
+      paddingVertical: theme.spacing.md,
+    },
+    exportButtonText: {
+      color: theme.colors.primary,
+      fontSize: theme.fontSizes.sm,
+      fontWeight: theme.fontWeights.semiBold,
+    },
+    exportErrorText: {
+      fontSize: theme.fontSizes.sm,
+      color: theme.colors.danger,
+      textAlign: 'center',
+    },
   });
 }

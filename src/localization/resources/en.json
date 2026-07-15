@@ -268,7 +268,17 @@
     "totalQuantity": "Total quantity",
     "byStatus": "By status",
     "topSuppliers": "Top suppliers",
-    "noData": "No data for this period"
+    "noData": "No data for this period",
+    "export": {
+      "title": "Export",
+      "csv": "CSV (Excel)",
+      "pdf": "PDF",
+      "empty": "No data to export for this period",
+      "dateColumn": "Date",
+      "yes": "Yes",
+      "no": "No",
+      "reportTitle": "ReturnFlow — Returns Report"
+    }
   },
   "scanner": {
     "title": "Scanner",
