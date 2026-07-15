@@ -11,6 +11,7 @@ export type Profile = {
   language: string;
   theme: string;
   status: 'active' | 'vacation' | 'blocked';
+  hasSeenOnboarding: boolean;
 };
 
 type AuthState = {

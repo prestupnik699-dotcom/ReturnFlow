@@ -297,5 +297,18 @@
     "appVersion": "App version",
     "platform": "Platform",
     "account": "Account"
+  },
+  "onboarding": {
+    "slide1Title": "Welcome to ReturnFlow",
+    "slide1Body": "Manage damaged-item returns to suppliers — simply, without paper.",
+    "slide2Title": "Returns",
+    "slide2Body": "Add damaged items, track their status and history in one place.",
+    "slide3Title": "Barcode scanner",
+    "slide3Body": "Scan an item — scanning the same code again adds the return automatically.",
+    "slide4Title": "Team and chat",
+    "slide4Body": "Invite teammates, assign roles, and talk about the store right in the app.",
+    "next": "Next",
+    "getStarted": "Get started",
+    "skip": "Skip"
   }
 }
