@@ -41,7 +41,19 @@ export function useExportReturns(
       } else {
         const html = generateReturnsHtml(result.data, labels);
         const { uri } = await Print.printToFileAsync({ html });
-        await Sharing.shareAsync(uri, { mimeType: 'application/pdf', UTI: 'com.adobe.pdf' });
+
+        // expo-print writes to a location expo-sharing can't always read
+        // directly on Android ("Not allowed to read file under given URL").
+        // Copying into our own cache directory — the same one CSV already
+        // shares from successfully — fixes it.
+        const sourceFile = new File(uri);
+        const destination = new File(Paths.cache, `returnflow-export-${Date.now()}.pdf`);
+        sourceFile.copy(destination);
+
+        await Sharing.shareAsync(destination.uri, {
+          mimeType: 'application/pdf',
+          UTI: 'com.adobe.pdf',
+        });
       }
     } catch (err) {
       const message = err instanceof Error ? err.message : 'Unknown error';
