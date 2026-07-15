@@ -54,12 +54,19 @@ export async function register(input: RegisterInput): Promise<ServiceResult<Sess
     return serviceError('REGISTER_FAILED', 'No session was returned by the server.');
   }
 
-  const { error: invitationError } = await supabase.rpc('accept_invitation', {
-    invitation_code: input.invitationCode,
-  });
+  // Invitation code is optional: a person joining an existing team enters
+  // one, while the very first user of a brand-new business has none yet
+  // and goes on to create their own organization (D-022).
+  const trimmedCode = input.invitationCode.trim();
 
-  if (invitationError) {
-    return fromCaughtError(invitationError, 'INVALID_INVITATION_CODE');
+  if (trimmedCode) {
+    const { error: invitationError } = await supabase.rpc('accept_invitation', {
+      invitation_code: trimmedCode,
+    });
+
+    if (invitationError) {
+      return fromCaughtError(invitationError, 'INVALID_INVITATION_CODE');
+    }
   }
 
   return { success: true, data: data.session };
@@ -87,11 +94,6 @@ export async function changePassword(newPassword: string): Promise<ServiceResult
   return { success: true, data: null };
 }
 
-// Supabase can deliver the recovery token in the link two different ways
-// depending on project auth settings — a `code` query param (PKCE, needs
-// exchangeCodeForSession) or access_token/refresh_token in the URL fragment
-// (implicit flow, needs setSession). This handles both without needing to
-// know in advance which one a given project uses.
 export async function establishRecoverySession(url: string): Promise<ServiceResult<Session>> {
   const codeMatch = url.match(/[?&]code=([^&]+)/);
 
