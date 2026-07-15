@@ -2,6 +2,7 @@ import '@/localization/i18n';
 import '@/features/returns/sync/returnsSyncHandler';
 import { useEffect } from 'react';
 import { Stack } from 'expo-router';
+import { View, ActivityIndicator } from 'react-native';
 import * as SplashScreen from 'expo-splash-screen';
 import * as Sentry from '@sentry/react-native';
 import { isRunningInExpoGo } from 'expo';
@@ -25,12 +26,6 @@ getDatabase();
 
 SplashScreen.preventAutoHideAsync();
 
-// expo-notifications throws just from being IMPORTED in Expo Go on SDK 53+
-// (not merely from calling its functions) — so the module must never be
-// loaded at all there, not just left unused. A dynamic import, only
-// reached when we're NOT in Expo Go, achieves that; a static top-level
-// import cannot, since it would already have run by the time any check
-// inside this file executes.
 const isExpoGo = Constants.executionEnvironment === ExecutionEnvironment.StoreClient;
 
 if (!isExpoGo) {
@@ -48,8 +43,6 @@ if (!isExpoGo) {
 
 Sentry.init({
   dsn: 'https://4cb9940165896ed563fc3a62a15cdfc3@o4511735756226560.ingest.us.sentry.io/4511735762124800',
-  // Conservative sampling — full tracing on every session isn't needed at
-  // this scale and would just cost more of the free tier's monthly quota.
   tracesSampleRate: 0.2,
   enableNativeFramesTracking: !isRunningInExpoGo(),
   debug: __DEV__,
@@ -90,7 +83,26 @@ function RootNavigator() {
   const session = useAuthStore((state) => state.session);
   const isPasswordRecovery = useAuthStore((state) => state.isPasswordRecovery);
   const memberships = useMembershipStore((state) => state.memberships);
+  const membershipsLoaded = useMembershipStore((state) => state.membershipsLoaded);
   const hasOrganization = memberships.length > 0;
+
+  // There IS a session, but we don't yet know whether it has any
+  // organizations — wait rather than guess, to avoid flashing the
+  // onboarding screen for a single frame before redirecting.
+  if (session && !isPasswordRecovery && !membershipsLoaded) {
+    return (
+      <View
+        style={{
+          flex: 1,
+          alignItems: 'center',
+          justifyContent: 'center',
+          backgroundColor: '#0F141B',
+        }}
+      >
+        <ActivityIndicator color="#6C5CE7" />
+      </View>
+    );
+  }
 
   return (
     <Stack screenOptions={{ headerShown: false }}>
