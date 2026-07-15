@@ -60,12 +60,23 @@ export function ProfileSettingsScreen() {
     deleteAccountMutation.mutate(undefined, {
       onError: (error) => {
         setDeleteConfirmVisible(false);
-        const message = error.message;
-        if (message.startsWith('profile.deleteAccount.hasTeammates::')) {
-          const orgName = message.split('::')[1] ?? '';
+        const raw = (error?.message ?? '').trim();
+
+        if (raw.startsWith('profile.deleteAccount.hasTeammates::')) {
+          const orgName = raw.split('::')[1] ?? '';
           setBlockedInfo(t('profile.deleteAccount.hasTeammates', { org: orgName }));
+        } else if (raw === 'profile.deleteAccount.networkError') {
+          setBlockedInfo(t('profile.deleteAccount.networkError'));
+        } else if (
+          !raw ||
+          raw === '{}' ||
+          raw === '[object Object]' ||
+          raw.startsWith('{') ||
+          raw.startsWith('[')
+        ) {
+          setBlockedInfo(t('profile.deleteAccount.genericError'));
         } else {
-          setBlockedInfo(message);
+          setBlockedInfo(raw);
         }
       },
     });
@@ -128,6 +139,7 @@ export function ProfileSettingsScreen() {
             label={t('profile.deleteAccount.deleteAccountButton')}
             variant="danger"
             onPress={() => setDeleteConfirmVisible(true)}
+            loading={deleteAccountMutation.isPending}
           />
           {blockedInfo ? <Text style={styles.blockedText}>{blockedInfo}</Text> : null}
         </View>
