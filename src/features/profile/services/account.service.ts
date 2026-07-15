@@ -1,4 +1,4 @@
-import { FunctionsHttpError } from '@supabase/supabase-js';
+import { FunctionsHttpError, FunctionsFetchError } from '@supabase/supabase-js';
 import { supabase } from '@/lib/supabase';
 import { fromCaughtError, type ServiceResult } from '@/lib/result';
 
@@ -16,10 +16,19 @@ export async function deleteAccount(): Promise<ServiceResult<null>> {
     });
 
     if (error) {
-      // supabase-js discards the function's actual JSON response body on a
-      // non-2xx status by default, surfacing only a generic "non-2xx status
-      // code" message — the real payload has to be read separately from
-      // error.context (the raw Response object).
+      // A genuine network failure reaching Supabase at all (not the
+      // function responding with an error) — handled separately because
+      // relying on its .message here is what was producing a literal "{}"
+      // on screen (a well-known JS quirk: JSON.stringify(someError)
+      // collapses to "{}" since Error's own message/stack aren't
+      // enumerable properties).
+      if (error instanceof FunctionsFetchError) {
+        return {
+          success: false,
+          error: { code: 'NETWORK_ERROR', message: 'profile.deleteAccount.networkError' },
+        };
+      }
+
       if (error instanceof FunctionsHttpError) {
         try {
           const body = await error.context.json();
