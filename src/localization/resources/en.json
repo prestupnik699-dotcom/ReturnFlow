@@ -126,7 +126,8 @@
       "deleteAccountConfirmMessage": "Your account will be permanently deleted. This cannot be undone.",
       "hasTeammatesTitle": "Can't delete yet",
       "hasTeammates": "The organization \"{{org}}\" still has other teammates. Transfer ownership first, or delete the organization entirely from its settings.",
-      "networkError": "Couldn't reach the server. Check your internet connection and try again."
+      "networkError": "Couldn't reach the server. Check your internet connection and try again.",
+      "genericError": "Something went wrong. Please try again."
     }
   },
   "stores": {
