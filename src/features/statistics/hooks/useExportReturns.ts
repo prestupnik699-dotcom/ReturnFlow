@@ -10,20 +10,17 @@ import {
   type ExportLabels,
 } from '@/features/statistics/services/export.service';
 
-// Everything here deliberately uses the SAME (legacy) file system module
-// throughout — mixing it with the newer File/Paths API caused the two to
-// disagree about where a just-written file actually lives, producing a
-// FileNotFoundException when the SAF save step tried to read it back.
-async function saveOnAndroid(sourceUri: string, filename: string, mimeType: string): Promise<void> {
+async function saveOnAndroid(
+  base64OrText: string,
+  filename: string,
+  mimeType: string,
+  isBase64: boolean,
+): Promise<void> {
   const permissions = await FileSystem.StorageAccessFramework.requestDirectoryPermissionsAsync();
 
   if (!permissions.granted) {
     throw new Error('PERMISSION_DENIED');
   }
-
-  const base64 = await FileSystem.readAsStringAsync(sourceUri, {
-    encoding: FileSystem.EncodingType.Base64,
-  });
 
   const destinationUri = await FileSystem.StorageAccessFramework.createFileAsync(
     permissions.directoryUri,
@@ -31,8 +28,8 @@ async function saveOnAndroid(sourceUri: string, filename: string, mimeType: stri
     mimeType,
   );
 
-  await FileSystem.writeAsStringAsync(destinationUri, base64, {
-    encoding: FileSystem.EncodingType.Base64,
+  await FileSystem.writeAsStringAsync(destinationUri, base64OrText, {
+    encoding: isBase64 ? FileSystem.EncodingType.Base64 : FileSystem.EncodingType.UTF8,
   });
 }
 
@@ -59,26 +56,38 @@ export function useExportReturns(
 
       const filename = `returnflow-export-${Date.now()}.${format}`;
       const mimeType = format === 'csv' ? 'text/csv' : 'application/pdf';
-      const localUri = FileSystem.cacheDirectory + filename;
 
       if (format === 'csv') {
         const csv = generateReturnsCsv(result.data, labels);
+        const localUri = FileSystem.cacheDirectory + filename;
         await FileSystem.writeAsStringAsync(localUri, csv, {
           encoding: FileSystem.EncodingType.UTF8,
         });
+
+        if (Platform.OS === 'android') {
+          await saveOnAndroid(csv, filename, mimeType, false);
+        } else {
+          await Sharing.shareAsync(localUri, {
+            mimeType,
+            UTI: 'public.comma-separated-values-text',
+          });
+        }
       } else {
         const html = generateReturnsHtml(result.data, labels);
-        const { uri } = await Print.printToFileAsync({ html });
-        await FileSystem.copyAsync({ from: uri, to: localUri });
-      }
+        // Getting the PDF content directly as base64 avoids ever needing to
+        // read back expo-print's own temp file — that location isn't
+        // reliably readable by other modules, especially in Expo Go.
+        const printResult = await Print.printToFileAsync({ html, base64: true });
 
-      if (Platform.OS === 'android') {
-        await saveOnAndroid(localUri, filename, mimeType);
-      } else {
-        await Sharing.shareAsync(localUri, {
-          mimeType,
-          UTI: format === 'csv' ? 'public.comma-separated-values-text' : 'com.adobe.pdf',
-        });
+        if (!printResult.base64) {
+          throw new Error('PDF_GENERATION_FAILED');
+        }
+
+        if (Platform.OS === 'android') {
+          await saveOnAndroid(printResult.base64, filename, mimeType, true);
+        } else {
+          await Sharing.shareAsync(printResult.uri, { mimeType, UTI: 'com.adobe.pdf' });
+        }
       }
     } catch (err) {
       const message = err instanceof Error ? err.message : 'Unknown error';
