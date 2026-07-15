@@ -1,7 +1,6 @@
 import { useState } from 'react';
 import { Platform } from 'react-native';
-import { File, Paths } from 'expo-file-system';
-import * as LegacyFileSystem from 'expo-file-system/legacy';
+import * as FileSystem from 'expo-file-system/legacy';
 import * as Print from 'expo-print';
 import * as Sharing from 'expo-sharing';
 import {
@@ -11,30 +10,29 @@ import {
   type ExportLabels,
 } from '@/features/statistics/services/export.service';
 
-// Android has no shared "Downloads" concept reachable via a plain share
-// sheet the way iOS's "Save to Files" is — it needs the Storage Access
-// Framework, which pops a real folder picker (the user can choose
-// Downloads) and writes the file there directly.
+// Everything here deliberately uses the SAME (legacy) file system module
+// throughout — mixing it with the newer File/Paths API caused the two to
+// disagree about where a just-written file actually lives, producing a
+// FileNotFoundException when the SAF save step tried to read it back.
 async function saveOnAndroid(sourceUri: string, filename: string, mimeType: string): Promise<void> {
-  const permissions =
-    await LegacyFileSystem.StorageAccessFramework.requestDirectoryPermissionsAsync();
+  const permissions = await FileSystem.StorageAccessFramework.requestDirectoryPermissionsAsync();
 
   if (!permissions.granted) {
     throw new Error('PERMISSION_DENIED');
   }
 
-  const base64 = await LegacyFileSystem.readAsStringAsync(sourceUri, {
-    encoding: LegacyFileSystem.EncodingType.Base64,
+  const base64 = await FileSystem.readAsStringAsync(sourceUri, {
+    encoding: FileSystem.EncodingType.Base64,
   });
 
-  const destinationUri = await LegacyFileSystem.StorageAccessFramework.createFileAsync(
+  const destinationUri = await FileSystem.StorageAccessFramework.createFileAsync(
     permissions.directoryUri,
     filename,
     mimeType,
   );
 
-  await LegacyFileSystem.writeAsStringAsync(destinationUri, base64, {
-    encoding: LegacyFileSystem.EncodingType.Base64,
+  await FileSystem.writeAsStringAsync(destinationUri, base64, {
+    encoding: FileSystem.EncodingType.Base64,
   });
 }
 
@@ -61,20 +59,17 @@ export function useExportReturns(
 
       const filename = `returnflow-export-${Date.now()}.${format}`;
       const mimeType = format === 'csv' ? 'text/csv' : 'application/pdf';
-
-      let localUri: string;
+      const localUri = FileSystem.cacheDirectory + filename;
 
       if (format === 'csv') {
         const csv = generateReturnsCsv(result.data, labels);
-        const file = new File(Paths.cache, filename);
-        file.write(csv);
-        localUri = file.uri;
+        await FileSystem.writeAsStringAsync(localUri, csv, {
+          encoding: FileSystem.EncodingType.UTF8,
+        });
       } else {
         const html = generateReturnsHtml(result.data, labels);
         const { uri } = await Print.printToFileAsync({ html });
-        const destination = new File(Paths.cache, filename);
-        new File(uri).copy(destination);
-        localUri = destination.uri;
+        await FileSystem.copyAsync({ from: uri, to: localUri });
       }
 
       if (Platform.OS === 'android') {
