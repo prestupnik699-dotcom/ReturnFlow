@@ -43,6 +43,14 @@
           "icon": "./assets/images/adaptive-icon.png",
           "color": "#6C5CE7"
         }
+      ],
+      [
+        "@sentry/react-native",
+        {
+          "organization": "flutterflow-x5",
+          "project": "react-native",
+          "url": "https://sentry.io/"
+        }
       ]
     ],
     "extra": {

@@ -3,6 +3,8 @@ import '@/features/returns/sync/returnsSyncHandler';
 import { useEffect } from 'react';
 import { Stack } from 'expo-router';
 import * as SplashScreen from 'expo-splash-screen';
+import * as Sentry from '@sentry/react-native';
+import { isRunningInExpoGo } from 'expo';
 import Constants, { ExecutionEnvironment } from 'expo-constants';
 import { QueryClientProvider } from '@tanstack/react-query';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
@@ -44,7 +46,16 @@ if (!isExpoGo) {
   });
 }
 
-export default function RootLayout() {
+Sentry.init({
+  dsn: 'https://4cb9940165896ed563fc3a62a15cdfc3@o4511735756226560.ingest.us.sentry.io/4511735762124800',
+  // Conservative sampling — full tracing on every session isn't needed at
+  // this scale and would just cost more of the free tier's monthly quota.
+  tracesSampleRate: 0.2,
+  enableNativeFramesTracking: !isRunningInExpoGo(),
+  debug: __DEV__,
+});
+
+export default Sentry.wrap(function RootLayout() {
   useSessionBootstrap();
   const isInitializing = useAuthStore((state) => state.isInitializing);
 
@@ -69,7 +80,7 @@ export default function RootLayout() {
       </KeyboardProvider>
     </GestureHandlerRootView>
   );
-}
+});
 
 function RootNavigator() {
   useSyncOnReconnect();
