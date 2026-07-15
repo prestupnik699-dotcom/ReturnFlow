@@ -277,7 +277,8 @@
       "dateColumn": "Дата",
       "yes": "Да",
       "no": "Нет",
-      "reportTitle": "ReturnFlow — Отчёт по возвратам"
+      "reportTitle": "ReturnFlow — Отчёт по возвратам",
+      "permissionDenied": "Не удалось сохранить — доступ отклонён"
     }
   },
   "scanner": {

@@ -277,7 +277,8 @@
       "dateColumn": "Date",
       "yes": "Yes",
       "no": "No",
-      "reportTitle": "ReturnFlow — Returns Report"
+      "reportTitle": "ReturnFlow — Returns Report",
+      "permissionDenied": "Couldn't save — permission denied"
     }
   },
   "scanner": {

@@ -201,6 +201,10 @@ export function StatisticsScreen() {
               </View>
               {exportError === 'EMPTY' ? (
                 <Text style={styles.exportErrorText}>{t('statistics.export.empty')}</Text>
+              ) : exportError === 'PERMISSION_DENIED' ? (
+                <Text style={styles.exportErrorText}>
+                  {t('statistics.export.permissionDenied')}
+                </Text>
               ) : exportError ? (
                 <Text style={styles.exportErrorText}>{exportError}</Text>
               ) : null}

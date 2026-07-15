@@ -277,7 +277,8 @@
       "dateColumn": "თარიღი",
       "yes": "დიახ",
       "no": "არა",
-      "reportTitle": "ReturnFlow — დაბრუნებების ანგარიში"
+      "reportTitle": "ReturnFlow — დაბრუნებების ანგარიში",
+      "permissionDenied": "ვერ მოხერხდა შენახვა — წვდომა უარყოფილია"
     }
   },
   "scanner": {
