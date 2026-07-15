@@ -1,6 +1,7 @@
-import { View, Text, ScrollView, StyleSheet } from 'react-native';
+import { View, Text, ScrollView, StyleSheet, Linking, Platform } from 'react-native';
 import { useRouter } from 'expo-router';
 import { useTranslation } from 'react-i18next';
+import Constants from 'expo-constants';
 import { useAuthStore } from '@/stores/auth.store';
 import { logout } from '@/features/auth/services/auth.service';
 import { useTheme } from '@/theme/ThemeProvider';
@@ -8,6 +9,8 @@ import { Screen } from '@/components/Screen';
 import { Card } from '@/components/Card';
 import { MenuRow } from '@/components/MenuRow';
 import { RequireRole } from '@/components/RequireRole';
+
+const SUPPORT_EMAIL = 'davitianihovo@gmail.com';
 
 export default function More() {
   const theme = useTheme();
@@ -20,6 +23,23 @@ export default function More() {
   const initials = profile
     ? `${profile.firstName.charAt(0)}${profile.lastName.charAt(0)}`.toUpperCase()
     : '?';
+
+  const handleContactSupport = () => {
+    const appVersion = Constants.expoConfig?.version ?? 'unknown';
+    const body = [
+      '',
+      '',
+      '---',
+      `${t('support.appVersion')}: ${appVersion}`,
+      `${t('support.platform')}: ${Platform.OS} ${Platform.Version}`,
+      profile ? `${t('support.account')}: ${session?.user.email ?? ''}` : '',
+    ]
+      .filter(Boolean)
+      .join('\n');
+
+    const url = `mailto:${SUPPORT_EMAIL}?subject=${encodeURIComponent(t('support.emailSubject'))}&body=${encodeURIComponent(body)}`;
+    Linking.openURL(url);
+  };
 
   return (
     <Screen>
@@ -77,6 +97,15 @@ export default function More() {
             />
           </Card>
         </RequireRole>
+
+        <Text style={styles.sectionLabel}>{t('support.sectionLabel')}</Text>
+        <Card>
+          <MenuRow
+            icon="mail-outline"
+            label={t('support.contactSupport')}
+            onPress={handleContactSupport}
+          />
+        </Card>
 
         <Card>
           <MenuRow

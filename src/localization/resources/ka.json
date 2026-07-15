@@ -278,5 +278,13 @@
     "instructions": "მიმართეთ კამერა ბარკოდისკენ",
     "lookingUp": "ეძებს პროდუქტს...",
     "instantAdded": "დაემატა ავტომატურად"
+  },
+  "support": {
+    "sectionLabel": "მხარდაჭერა",
+    "contactSupport": "მხარდაჭერასთან დაკავშირება",
+    "emailSubject": "ReturnFlow — მხარდაჭერის მოთხოვნა",
+    "appVersion": "აპლიკაციის ვერსია",
+    "platform": "პლატფორმა",
+    "account": "ანგარიში"
   }
 }

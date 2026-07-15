@@ -278,5 +278,13 @@
     "instructions": "Point the camera at a barcode",
     "lookingUp": "Looking up product...",
     "instantAdded": "Added automatically"
+  },
+  "support": {
+    "sectionLabel": "Support",
+    "contactSupport": "Contact support",
+    "emailSubject": "ReturnFlow — Support request",
+    "appVersion": "App version",
+    "platform": "Platform",
+    "account": "Account"
   }
 }
