@@ -349,3 +349,10 @@ Real workflow reported by the user: some damaged items aren't simply returned �
 Status: Accepted
 
 Real workflow: a distributor visit often involves multiple different damaged items collected at once (e.g. "5 plates, 3 glasses with code 56685"), and the existing one-item-per-form flow was reported as slower than a paper notebook. New flow: pick the supplier once, then rapidly add name/barcode/quantity lines one after another without closing any dialog, then save all lines as separate return_items in one action, sharing supplier and the exchange flag. Online-only for this first version — offline queueing for batch entries is deferred, not silently unsupported without a plan.
+
+
+### D-038 — Delete Account Only Blocks on Owned Organizations
+
+Status: Accepted
+
+Correction to D-036: the team-conflict guard was checking ALL memberships regardless of role, so being a non-owner (Employee/etc.) member of someone else's organization with teammates incorrectly blocked deleting your own account. Fixed to only check organizations where the person is Owner — those are the only ones that would actually be orphaned by their departure. Non-owner memberships are simply soft-deleted alongside the account.

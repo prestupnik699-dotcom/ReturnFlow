@@ -11,7 +11,6 @@ Deno.serve(async (req) => {
     const anonKey = Deno.env.get('SUPABASE_ANON_KEY')!;
     const serviceRoleKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!;
 
-    // Scoped to the caller's own session, just to reliably identify who is asking.
     const callerClient = createClient(supabaseUrl, anonKey, {
       global: { headers: { Authorization: authHeader } },
     });
@@ -22,10 +21,6 @@ Deno.serve(async (req) => {
     }
 
     const authUserId = userData.user.id;
-
-    // Privileged client — bypasses RLS, and is the only way to actually
-    // delete an auth user (supabase.auth.admin.* requires the service role
-    // key, which must never reach the client).
     const adminClient = createClient(supabaseUrl, serviceRoleKey);
 
     const { data: profile, error: profileError } = await adminClient
@@ -40,7 +35,7 @@ Deno.serve(async (req) => {
 
     const { data: memberships, error: membershipsError } = await adminClient
       .from('memberships')
-      .select('id, organization_id, organizations(name)')
+      .select('id, organization_id, role, organizations(name)')
       .eq('profile_id', profile.id)
       .is('deleted_at', null);
 
@@ -48,7 +43,13 @@ Deno.serve(async (req) => {
       return new Response(JSON.stringify({ error: membershipsError.message }), { status: 500 });
     }
 
-    for (const membership of memberships ?? []) {
+    // Only orgs where this person is the OWNER can actually be "orphaned"
+    // by their departure — being a non-owner member of someone else's org
+    // with teammates is not a reason to block deleting your own account,
+    // you'd simply stop being a member there.
+    const ownedMemberships = (memberships ?? []).filter((m) => m.role === 'Owner');
+
+    for (const membership of ownedMemberships) {
       const { count, error: othersError } = await adminClient
         .from('memberships')
         .select('id', { count: 'exact', head: true })
@@ -62,22 +63,26 @@ Deno.serve(async (req) => {
 
       if (count && count > 0) {
         const orgName = (membership as unknown as { organizations?: { name: string } }).organizations?.name ?? '';
-        return new Response(
-          JSON.stringify({
-            error: 'HAS_TEAMMATES',
-            organizationName: orgName,
-          }),
-          { status: 400 },
-        );
+        return new Response(JSON.stringify({ error: 'HAS_TEAMMATES', organizationName: orgName }), { status: 400 });
       }
     }
 
-    // Safe to proceed — this profile is alone everywhere it belongs.
+    // Safe to proceed. Solo-owned orgs get deleted along with the account;
+    // memberships where this person was just a non-owner participant are
+    // simply soft-deleted, leaving those organizations untouched for
+    // everyone else.
     for (const membership of memberships ?? []) {
-      await adminClient
-        .from('organizations')
-        .update({ deleted_at: new Date().toISOString() })
-        .eq('id', membership.organization_id);
+      if (membership.role === 'Owner') {
+        await adminClient
+          .from('organizations')
+          .update({ deleted_at: new Date().toISOString() })
+          .eq('id', membership.organization_id);
+      } else {
+        await adminClient
+          .from('memberships')
+          .update({ deleted_at: new Date().toISOString() })
+          .eq('id', membership.id);
+      }
     }
 
     const { error: deleteError } = await adminClient.auth.admin.deleteUser(authUserId);
