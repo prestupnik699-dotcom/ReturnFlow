@@ -178,16 +178,43 @@ export function ReturnsScreen() {
 
         <View style={styles.statsRow}>
           <View style={styles.statCard}>
-            <Text style={styles.statNumber}>{totalCount}</Text>
-            <Text style={styles.statLabel}>{t('returns.statsTotal')}</Text>
+            <Text
+              style={styles.statNumber}
+              numberOfLines={1}
+              adjustsFontSizeToFit
+              minimumFontScale={0.6}
+            >
+              {totalCount}
+            </Text>
+            <Text style={styles.statLabel} numberOfLines={1}>
+              {t('returns.statsTotal')}
+            </Text>
           </View>
           <View style={styles.statCard}>
-            <Text style={styles.statNumber}>{pendingCount}</Text>
-            <Text style={styles.statLabel}>{t('returns.statsPending')}</Text>
+            <Text
+              style={styles.statNumber}
+              numberOfLines={1}
+              adjustsFontSizeToFit
+              minimumFontScale={0.6}
+            >
+              {pendingCount}
+            </Text>
+            <Text style={styles.statLabel} numberOfLines={1}>
+              {t('returns.statsPending')}
+            </Text>
           </View>
           <View style={styles.statCard}>
-            <Text style={styles.statNumber}>{urgentCount}</Text>
-            <Text style={styles.statLabel}>{t('returns.statsUrgent')}</Text>
+            <Text
+              style={styles.statNumber}
+              numberOfLines={1}
+              adjustsFontSizeToFit
+              minimumFontScale={0.6}
+            >
+              {urgentCount}
+            </Text>
+            <Text style={styles.statLabel} numberOfLines={1}>
+              {t('returns.statsUrgent')}
+            </Text>
           </View>
         </View>
 
@@ -462,17 +489,21 @@ function createStyles(theme: Theme) {
     },
     statCard: {
       flex: 1,
+      minHeight: 68,
       backgroundColor: theme.colors.card,
       borderRadius: theme.radius.md,
       paddingVertical: theme.spacing.md,
-      paddingHorizontal: theme.spacing.sm,
+      paddingHorizontal: theme.spacing.xs,
       alignItems: 'center',
+      justifyContent: 'center',
       gap: 2,
     },
     statNumber: {
       fontSize: theme.fontSizes.xl,
       fontWeight: theme.fontWeights.bold,
       color: theme.colors.textPrimary,
+      textAlign: 'center',
+      width: '100%',
     },
     statLabel: {
       fontSize: theme.fontSizes.xs,

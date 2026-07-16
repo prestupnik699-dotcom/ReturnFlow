@@ -1,4 +1,4 @@
-import { useQuery } from '@tanstack/react-query';
+import { useQuery, keepPreviousData } from '@tanstack/react-query';
 import { fetchReturns, type ReturnStatus } from '@/features/returns/services/returns.service';
 import { fetchPendingReturns } from '@/features/returns/services/offlineReturns.service';
 import { useMembershipStore } from '@/stores/membership.store';
@@ -26,5 +26,11 @@ export function useReturns(statusFilter?: ReturnStatus[]) {
       }
     },
     enabled: !!activeStoreId,
+    // Keep showing the previous filter's data while the new filter's
+    // query is in flight, instead of dropping to isLoading/blank between
+    // taps — that transient blank state was reading as a layout jump
+    // (gap between the chips and the first card) whenever a status tab
+    // hadn't been fetched yet this session.
+    placeholderData: keepPreviousData,
   });
 }
