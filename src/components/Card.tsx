@@ -29,7 +29,7 @@ function createStyles(theme: ReturnType<typeof useTheme>) {
       }),
     },
     card: {
-      backgroundColor: theme.colors.surface,
+      backgroundColor: theme.colors.card,
       borderRadius: theme.radius.lg,
       overflow: 'hidden',
     },

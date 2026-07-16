@@ -7,14 +7,17 @@ import {
   StyleSheet,
   Pressable,
   TextInput,
+  ScrollView,
 } from 'react-native';
 import { useTranslation } from 'react-i18next';
 import { useRouter } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
+import { LinearGradient } from 'expo-linear-gradient';
 import Animated, { FadeInDown } from 'react-native-reanimated';
 import { useTheme } from '@/theme/ThemeProvider';
 import { Screen } from '@/components/Screen';
 import { Button } from '@/components/Button';
+import { FAB } from '@/components/FAB';
 import { EmptyState } from '@/components/EmptyState';
 import { ConfirmDialog } from '@/components/ConfirmDialog';
 import { useTabBarClearance } from '@/hooks/useTabBarClearance';
@@ -59,6 +62,12 @@ export function ReturnsScreen() {
     isLoading,
     isError,
   } = useReturns(statusFilter ? [statusFilter] : undefined);
+  // Unfiltered fetch for the stat row so the totals always reflect the
+  // whole store regardless of which status chip is currently selected.
+  // Same query the default (no-filter) view already uses, so when no
+  // chip is active this is served from the same cache entry — no extra
+  // network round trip in the common case.
+  const { data: statsReturns } = useReturns();
   const { data: suppliers } = useSuppliers(false, 'name');
   const [formVisible, setFormVisible] = useState(false);
   const [batchVisible, setBatchVisible] = useState(false);
@@ -85,6 +94,10 @@ export function ReturnsScreen() {
       ? new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
       : new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime();
   });
+
+  const totalCount = statsReturns?.length ?? 0;
+  const pendingCount = statsReturns?.filter((r) => r.status === 'pending').length ?? 0;
+  const urgentCount = statsReturns?.filter((r) => r.status === 'urgent').length ?? 0;
 
   const statusLabels: Record<ReturnStatus, string> = {
     pending: t('returns.statusPending'),
@@ -152,6 +165,8 @@ export function ReturnsScreen() {
     });
   };
 
+  const canAdd = !!suppliers && suppliers.length > 0;
+
   if (!activeStoreId) {
     return (
       <Screen>
@@ -170,6 +185,21 @@ export function ReturnsScreen() {
           <Pressable style={styles.scanButton} onPress={() => router.push('/scanner')} hitSlop={8}>
             <Ionicons name="scan-outline" size={20} color={theme.colors.primary} />
           </Pressable>
+        </View>
+
+        <View style={styles.statsRow}>
+          <View style={styles.statCard}>
+            <Text style={[styles.statNumber, { color: theme.colors.accent }]}>{totalCount}</Text>
+            <Text style={styles.statLabel}>{t('returns.statsTotal')}</Text>
+          </View>
+          <View style={styles.statCard}>
+            <Text style={[styles.statNumber, { color: theme.colors.warning }]}>{pendingCount}</Text>
+            <Text style={styles.statLabel}>{t('returns.statsPending')}</Text>
+          </View>
+          <View style={styles.statCard}>
+            <Text style={[styles.statNumber, { color: theme.colors.danger }]}>{urgentCount}</Text>
+            <Text style={styles.statLabel}>{t('returns.statsUrgent')}</Text>
+          </View>
         </View>
 
         <View style={styles.searchRow}>
@@ -200,41 +230,41 @@ export function ReturnsScreen() {
         </View>
 
         {selectedSupplierName ? (
-          <Pressable style={styles.activeSupplierChip} onPress={() => setSupplierFilter(null)}>
-            <Text style={styles.activeSupplierChipText}>{selectedSupplierName}</Text>
-            <Ionicons name="close-circle" size={16} color={theme.colors.onPrimary} />
+          <Pressable style={styles.activeSupplierChipWrap} onPress={() => setSupplierFilter(null)}>
+            <LinearGradient
+              colors={[theme.colors.primary, theme.colors.primaryPressed]}
+              start={{ x: 0, y: 0 }}
+              end={{ x: 1, y: 1 }}
+              style={styles.activeSupplierChip}
+            >
+              <Text style={styles.activeSupplierChipText}>{selectedSupplierName}</Text>
+              <Ionicons name="close-circle" size={16} color={theme.colors.onPrimary} />
+            </LinearGradient>
           </Pressable>
         ) : null}
 
-        <View style={styles.filterRow}>
-          <Pressable
+        <ScrollView
+          horizontal
+          showsHorizontalScrollIndicator={false}
+          contentContainerStyle={styles.filterRow}
+        >
+          <FilterChip
+            label={t('returns.statusAll')}
+            active={statusFilter === null}
             onPress={() => setStatusFilter(null)}
-            style={[styles.filterChip, statusFilter === null && styles.filterChipActive]}
-          >
-            <Text
-              style={[styles.filterChipText, statusFilter === null && styles.filterChipTextActive]}
-            >
-              {t('returns.statusAll')}
-            </Text>
-          </Pressable>
+            theme={theme}
+          />
           {STATUSES.map((status) => (
-            <Pressable
+            <FilterChip
               key={status}
+              label={statusLabels[status]}
+              dotColor={statusColors[status]}
+              active={statusFilter === status}
               onPress={() => setStatusFilter(status)}
-              style={[styles.filterChip, statusFilter === status && styles.filterChipActive]}
-            >
-              <View style={[styles.filterDot, { backgroundColor: statusColors[status] }]} />
-              <Text
-                style={[
-                  styles.filterChipText,
-                  statusFilter === status && styles.filterChipTextActive,
-                ]}
-              >
-                {statusLabels[status]}
-              </Text>
-            </Pressable>
+              theme={theme}
+            />
           ))}
-        </View>
+        </ScrollView>
 
         {isLoading ? (
           <View style={styles.center}>
@@ -246,7 +276,10 @@ export function ReturnsScreen() {
           <FlatList
             data={sorted}
             keyExtractor={(item) => item.id}
-            contentContainerStyle={[styles.list, { paddingBottom: tabBarClearance }]}
+            contentContainerStyle={[
+              styles.list,
+              { paddingBottom: selectionMode ? tabBarClearance : tabBarClearance + 80 },
+            ]}
             showsVerticalScrollIndicator={false}
             ListEmptyComponent={<EmptyState icon="repeat-outline" title={t('returns.empty')} />}
             renderItem={({ item, index }) => (
@@ -267,14 +300,10 @@ export function ReturnsScreen() {
           />
         )}
 
-        <View
-          style={[
-            styles.footer,
-            selectionMode && styles.footerSelectionMode,
-            { paddingBottom: tabBarClearance },
-          ]}
-        >
-          {selectionMode ? (
+        {selectionMode ? (
+          <View
+            style={[styles.footer, styles.footerSelectionMode, { paddingBottom: tabBarClearance }]}
+          >
             <View style={styles.bulkBar}>
               <View style={styles.bulkBarTop}>
                 <Pressable style={styles.cancelButton} onPress={() => setSelectedIds([])}>
@@ -306,16 +335,17 @@ export function ReturnsScreen() {
                 />
               </View>
             </View>
-          ) : !suppliers || suppliers.length === 0 ? (
+          </View>
+        ) : !canAdd ? (
+          <View style={[styles.footer, { paddingBottom: tabBarClearance }]}>
             <Text style={styles.warningText}>{t('returns.noSuppliers')}</Text>
-          ) : (
-            <Button
-              label={t('returns.addButton')}
-              icon="add"
-              onPress={() => setFormVisible(true)}
-            />
-          )}
-        </View>
+          </View>
+        ) : (
+          <FAB
+            onPress={() => setFormVisible(true)}
+            style={[styles.fab, { bottom: tabBarClearance + theme.spacing.md }]}
+          />
+        )}
       </View>
 
       <ReturnFormSheet visible={formVisible} onClose={() => setFormVisible(false)} />
@@ -341,7 +371,73 @@ export function ReturnsScreen() {
   );
 }
 
-function createStyles(theme: ReturnType<typeof useTheme>) {
+type Theme = ReturnType<typeof useTheme>;
+
+function FilterChip({
+  label,
+  active,
+  onPress,
+  theme,
+  dotColor,
+}: {
+  label: string;
+  active: boolean;
+  onPress: () => void;
+  theme: Theme;
+  dotColor?: string;
+}) {
+  const styles = createChipStyles(theme);
+
+  if (active) {
+    return (
+      <Pressable onPress={onPress} style={styles.chipWrap}>
+        <LinearGradient
+          colors={[theme.colors.primary, theme.colors.primaryPressed]}
+          start={{ x: 0, y: 0 }}
+          end={{ x: 1, y: 1 }}
+          style={styles.chip}
+        >
+          <Text style={styles.chipTextActive}>{label}</Text>
+        </LinearGradient>
+      </Pressable>
+    );
+  }
+
+  return (
+    <Pressable onPress={onPress} style={[styles.chipWrap, styles.chip, styles.chipInactive]}>
+      {dotColor ? <View style={[styles.dot, { backgroundColor: dotColor }]} /> : null}
+      <Text style={styles.chipText}>{label}</Text>
+    </Pressable>
+  );
+}
+
+function createChipStyles(theme: Theme) {
+  return StyleSheet.create({
+    chipWrap: { marginRight: theme.spacing.sm },
+    chip: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      gap: 6,
+      borderRadius: theme.radius.full,
+      paddingHorizontal: theme.spacing.md,
+      paddingVertical: 10,
+    },
+    chipInactive: { backgroundColor: theme.colors.card },
+    dot: { width: 6, height: 6, borderRadius: 3 },
+    chipText: {
+      color: theme.colors.textSecondary,
+      fontSize: theme.fontSizes.sm,
+      fontWeight: theme.fontWeights.medium,
+    },
+    chipTextActive: {
+      color: theme.colors.onPrimary,
+      fontSize: theme.fontSizes.sm,
+      fontWeight: theme.fontWeights.semiBold,
+    },
+  });
+}
+
+function createStyles(theme: Theme) {
   return StyleSheet.create({
     container: { flex: 1 },
     center: { flex: 1, justifyContent: 'center', alignItems: 'center', padding: theme.spacing.xl },
@@ -365,13 +461,36 @@ function createStyles(theme: ReturnType<typeof useTheme>) {
       justifyContent: 'center',
     },
     emptyStateText: { color: theme.colors.textSecondary, textAlign: 'center' },
+    statsRow: {
+      flexDirection: 'row',
+      gap: theme.spacing.sm,
+      marginBottom: theme.spacing.md,
+    },
+    statCard: {
+      flex: 1,
+      backgroundColor: theme.colors.card,
+      borderRadius: theme.radius.md,
+      paddingVertical: theme.spacing.md,
+      paddingHorizontal: theme.spacing.sm,
+      alignItems: 'center',
+      gap: 2,
+    },
+    statNumber: {
+      fontSize: theme.fontSizes.xl,
+      fontWeight: theme.fontWeights.bold,
+    },
+    statLabel: {
+      fontSize: theme.fontSizes.xs,
+      color: theme.colors.textSecondary,
+      fontWeight: theme.fontWeights.medium,
+    },
     searchRow: {
       flexDirection: 'row',
       alignItems: 'center',
       gap: theme.spacing.sm,
       borderWidth: 1,
       borderColor: theme.colors.border,
-      backgroundColor: theme.colors.surface,
+      backgroundColor: theme.colors.card,
       borderRadius: theme.radius.md,
       paddingHorizontal: theme.spacing.md,
       marginBottom: theme.spacing.sm,
@@ -382,16 +501,14 @@ function createStyles(theme: ReturnType<typeof useTheme>) {
       color: theme.colors.textPrimary,
       fontSize: theme.fontSizes.md,
     },
+    activeSupplierChipWrap: { alignSelf: 'flex-start', marginBottom: theme.spacing.sm },
     activeSupplierChip: {
       flexDirection: 'row',
       alignItems: 'center',
-      alignSelf: 'flex-start',
       gap: 6,
-      backgroundColor: theme.colors.primary,
       borderRadius: theme.radius.full,
       paddingHorizontal: theme.spacing.md,
       paddingVertical: 6,
-      marginBottom: theme.spacing.sm,
     },
     activeSupplierChipText: {
       color: theme.colors.onPrimary,
@@ -399,29 +516,9 @@ function createStyles(theme: ReturnType<typeof useTheme>) {
       fontWeight: theme.fontWeights.semiBold,
     },
     filterRow: {
-      flexDirection: 'row',
-      flexWrap: 'wrap',
       alignItems: 'center',
-      gap: 8,
-      marginBottom: theme.spacing.md,
+      paddingBottom: theme.spacing.md,
     },
-    filterChip: {
-      flexDirection: 'row',
-      alignItems: 'center',
-      gap: 4,
-      backgroundColor: theme.colors.surfaceVariant,
-      borderRadius: theme.radius.full,
-      paddingHorizontal: 12,
-      paddingVertical: 6,
-    },
-    filterDot: { width: 6, height: 6, borderRadius: 3 },
-    filterChipActive: { backgroundColor: theme.colors.primary },
-    filterChipText: {
-      color: theme.colors.textSecondary,
-      fontSize: theme.fontSizes.xs,
-      fontWeight: theme.fontWeights.medium,
-    },
-    filterChipTextActive: { color: theme.colors.onPrimary, fontWeight: theme.fontWeights.semiBold },
     list: { gap: theme.spacing.sm },
     errorText: { color: theme.colors.danger, textAlign: 'center' },
     warningText: { color: theme.colors.warning, textAlign: 'center', fontSize: theme.fontSizes.sm },
@@ -429,6 +526,10 @@ function createStyles(theme: ReturnType<typeof useTheme>) {
     footerSelectionMode: {
       borderTopWidth: StyleSheet.hairlineWidth,
       borderTopColor: theme.colors.border,
+    },
+    fab: {
+      position: 'absolute',
+      right: 0,
     },
     bulkBar: { gap: theme.spacing.md },
     bulkBarTop: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' },
