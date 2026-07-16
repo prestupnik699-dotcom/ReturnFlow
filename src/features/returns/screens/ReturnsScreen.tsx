@@ -538,7 +538,7 @@ function createStyles(theme: Theme) {
       fontSize: theme.fontSizes.xs,
       fontWeight: theme.fontWeights.semiBold,
     },
-    filterScroll: { marginBottom: theme.spacing.sm },
+    filterScroll: { height: 44, flexGrow: 0, flexShrink: 0, marginBottom: theme.spacing.sm },
     filterRow: {
       alignItems: 'center',
     },
