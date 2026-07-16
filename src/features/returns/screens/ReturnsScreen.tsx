@@ -293,6 +293,7 @@ export function ReturnsScreen() {
           <FlatList
             data={sorted}
             keyExtractor={(item) => item.id}
+            style={styles.flatList}
             contentContainerStyle={[
               styles.list,
               { paddingBottom: selectionMode ? tabBarClearance : tabBarClearance + 80 },
@@ -409,25 +410,20 @@ function FilterChip({
 }) {
   const styles = createChipStyles(theme);
 
-  if (active) {
-    return (
-      <Pressable onPress={onPress} style={styles.chipWrap}>
-        <LinearGradient
-          colors={[theme.colors.primary, theme.colors.primaryPressed]}
-          start={{ x: 0, y: 0 }}
-          end={{ x: 1, y: 1 }}
-          style={styles.chip}
-        >
-          <Text style={styles.chipTextActive}>{label}</Text>
-        </LinearGradient>
-      </Pressable>
-    );
-  }
-
   return (
-    <Pressable onPress={onPress} style={[styles.chipWrap, styles.chip, styles.chipInactive]}>
-      {dotColor ? <View style={[styles.dot, { backgroundColor: dotColor }]} /> : null}
-      <Text style={styles.chipText}>{label}</Text>
+    <Pressable onPress={onPress} style={styles.chipWrap}>
+      <View style={[styles.chip, !active && styles.chipInactive]}>
+        {active ? (
+          <LinearGradient
+            colors={[theme.colors.primary, theme.colors.primaryPressed]}
+            start={{ x: 0, y: 0 }}
+            end={{ x: 1, y: 1 }}
+            style={StyleSheet.absoluteFill}
+          />
+        ) : null}
+        {dotColor && !active ? <View style={[styles.dot, { backgroundColor: dotColor }]} /> : null}
+        <Text style={active ? styles.chipTextActive : styles.chipText}>{label}</Text>
+      </View>
     </Pressable>
   );
 }
@@ -442,6 +438,7 @@ function createChipStyles(theme: Theme) {
       borderRadius: theme.radius.full,
       paddingHorizontal: theme.spacing.md,
       paddingVertical: 10,
+      overflow: 'hidden',
     },
     chipInactive: { backgroundColor: theme.colors.card },
     dot: { width: 6, height: 6, borderRadius: 3 },
@@ -546,6 +543,7 @@ function createStyles(theme: Theme) {
       alignItems: 'center',
     },
     list: { gap: theme.spacing.sm },
+    flatList: { flex: 1 },
     listEmptyGrow: { flexGrow: 1 },
     emptyWrap: { flex: 1, alignItems: 'center', justifyContent: 'center' },
     errorText: { color: theme.colors.danger, textAlign: 'center' },
