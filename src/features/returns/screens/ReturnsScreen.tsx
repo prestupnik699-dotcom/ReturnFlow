@@ -34,11 +34,7 @@ import {
 } from '@/features/returns/hooks/useBulkReturnActions';
 import { useHasRole } from '@/features/auth/hooks/usePermissions';
 import { useMembershipStore } from '@/stores/membership.store';
-import type {
-  ReturnItem,
-  ReturnStatus,
-  ReturnPriority,
-} from '@/features/returns/services/returns.service';
+import type { ReturnItem, ReturnStatus } from '@/features/returns/services/returns.service';
 
 const STATUSES: ReturnStatus[] = ['pending', 'urgent', 'returned', 'archived'];
 type SortMode = 'recent' | 'oldest';
@@ -104,13 +100,6 @@ export function ReturnsScreen() {
     urgent: t('returns.statusUrgent'),
     returned: t('returns.statusReturned'),
     archived: t('returns.statusArchived'),
-  };
-
-  const priorityColors: Record<ReturnPriority, string> = {
-    low: theme.colors.textSecondary,
-    normal: theme.colors.primary,
-    high: theme.colors.warning,
-    critical: theme.colors.danger,
   };
 
   const statusColors: Record<ReturnStatus, string> = {
@@ -189,15 +178,15 @@ export function ReturnsScreen() {
 
         <View style={styles.statsRow}>
           <View style={styles.statCard}>
-            <Text style={[styles.statNumber, { color: theme.colors.accent }]}>{totalCount}</Text>
+            <Text style={styles.statNumber}>{totalCount}</Text>
             <Text style={styles.statLabel}>{t('returns.statsTotal')}</Text>
           </View>
           <View style={styles.statCard}>
-            <Text style={[styles.statNumber, { color: theme.colors.warning }]}>{pendingCount}</Text>
+            <Text style={styles.statNumber}>{pendingCount}</Text>
             <Text style={styles.statLabel}>{t('returns.statsPending')}</Text>
           </View>
           <View style={styles.statCard}>
-            <Text style={[styles.statNumber, { color: theme.colors.danger }]}>{urgentCount}</Text>
+            <Text style={styles.statNumber}>{urgentCount}</Text>
             <Text style={styles.statLabel}>{t('returns.statsUrgent')}</Text>
           </View>
         </View>
@@ -247,6 +236,7 @@ export function ReturnsScreen() {
           horizontal
           showsHorizontalScrollIndicator={false}
           contentContainerStyle={styles.filterRow}
+          style={styles.filterScroll}
         >
           <FilterChip
             label={t('returns.statusAll')}
@@ -287,7 +277,6 @@ export function ReturnsScreen() {
                 <ReturnListRow
                   item={item}
                   statusLabels={statusLabels}
-                  priorityColors={priorityColors}
                   statusColors={statusColors}
                   pendingLabel={t('returns.pendingSync')}
                   onPress={() => handlePress(item)}
@@ -464,7 +453,7 @@ function createStyles(theme: Theme) {
     statsRow: {
       flexDirection: 'row',
       gap: theme.spacing.sm,
-      marginBottom: theme.spacing.md,
+      marginBottom: theme.spacing.sm,
     },
     statCard: {
       flex: 1,
@@ -478,6 +467,7 @@ function createStyles(theme: Theme) {
     statNumber: {
       fontSize: theme.fontSizes.xl,
       fontWeight: theme.fontWeights.bold,
+      color: theme.colors.textPrimary,
     },
     statLabel: {
       fontSize: theme.fontSizes.xs,
@@ -515,9 +505,9 @@ function createStyles(theme: Theme) {
       fontSize: theme.fontSizes.xs,
       fontWeight: theme.fontWeights.semiBold,
     },
+    filterScroll: { marginBottom: theme.spacing.sm },
     filterRow: {
       alignItems: 'center',
-      paddingBottom: theme.spacing.md,
     },
     list: { gap: theme.spacing.sm },
     errorText: { color: theme.colors.danger, textAlign: 'center' },

@@ -22,11 +22,7 @@ import {
   useArchiveReturn,
   useRestoreReturn,
 } from '@/features/returns/hooks/useReturnStatusActions';
-import type {
-  ReturnItem,
-  ReturnStatus,
-  ReturnPriority,
-} from '@/features/returns/services/returns.service';
+import type { ReturnItem, ReturnStatus } from '@/features/returns/services/returns.service';
 
 type ActionSpec = {
   label: string;
@@ -36,6 +32,12 @@ type ActionSpec = {
 };
 
 type Theme = ReturnType<typeof useTheme>;
+
+function formatDateTime(iso: string): string {
+  const d = new Date(iso);
+  const pad = (n: number) => String(n).padStart(2, '0');
+  return `${pad(d.getDate())}.${pad(d.getMonth() + 1)}.${d.getFullYear()} ${pad(d.getHours())}:${pad(d.getMinutes())}`;
+}
 
 // Watches its OWN panel's open-progress only — no left/right direction
 // enum involved anywhere, so the two actions structurally cannot get
@@ -141,7 +143,6 @@ function SelectionCheckbox({
 type Props = {
   item: ReturnItem;
   statusLabels: Record<ReturnStatus, string>;
-  priorityColors: Record<ReturnPriority, string>;
   statusColors: Record<ReturnStatus, string>;
   pendingLabel: string;
   onPress: () => void;
@@ -153,7 +154,6 @@ type Props = {
 export function ReturnListRow({
   item,
   statusLabels,
-  priorityColors,
   statusColors,
   pendingLabel,
   onPress,
@@ -231,40 +231,45 @@ export function ReturnListRow({
   const content = (
     <Pressable onPress={onPress} onLongPress={onLongPress}>
       <Card>
-        <View style={styles.row}>
-          {selectionMode ? (
-            <SelectionCheckbox
-              selected={selected}
-              color={theme.colors.primary}
-              inactiveColor={theme.colors.textSecondary}
-            />
-          ) : (
-            <View
-              style={[styles.priorityDot, { backgroundColor: priorityColors[item.priority] }]}
-            />
-          )}
-          <View style={styles.info}>
-            <Text style={styles.itemTitle} numberOfLines={1}>
-              {item.title}
-            </Text>
-            <Text style={styles.meta} numberOfLines={1}>
-              {item.supplierName} · ×{item.quantity}
-            </Text>
-          </View>
-          {item.pendingSync ? (
-            <View style={styles.pendingBadge}>
-              <Ionicons name="cloud-upload-outline" size={12} color={theme.colors.warning} />
-              <Text style={styles.pendingBadgeText}>{pendingLabel}</Text>
-            </View>
-          ) : (
-            <View
-              style={[styles.statusPill, { backgroundColor: statusColors[item.status] + '22' }]}
-            >
-              <Text style={[styles.statusPillText, { color: statusColors[item.status] }]}>
-                {statusLabels[item.status]}
+        <View style={styles.container}>
+          <View style={styles.topRow}>
+            {selectionMode ? (
+              <SelectionCheckbox
+                selected={selected}
+                color={theme.colors.primary}
+                inactiveColor={theme.colors.textSecondary}
+              />
+            ) : null}
+            <View style={styles.info}>
+              <Text style={styles.itemTitle} numberOfLines={1}>
+                {item.title}
+              </Text>
+              <Text style={styles.meta} numberOfLines={1}>
+                {item.supplierName} · ×{item.quantity}
               </Text>
             </View>
-          )}
+          </View>
+          <View style={styles.bottomRow}>
+            {item.pendingSync ? (
+              <View style={styles.pendingBadge}>
+                <Ionicons name="cloud-upload-outline" size={12} color={theme.colors.warning} />
+                <Text style={styles.pendingBadgeText}>{pendingLabel}</Text>
+              </View>
+            ) : (
+              <View
+                style={[styles.statusBadge, { backgroundColor: statusColors[item.status] + '1F' }]}
+              >
+                <View style={[styles.statusDot, { backgroundColor: statusColors[item.status] }]} />
+                <Text style={[styles.statusBadgeText, { color: statusColors[item.status] }]}>
+                  {statusLabels[item.status]}
+                </Text>
+              </View>
+            )}
+            <View style={styles.dateRow}>
+              <Ionicons name="calendar-outline" size={12} color={theme.colors.textSecondary} />
+              <Text style={styles.dateText}>{formatDateTime(item.createdAt)}</Text>
+            </View>
+          </View>
         </View>
       </Card>
     </Pressable>
@@ -292,13 +297,8 @@ export function ReturnListRow({
 
 function createStyles(theme: Theme) {
   return StyleSheet.create({
-    row: {
-      flexDirection: 'row',
-      alignItems: 'center',
-      gap: theme.spacing.md,
-      padding: theme.spacing.lg,
-    },
-    priorityDot: { width: 8, height: 8, borderRadius: 4 },
+    container: { padding: theme.spacing.lg, gap: theme.spacing.sm },
+    topRow: { flexDirection: 'row', alignItems: 'center', gap: theme.spacing.md },
     info: { flex: 1, gap: 4 },
     itemTitle: {
       fontSize: theme.fontSizes.md,
@@ -306,18 +306,29 @@ function createStyles(theme: Theme) {
       color: theme.colors.textPrimary,
     },
     meta: { fontSize: theme.fontSizes.sm, color: theme.colors.textSecondary },
-    statusPill: {
-      borderRadius: theme.radius.sm,
+    bottomRow: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      justifyContent: 'space-between',
+    },
+    statusBadge: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      gap: 6,
+      borderRadius: theme.radius.full,
       paddingHorizontal: theme.spacing.sm,
       paddingVertical: 4,
     },
-    statusPillText: { fontSize: theme.fontSizes.xs, fontWeight: theme.fontWeights.semiBold },
+    statusDot: { width: 6, height: 6, borderRadius: 3 },
+    statusBadgeText: { fontSize: theme.fontSizes.xs, fontWeight: theme.fontWeights.semiBold },
+    dateRow: { flexDirection: 'row', alignItems: 'center', gap: 4 },
+    dateText: { fontSize: theme.fontSizes.xs, color: theme.colors.textSecondary },
     pendingBadge: {
       flexDirection: 'row',
       alignItems: 'center',
       gap: 4,
       backgroundColor: theme.colors.warning + '22',
-      borderRadius: theme.radius.sm,
+      borderRadius: theme.radius.full,
       paddingHorizontal: theme.spacing.sm,
       paddingVertical: 4,
     },
