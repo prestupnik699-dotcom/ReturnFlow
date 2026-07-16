@@ -12,7 +12,7 @@ import { SafeAreaProvider } from 'react-native-safe-area-context';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import { KeyboardProvider } from 'react-native-keyboard-controller';
 import { queryClient } from '@/lib/query-client';
-import { ThemeProvider } from '@/theme/ThemeProvider';
+import { ThemeProvider, useTheme } from '@/theme/ThemeProvider';
 import { useSessionBootstrap } from '@/features/auth/hooks/useSessionBootstrap';
 import { useSyncOnReconnect } from '@/hooks/useSyncOnReconnect';
 import { useHandleAuthDeepLink } from '@/features/auth/hooks/useHandleAuthDeepLink';
@@ -80,6 +80,7 @@ function RootNavigator() {
   useHandleAuthDeepLink();
   usePushNotificationRegistration();
 
+  const theme = useTheme();
   const session = useAuthStore((state) => state.session);
   const isPasswordRecovery = useAuthStore((state) => state.isPasswordRecovery);
   const memberships = useMembershipStore((state) => state.memberships);
@@ -96,16 +97,21 @@ function RootNavigator() {
           flex: 1,
           alignItems: 'center',
           justifyContent: 'center',
-          backgroundColor: '#0F141B',
+          backgroundColor: theme.colors.background,
         }}
       >
-        <ActivityIndicator color="#6C5CE7" />
+        <ActivityIndicator color={theme.colors.primary} />
       </View>
     );
   }
 
   return (
-    <Stack screenOptions={{ headerShown: false }}>
+    <Stack
+      screenOptions={{
+        headerShown: false,
+        contentStyle: { backgroundColor: theme.colors.background },
+      }}
+    >
       <Stack.Protected guard={isPasswordRecovery}>
         <Stack.Screen name="(recovery)" />
       </Stack.Protected>
