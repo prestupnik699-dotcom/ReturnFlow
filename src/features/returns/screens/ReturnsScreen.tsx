@@ -171,9 +171,22 @@ export function ReturnsScreen() {
       <View style={styles.container}>
         <View style={styles.headerRow}>
           <Text style={styles.title}>{t('returns.title')}</Text>
-          <Pressable style={styles.scanButton} onPress={() => router.push('/scanner')} hitSlop={8}>
-            <Ionicons name="scan-outline" size={20} color={theme.colors.primary} />
-          </Pressable>
+          <View style={styles.headerActions}>
+            <Pressable
+              style={styles.headerIconButton}
+              onPress={() => setBatchVisible(true)}
+              hitSlop={8}
+            >
+              <Ionicons name="flash-outline" size={20} color={theme.colors.primary} />
+            </Pressable>
+            <Pressable
+              style={styles.headerIconButton}
+              onPress={() => router.push('/scanner')}
+              hitSlop={8}
+            >
+              <Ionicons name="scan-outline" size={20} color={theme.colors.primary} />
+            </Pressable>
+          </View>
         </View>
 
         <View style={styles.statsRow}>
@@ -233,9 +246,6 @@ export function ReturnsScreen() {
               size={18}
               color={supplierFilter ? theme.colors.primary : theme.colors.textSecondary}
             />
-          </Pressable>
-          <Pressable onPress={() => setBatchVisible(true)} hitSlop={8}>
-            <Ionicons name="flash-outline" size={18} color={theme.colors.textSecondary} />
           </Pressable>
           <Pressable
             onPress={() => setSortMode((s) => (s === 'recent' ? 'oldest' : 'recent'))}
@@ -470,7 +480,8 @@ function createStyles(theme: Theme) {
       fontWeight: theme.fontWeights.bold,
       color: theme.colors.textPrimary,
     },
-    scanButton: {
+    headerActions: { flexDirection: 'row', alignItems: 'center', gap: theme.spacing.sm },
+    headerIconButton: {
       width: 40,
       height: 40,
       borderRadius: theme.radius.full,

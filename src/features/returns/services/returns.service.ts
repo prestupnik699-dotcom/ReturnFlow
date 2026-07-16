@@ -4,6 +4,15 @@ import { fromCaughtError, type ServiceResult } from '@/lib/result';
 export type ReturnStatus = 'pending' | 'urgent' | 'returned' | 'archived';
 export type ReturnPriority = 'low' | 'normal' | 'high' | 'critical';
 
+// High/critical priority items are surfaced under the "Urgent" status tab
+// automatically — there is no separate manual "mark as urgent" action in
+// the UI, so priority is the only signal that can drive it. Only applies
+// to items still in play (pending/urgent); a returned or archived item
+// keeps its resolved status regardless of what priority it's edited to.
+export function initialStatusForPriority(priority: ReturnPriority): ReturnStatus {
+  return priority === 'high' || priority === 'critical' ? 'urgent' : 'pending';
+}
+
 export type ReturnItem = {
   id: string;
   organizationId: string;
@@ -135,6 +144,7 @@ export async function createReturn(input: CreateReturnInput): Promise<ServiceRes
       quantity: input.quantity,
       reason: input.reason || null,
       priority: input.priority,
+      status: initialStatusForPriority(input.priority),
       barcode: input.barcode || null,
       is_exchange: input.isExchange ?? false,
     })
@@ -156,12 +166,19 @@ type UpdateReturnInput = {
   priority: ReturnPriority;
   barcode?: string;
   isExchange?: boolean;
+  // The item's status BEFORE this edit. Used to decide whether the
+  // priority→status auto-promotion applies at all — a returned or
+  // archived item must never be silently reactivated to "urgent" just
+  // because someone bumped its priority while editing.
+  currentStatus: ReturnStatus;
 };
 
 export async function updateReturn(
   returnId: string,
   input: UpdateReturnInput,
 ): Promise<ServiceResult<ReturnItem>> {
+  const isResolved = input.currentStatus === 'returned' || input.currentStatus === 'archived';
+
   const { data, error } = await supabase
     .from('return_items')
     .update({
@@ -170,6 +187,7 @@ export async function updateReturn(
       quantity: input.quantity,
       reason: input.reason || null,
       priority: input.priority,
+      ...(isResolved ? {} : { status: initialStatusForPriority(input.priority) }),
       barcode: input.barcode || null,
       is_exchange: input.isExchange ?? false,
     })

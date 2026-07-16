@@ -40,7 +40,7 @@ export function ReturnFormSheet({
   const { data: suppliers } = useSuppliers(false, 'name');
   const isEditing = !!returnItem;
   const createMutation = useCreateReturn(suppliers ?? []);
-  const updateMutation = useUpdateReturn(returnItem?.id ?? '');
+  const updateMutation = useUpdateReturn(returnItem?.id ?? '', returnItem?.status ?? 'pending');
   const mutation = isEditing ? updateMutation : createMutation;
   const styles = createStyles(theme);
 

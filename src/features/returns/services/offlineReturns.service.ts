@@ -1,8 +1,8 @@
 import { enqueueOperation, getPendingOperations } from '@/lib/sync/syncQueue';
-import type {
-  ReturnItem,
-  ReturnPriority,
-  ReturnStatus,
+import {
+  initialStatusForPriority,
+  type ReturnItem,
+  type ReturnPriority,
 } from '@/features/returns/services/returns.service';
 
 export type CreateReturnQueuePayload = {
@@ -63,7 +63,7 @@ export async function fetchPendingReturns(storeId: string): Promise<ReturnItem[]
       quantity: payload.quantity,
       reason: payload.reason,
       comment: null,
-      status: 'pending' as ReturnStatus,
+      status: initialStatusForPriority(payload.priority),
       priority: payload.priority,
       barcode: payload.barcode || null,
       isExchange: payload.isExchange,
