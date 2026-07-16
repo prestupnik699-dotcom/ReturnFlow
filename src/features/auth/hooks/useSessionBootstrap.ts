@@ -35,46 +35,28 @@ export function useSessionBootstrap() {
 
   useEffect(() => {
     let isMounted = true;
-
-    async function loadInitialSession() {
-      const {
-        data: { session },
-      } = await supabase.auth.getSession();
-
-      if (!isMounted) return;
-
-      setSession(session);
-
-      if (session) {
-        try {
-          const profile = await fetchCurrentProfile();
-          if (isMounted) setProfile(profile);
-          if (profile) await bootstrapProfileContext(profile);
-        } catch (error) {
-          console.error('Failed to load profile context:', error);
-        }
-      }
-
-      if (isMounted) setInitializing(false);
-    }
-
-    loadInitialSession();
-
     const {
       data: { subscription },
-    } = supabase.auth.onAuthStateChange((_event, session) => {
+    } = supabase.auth.onAuthStateChange((event, session) => {
       setSession(session);
 
       if (session) {
         fetchCurrentProfile()
           .then(async (profile) => {
-            if (isMounted) setProfile(profile);
+            if (!isMounted) return;
+            setProfile(profile);
             if (profile) await bootstrapProfileContext(profile);
           })
-          .catch((error) => console.error('Failed to load profile context:', error));
+          .catch((error) => {
+            console.error('Failed to load profile context:', error);
+          })
+          .finally(() => {
+            if (isMounted && event === 'INITIAL_SESSION') setInitializing(false);
+          });
       } else {
         setProfile(null);
         useMembershipStore.getState().reset();
+        if (event === 'INITIAL_SESSION') setInitializing(false);
       }
     });
 
