@@ -269,9 +269,14 @@ export function ReturnsScreen() {
             contentContainerStyle={[
               styles.list,
               { paddingBottom: selectionMode ? tabBarClearance : tabBarClearance + 80 },
+              sorted.length === 0 && styles.listEmptyGrow,
             ]}
             showsVerticalScrollIndicator={false}
-            ListEmptyComponent={<EmptyState icon="repeat-outline" title={t('returns.empty')} />}
+            ListEmptyComponent={
+              <View style={styles.emptyWrap}>
+                <EmptyState icon="repeat-outline" title={t('returns.empty')} />
+              </View>
+            }
             renderItem={({ item, index }) => (
               <Animated.View entering={FadeInDown.delay(index * 50).duration(250)}>
                 <ReturnListRow
@@ -510,6 +515,8 @@ function createStyles(theme: Theme) {
       alignItems: 'center',
     },
     list: { gap: theme.spacing.sm },
+    listEmptyGrow: { flexGrow: 1 },
+    emptyWrap: { flex: 1, alignItems: 'center', justifyContent: 'center' },
     errorText: { color: theme.colors.danger, textAlign: 'center' },
     warningText: { color: theme.colors.warning, textAlign: 'center', fontSize: theme.fontSizes.sm },
     footer: { paddingTop: theme.spacing.md },
