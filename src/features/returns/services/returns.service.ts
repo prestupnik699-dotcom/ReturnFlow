@@ -153,6 +153,37 @@ export async function fetchReturnCountsByStore(
   return { success: true, data: counts };
 }
 
+// Same aggregation pattern as fetchReturnCountsByStore, grouped by
+// supplier instead — used by the Suppliers screen's stat badges.
+export async function fetchReturnCountsBySupplier(
+  organizationId: string,
+): Promise<ServiceResult<StoreReturnCounts>> {
+  const { data, error } = await supabase
+    .from('return_items')
+    .select('supplier_id, status')
+    .eq('organization_id', organizationId)
+    .is('deleted_at', null)
+    .neq('status', 'archived');
+
+  if (error) {
+    return fromCaughtError(error, 'FETCH_SUPPLIER_RETURN_COUNTS_FAILED');
+  }
+
+  const rows = data as unknown as { supplier_id: string; status: ReturnStatus }[];
+  const counts: StoreReturnCounts = {};
+
+  for (const row of rows) {
+    const existing = counts[row.supplier_id] ?? { total: 0, urgent: 0 };
+    existing.total += 1;
+    if (row.status === 'urgent') {
+      existing.urgent += 1;
+    }
+    counts[row.supplier_id] = existing;
+  }
+
+  return { success: true, data: counts };
+}
+
 type CreateReturnInput = {
   organizationId: string;
   storeId: string;
