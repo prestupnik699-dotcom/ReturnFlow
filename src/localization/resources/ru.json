@@ -142,7 +142,15 @@
     "deleteConfirmMessage": "Магазин будет удалён. Действие необратимо.",
     "errors": { "nameTooShort": "Слишком короткое название" },
     "activeStoreHint": "Нажмите на магазин, чтобы отредактировать, на кружок — чтобы сделать активным",
-    "noAddress": "Адрес не указан"
+    "noAddress": "Адрес не указан",
+    "summaryStores": "Магазинов",
+    "summaryReturns": "Возвратов",
+    "filterAll": "Все",
+    "filterAttention": "Требуют внимания",
+    "returnsCount": "{{count}} возвратов",
+    "attentionBadge": "{{count}} срочных",
+    "currentBadge": "Текущий",
+    "deleteAction": "Удалить"
   },
   "suppliers": {
     "title": "Поставщики",

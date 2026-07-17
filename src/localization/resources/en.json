@@ -142,7 +142,15 @@
     "deleteConfirmMessage": "This will delete the store. This cannot be undone.",
     "errors": { "nameTooShort": "Name is too short" },
     "activeStoreHint": "Tap a store to edit it, tap the circle to make it your active store",
-    "noAddress": "No address specified"
+    "noAddress": "No address specified",
+    "summaryStores": "Stores",
+    "summaryReturns": "Returns",
+    "filterAll": "All",
+    "filterAttention": "Needs attention",
+    "returnsCount": "{{count}} returns",
+    "attentionBadge": "{{count}} urgent",
+    "currentBadge": "Current",
+    "deleteAction": "Delete"
   },
   "suppliers": {
     "title": "Suppliers",

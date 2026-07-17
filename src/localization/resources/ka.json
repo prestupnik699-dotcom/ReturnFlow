@@ -142,7 +142,15 @@
     "deleteConfirmMessage": "ეს წაშლის მაღაზიას. მოქმედება შეუქცევადია.",
     "errors": { "nameTooShort": "სახელი ძალიან მოკლეა" },
     "activeStoreHint": "შეეხეთ მაღაზიას რედაქტირებისთვის, შეეხეთ წრეს — რომ დანიშნოთ აქტიურ მაღაზიად",
-    "noAddress": "მისამართი არ არის მითითებული"
+    "noAddress": "მისამართი არ არის მითითებული",
+    "summaryStores": "მაღაზია",
+    "summaryReturns": "დაბრუნება",
+    "filterAll": "ყველა",
+    "filterAttention": "საჭიროებს ყურადღებას",
+    "returnsCount": "{{count}} დაბრუნება",
+    "attentionBadge": "{{count}} სასწრაფო",
+    "currentBadge": "მიმდინარე",
+    "deleteAction": "წაშლა"
   },
   "suppliers": {
     "title": "მომწოდებლები",
