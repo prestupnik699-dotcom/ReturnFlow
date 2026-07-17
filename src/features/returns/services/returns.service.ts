@@ -119,6 +119,40 @@ export async function fetchReturnById(returnId: string): Promise<ServiceResult<R
   return { success: true, data: mapReturn(data as unknown as ReturnItemRow) };
 }
 
+export type StoreReturnCounts = Record<string, { total: number; urgent: number }>;
+
+// One aggregated query per organization instead of one query per store —
+// used by the Stores screen to show each store's return count and
+// whether it has anything urgent, without an N+1 fetch per card.
+export async function fetchReturnCountsByStore(
+  organizationId: string,
+): Promise<ServiceResult<StoreReturnCounts>> {
+  const { data, error } = await supabase
+    .from('return_items')
+    .select('store_id, status')
+    .eq('organization_id', organizationId)
+    .is('deleted_at', null)
+    .neq('status', 'archived');
+
+  if (error) {
+    return fromCaughtError(error, 'FETCH_STORE_RETURN_COUNTS_FAILED');
+  }
+
+  const rows = data as unknown as { store_id: string; status: ReturnStatus }[];
+  const counts: StoreReturnCounts = {};
+
+  for (const row of rows) {
+    const existing = counts[row.store_id] ?? { total: 0, urgent: 0 };
+    existing.total += 1;
+    if (row.status === 'urgent') {
+      existing.urgent += 1;
+    }
+    counts[row.store_id] = existing;
+  }
+
+  return { success: true, data: counts };
+}
+
 type CreateReturnInput = {
   organizationId: string;
   storeId: string;

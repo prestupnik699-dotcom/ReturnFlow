@@ -360,24 +360,32 @@ function createQuickActionStyles(theme: Theme) {
   return StyleSheet.create({
     tile: {
       flex: 1,
-      minHeight: 92,
+      minHeight: 108,
       backgroundColor: theme.colors.card,
       borderRadius: theme.radius.md,
-      paddingVertical: theme.spacing.md,
+      paddingTop: theme.spacing.md,
+      paddingBottom: theme.spacing.sm,
       paddingHorizontal: 4,
       alignItems: 'center',
-      justifyContent: 'center',
-      gap: 6,
+      justifyContent: 'flex-start',
+      gap: 8,
     },
     tileIconWrap: {
-      width: 40,
-      height: 40,
+      width: 44,
+      height: 44,
       borderRadius: theme.radius.full,
       backgroundColor: theme.colors.primary + '15',
       alignItems: 'center',
       justifyContent: 'center',
     },
     tileLabel: {
+      // Fixed to exactly two lines' worth of height, regardless of
+      // whether this particular label actually wraps to one line or
+      // two — otherwise a one-line label (e.g. "Сканер") sits shorter
+      // than a two-line one (e.g. "Быстрая запись"), and since the
+      // tile centers its content as a block, the icon above ends up at
+      // a different height from tile to tile.
+      height: 28,
       fontSize: 11,
       lineHeight: 14,
       fontWeight: theme.fontWeights.medium,
