@@ -305,14 +305,14 @@
     "skip": "Skip"
   },
   "dashboard": {
-    "greetingMorning": "Good morning, {{name}} 👋",
-    "greetingDay": "Good afternoon, {{name}} 👋",
-    "greetingEvening": "Good evening, {{name}} 👋",
-    "greetingNight": "Good night, {{name}} 👋",
+    "greetingMorning": "Good morning, {{name}}",
+    "greetingDay": "Good afternoon, {{name}}",
+    "greetingEvening": "Good evening, {{name}}",
+    "greetingNight": "Good night, {{name}}",
     "subtitle": "Here's what's happening today",
     "overviewTotal": "Total returns",
     "overviewToday": "Today",
-    "actionCreateReturn": "New return",
+    "actionCreateReturn": "Return",
     "actionScanner": "Scanner",
     "actionStores": "Stores",
     "actionSuppliers": "Suppliers",
@@ -329,6 +329,9 @@
     "timeMinutesAgo": "{{count}}m ago",
     "timeHoursAgo": "{{count}}h ago",
     "timeDaysAgo": "{{count}}d ago",
-    "emptyTitle": "No returns yet"
+    "emptyTitle": "No returns yet",
+    "noStoreTitle": "Pick a store first",
+    "noStoreMessage": "Add a store or select an active one in Stores — then your returns data will show up here",
+    "noStoreButton": "Go to stores"
   }
 }

@@ -305,14 +305,14 @@
     "skip": "Пропустить"
   },
   "dashboard": {
-    "greetingMorning": "Доброе утро, {{name}} 👋",
-    "greetingDay": "Добрый день, {{name}} 👋",
-    "greetingEvening": "Добрый вечер, {{name}} 👋",
-    "greetingNight": "Доброй ночи, {{name}} 👋",
+    "greetingMorning": "Доброе утро, {{name}}",
+    "greetingDay": "Добрый день, {{name}}",
+    "greetingEvening": "Добрый вечер, {{name}}",
+    "greetingNight": "Доброй ночи, {{name}}",
     "subtitle": "Вот что происходит сегодня",
     "overviewTotal": "Всего возвратов",
     "overviewToday": "Сегодня",
-    "actionCreateReturn": "Создать возврат",
+    "actionCreateReturn": "Возврат",
     "actionScanner": "Сканер",
     "actionStores": "Магазины",
     "actionSuppliers": "Поставщики",
@@ -329,6 +329,9 @@
     "timeMinutesAgo": "{{count}} мин назад",
     "timeHoursAgo": "{{count}} ч назад",
     "timeDaysAgo": "{{count}} дн назад",
-    "emptyTitle": "Пока нет ни одного возврата"
+    "emptyTitle": "Пока нет ни одного возврата",
+    "noStoreTitle": "Сначала выберите магазин",
+    "noStoreMessage": "Добавьте магазин или выберите активный в разделе «Магазины» — тогда здесь появятся данные по возвратам",
+    "noStoreButton": "Перейти к магазинам"
   }
 }

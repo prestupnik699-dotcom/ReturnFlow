@@ -13,6 +13,7 @@ import { EmptyState } from '@/components/EmptyState';
 import { useTabBarClearance } from '@/hooks/useTabBarClearance';
 import { useAuthStore } from '@/stores/auth.store';
 import { useLanguageStore } from '@/stores/language.store';
+import { useMembershipStore } from '@/stores/membership.store';
 import { useReturns } from '@/features/returns/hooks/useReturns';
 import { useWeeklyActivity } from '@/features/statistics/hooks/useWeeklyActivity';
 import { usePendingSyncCount } from '@/features/statistics/hooks/usePendingSyncCount';
@@ -37,6 +38,7 @@ export function DashboardScreen() {
   const tabBarClearance = useTabBarClearance();
   const profile = useAuthStore((state) => state.profile);
   const language = useLanguageStore((state) => state.language);
+  const activeStoreId = useMembershipStore((state) => state.activeStoreId);
   const unreadCount = useUnreadCount();
   const [formVisible, setFormVisible] = useState(false);
   const styles = createStyles(theme);
@@ -84,6 +86,29 @@ export function DashboardScreen() {
     return new Intl.DateTimeFormat(locale, { weekday: 'short' }).format(d);
   };
 
+  // No active store yet — this isn't "no returns", it's a setup step the
+  // person hasn't completed. Say that plainly and point at the fix,
+  // rather than showing a generic empty-returns state that implies data
+  // just hasn't been created yet.
+  if (!activeStoreId) {
+    return (
+      <Screen>
+        <View style={styles.emptyWrap}>
+          <EmptyState
+            icon="storefront-outline"
+            title={t('dashboard.noStoreTitle')}
+            message={t('dashboard.noStoreMessage')}
+          />
+          <Button
+            label={t('dashboard.noStoreButton')}
+            icon="arrow-forward"
+            onPress={() => router.push('/stores')}
+          />
+        </View>
+      </Screen>
+    );
+  }
+
   if (isLoading) {
     return (
       <Screen>
@@ -123,7 +148,10 @@ export function DashboardScreen() {
           </View>
         </View>
 
-        <Text style={styles.greeting}>{greeting}</Text>
+        <View style={styles.greetingRow}>
+          <Ionicons name="hand-left-outline" size={24} color={theme.colors.textPrimary} />
+          <Text style={styles.greeting}>{greeting}</Text>
+        </View>
         <Text style={styles.subtitle}>{t('dashboard.subtitle')}</Text>
 
         {totalCount === 0 ? (
@@ -313,7 +341,7 @@ function QuickAction({
       <View style={styles.tileIconWrap}>
         <Ionicons name={icon} size={22} color={theme.colors.primary} />
       </View>
-      <Text style={styles.tileLabel} numberOfLines={1}>
+      <Text style={styles.tileLabel} numberOfLines={2}>
         {label}
       </Text>
     </Pressable>
@@ -324,10 +352,13 @@ function createQuickActionStyles(theme: Theme) {
   return StyleSheet.create({
     tile: {
       flex: 1,
+      minHeight: 92,
       backgroundColor: theme.colors.card,
       borderRadius: theme.radius.md,
       paddingVertical: theme.spacing.md,
+      paddingHorizontal: 4,
       alignItems: 'center',
+      justifyContent: 'center',
       gap: 6,
     },
     tileIconWrap: {
@@ -339,9 +370,11 @@ function createQuickActionStyles(theme: Theme) {
       justifyContent: 'center',
     },
     tileLabel: {
-      fontSize: theme.fontSizes.xs,
+      fontSize: 11,
+      lineHeight: 14,
       fontWeight: theme.fontWeights.medium,
       color: theme.colors.textPrimary,
+      textAlign: 'center',
     },
   });
 }
@@ -437,11 +470,16 @@ function createStyles(theme: Theme) {
       borderWidth: 1.5,
       borderColor: theme.colors.background,
     },
+    greetingRow: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      gap: theme.spacing.sm,
+      marginTop: theme.spacing.md,
+    },
     greeting: {
       fontSize: theme.fontSizes['2xl'],
       fontWeight: theme.fontWeights.bold,
       color: theme.colors.textPrimary,
-      marginTop: theme.spacing.md,
     },
     subtitle: { fontSize: theme.fontSizes.sm, color: theme.colors.textSecondary },
     emptyWrap: { alignItems: 'center', gap: theme.spacing.lg, paddingTop: theme.spacing['3xl'] },

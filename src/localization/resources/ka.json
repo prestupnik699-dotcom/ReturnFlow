@@ -305,14 +305,14 @@
     "skip": "გამოტოვება"
   },
   "dashboard": {
-    "greetingMorning": "დილა მშვიდობისა, {{name}} 👋",
-    "greetingDay": "დღე მშვიდობისა, {{name}} 👋",
-    "greetingEvening": "საღამო მშვიდობისა, {{name}} 👋",
-    "greetingNight": "ღამე მშვიდობისა, {{name}} 👋",
+    "greetingMorning": "დილა მშვიდობისა, {{name}}",
+    "greetingDay": "დღე მშვიდობისა, {{name}}",
+    "greetingEvening": "საღამო მშვიდობისა, {{name}}",
+    "greetingNight": "ღამე მშვიდობისა, {{name}}",
     "subtitle": "აი, რა ხდება დღეს",
     "overviewTotal": "სულ დაბრუნებები",
     "overviewToday": "დღეს",
-    "actionCreateReturn": "ახალი დაბრუნება",
+    "actionCreateReturn": "დაბრუნება",
     "actionScanner": "სკანერი",
     "actionStores": "მაღაზიები",
     "actionSuppliers": "მომწოდებლები",
@@ -329,6 +329,9 @@
     "timeMinutesAgo": "{{count}} წთ წინ",
     "timeHoursAgo": "{{count}} სთ წინ",
     "timeDaysAgo": "{{count}} დღის წინ",
-    "emptyTitle": "დაბრუნებები ჯერ არ არის"
+    "emptyTitle": "დაბრუნებები ჯერ არ არის",
+    "noStoreTitle": "ჯერ აირჩიეთ მაღაზია",
+    "noStoreMessage": "დაამატეთ მაღაზია ან აირჩიეთ აქტიური განყოფილება „მაღაზიები“-ში — მაშინ აქ გამოჩნდება დაბრუნებების მონაცემები",
+    "noStoreButton": "მაღაზიებზე გადასვლა"
   }
 }
