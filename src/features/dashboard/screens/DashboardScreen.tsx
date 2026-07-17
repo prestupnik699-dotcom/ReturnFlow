@@ -19,6 +19,7 @@ import { useWeeklyActivity } from '@/features/statistics/hooks/useWeeklyActivity
 import { usePendingSyncCount } from '@/features/statistics/hooks/usePendingSyncCount';
 import { useUnreadCount } from '@/features/notifications/hooks/useUnreadCount';
 import { ReturnFormSheet } from '@/features/returns/screens/ReturnFormSheet';
+import { BatchReturnSheet } from '@/features/returns/screens/BatchReturnSheet';
 import type { ReturnItem } from '@/features/returns/services/returns.service';
 
 const LOCALE_MAP: Record<string, string> = { ka: 'ka-GE', en: 'en-US', ru: 'ru-RU' };
@@ -41,6 +42,7 @@ export function DashboardScreen() {
   const activeStoreId = useMembershipStore((state) => state.activeStoreId);
   const unreadCount = useUnreadCount();
   const [formVisible, setFormVisible] = useState(false);
+  const [batchVisible, setBatchVisible] = useState(false);
   const styles = createStyles(theme);
 
   const { data: allReturns, isLoading } = useReturns();
@@ -149,8 +151,8 @@ export function DashboardScreen() {
         </View>
 
         <View style={styles.greetingRow}>
-          <Ionicons name="hand-left-outline" size={24} color={theme.colors.textPrimary} />
           <Text style={styles.greeting}>{greeting}</Text>
+          <Ionicons name="hand-left-outline" size={22} color={theme.colors.textPrimary} />
         </View>
         <Text style={styles.subtitle}>{t('dashboard.subtitle')}</Text>
 
@@ -198,15 +200,15 @@ export function DashboardScreen() {
                 theme={theme}
               />
               <QuickAction
-                icon="storefront-outline"
-                label={t('dashboard.actionStores')}
-                onPress={() => router.push('/stores')}
+                icon="flash-outline"
+                label={t('dashboard.actionBatch')}
+                onPress={() => setBatchVisible(true)}
                 theme={theme}
               />
               <QuickAction
-                icon="cube-outline"
-                label={t('dashboard.actionSuppliers')}
-                onPress={() => router.push('/suppliers')}
+                icon="bar-chart-outline"
+                label={t('dashboard.actionStatistics')}
+                onPress={() => router.push('/statistics')}
                 theme={theme}
               />
             </View>
@@ -318,6 +320,7 @@ export function DashboardScreen() {
       </ScrollView>
 
       <ReturnFormSheet visible={formVisible} onClose={() => setFormVisible(false)} />
+      <BatchReturnSheet visible={batchVisible} onClose={() => setBatchVisible(false)} />
     </Screen>
   );
 }
