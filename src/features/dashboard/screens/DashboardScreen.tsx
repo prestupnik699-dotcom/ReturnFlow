@@ -150,7 +150,12 @@ export function DashboardScreen() {
           </View>
         </View>
 
-        <Text style={styles.greeting}>
+        <Text
+          style={styles.greeting}
+          numberOfLines={language === 'ka' ? 1 : undefined}
+          adjustsFontSizeToFit={language === 'ka'}
+          minimumFontScale={0.75}
+        >
           {greeting}{' '}
           <Ionicons name="hand-left-outline" size={20} color={theme.colors.textPrimary} />
         </Text>
