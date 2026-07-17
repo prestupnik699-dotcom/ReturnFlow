@@ -150,10 +150,10 @@ export function DashboardScreen() {
           </View>
         </View>
 
-        <View style={styles.greetingRow}>
-          <Text style={styles.greeting}>{greeting}</Text>
-          <Ionicons name="hand-left-outline" size={22} color={theme.colors.textPrimary} />
-        </View>
+        <Text style={styles.greeting}>
+          {greeting}{' '}
+          <Ionicons name="hand-left-outline" size={20} color={theme.colors.textPrimary} />
+        </Text>
         <Text style={styles.subtitle}>{t('dashboard.subtitle')}</Text>
 
         {totalCount === 0 ? (
@@ -483,6 +483,7 @@ function createStyles(theme: Theme) {
       fontSize: theme.fontSizes['2xl'],
       fontWeight: theme.fontWeights.bold,
       color: theme.colors.textPrimary,
+      marginTop: theme.spacing.md,
     },
     subtitle: { fontSize: theme.fontSizes.sm, color: theme.colors.textSecondary },
     emptyWrap: { alignItems: 'center', gap: theme.spacing.lg, paddingTop: theme.spacing['3xl'] },
