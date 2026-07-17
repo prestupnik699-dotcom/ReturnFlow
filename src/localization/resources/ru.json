@@ -170,7 +170,14 @@
     "deleteConfirmMessage": "Поставщик будет удалён. Действие необратимо.",
     "errors": { "nameTooShort": "Слишком короткое название", "emailInvalid": "Некорректный email" },
     "sortByName": "По названию",
-    "sortByRecent": "Недавно добавленные"
+    "sortByRecent": "Недавно добавленные",
+    "summarySuppliers": "Поставщиков",
+    "summaryReturns": "Возвратов",
+    "filterAll": "Все",
+    "filterAttention": "Требуют внимания",
+    "returnsCount": "{{count}} возвратов",
+    "attentionBadge": "{{count}} срочных",
+    "deleteAction": "Удалить"
   },
   "returns": {
     "title": "Возвраты",

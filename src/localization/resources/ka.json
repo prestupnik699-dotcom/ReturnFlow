@@ -170,7 +170,14 @@
     "deleteConfirmMessage": "ეს წაშლის მომწოდებელს. მოქმედება შეუქცევადია.",
     "errors": { "nameTooShort": "სახელი ძალიან მოკლეა", "emailInvalid": "არასწორი ელფოსტა" },
     "sortByName": "სახელით",
-    "sortByRecent": "ბოლოს დამატებული"
+    "sortByRecent": "ბოლოს დამატებული",
+    "summarySuppliers": "მომწოდებელი",
+    "summaryReturns": "დაბრუნება",
+    "filterAll": "ყველა",
+    "filterAttention": "საჭიროებს ყურადღებას",
+    "returnsCount": "{{count}} დაბრუნება",
+    "attentionBadge": "{{count}} სასწრაფო",
+    "deleteAction": "წაშლა"
   },
   "returns": {
     "title": "დაბრუნებები",

@@ -7,47 +7,55 @@ import {
   StyleSheet,
   Pressable,
   TextInput,
+  ScrollView,
 } from 'react-native';
 import { useTranslation } from 'react-i18next';
 import { Ionicons } from '@expo/vector-icons';
-import { useTabBarClearance } from '@/hooks/useTabBarClearance';
+import { LinearGradient } from 'expo-linear-gradient';
 import Animated, { FadeInDown } from 'react-native-reanimated';
+import { useTabBarClearance } from '@/hooks/useTabBarClearance';
 import { useTheme } from '@/theme/ThemeProvider';
 import { Screen } from '@/components/Screen';
-import { PressableScale } from '@/components/PressableScale';
-import { Card } from '@/components/Card';
-import { Button } from '@/components/Button';
-import { RequireRole } from '@/components/RequireRole';
+import { FAB } from '@/components/FAB';
+import { EmptyState } from '@/components/EmptyState';
 import { ConfirmDialog } from '@/components/ConfirmDialog';
+import { useHasRole } from '@/features/auth/hooks/usePermissions';
 import { useSuppliers } from '@/features/suppliers/hooks/useSuppliers';
 import {
   useDeleteSupplier,
   useToggleSupplierFavorite,
 } from '@/features/suppliers/hooks/useSupplierMutations';
+import { useSupplierReturnCounts } from '@/features/suppliers/hooks/useSupplierReturnCounts';
 import { SupplierFormSheet } from '@/features/suppliers/screens/SupplierFormSheet';
+import { SupplierListRow } from '@/features/suppliers/components/SupplierListRow';
 import type { Supplier, SupplierSort } from '@/features/suppliers/services/suppliers.service';
 
 const EDIT_ROLES = ['Owner', 'Administrator', 'StoreManager', 'Receiver'] as const;
+type FilterMode = 'all' | 'favorites' | 'attention';
 
 export function SuppliersScreen() {
   const theme = useTheme();
   const { t } = useTranslation();
   const tabBarClearance = useTabBarClearance();
+  const canAdd = useHasRole([...EDIT_ROLES]);
   const [searchInput, setSearchInput] = useState('');
-  const [favoritesOnly, setFavoritesOnly] = useState(false);
+  const [filterMode, setFilterMode] = useState<FilterMode>('all');
   const [sort, setSort] = useState<SupplierSort>('name');
-  const { data: allSuppliers, isLoading, isError } = useSuppliers(favoritesOnly, sort);
-
-  const query = searchInput.trim().toLowerCase();
-  const suppliers = query
-    ? allSuppliers?.filter((s) => s.name.toLowerCase().includes(query))
-    : allSuppliers;
+  const { data: allSuppliers, isLoading, isError } = useSuppliers(filterMode === 'favorites', sort);
+  const { data: returnCounts } = useSupplierReturnCounts();
   const deleteMutation = useDeleteSupplier();
   const favoriteMutation = useToggleSupplierFavorite();
   const [formVisible, setFormVisible] = useState(false);
   const [editingId, setEditingId] = useState<string | null>(null);
   const [pendingDelete, setPendingDelete] = useState<Supplier | null>(null);
   const styles = createStyles(theme);
+
+  const query = searchInput.trim().toLowerCase();
+  const filtered = (allSuppliers ?? [])
+    .filter((s) => !query || s.name.toLowerCase().includes(query))
+    .filter((s) => filterMode !== 'attention' || (returnCounts?.[s.id]?.urgent ?? 0) > 0);
+
+  const totalReturns = Object.values(returnCounts ?? {}).reduce((sum, c) => sum + c.total, 0);
 
   const handleAdd = () => {
     setEditingId(null);
@@ -64,10 +72,48 @@ export function SuppliersScreen() {
     deleteMutation.mutate(pendingDelete.id, { onSuccess: () => setPendingDelete(null) });
   };
 
+  if (isLoading) {
+    return (
+      <Screen>
+        <View style={styles.center}>
+          <ActivityIndicator color={theme.colors.primary} />
+        </View>
+      </Screen>
+    );
+  }
+
   return (
     <Screen>
       <View style={styles.container}>
-        <Text style={styles.title}>{t('suppliers.title')}</Text>
+        <View style={styles.headerRow}>
+          <Text style={styles.title}>{t('suppliers.title')}</Text>
+          <Pressable
+            style={styles.sortButton}
+            onPress={() => setSort((s) => (s === 'name' ? 'recent' : 'name'))}
+            hitSlop={8}
+          >
+            <Ionicons name="swap-vertical" size={18} color={theme.colors.primary} />
+          </Pressable>
+        </View>
+
+        <LinearGradient
+          colors={[theme.colors.card, theme.colors.surfaceVariant]}
+          start={{ x: 0, y: 0 }}
+          end={{ x: 1, y: 1 }}
+          style={styles.summaryCard}
+        >
+          <View style={styles.summaryStat}>
+            <Ionicons name="cube-outline" size={18} color={theme.colors.accent} />
+            <Text style={styles.summaryValue}>{allSuppliers?.length ?? 0}</Text>
+            <Text style={styles.summaryLabel}>{t('suppliers.summarySuppliers')}</Text>
+          </View>
+          <View style={styles.summaryDivider} />
+          <View style={styles.summaryStat}>
+            <Ionicons name="repeat-outline" size={18} color={theme.colors.accent} />
+            <Text style={styles.summaryValue}>{totalReturns}</Text>
+            <Text style={styles.summaryLabel}>{t('suppliers.summaryReturns')}</Text>
+          </View>
+        </LinearGradient>
 
         <View style={styles.searchRow}>
           <Ionicons name="search" size={18} color={theme.colors.textSecondary} />
@@ -80,85 +126,76 @@ export function SuppliersScreen() {
           />
         </View>
 
-        <View style={styles.filterRow}>
-          <Pressable style={styles.favoriteToggle} onPress={() => setFavoritesOnly((v) => !v)}>
-            <Ionicons
-              name={favoritesOnly ? 'star' : 'star-outline'}
-              size={18}
-              color={theme.colors.warning}
-            />
-            <Text style={styles.favoriteToggleText}>{t('suppliers.favoritesOnly')}</Text>
-          </Pressable>
+        <ScrollView
+          horizontal
+          showsHorizontalScrollIndicator={false}
+          contentContainerStyle={styles.filterRow}
+          style={styles.filterScroll}
+        >
+          <FilterChip
+            label={t('suppliers.filterAll')}
+            active={filterMode === 'all'}
+            onPress={() => setFilterMode('all')}
+            theme={theme}
+          />
+          <FilterChip
+            label={t('suppliers.favoritesOnly')}
+            active={filterMode === 'favorites'}
+            onPress={() => setFilterMode('favorites')}
+            theme={theme}
+          />
+          <FilterChip
+            label={t('suppliers.filterAttention')}
+            active={filterMode === 'attention'}
+            onPress={() => setFilterMode('attention')}
+            theme={theme}
+          />
+        </ScrollView>
 
-          <Pressable
-            style={styles.sortToggle}
-            onPress={() => setSort((s) => (s === 'name' ? 'recent' : 'name'))}
-          >
-            <Ionicons name="swap-vertical" size={16} color={theme.colors.textSecondary} />
-            <Text style={styles.sortToggleText}>
-              {sort === 'name' ? t('suppliers.sortByName') : t('suppliers.sortByRecent')}
-            </Text>
-          </Pressable>
-        </View>
-
-        {isLoading ? (
-          <View style={styles.center}>
-            <ActivityIndicator color={theme.colors.primary} />
-          </View>
-        ) : isError ? (
+        {isError ? (
           <Text style={styles.errorText}>{t('organizations.settings.loadError')}</Text>
         ) : (
           <FlatList
-            data={suppliers}
+            data={filtered}
             keyExtractor={(item) => item.id}
-            contentContainerStyle={styles.list}
-            ListEmptyComponent={<Text style={styles.empty}>{t('suppliers.empty')}</Text>}
-            renderItem={({ item, index }) => (
-              <Animated.View entering={FadeInDown.delay(index * 50).duration(250)}>
-                <Card>
-                  <View style={styles.row}>
-                    <Pressable
-                      onPress={() =>
-                        favoriteMutation.mutate({ supplierId: item.id, favorite: !item.favorite })
-                      }
-                      hitSlop={8}
-                    >
-                      <Ionicons
-                        name={item.favorite ? 'star' : 'star-outline'}
-                        size={20}
-                        color={item.favorite ? theme.colors.warning : theme.colors.textSecondary}
-                      />
-                    </Pressable>
-
-                    <PressableScale style={styles.info} onPress={() => handleEdit(item)}>
-                      <Text style={styles.name}>{item.name}</Text>
-                      {item.contactName || item.phone ? (
-                        <Text style={styles.meta}>
-                          {[item.contactName, item.phone].filter(Boolean).join(' · ')}
-                        </Text>
-                      ) : null}
-                    </PressableScale>
-
-                    <RequireRole roles={[...EDIT_ROLES]}>
-                      <Pressable onPress={() => setPendingDelete(item)} hitSlop={12}>
-                        <Ionicons name="trash-outline" size={20} color={theme.colors.danger} />
-                      </Pressable>
-                    </RequireRole>
-                  </View>
-                </Card>
-              </Animated.View>
-            )}
+            style={styles.flatList}
+            contentContainerStyle={[
+              styles.list,
+              { paddingBottom: tabBarClearance + 80 },
+              filtered.length === 0 && styles.listEmptyGrow,
+            ]}
+            showsVerticalScrollIndicator={false}
+            ListEmptyComponent={
+              <View style={styles.emptyWrap}>
+                <EmptyState icon="cube-outline" title={t('suppliers.empty')} />
+              </View>
+            }
+            renderItem={({ item, index }) => {
+              const counts = returnCounts?.[item.id] ?? { total: 0, urgent: 0 };
+              return (
+                <Animated.View entering={FadeInDown.delay(index * 50).duration(250)}>
+                  <SupplierListRow
+                    supplier={item}
+                    returnsTotal={counts.total}
+                    returnsUrgent={counts.urgent}
+                    onEdit={() => handleEdit(item)}
+                    onToggleFavorite={() =>
+                      favoriteMutation.mutate({ supplierId: item.id, favorite: !item.favorite })
+                    }
+                    onRequestDelete={() => setPendingDelete(item)}
+                  />
+                </Animated.View>
+              );
+            }}
           />
         )}
 
-        <RequireRole roles={[...EDIT_ROLES]}>
-          <Button
-            label={t('suppliers.addButton')}
-            icon="add"
+        {canAdd ? (
+          <FAB
             onPress={handleAdd}
-            style={{ marginBottom: tabBarClearance }}
+            style={[styles.fab, { bottom: tabBarClearance + theme.spacing.md }]}
           />
-        </RequireRole>
+        ) : null}
       </View>
 
       <SupplierFormSheet
@@ -182,24 +219,112 @@ export function SuppliersScreen() {
   );
 }
 
-function createStyles(theme: ReturnType<typeof useTheme>) {
+type Theme = ReturnType<typeof useTheme>;
+
+function FilterChip({
+  label,
+  active,
+  onPress,
+  theme,
+}: {
+  label: string;
+  active: boolean;
+  onPress: () => void;
+  theme: Theme;
+}) {
+  const styles = createChipStyles(theme);
+
+  return (
+    <Pressable onPress={onPress} style={styles.chipWrap}>
+      <View style={[styles.chip, !active && styles.chipInactive]}>
+        {active ? (
+          <LinearGradient
+            colors={[theme.colors.primary, theme.colors.primaryPressed]}
+            start={{ x: 0, y: 0 }}
+            end={{ x: 1, y: 1 }}
+            style={StyleSheet.absoluteFill}
+          />
+        ) : null}
+        <Text style={active ? styles.chipTextActive : styles.chipText}>{label}</Text>
+      </View>
+    </Pressable>
+  );
+}
+
+function createChipStyles(theme: Theme) {
   return StyleSheet.create({
-    container: { flex: 1, gap: theme.spacing.sm },
+    chipWrap: { marginRight: theme.spacing.sm },
+    chip: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      gap: 6,
+      borderRadius: theme.radius.full,
+      paddingHorizontal: theme.spacing.md,
+      paddingVertical: 10,
+      overflow: 'hidden',
+    },
+    chipInactive: { backgroundColor: theme.colors.card },
+    chipText: {
+      color: theme.colors.textSecondary,
+      fontSize: theme.fontSizes.sm,
+      fontWeight: theme.fontWeights.medium,
+    },
+    chipTextActive: {
+      color: theme.colors.onPrimary,
+      fontSize: theme.fontSizes.sm,
+      fontWeight: theme.fontWeights.semiBold,
+    },
+  });
+}
+
+function createStyles(theme: Theme) {
+  return StyleSheet.create({
+    container: { flex: 1 },
     center: { flex: 1, justifyContent: 'center', alignItems: 'center' },
+    headerRow: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      justifyContent: 'space-between',
+      marginBottom: theme.spacing.md,
+    },
     title: {
+      fontSize: theme.fontSizes['2xl'],
+      fontWeight: theme.fontWeights.bold,
+      color: theme.colors.textPrimary,
+    },
+    sortButton: {
+      width: 40,
+      height: 40,
+      borderRadius: theme.radius.full,
+      backgroundColor: theme.colors.primary + '15',
+      alignItems: 'center',
+      justifyContent: 'center',
+    },
+    summaryCard: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      borderRadius: theme.radius.lg,
+      padding: theme.spacing.lg,
+      marginBottom: theme.spacing.md,
+    },
+    summaryStat: { flex: 1, alignItems: 'center', gap: 4 },
+    summaryDivider: { width: 1, height: 36, backgroundColor: theme.colors.border },
+    summaryValue: {
       fontSize: theme.fontSizes.xl,
       fontWeight: theme.fontWeights.bold,
       color: theme.colors.textPrimary,
     },
+    summaryLabel: { fontSize: theme.fontSizes.xs, color: theme.colors.textSecondary },
     searchRow: {
       flexDirection: 'row',
       alignItems: 'center',
       gap: theme.spacing.sm,
       borderWidth: 1,
       borderColor: theme.colors.border,
-      backgroundColor: theme.colors.surface,
-      borderRadius: 12,
+      backgroundColor: theme.colors.card,
+      borderRadius: theme.radius.md,
       paddingHorizontal: theme.spacing.md,
+      marginBottom: theme.spacing.sm,
     },
     searchInput: {
       flex: 1,
@@ -207,26 +332,13 @@ function createStyles(theme: ReturnType<typeof useTheme>) {
       color: theme.colors.textPrimary,
       fontSize: theme.fontSizes.md,
     },
-    filterRow: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' },
-    favoriteToggle: { flexDirection: 'row', alignItems: 'center', gap: theme.spacing.xs },
-    favoriteToggleText: { fontSize: theme.fontSizes.sm, color: theme.colors.textSecondary },
-    sortToggle: { flexDirection: 'row', alignItems: 'center', gap: theme.spacing.xs },
-    sortToggleText: { fontSize: theme.fontSizes.sm, color: theme.colors.textSecondary },
-    list: { gap: theme.spacing.sm, paddingBottom: theme.spacing.md },
-    empty: { color: theme.colors.textSecondary, textAlign: 'center', marginTop: theme.spacing.xl },
+    filterScroll: { height: 44, flexGrow: 0, flexShrink: 0, marginBottom: theme.spacing.sm },
+    filterRow: { alignItems: 'center' },
+    list: { gap: theme.spacing.sm },
+    flatList: { flex: 1 },
+    listEmptyGrow: { flexGrow: 1 },
+    emptyWrap: { flex: 1, alignItems: 'center', justifyContent: 'center' },
     errorText: { color: theme.colors.danger, textAlign: 'center' },
-    row: {
-      flexDirection: 'row',
-      alignItems: 'center',
-      gap: theme.spacing.md,
-      padding: theme.spacing.lg,
-    },
-    info: { flex: 1, gap: 2 },
-    name: {
-      fontSize: theme.fontSizes.md,
-      fontWeight: theme.fontWeights.semiBold,
-      color: theme.colors.textPrimary,
-    },
-    meta: { fontSize: theme.fontSizes.sm, color: theme.colors.textSecondary },
+    fab: { position: 'absolute', right: 0 },
   });
 }
