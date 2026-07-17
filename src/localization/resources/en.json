@@ -1,7 +1,5 @@
 {
-  "app": {
-    "name": "ReturnFlow"
-  },
+  "app": { "name": "ReturnFlow" },
   "auth": {
     "login": {
       "subtitle": "Supplier return management",
@@ -70,9 +68,7 @@
     "subtitle": "Set up your business to start managing returns",
     "nameLabel": "Organization name",
     "submit": "Create",
-    "errors": {
-      "nameTooShort": "Name is too short"
-    },
+    "errors": { "nameTooShort": "Name is too short" },
     "settings": {
       "title": "Organization settings",
       "defaultLanguageLabel": "Default language for new team members",
@@ -144,9 +140,7 @@
     },
     "deleteConfirmTitle": "Delete store?",
     "deleteConfirmMessage": "This will delete the store. This cannot be undone.",
-    "errors": {
-      "nameTooShort": "Name is too short"
-    },
+    "errors": { "nameTooShort": "Name is too short" },
     "activeStoreHint": "Tap a store to edit it, tap the circle to make it your active store",
     "noAddress": "No address specified"
   },
@@ -166,10 +160,7 @@
     },
     "deleteConfirmTitle": "Delete supplier?",
     "deleteConfirmMessage": "This will delete the supplier. This cannot be undone.",
-    "errors": {
-      "nameTooShort": "Name is too short",
-      "emailInvalid": "Invalid email"
-    },
+    "errors": { "nameTooShort": "Name is too short", "emailInvalid": "Invalid email" },
     "sortByName": "By name",
     "sortByRecent": "Recently added"
   },
@@ -227,10 +218,7 @@
       "comment_added": "Comment added",
       "photo_added": "Photo added"
     },
-    "edit": {
-      "title": "Edit return",
-      "submit": "Save"
-    },
+    "edit": { "title": "Edit return", "submit": "Save" },
     "pendingSync": "Not synced yet",
     "filterBySupplier": "Filter by supplier",
     "selectedCount": "{{count}} selected",
@@ -315,5 +303,32 @@
     "next": "Next",
     "getStarted": "Get started",
     "skip": "Skip"
+  },
+  "dashboard": {
+    "greetingMorning": "Good morning, {{name}} 👋",
+    "greetingDay": "Good afternoon, {{name}} 👋",
+    "greetingEvening": "Good evening, {{name}} 👋",
+    "greetingNight": "Good night, {{name}} 👋",
+    "subtitle": "Here's what's happening today",
+    "overviewTotal": "Total returns",
+    "overviewToday": "Today",
+    "actionCreateReturn": "New return",
+    "actionScanner": "Scanner",
+    "actionStores": "Stores",
+    "actionSuppliers": "Suppliers",
+    "attentionTitle": "Needs attention",
+    "attentionUrgent": "{{count}} urgent returns",
+    "attentionToday": "{{count}} returns created today",
+    "attentionPendingSync": "{{count}} waiting to sync",
+    "activityTitle": "Activity this week",
+    "recentTitle": "Recent activity",
+    "recentSeeAll": "See all",
+    "recentEmpty": "No activity yet",
+    "returnCreated": "Return created",
+    "timeJustNow": "Just now",
+    "timeMinutesAgo": "{{count}}m ago",
+    "timeHoursAgo": "{{count}}h ago",
+    "timeDaysAgo": "{{count}}d ago",
+    "emptyTitle": "No returns yet"
   }
 }

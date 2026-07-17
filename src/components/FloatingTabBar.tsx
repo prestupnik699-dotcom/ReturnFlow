@@ -6,11 +6,10 @@ import { useUnreadCount } from '@/features/notifications/hooks/useUnreadCount';
 import { useKeyboardVisible } from '@/hooks/useKeyboardVisible';
 
 const ICONS: Record<string, keyof typeof Ionicons.glyphMap> = {
+  index: 'home-outline',
   stores: 'storefront-outline',
   suppliers: 'cube-outline',
   returns: 'repeat-outline',
-  chat: 'chatbubble-outline',
-  notifications: 'notifications-outline',
   more: 'menu-outline',
 };
 
@@ -70,7 +69,9 @@ export function FloatingTabBar({ state, navigation }: TabBarProps) {
                   color={isFocused ? theme.colors.onPrimary : theme.colors.textSecondary}
                 />
               </View>
-              {route.name === 'notifications' && unreadCount > 0 ? (
+              {/* Chat and Notifications moved into the "Ещё" (More) menu — the
+                  unread badge follows them there so the signal isn't lost. */}
+              {route.name === 'more' && unreadCount > 0 ? (
                 <View style={styles.badge}>
                   <View style={styles.badgeInner} />
                 </View>

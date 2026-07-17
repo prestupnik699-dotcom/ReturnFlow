@@ -1,7 +1,5 @@
 {
-  "app": {
-    "name": "ReturnFlow"
-  },
+  "app": { "name": "ReturnFlow" },
   "auth": {
     "login": {
       "subtitle": "მომწოდებლების დაბრუნებების მართვა",
@@ -70,9 +68,7 @@
     "subtitle": "დაიწყეთ მაღაზიის მართვა ReturnFlow-ში",
     "nameLabel": "ორგანიზაციის სახელი",
     "submit": "შექმნა",
-    "errors": {
-      "nameTooShort": "სახელი ძალიან მოკლეა"
-    },
+    "errors": { "nameTooShort": "სახელი ძალიან მოკლეა" },
     "settings": {
       "title": "ორგანიზაციის პარამეტრები",
       "defaultLanguageLabel": "ახალი თანამშრომლების ნაგულისხმევი ენა",
@@ -144,9 +140,7 @@
     },
     "deleteConfirmTitle": "წაშალოთ მაღაზია?",
     "deleteConfirmMessage": "ეს წაშლის მაღაზიას. მოქმედება შეუქცევადია.",
-    "errors": {
-      "nameTooShort": "სახელი ძალიან მოკლეა"
-    },
+    "errors": { "nameTooShort": "სახელი ძალიან მოკლეა" },
     "activeStoreHint": "შეეხეთ მაღაზიას რედაქტირებისთვის, შეეხეთ წრეს — რომ დანიშნოთ აქტიურ მაღაზიად",
     "noAddress": "მისამართი არ არის მითითებული"
   },
@@ -166,10 +160,7 @@
     },
     "deleteConfirmTitle": "წაშალოთ მომწოდებელი?",
     "deleteConfirmMessage": "ეს წაშლის მომწოდებელს. მოქმედება შეუქცევადია.",
-    "errors": {
-      "nameTooShort": "სახელი ძალიან მოკლეა",
-      "emailInvalid": "არასწორი ელფოსტა"
-    },
+    "errors": { "nameTooShort": "სახელი ძალიან მოკლეა", "emailInvalid": "არასწორი ელფოსტა" },
     "sortByName": "სახელით",
     "sortByRecent": "ბოლოს დამატებული"
   },
@@ -227,10 +218,7 @@
       "comment_added": "დაემატა კომენტარი",
       "photo_added": "დაემატა ფოტო"
     },
-    "edit": {
-      "title": "დაბრუნების რედაქტირება",
-      "submit": "შენახვა"
-    },
+    "edit": { "title": "დაბრუნების რედაქტირება", "submit": "შენახვა" },
     "pendingSync": "სინქრონიზაციის მოლოდინში",
     "filterBySupplier": "მომწოდებლის მიხედვით",
     "selectedCount": "არჩეულია: {{count}}",
@@ -315,5 +303,32 @@
     "next": "შემდეგი",
     "getStarted": "დაწყება",
     "skip": "გამოტოვება"
+  },
+  "dashboard": {
+    "greetingMorning": "დილა მშვიდობისა, {{name}} 👋",
+    "greetingDay": "დღე მშვიდობისა, {{name}} 👋",
+    "greetingEvening": "საღამო მშვიდობისა, {{name}} 👋",
+    "greetingNight": "ღამე მშვიდობისა, {{name}} 👋",
+    "subtitle": "აი, რა ხდება დღეს",
+    "overviewTotal": "სულ დაბრუნებები",
+    "overviewToday": "დღეს",
+    "actionCreateReturn": "ახალი დაბრუნება",
+    "actionScanner": "სკანერი",
+    "actionStores": "მაღაზიები",
+    "actionSuppliers": "მომწოდებლები",
+    "attentionTitle": "საჭიროებს ყურადღებას",
+    "attentionUrgent": "{{count}} სასწრაფო დაბრუნება",
+    "attentionToday": "{{count}} დაბრუნება შეიქმნა დღეს",
+    "attentionPendingSync": "{{count}} სინქრონიზაციის მოლოდინში",
+    "activityTitle": "აქტივობა ამ კვირაში",
+    "recentTitle": "ბოლო მოქმედებები",
+    "recentSeeAll": "ყველას ნახვა",
+    "recentEmpty": "მოქმედებები ჯერ არ არის",
+    "returnCreated": "დაბრუნება შეიქმნა",
+    "timeJustNow": "ახლახან",
+    "timeMinutesAgo": "{{count}} წთ წინ",
+    "timeHoursAgo": "{{count}} სთ წინ",
+    "timeDaysAgo": "{{count}} დღის წინ",
+    "emptyTitle": "დაბრუნებები ჯერ არ არის"
   }
 }

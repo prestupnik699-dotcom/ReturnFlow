@@ -1,7 +1,5 @@
 {
-  "app": {
-    "name": "ReturnFlow"
-  },
+  "app": { "name": "ReturnFlow" },
   "auth": {
     "login": {
       "subtitle": "Управление возвратами поставщикам",
@@ -70,9 +68,7 @@
     "subtitle": "Настройте компанию, чтобы начать работу с возвратами",
     "nameLabel": "Название организации",
     "submit": "Создать",
-    "errors": {
-      "nameTooShort": "Слишком короткое название"
-    },
+    "errors": { "nameTooShort": "Слишком короткое название" },
     "settings": {
       "title": "Настройки организации",
       "defaultLanguageLabel": "Язык по умолчанию для новых сотрудников",
@@ -144,9 +140,7 @@
     },
     "deleteConfirmTitle": "Удалить магазин?",
     "deleteConfirmMessage": "Магазин будет удалён. Действие необратимо.",
-    "errors": {
-      "nameTooShort": "Слишком короткое название"
-    },
+    "errors": { "nameTooShort": "Слишком короткое название" },
     "activeStoreHint": "Нажмите на магазин, чтобы отредактировать, на кружок — чтобы сделать активным",
     "noAddress": "Адрес не указан"
   },
@@ -166,10 +160,7 @@
     },
     "deleteConfirmTitle": "Удалить поставщика?",
     "deleteConfirmMessage": "Поставщик будет удалён. Действие необратимо.",
-    "errors": {
-      "nameTooShort": "Слишком короткое название",
-      "emailInvalid": "Некорректный email"
-    },
+    "errors": { "nameTooShort": "Слишком короткое название", "emailInvalid": "Некорректный email" },
     "sortByName": "По названию",
     "sortByRecent": "Недавно добавленные"
   },
@@ -227,10 +218,7 @@
       "comment_added": "Добавлен комментарий",
       "photo_added": "Добавлено фото"
     },
-    "edit": {
-      "title": "Редактировать возврат",
-      "submit": "Сохранить"
-    },
+    "edit": { "title": "Редактировать возврат", "submit": "Сохранить" },
     "pendingSync": "Ещё не отправлено",
     "filterBySupplier": "Фильтр по поставщику",
     "selectedCount": "Выбрано: {{count}}",
@@ -315,5 +303,32 @@
     "next": "Далее",
     "getStarted": "Начать",
     "skip": "Пропустить"
+  },
+  "dashboard": {
+    "greetingMorning": "Доброе утро, {{name}} 👋",
+    "greetingDay": "Добрый день, {{name}} 👋",
+    "greetingEvening": "Добрый вечер, {{name}} 👋",
+    "greetingNight": "Доброй ночи, {{name}} 👋",
+    "subtitle": "Вот что происходит сегодня",
+    "overviewTotal": "Всего возвратов",
+    "overviewToday": "Сегодня",
+    "actionCreateReturn": "Создать возврат",
+    "actionScanner": "Сканер",
+    "actionStores": "Магазины",
+    "actionSuppliers": "Поставщики",
+    "attentionTitle": "Требует внимания",
+    "attentionUrgent": "{{count}} срочных возвратов",
+    "attentionToday": "{{count}} возвратов создано сегодня",
+    "attentionPendingSync": "{{count}} ожидают отправки",
+    "activityTitle": "Активность за неделю",
+    "recentTitle": "Последние операции",
+    "recentSeeAll": "Смотреть все",
+    "recentEmpty": "Пока нет операций",
+    "returnCreated": "Возврат создан",
+    "timeJustNow": "Только что",
+    "timeMinutesAgo": "{{count}} мин назад",
+    "timeHoursAgo": "{{count}} ч назад",
+    "timeDaysAgo": "{{count}} дн назад",
+    "emptyTitle": "Пока нет ни одного возврата"
   }
 }
