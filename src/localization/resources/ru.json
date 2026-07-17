@@ -264,7 +264,9 @@
     "deletedMessage": "Сообщение удалено",
     "clearChat": "Очистить чат",
     "clearChatConfirmTitle": "Очистить чат?",
-    "clearChatConfirmMessage": "Все сообщения будут удалены. Действие необратимо."
+    "clearChatConfirmMessage": "Все сообщения будут удалены. Действие необратимо.",
+    "dateToday": "Сегодня",
+    "dateYesterday": "Вчера"
   },
   "statistics": {
     "title": "Статистика",

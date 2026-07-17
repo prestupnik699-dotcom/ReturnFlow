@@ -264,7 +264,9 @@
     "deletedMessage": "Message deleted",
     "clearChat": "Clear chat",
     "clearChatConfirmTitle": "Clear the chat?",
-    "clearChatConfirmMessage": "All messages will be deleted. This cannot be undone."
+    "clearChatConfirmMessage": "All messages will be deleted. This cannot be undone.",
+    "dateToday": "Today",
+    "dateYesterday": "Yesterday"
   },
   "statistics": {
     "title": "Statistics",

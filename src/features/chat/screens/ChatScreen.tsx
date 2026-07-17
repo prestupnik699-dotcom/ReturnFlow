@@ -10,6 +10,7 @@ import {
 } from 'react-native';
 import { KeyboardStickyView } from 'react-native-keyboard-controller';
 import { useTranslation } from 'react-i18next';
+import { useRouter } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
 import { useTheme } from '@/theme/ThemeProvider';
 import { Screen } from '@/components/Screen';
@@ -35,9 +36,19 @@ function formatTime(iso: string): string {
   return `${pad(d.getHours())}:${pad(d.getMinutes())}`;
 }
 
+function dayKey(iso: string): string {
+  const d = new Date(iso);
+  return `${d.getFullYear()}-${d.getMonth()}-${d.getDate()}`;
+}
+
+type ListItem =
+  | { kind: 'divider'; id: string; label: string }
+  | { kind: 'message'; id: string; message: ChatMessage };
+
 export function ChatScreen() {
   const theme = useTheme();
   const { t } = useTranslation();
+  const router = useRouter();
   const tabBarClearance = useTabBarClearance();
   const keyboardVisible = useKeyboardVisible();
   const activeStoreId = useMembershipStore((state) => state.activeStoreId);
@@ -52,7 +63,7 @@ export function ChatScreen() {
   const [text, setText] = useState('');
   const [pendingDelete, setPendingDelete] = useState<ChatMessage | null>(null);
   const [clearConfirmVisible, setClearConfirmVisible] = useState(false);
-  const listRef = useRef<FlatList<ChatMessage>>(null);
+  const listRef = useRef<FlatList<ListItem>>(null);
   const styles = createStyles(theme);
 
   const messageCount = messages?.length ?? 0;
@@ -99,18 +110,58 @@ export function ChatScreen() {
     clearMutation.mutate(undefined, { onSuccess: () => setClearConfirmVisible(false) });
   };
 
-  const renderItem = ({ item }: { item: ChatMessage }) => {
-    const isOwn = item.authorId === profile?.id;
+  // Insert a date-divider pill whenever a message falls on a different
+  // calendar day than the one before it — the list is asc-ordered by
+  // createdAt already, so a single forward pass is enough.
+  const dayLabel = (iso: string): string => {
+    const d = new Date(iso);
+    const now = new Date();
+    const yesterday = new Date(now);
+    yesterday.setDate(yesterday.getDate() - 1);
+    if (dayKey(iso) === dayKey(now.toISOString())) return t('chat.dateToday');
+    if (dayKey(iso) === dayKey(yesterday.toISOString())) return t('chat.dateYesterday');
+    const pad = (n: number) => String(n).padStart(2, '0');
+    return `${pad(d.getDate())}.${pad(d.getMonth() + 1)}.${d.getFullYear()}`;
+  };
+
+  const listItems: ListItem[] = [];
+  let lastDay: string | null = null;
+  for (const message of messages ?? []) {
+    const day = dayKey(message.createdAt);
+    if (day !== lastDay) {
+      listItems.push({ kind: 'divider', id: `divider-${day}`, label: dayLabel(message.createdAt) });
+      lastDay = day;
+    }
+    listItems.push({ kind: 'message', id: message.id, message });
+  }
+
+  const renderItem = ({ item }: { item: ListItem }) => {
+    if (item.kind === 'divider') {
+      return (
+        <View style={styles.dividerRow}>
+          <View style={styles.dividerPill}>
+            <Text style={styles.dividerText}>{item.label}</Text>
+          </View>
+        </View>
+      );
+    }
+
+    const message = item.message;
+    const isOwn = message.authorId === profile?.id;
     return (
-      <Pressable onLongPress={() => handleLongPressMessage(item)}>
+      <Pressable onLongPress={() => handleLongPressMessage(message)}>
         <Animated.View
           entering={FadeInUp.duration(220)}
           style={[styles.bubbleRow, isOwn ? styles.bubbleRowOwn : styles.bubbleRowOther]}
         >
           <View style={[styles.bubble, isOwn ? styles.bubbleOwn : styles.bubbleOther]}>
-            {!isOwn ? <Text style={styles.author}>{item.authorName}</Text> : null}
-            <Text style={[styles.messageText, isOwn && styles.messageTextOwn]}>{item.message}</Text>
-            <Text style={[styles.time, isOwn && styles.timeOwn]}>{formatTime(item.createdAt)}</Text>
+            {!isOwn ? <Text style={styles.author}>{message.authorName}</Text> : null}
+            <Text style={[styles.messageText, isOwn && styles.messageTextOwn]}>
+              {message.message}
+            </Text>
+            <Text style={[styles.time, isOwn && styles.timeOwn]}>
+              {formatTime(message.createdAt)}
+            </Text>
           </View>
         </Animated.View>
       </Pressable>
@@ -121,9 +172,21 @@ export function ChatScreen() {
     <Screen>
       <View style={styles.flex}>
         <View style={styles.header}>
+          <Pressable onPress={() => router.back()} hitSlop={12} style={styles.backButton}>
+            <Ionicons name="chevron-back" size={22} color={theme.colors.textPrimary} />
+          </Pressable>
+          <View style={styles.headerAvatar}>
+            <Ionicons name="chatbubbles-outline" size={18} color={theme.colors.primary} />
+          </View>
           <View style={styles.headerText}>
-            <Text style={styles.title}>{t('chat.title')}</Text>
-            {storeName ? <Text style={styles.subtitle}>{storeName}</Text> : null}
+            <Text style={styles.title} numberOfLines={1}>
+              {t('chat.title')}
+            </Text>
+            {storeName ? (
+              <Text style={styles.subtitle} numberOfLines={1}>
+                {storeName}
+              </Text>
+            ) : null}
           </View>
           {hasModeratorRole && messageCount > 0 ? (
             <Pressable
@@ -143,7 +206,7 @@ export function ChatScreen() {
         ) : (
           <FlatList
             ref={listRef}
-            data={messages ?? []}
+            data={listItems}
             keyExtractor={(item) => item.id}
             renderItem={renderItem}
             contentContainerStyle={styles.list}
@@ -217,16 +280,32 @@ function createStyles(theme: ReturnType<typeof useTheme>) {
     header: {
       flexDirection: 'row',
       alignItems: 'center',
-      justifyContent: 'space-between',
+      gap: theme.spacing.sm,
       marginBottom: theme.spacing.sm,
+    },
+    backButton: {
+      width: 36,
+      height: 36,
+      borderRadius: theme.radius.full,
+      backgroundColor: theme.colors.card,
+      alignItems: 'center',
+      justifyContent: 'center',
+    },
+    headerAvatar: {
+      width: 36,
+      height: 36,
+      borderRadius: theme.radius.full,
+      backgroundColor: theme.colors.primary + '15',
+      alignItems: 'center',
+      justifyContent: 'center',
     },
     headerText: { flex: 1 },
     title: {
-      fontSize: theme.fontSizes['2xl'],
+      fontSize: theme.fontSizes.lg,
       fontWeight: theme.fontWeights.bold,
       color: theme.colors.textPrimary,
     },
-    subtitle: { fontSize: theme.fontSizes.sm, color: theme.colors.textSecondary, marginTop: 2 },
+    subtitle: { fontSize: theme.fontSizes.xs, color: theme.colors.textSecondary, marginTop: 1 },
     headerIcon: {
       width: 36,
       height: 36,
@@ -236,6 +315,18 @@ function createStyles(theme: ReturnType<typeof useTheme>) {
       justifyContent: 'center',
     },
     list: { flexGrow: 1, gap: theme.spacing.xs, paddingVertical: theme.spacing.sm },
+    dividerRow: { alignItems: 'center', marginVertical: theme.spacing.sm },
+    dividerPill: {
+      backgroundColor: theme.colors.card,
+      borderRadius: theme.radius.full,
+      paddingHorizontal: theme.spacing.md,
+      paddingVertical: 4,
+    },
+    dividerText: {
+      fontSize: theme.fontSizes.xs,
+      fontWeight: theme.fontWeights.medium,
+      color: theme.colors.textSecondary,
+    },
     bubbleRow: { flexDirection: 'row' },
     bubbleRowOwn: { justifyContent: 'flex-end' },
     bubbleRowOther: { justifyContent: 'flex-start' },

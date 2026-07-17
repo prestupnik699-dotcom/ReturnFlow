@@ -264,7 +264,9 @@
     "deletedMessage": "შეტყობინება წაშლილია",
     "clearChat": "ჩატის გასუფთავება",
     "clearChatConfirmTitle": "გავასუფთაოთ ჩატი?",
-    "clearChatConfirmMessage": "ყველა შეტყობინება წაიშლება. მოქმედება შეუქცევადია."
+    "clearChatConfirmMessage": "ყველა შეტყობინება წაიშლება. მოქმედება შეუქცევადია.",
+    "dateToday": "დღეს",
+    "dateYesterday": "გუშინ"
   },
   "statistics": {
     "title": "სტატისტიკა",

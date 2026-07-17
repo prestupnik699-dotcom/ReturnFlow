@@ -1,6 +1,7 @@
 import { View, Text, FlatList, Pressable, ActivityIndicator, StyleSheet } from 'react-native';
 import { useTranslation } from 'react-i18next';
 import { useRouter } from 'expo-router';
+import { Ionicons } from '@expo/vector-icons';
 import Animated, { FadeInDown } from 'react-native-reanimated';
 import { useTheme } from '@/theme/ThemeProvider';
 import { Screen } from '@/components/Screen';
@@ -48,12 +49,17 @@ export function NotificationsScreen() {
     <Screen>
       <View style={styles.container}>
         <View style={styles.header}>
+          <Pressable onPress={() => router.back()} hitSlop={12} style={styles.backButton}>
+            <Ionicons name="chevron-back" size={22} color={theme.colors.textPrimary} />
+          </Pressable>
           <Text style={styles.title}>{t('common.notifications')}</Text>
           {unreadCount > 0 ? (
             <Pressable onPress={() => markAllMutation.mutate()}>
               <Text style={styles.markAllText}>{t('chat.markAllRead')}</Text>
             </Pressable>
-          ) : null}
+          ) : (
+            <View style={styles.spacer} />
+          )}
         </View>
 
         {isLoading ? (
@@ -107,11 +113,20 @@ function createStyles(theme: ReturnType<typeof useTheme>) {
     center: { flex: 1, justifyContent: 'center', alignItems: 'center' },
     header: {
       flexDirection: 'row',
-      justifyContent: 'space-between',
       alignItems: 'center',
+      gap: theme.spacing.sm,
       marginBottom: theme.spacing.lg,
     },
+    backButton: {
+      width: 36,
+      height: 36,
+      borderRadius: theme.radius.full,
+      backgroundColor: theme.colors.card,
+      alignItems: 'center',
+      justifyContent: 'center',
+    },
     title: {
+      flex: 1,
       fontSize: theme.fontSizes['2xl'],
       fontWeight: theme.fontWeights.bold,
       color: theme.colors.textPrimary,
@@ -121,6 +136,7 @@ function createStyles(theme: ReturnType<typeof useTheme>) {
       color: theme.colors.primary,
       fontWeight: theme.fontWeights.medium,
     },
+    spacer: { width: 36 },
     errorText: { color: theme.colors.danger, textAlign: 'center' },
     list: { gap: theme.spacing.sm },
     row: { flexDirection: 'row', gap: theme.spacing.sm, padding: theme.spacing.lg },
