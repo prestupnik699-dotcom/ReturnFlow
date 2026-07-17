@@ -157,7 +157,7 @@ export function DashboardScreen() {
           minimumFontScale={0.75}
         >
           {greeting}{' '}
-          <Ionicons name="hand-left-outline" size={20} color={theme.colors.textPrimary} />
+          <Ionicons name="hand-left-outline" size={26} color={theme.colors.textPrimary} />
         </Text>
         <Text style={styles.subtitle}>{t('dashboard.subtitle')}</Text>
 
