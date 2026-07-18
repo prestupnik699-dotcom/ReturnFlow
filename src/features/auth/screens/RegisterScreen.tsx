@@ -19,6 +19,7 @@ import {
 } from '@/features/auth/validators/register.schema';
 import { register } from '@/features/auth/services/auth.service';
 import { useTheme } from '@/theme/ThemeProvider';
+import { Screen } from '@/components/Screen';
 import { Logo } from '@/components/Logo';
 import { Button } from '@/components/Button';
 
@@ -74,68 +75,70 @@ export function RegisterScreen() {
   ];
 
   return (
-    <KeyboardAvoidingView
-      style={styles.flex}
-      behavior={Platform.OS === 'ios' ? 'padding' : undefined}
-    >
-      <ScrollView contentContainerStyle={styles.container} keyboardShouldPersistTaps="handled">
-        <View style={styles.header}>
-          <Logo size={56} />
-          <Text style={styles.title}>{t('auth.register.title')}</Text>
-        </View>
-
-        <View style={styles.form}>
-          {fields.map((field) => (
-            <View style={styles.field} key={field.name}>
-              <Text style={styles.label}>{t(field.labelKey)}</Text>
-              <Controller
-                control={control}
-                name={field.name}
-                render={({ field: { value, onChange, onBlur } }) => (
-                  <TextInput
-                    style={[styles.input, errors[field.name] && styles.inputError]}
-                    placeholderTextColor={theme.colors.textSecondary}
-                    autoCapitalize={field.autoCapitalize ?? 'none'}
-                    autoCorrect={false}
-                    keyboardType={field.keyboardType ?? 'default'}
-                    secureTextEntry={field.secure}
-                    value={value}
-                    onChangeText={(text) => {
-                      onChange(text);
-                      setSubmitError(null);
-                    }}
-                    onBlur={onBlur}
-                  />
-                )}
-              />
-              {errors[field.name] ? (
-                <Text style={styles.errorText}>{t(errors[field.name]?.message ?? '')}</Text>
-              ) : null}
-            </View>
-          ))}
-
-          {submitError ? (
-            <View style={styles.errorBanner}>
-              <Text style={styles.errorBannerText}>{submitError}</Text>
-            </View>
-          ) : null}
-
-          <Button
-            label={t('auth.register.submit')}
-            onPress={handleSubmit(onSubmit)}
-            loading={isSubmitting}
-            style={styles.submitButton}
-          />
-
-          <View style={styles.footer}>
-            <Text style={styles.footerText}>{t('auth.register.haveAccount')} </Text>
-            <Pressable onPress={() => router.replace('/login')}>
-              <Text style={styles.footerLink}>{t('auth.register.logInLink')}</Text>
-            </Pressable>
+    <Screen>
+      <KeyboardAvoidingView
+        style={styles.flex}
+        behavior={Platform.OS === 'ios' ? 'padding' : undefined}
+      >
+        <ScrollView contentContainerStyle={styles.container} keyboardShouldPersistTaps="handled">
+          <View style={styles.header}>
+            <Logo size={56} />
+            <Text style={styles.title}>{t('auth.register.title')}</Text>
           </View>
-        </View>
-      </ScrollView>
-    </KeyboardAvoidingView>
+
+          <View style={styles.form}>
+            {fields.map((field) => (
+              <View style={styles.field} key={field.name}>
+                <Text style={styles.label}>{t(field.labelKey)}</Text>
+                <Controller
+                  control={control}
+                  name={field.name}
+                  render={({ field: { value, onChange, onBlur } }) => (
+                    <TextInput
+                      style={[styles.input, errors[field.name] && styles.inputError]}
+                      placeholderTextColor={theme.colors.textSecondary}
+                      autoCapitalize={field.autoCapitalize ?? 'none'}
+                      autoCorrect={false}
+                      keyboardType={field.keyboardType ?? 'default'}
+                      secureTextEntry={field.secure}
+                      value={value}
+                      onChangeText={(text) => {
+                        onChange(text);
+                        setSubmitError(null);
+                      }}
+                      onBlur={onBlur}
+                    />
+                  )}
+                />
+                {errors[field.name] ? (
+                  <Text style={styles.errorText}>{t(errors[field.name]?.message ?? '')}</Text>
+                ) : null}
+              </View>
+            ))}
+
+            {submitError ? (
+              <View style={styles.errorBanner}>
+                <Text style={styles.errorBannerText}>{submitError}</Text>
+              </View>
+            ) : null}
+
+            <Button
+              label={t('auth.register.submit')}
+              onPress={handleSubmit(onSubmit)}
+              loading={isSubmitting}
+              style={styles.submitButton}
+            />
+
+            <View style={styles.footer}>
+              <Text style={styles.footerText}>{t('auth.register.haveAccount')} </Text>
+              <Pressable onPress={() => router.replace('/login')}>
+                <Text style={styles.footerLink}>{t('auth.register.logInLink')}</Text>
+              </Pressable>
+            </View>
+          </View>
+        </ScrollView>
+      </KeyboardAvoidingView>
+    </Screen>
   );
 }
 
@@ -144,10 +147,8 @@ function createStyles(theme: ReturnType<typeof useTheme>) {
     flex: { flex: 1 },
     container: {
       flexGrow: 1,
-      backgroundColor: theme.colors.background,
       justifyContent: 'center',
-      paddingHorizontal: theme.spacing.xl,
-      paddingVertical: theme.spacing['2xl'],
+      paddingBottom: theme.spacing['2xl'],
     },
     header: { alignItems: 'center', marginBottom: theme.spacing['2xl'], gap: theme.spacing.sm },
     title: {

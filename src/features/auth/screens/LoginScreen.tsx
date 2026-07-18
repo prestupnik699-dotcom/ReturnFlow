@@ -16,6 +16,7 @@ import Animated, { FadeInDown, ZoomIn } from 'react-native-reanimated';
 import { loginSchema, type LoginFormValues } from '@/features/auth/validators/login.schema';
 import { login } from '@/features/auth/services/auth.service';
 import { useTheme } from '@/theme/ThemeProvider';
+import { Screen } from '@/components/Screen';
 import { Logo } from '@/components/Logo';
 import { Button } from '@/components/Button';
 
@@ -49,105 +50,107 @@ export function LoginScreen() {
   const styles = createStyles(theme);
 
   return (
-    <KeyboardAvoidingView
-      style={styles.flex}
-      behavior={Platform.OS === 'ios' ? 'padding' : undefined}
-    >
-      <View style={styles.container}>
-        <View style={styles.header}>
-          <Animated.View entering={ZoomIn.duration(500).springify()}>
-            <Logo size={64} />
-          </Animated.View>
-          <Animated.Text entering={FadeInDown.delay(150).duration(500)} style={styles.title}>
-            {t('app.name')}
-          </Animated.Text>
-          <Animated.Text entering={FadeInDown.delay(250).duration(500)} style={styles.subtitle}>
-            {t('auth.login.subtitle')}
-          </Animated.Text>
-        </View>
-
-        <Animated.View entering={FadeInDown.delay(350).duration(500)} style={styles.form}>
-          <View style={styles.field}>
-            <Text style={styles.label}>{t('auth.login.emailLabel')}</Text>
-            <Controller
-              control={control}
-              name="email"
-              render={({ field: { value, onChange, onBlur } }) => (
-                <TextInput
-                  style={[styles.input, errors.email && styles.inputError]}
-                  placeholder={t('auth.login.emailPlaceholder')}
-                  placeholderTextColor={theme.colors.textSecondary}
-                  autoCapitalize="none"
-                  autoCorrect={false}
-                  keyboardType="email-address"
-                  value={value}
-                  onChangeText={(text) => {
-                    onChange(text);
-                    setSubmitError(null);
-                  }}
-                  onBlur={onBlur}
-                />
-              )}
-            />
-            {errors.email ? (
-              <Text style={styles.errorText}>{t(errors.email.message ?? '')}</Text>
-            ) : null}
+    <Screen>
+      <KeyboardAvoidingView
+        style={styles.flex}
+        behavior={Platform.OS === 'ios' ? 'padding' : undefined}
+      >
+        <View style={styles.container}>
+          <View style={styles.header}>
+            <Animated.View entering={ZoomIn.duration(500).springify()}>
+              <Logo size={64} />
+            </Animated.View>
+            <Animated.Text entering={FadeInDown.delay(150).duration(500)} style={styles.title}>
+              {t('app.name')}
+            </Animated.Text>
+            <Animated.Text entering={FadeInDown.delay(250).duration(500)} style={styles.subtitle}>
+              {t('auth.login.subtitle')}
+            </Animated.Text>
           </View>
 
-          <View style={styles.field}>
-            <Text style={styles.label}>{t('auth.login.passwordLabel')}</Text>
-            <Controller
-              control={control}
-              name="password"
-              render={({ field: { value, onChange, onBlur } }) => (
-                <TextInput
-                  style={[styles.input, errors.password && styles.inputError]}
-                  placeholder="••••••••"
-                  placeholderTextColor={theme.colors.textSecondary}
-                  secureTextEntry
-                  value={value}
-                  onChangeText={(text) => {
-                    onChange(text);
-                    setSubmitError(null);
-                  }}
-                  onBlur={onBlur}
-                />
-              )}
-            />
-            {errors.password ? (
-              <Text style={styles.errorText}>{t(errors.password.message ?? '')}</Text>
-            ) : null}
-          </View>
-
-          {submitError ? (
-            <View style={styles.errorBanner}>
-              <Text style={styles.errorBannerText}>{submitError}</Text>
+          <Animated.View entering={FadeInDown.delay(350).duration(500)} style={styles.form}>
+            <View style={styles.field}>
+              <Text style={styles.label}>{t('auth.login.emailLabel')}</Text>
+              <Controller
+                control={control}
+                name="email"
+                render={({ field: { value, onChange, onBlur } }) => (
+                  <TextInput
+                    style={[styles.input, errors.email && styles.inputError]}
+                    placeholder={t('auth.login.emailPlaceholder')}
+                    placeholderTextColor={theme.colors.textSecondary}
+                    autoCapitalize="none"
+                    autoCorrect={false}
+                    keyboardType="email-address"
+                    value={value}
+                    onChangeText={(text) => {
+                      onChange(text);
+                      setSubmitError(null);
+                    }}
+                    onBlur={onBlur}
+                  />
+                )}
+              />
+              {errors.email ? (
+                <Text style={styles.errorText}>{t(errors.email.message ?? '')}</Text>
+              ) : null}
             </View>
-          ) : null}
 
-          <Button
-            label={t('auth.login.submit')}
-            onPress={handleSubmit(onSubmit)}
-            loading={isSubmitting}
-            style={styles.submitButton}
-          />
+            <View style={styles.field}>
+              <Text style={styles.label}>{t('auth.login.passwordLabel')}</Text>
+              <Controller
+                control={control}
+                name="password"
+                render={({ field: { value, onChange, onBlur } }) => (
+                  <TextInput
+                    style={[styles.input, errors.password && styles.inputError]}
+                    placeholder="••••••••"
+                    placeholderTextColor={theme.colors.textSecondary}
+                    secureTextEntry
+                    value={value}
+                    onChangeText={(text) => {
+                      onChange(text);
+                      setSubmitError(null);
+                    }}
+                    onBlur={onBlur}
+                  />
+                )}
+              />
+              {errors.password ? (
+                <Text style={styles.errorText}>{t(errors.password.message ?? '')}</Text>
+              ) : null}
+            </View>
 
-          <Pressable
-            onPress={() => router.push('/forgot-password')}
-            style={styles.forgotPasswordLink}
-          >
-            <Text style={styles.footerLink}>{t('auth.login.forgotPasswordLink')}</Text>
-          </Pressable>
+            {submitError ? (
+              <View style={styles.errorBanner}>
+                <Text style={styles.errorBannerText}>{submitError}</Text>
+              </View>
+            ) : null}
 
-          <View style={styles.footer}>
-            <Text style={styles.footerText}>{t('auth.login.noAccount')} </Text>
-            <Pressable onPress={() => router.replace('/register')}>
-              <Text style={styles.footerLink}>{t('auth.login.registerLink')}</Text>
+            <Button
+              label={t('auth.login.submit')}
+              onPress={handleSubmit(onSubmit)}
+              loading={isSubmitting}
+              style={styles.submitButton}
+            />
+
+            <Pressable
+              onPress={() => router.push('/forgot-password')}
+              style={styles.forgotPasswordLink}
+            >
+              <Text style={styles.footerLink}>{t('auth.login.forgotPasswordLink')}</Text>
             </Pressable>
-          </View>
-        </Animated.View>
-      </View>
-    </KeyboardAvoidingView>
+
+            <View style={styles.footer}>
+              <Text style={styles.footerText}>{t('auth.login.noAccount')} </Text>
+              <Pressable onPress={() => router.replace('/register')}>
+                <Text style={styles.footerLink}>{t('auth.login.registerLink')}</Text>
+              </Pressable>
+            </View>
+          </Animated.View>
+        </View>
+      </KeyboardAvoidingView>
+    </Screen>
   );
 }
 
@@ -156,9 +159,7 @@ function createStyles(theme: ReturnType<typeof useTheme>) {
     flex: { flex: 1 },
     container: {
       flex: 1,
-      backgroundColor: theme.colors.background,
       justifyContent: 'center',
-      paddingHorizontal: theme.spacing.xl,
     },
     header: { alignItems: 'center', marginBottom: theme.spacing['3xl'] },
     title: {
