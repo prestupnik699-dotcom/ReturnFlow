@@ -12,6 +12,7 @@ export type DeliveryItem = {
   quantity: number;
   barcode: string | null;
   createdAt: string;
+  pendingSync?: boolean;
 };
 
 type DeliveryItemRow = {

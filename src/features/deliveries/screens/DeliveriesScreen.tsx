@@ -89,7 +89,12 @@ export function DeliveriesScreen() {
                         {item.supplierName} · ×{item.quantity}
                       </Text>
                     </View>
-                    <Text style={styles.date}>{formatDateTime(item.createdAt)}</Text>
+                    <View style={styles.dateColumn}>
+                      {item.pendingSync ? (
+                        <Text style={styles.pendingText}>{t('returns.pendingSync')}</Text>
+                      ) : null}
+                      <Text style={styles.date}>{formatDateTime(item.createdAt)}</Text>
+                    </View>
                   </View>
                 </Card>
               </Animated.View>
@@ -148,6 +153,12 @@ function createStyles(theme: ReturnType<typeof useTheme>) {
       color: theme.colors.textPrimary,
     },
     meta: { fontSize: theme.fontSizes.sm, color: theme.colors.textSecondary },
+    dateColumn: { alignItems: 'flex-end', gap: 2 },
     date: { fontSize: theme.fontSizes.xs, color: theme.colors.textSecondary },
+    pendingText: {
+      fontSize: theme.fontSizes.xs,
+      color: theme.colors.warning,
+      fontWeight: theme.fontWeights.medium,
+    },
   });
 }

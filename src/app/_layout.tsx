@@ -1,5 +1,6 @@
 import '@/localization/i18n';
 import '@/features/returns/sync/returnsSyncHandler';
+import '@/features/deliveries/sync/deliveriesSyncHandler';
 import { useEffect } from 'react';
 import { Stack } from 'expo-router';
 import { View, ActivityIndicator } from 'react-native';

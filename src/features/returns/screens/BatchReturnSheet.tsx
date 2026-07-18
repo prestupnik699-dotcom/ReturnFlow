@@ -137,7 +137,11 @@ export function BatchReturnSheet({ visible, onClose }: Props) {
         { onSuccess: handleClose },
       );
     } else {
-      deliveriesBatchMutation.mutate({ supplierId, lines: lineInputs }, { onSuccess: handleClose });
+      const supplierName = suppliers?.find((s) => s.id === supplierId)?.name ?? '';
+      deliveriesBatchMutation.mutate(
+        { supplierId, supplierName, lines: lineInputs },
+        { onSuccess: handleClose },
+      );
     }
   };
 
