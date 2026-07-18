@@ -4,6 +4,7 @@ import { useTranslation } from 'react-i18next';
 import { useTheme } from '@/theme/ThemeProvider';
 import { Screen } from '@/components/Screen';
 import { ScreenHeader } from '@/components/ScreenHeader';
+import { Card } from '@/components/Card';
 import { Chip } from '@/components/Chip';
 import { Button } from '@/components/Button';
 import { ConfirmDialog } from '@/components/ConfirmDialog';
@@ -93,33 +94,37 @@ export function ProfileSettingsScreen() {
       <View style={styles.container}>
         <ScreenHeader title={t('profile.title')} />
 
-        <View style={styles.field}>
-          <Text style={styles.label}>{t('profile.languageLabel')}</Text>
-          <View style={styles.row}>
-            {LANGUAGES.map((lang) => (
-              <Chip
-                key={lang}
-                label={lang.toUpperCase()}
-                selected={language === lang}
-                onPress={() => handleLanguageChange(lang)}
-              />
-            ))}
+        <Card>
+          <View style={styles.cardField}>
+            <Text style={styles.label}>{t('profile.languageLabel')}</Text>
+            <View style={styles.row}>
+              {LANGUAGES.map((lang) => (
+                <Chip
+                  key={lang}
+                  label={lang.toUpperCase()}
+                  selected={language === lang}
+                  onPress={() => handleLanguageChange(lang)}
+                />
+              ))}
+            </View>
           </View>
-        </View>
+        </Card>
 
-        <View style={styles.field}>
-          <Text style={styles.label}>{t('profile.themeLabel')}</Text>
-          <View style={styles.row}>
-            {THEME_MODES.map((m) => (
-              <Chip
-                key={m}
-                label={themeLabels[m]}
-                selected={mode === m}
-                onPress={() => handleModeChange(m)}
-              />
-            ))}
+        <Card>
+          <View style={styles.cardField}>
+            <Text style={styles.label}>{t('profile.themeLabel')}</Text>
+            <View style={styles.row}>
+              {THEME_MODES.map((m) => (
+                <Chip
+                  key={m}
+                  label={themeLabels[m]}
+                  selected={mode === m}
+                  onPress={() => handleModeChange(m)}
+                />
+              ))}
+            </View>
           </View>
-        </View>
+        </Card>
 
         {saveError ? (
           <View style={styles.errorBanner}>
@@ -133,16 +138,18 @@ export function ProfileSettingsScreen() {
           </View>
         ) : null}
 
-        <View style={styles.dangerZone}>
-          <Text style={styles.dangerZoneTitle}>{t('profile.deleteAccount.dangerZoneTitle')}</Text>
-          <Button
-            label={t('profile.deleteAccount.deleteAccountButton')}
-            variant="danger"
-            onPress={() => setDeleteConfirmVisible(true)}
-            loading={deleteAccountMutation.isPending}
-          />
-          {blockedInfo ? <Text style={styles.blockedText}>{blockedInfo}</Text> : null}
-        </View>
+        <Card>
+          <View style={styles.dangerZone}>
+            <Text style={styles.dangerZoneTitle}>{t('profile.deleteAccount.dangerZoneTitle')}</Text>
+            <Button
+              label={t('profile.deleteAccount.deleteAccountButton')}
+              variant="danger"
+              onPress={() => setDeleteConfirmVisible(true)}
+              loading={deleteAccountMutation.isPending}
+            />
+            {blockedInfo ? <Text style={styles.blockedText}>{blockedInfo}</Text> : null}
+          </View>
+        </Card>
       </View>
 
       <ConfirmDialog
@@ -162,8 +169,9 @@ export function ProfileSettingsScreen() {
 
 function createStyles(theme: ReturnType<typeof useTheme>) {
   return StyleSheet.create({
-    container: { flex: 1, gap: theme.spacing.xl },
+    container: { flex: 1, gap: theme.spacing.md },
     field: { gap: theme.spacing.sm },
+    cardField: { padding: theme.spacing.lg, gap: theme.spacing.sm },
     label: {
       fontSize: theme.fontSizes.sm,
       fontWeight: theme.fontWeights.medium,
@@ -187,10 +195,7 @@ function createStyles(theme: ReturnType<typeof useTheme>) {
     },
     successText: { color: theme.colors.success, fontSize: theme.fontSizes.sm, textAlign: 'center' },
     dangerZone: {
-      marginTop: theme.spacing.lg,
-      paddingTop: theme.spacing.lg,
-      borderTopWidth: 1,
-      borderTopColor: theme.colors.border,
+      padding: theme.spacing.lg,
       gap: theme.spacing.sm,
       alignItems: 'center',
     },
