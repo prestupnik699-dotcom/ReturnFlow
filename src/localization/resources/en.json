@@ -331,6 +331,7 @@
     "overviewToday": "Today",
     "actionCreateReturn": "Return",
     "actionScanner": "Scanner",
+    "actionDelivery": "Receiving",
     "actionBatch": "Quick entry",
     "actionStatistics": "Statistics",
     "attentionTitle": "Needs attention",
@@ -350,5 +351,16 @@
     "noStoreTitle": "Pick a store first",
     "noStoreMessage": "Add a store or select an active one in Stores — then your returns data will show up here",
     "noStoreButton": "Go to stores"
+  },
+  "deliveries": {
+    "batch": {
+      "title": "New delivery",
+      "subtitle": "Pick a supplier and add the items from one delivery",
+      "startScan": "Scan barcodes",
+      "scanAdded": "Added: {{title}}",
+      "addManualLabel": "Add manually",
+      "empty": "No items added yet",
+      "saveAll": "Save delivery ({{count}})"
+    }
   }
 }

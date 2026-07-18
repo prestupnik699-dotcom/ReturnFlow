@@ -331,6 +331,7 @@
     "overviewToday": "Сегодня",
     "actionCreateReturn": "Возврат",
     "actionScanner": "Сканер",
+    "actionDelivery": "Приёмка",
     "actionBatch": "Быстрая запись",
     "actionStatistics": "Статистика",
     "attentionTitle": "Требует внимания",
@@ -350,5 +351,16 @@
     "noStoreTitle": "Сначала выберите магазин",
     "noStoreMessage": "Добавьте магазин или выберите активный в разделе «Магазины» — тогда здесь появятся данные по возвратам",
     "noStoreButton": "Перейти к магазинам"
+  },
+  "deliveries": {
+    "batch": {
+      "title": "Новая поставка",
+      "subtitle": "Выберите поставщика и добавьте товары одной поставки",
+      "startScan": "Сканировать штрихкоды",
+      "scanAdded": "Добавлено: {{title}}",
+      "addManualLabel": "Добавить вручную",
+      "empty": "Пока нет ни одной позиции",
+      "saveAll": "Сохранить поставку ({{count}})"
+    }
   }
 }
