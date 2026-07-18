@@ -10,6 +10,8 @@ import {
 } from '@/features/auth/validators/forgot-password.schema';
 import { requestPasswordReset } from '@/features/auth/services/auth.service';
 import { useTheme } from '@/theme/ThemeProvider';
+import { Screen } from '@/components/Screen';
+import { ScreenHeader } from '@/components/ScreenHeader';
 import { Button } from '@/components/Button';
 
 export function ForgotPasswordScreen() {
@@ -43,83 +45,73 @@ export function ForgotPasswordScreen() {
   const styles = createStyles(theme);
 
   return (
-    <View style={styles.container}>
-      <Text style={styles.title}>{t('auth.forgotPassword.title')}</Text>
+    <Screen>
+      <View style={styles.container}>
+        <ScreenHeader title={t('auth.forgotPassword.title')} onBack={() => router.back()} />
 
-      {success ? (
-        <>
-          <View style={styles.successBanner}>
-            <Text style={styles.successText}>{t('auth.forgotPassword.success')}</Text>
-          </View>
-          <Button
-            label={t('common.back')}
-            variant="outline"
-            onPress={() => router.replace('/login')}
-          />
-        </>
-      ) : (
-        <View style={styles.form}>
-          <Text style={styles.instructions}>{t('auth.forgotPassword.instructions')}</Text>
-
-          <View style={styles.field}>
-            <Text style={styles.label}>{t('auth.login.emailLabel')}</Text>
-            <Controller
-              control={control}
-              name="email"
-              render={({ field: { value, onChange, onBlur } }) => (
-                <TextInput
-                  style={[styles.input, errors.email && styles.inputError]}
-                  placeholder={t('auth.login.emailPlaceholder')}
-                  placeholderTextColor={theme.colors.textSecondary}
-                  autoCapitalize="none"
-                  autoCorrect={false}
-                  keyboardType="email-address"
-                  value={value}
-                  onChangeText={(text) => {
-                    onChange(text);
-                    setSubmitError(null);
-                  }}
-                  onBlur={onBlur}
-                />
-              )}
-            />
-            {errors.email ? (
-              <Text style={styles.errorText}>{t(errors.email.message ?? '')}</Text>
-            ) : null}
-          </View>
-
-          {submitError ? (
-            <View style={styles.errorBanner}>
-              <Text style={styles.errorBannerText}>{submitError}</Text>
+        {success ? (
+          <>
+            <View style={styles.successBanner}>
+              <Text style={styles.successText}>{t('auth.forgotPassword.success')}</Text>
             </View>
-          ) : null}
+            <Button
+              label={t('common.back')}
+              variant="outline"
+              onPress={() => router.replace('/login')}
+            />
+          </>
+        ) : (
+          <View style={styles.form}>
+            <Text style={styles.instructions}>{t('auth.forgotPassword.instructions')}</Text>
 
-          <Button
-            label={t('auth.forgotPassword.submit')}
-            onPress={handleSubmit(onSubmit)}
-            loading={isSubmitting}
-          />
-        </View>
-      )}
-    </View>
+            <View style={styles.field}>
+              <Text style={styles.label}>{t('auth.login.emailLabel')}</Text>
+              <Controller
+                control={control}
+                name="email"
+                render={({ field: { value, onChange, onBlur } }) => (
+                  <TextInput
+                    style={[styles.input, errors.email && styles.inputError]}
+                    placeholder={t('auth.login.emailPlaceholder')}
+                    placeholderTextColor={theme.colors.textSecondary}
+                    autoCapitalize="none"
+                    autoCorrect={false}
+                    keyboardType="email-address"
+                    value={value}
+                    onChangeText={(text) => {
+                      onChange(text);
+                      setSubmitError(null);
+                    }}
+                    onBlur={onBlur}
+                  />
+                )}
+              />
+              {errors.email ? (
+                <Text style={styles.errorText}>{t(errors.email.message ?? '')}</Text>
+              ) : null}
+            </View>
+
+            {submitError ? (
+              <View style={styles.errorBanner}>
+                <Text style={styles.errorBannerText}>{submitError}</Text>
+              </View>
+            ) : null}
+
+            <Button
+              label={t('auth.forgotPassword.submit')}
+              onPress={handleSubmit(onSubmit)}
+              loading={isSubmitting}
+            />
+          </View>
+        )}
+      </View>
+    </Screen>
   );
 }
 
 function createStyles(theme: ReturnType<typeof useTheme>) {
   return StyleSheet.create({
-    container: {
-      flex: 1,
-      backgroundColor: theme.colors.background,
-      justifyContent: 'center',
-      paddingHorizontal: theme.spacing.xl,
-      gap: theme.spacing.xl,
-    },
-    title: {
-      fontSize: theme.fontSizes.xl,
-      fontWeight: theme.fontWeights.bold,
-      color: theme.colors.textPrimary,
-      textAlign: 'center',
-    },
+    container: { flex: 1, justifyContent: 'center', gap: theme.spacing.xl },
     instructions: {
       fontSize: theme.fontSizes.sm,
       color: theme.colors.textSecondary,

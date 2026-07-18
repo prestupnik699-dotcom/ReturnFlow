@@ -10,6 +10,7 @@ import {
 import { changePassword } from '@/features/auth/services/auth.service';
 import { useAuthStore } from '@/stores/auth.store';
 import { useTheme } from '@/theme/ThemeProvider';
+import { Screen } from '@/components/Screen';
 import { Logo } from '@/components/Logo';
 import { Button } from '@/components/Button';
 
@@ -44,83 +45,80 @@ export function ResetPasswordScreen() {
   const styles = createStyles(theme);
 
   return (
-    <View style={styles.container}>
-      <View style={styles.header}>
-        <Logo size={56} />
-        <Text style={styles.title}>{t('auth.changePassword.title')}</Text>
-      </View>
-
-      <View style={styles.form}>
-        <View style={styles.field}>
-          <Text style={styles.label}>{t('auth.changePassword.newPasswordLabel')}</Text>
-          <Controller
-            control={control}
-            name="newPassword"
-            render={({ field: { value, onChange, onBlur } }) => (
-              <TextInput
-                style={[styles.input, errors.newPassword && styles.inputError]}
-                secureTextEntry
-                value={value}
-                onChangeText={(text) => {
-                  onChange(text);
-                  setSubmitError(null);
-                }}
-                onBlur={onBlur}
-              />
-            )}
-          />
-          {errors.newPassword ? (
-            <Text style={styles.errorText}>{t(errors.newPassword.message ?? '')}</Text>
-          ) : null}
+    <Screen>
+      <View style={styles.container}>
+        <View style={styles.header}>
+          <Logo size={56} />
+          <Text style={styles.title}>{t('auth.changePassword.title')}</Text>
         </View>
 
-        <View style={styles.field}>
-          <Text style={styles.label}>{t('auth.changePassword.confirmNewPasswordLabel')}</Text>
-          <Controller
-            control={control}
-            name="confirmNewPassword"
-            render={({ field: { value, onChange, onBlur } }) => (
-              <TextInput
-                style={[styles.input, errors.confirmNewPassword && styles.inputError]}
-                secureTextEntry
-                value={value}
-                onChangeText={(text) => {
-                  onChange(text);
-                  setSubmitError(null);
-                }}
-                onBlur={onBlur}
-              />
-            )}
-          />
-          {errors.confirmNewPassword ? (
-            <Text style={styles.errorText}>{t(errors.confirmNewPassword.message ?? '')}</Text>
-          ) : null}
-        </View>
-
-        {submitError ? (
-          <View style={styles.errorBanner}>
-            <Text style={styles.errorBannerText}>{submitError}</Text>
+        <View style={styles.form}>
+          <View style={styles.field}>
+            <Text style={styles.label}>{t('auth.changePassword.newPasswordLabel')}</Text>
+            <Controller
+              control={control}
+              name="newPassword"
+              render={({ field: { value, onChange, onBlur } }) => (
+                <TextInput
+                  style={[styles.input, errors.newPassword && styles.inputError]}
+                  secureTextEntry
+                  value={value}
+                  onChangeText={(text) => {
+                    onChange(text);
+                    setSubmitError(null);
+                  }}
+                  onBlur={onBlur}
+                />
+              )}
+            />
+            {errors.newPassword ? (
+              <Text style={styles.errorText}>{t(errors.newPassword.message ?? '')}</Text>
+            ) : null}
           </View>
-        ) : null}
 
-        <Button
-          label={t('auth.changePassword.submit')}
-          onPress={handleSubmit(onSubmit)}
-          loading={isSubmitting}
-        />
+          <View style={styles.field}>
+            <Text style={styles.label}>{t('auth.changePassword.confirmNewPasswordLabel')}</Text>
+            <Controller
+              control={control}
+              name="confirmNewPassword"
+              render={({ field: { value, onChange, onBlur } }) => (
+                <TextInput
+                  style={[styles.input, errors.confirmNewPassword && styles.inputError]}
+                  secureTextEntry
+                  value={value}
+                  onChangeText={(text) => {
+                    onChange(text);
+                    setSubmitError(null);
+                  }}
+                  onBlur={onBlur}
+                />
+              )}
+            />
+            {errors.confirmNewPassword ? (
+              <Text style={styles.errorText}>{t(errors.confirmNewPassword.message ?? '')}</Text>
+            ) : null}
+          </View>
+
+          {submitError ? (
+            <View style={styles.errorBanner}>
+              <Text style={styles.errorBannerText}>{submitError}</Text>
+            </View>
+          ) : null}
+
+          <Button
+            label={t('auth.changePassword.submit')}
+            onPress={handleSubmit(onSubmit)}
+            loading={isSubmitting}
+          />
+        </View>
       </View>
-    </View>
+    </Screen>
   );
 }
 
 function createStyles(theme: ReturnType<typeof useTheme>) {
   return StyleSheet.create({
-    container: {
-      flex: 1,
-      backgroundColor: theme.colors.background,
-      justifyContent: 'center',
-      paddingHorizontal: theme.spacing.xl,
-    },
+    container: { flex: 1, justifyContent: 'center' },
     header: { alignItems: 'center', marginBottom: theme.spacing['2xl'], gap: theme.spacing.sm },
     title: {
       fontSize: theme.fontSizes.xl,
