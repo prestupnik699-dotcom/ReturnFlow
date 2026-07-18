@@ -362,7 +362,7 @@ function createStyles(theme: ReturnType<typeof useTheme>) {
     modeToggle: {
       flexDirection: 'row',
       backgroundColor: theme.colors.card,
-      borderRadius: theme.radius.md,
+      borderRadius: theme.radius.full,
       padding: 4,
       gap: 4,
     },
@@ -370,7 +370,7 @@ function createStyles(theme: ReturnType<typeof useTheme>) {
       flex: 1,
       alignItems: 'center',
       paddingVertical: theme.spacing.sm,
-      borderRadius: theme.radius.sm,
+      borderRadius: theme.radius.full,
     },
     modeButtonActive: { backgroundColor: theme.colors.primary },
     modeText: {
@@ -405,7 +405,7 @@ function createStyles(theme: ReturnType<typeof useTheme>) {
       justifyContent: 'center',
       gap: theme.spacing.sm,
       backgroundColor: theme.colors.primary,
-      borderRadius: theme.radius.md,
+      borderRadius: theme.radius.full,
       paddingVertical: theme.spacing.md,
     },
     startScanText: {
@@ -487,7 +487,7 @@ function createStyles(theme: ReturnType<typeof useTheme>) {
     addLineButton: {
       width: 40,
       height: 40,
-      borderRadius: theme.radius.md,
+      borderRadius: theme.radius.full,
       backgroundColor: theme.colors.primary,
       alignItems: 'center',
       justifyContent: 'center',

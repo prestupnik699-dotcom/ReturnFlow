@@ -591,7 +591,7 @@ function createStyles(theme: Theme) {
     deleteIconButton: {
       width: 52,
       height: 52,
-      borderRadius: theme.radius.md,
+      borderRadius: theme.radius.full,
       borderWidth: 1,
       borderColor: theme.colors.danger,
       alignItems: 'center',
