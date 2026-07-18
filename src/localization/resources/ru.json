@@ -248,7 +248,10 @@
       "addLineLabel": "Добавить позицию",
       "barcodeShort": "Код",
       "empty": "Пока нет ни одной позиции",
-      "saveAll": "Сохранить всё ({{count}})"
+      "saveAll": "Сохранить всё ({{count}})",
+      "modeReturn": "Возврат",
+      "modeDelivery": "Приёмка",
+      "scanAdded": "Добавлено: {{title}}"
     }
   },
   "chat": {
@@ -331,7 +334,6 @@
     "overviewToday": "Сегодня",
     "actionCreateReturn": "Возврат",
     "actionScanner": "Сканер",
-    "actionDelivery": "Приёмка",
     "actionBatch": "Быстрая запись",
     "actionStatistics": "Статистика",
     "attentionTitle": "Требует внимания",

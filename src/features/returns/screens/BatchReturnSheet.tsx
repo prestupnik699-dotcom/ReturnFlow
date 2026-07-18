@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useRef, useState } from 'react';
 import {
   Modal,
   View,
@@ -9,7 +9,9 @@ import {
   StyleSheet,
   KeyboardAvoidingView,
   Platform,
+  ActivityIndicator,
 } from 'react-native';
+import { CameraView, useCameraPermissions } from 'expo-camera';
 import { useTranslation } from 'react-i18next';
 import { Ionicons } from '@expo/vector-icons';
 import { useTheme } from '@/theme/ThemeProvider';
@@ -17,33 +19,49 @@ import { Button } from '@/components/Button';
 import { Chip } from '@/components/Chip';
 import { useSuppliers } from '@/features/suppliers/hooks/useSuppliers';
 import { useCreateReturnsBatch } from '@/features/returns/hooks/useCreateReturnsBatch';
+import { useCreateDeliveriesBatch } from '@/features/deliveries/hooks/useCreateDeliveriesBatch';
+import { lookupProductNameByBarcode } from '@/features/scanner/services/productLookup.service';
 
-type Line = { id: string; title: string; quantity: string; barcode: string };
+type Mode = 'return' | 'delivery';
+type Line = { id: string; title: string; quantity: number; barcode: string };
 
 type Props = { visible: boolean; onClose: () => void };
 
 export function BatchReturnSheet({ visible, onClose }: Props) {
   const theme = useTheme();
   const { t } = useTranslation();
+  const [permission, requestPermission] = useCameraPermissions();
   const { data: suppliers } = useSuppliers(false, 'name');
-  const batchMutation = useCreateReturnsBatch();
+  const returnsBatchMutation = useCreateReturnsBatch();
+  const deliveriesBatchMutation = useCreateDeliveriesBatch();
   const styles = createStyles(theme);
 
+  const [mode, setMode] = useState<Mode>('return');
   const [supplierId, setSupplierId] = useState('');
   const [isExchange, setIsExchange] = useState(false);
   const [lines, setLines] = useState<Line[]>([]);
+  const [scanningActive, setScanningActive] = useState(false);
+  const [isLookingUp, setIsLookingUp] = useState(false);
+  const [toastMessage, setToastMessage] = useState<string | null>(null);
   const [titleInput, setTitleInput] = useState('');
   const [barcodeInput, setBarcodeInput] = useState('');
   const [quantityInput, setQuantityInput] = useState('1');
+  const scanLockRef = useRef(false);
+
+  const batchMutation = mode === 'return' ? returnsBatchMutation : deliveriesBatchMutation;
 
   const reset = () => {
+    setMode('return');
     setSupplierId('');
     setIsExchange(false);
     setLines([]);
+    setScanningActive(false);
+    setToastMessage(null);
     setTitleInput('');
     setBarcodeInput('');
     setQuantityInput('1');
-    batchMutation.reset();
+    returnsBatchMutation.reset();
+    deliveriesBatchMutation.reset();
   };
 
   const handleClose = () => {
@@ -51,19 +69,50 @@ export function BatchReturnSheet({ visible, onClose }: Props) {
     onClose();
   };
 
-  const addLine = () => {
+  const handleModeChange = (nextMode: Mode) => {
+    // Switching mode mid-entry would silently reinterpret already-scanned
+    // lines as the other direction (return vs receiving) — clearer to
+    // just start the list over than risk that confusion.
+    setMode(nextMode);
+    setLines([]);
+  };
+
+  const addOrIncrementLine = (title: string, barcode: string, quantity = 1) => {
+    setLines((prev) => {
+      const existing = barcode ? prev.find((line) => line.barcode === barcode) : undefined;
+      if (existing) {
+        return prev.map((line) =>
+          line.id === existing.id ? { ...line, quantity: line.quantity + quantity } : line,
+        );
+      }
+      return [...prev, { id: `${Date.now()}-${Math.random()}`, title, quantity, barcode }];
+    });
+  };
+
+  const handleBarcodeScanned = async ({ data }: { data: string }) => {
+    if (scanLockRef.current) return;
+    scanLockRef.current = true;
+
+    setIsLookingUp(true);
+    const productName = await lookupProductNameByBarcode(data);
+    setIsLookingUp(false);
+
+    const title = productName ?? data;
+    addOrIncrementLine(title, data, 1);
+    setToastMessage(t('returns.batch.scanAdded', { title }));
+
+    setTimeout(() => {
+      scanLockRef.current = false;
+      setToastMessage(null);
+    }, 1200);
+  };
+
+  const addManualLine = () => {
     const title = titleInput.trim();
     if (!title) return;
 
-    setLines((prev) => [
-      ...prev,
-      {
-        id: `${Date.now()}`,
-        title,
-        quantity: quantityInput.trim() || '1',
-        barcode: barcodeInput.trim(),
-      },
-    ]);
+    const quantity = Math.max(1, parseInt(quantityInput, 10) || 1);
+    addOrIncrementLine(title, barcodeInput.trim(), quantity);
     setTitleInput('');
     setBarcodeInput('');
     setQuantityInput('1');
@@ -76,18 +125,20 @@ export function BatchReturnSheet({ visible, onClose }: Props) {
   const handleSaveAll = () => {
     if (!supplierId || lines.length === 0) return;
 
-    batchMutation.mutate(
-      {
-        supplierId,
-        isExchange,
-        lines: lines.map((line) => ({
-          title: line.title,
-          quantity: Math.max(1, parseInt(line.quantity, 10) || 1),
-          barcode: line.barcode,
-        })),
-      },
-      { onSuccess: handleClose },
-    );
+    const lineInputs = lines.map((line) => ({
+      title: line.title,
+      quantity: line.quantity,
+      barcode: line.barcode,
+    }));
+
+    if (mode === 'return') {
+      returnsBatchMutation.mutate(
+        { supplierId, isExchange, lines: lineInputs },
+        { onSuccess: handleClose },
+      );
+    } else {
+      deliveriesBatchMutation.mutate({ supplierId, lines: lineInputs }, { onSuccess: handleClose });
+    }
   };
 
   return (
@@ -107,8 +158,31 @@ export function BatchReturnSheet({ visible, onClose }: Props) {
           keyboardShouldPersistTaps="handled"
           showsVerticalScrollIndicator={false}
         >
-          <Text style={styles.title}>{t('returns.batch.title')}</Text>
-          <Text style={styles.subtitle}>{t('returns.batch.subtitle')}</Text>
+          <Text style={styles.title}>
+            {mode === 'return' ? t('returns.batch.title') : t('deliveries.batch.title')}
+          </Text>
+          <Text style={styles.subtitle}>
+            {mode === 'return' ? t('returns.batch.subtitle') : t('deliveries.batch.subtitle')}
+          </Text>
+
+          <View style={styles.modeToggle}>
+            <Pressable
+              style={[styles.modeButton, mode === 'return' && styles.modeButtonActive]}
+              onPress={() => handleModeChange('return')}
+            >
+              <Text style={[styles.modeText, mode === 'return' && styles.modeTextActive]}>
+                {t('returns.batch.modeReturn')}
+              </Text>
+            </Pressable>
+            <Pressable
+              style={[styles.modeButton, mode === 'delivery' && styles.modeButtonActive]}
+              onPress={() => handleModeChange('delivery')}
+            >
+              <Text style={[styles.modeText, mode === 'delivery' && styles.modeTextActive]}>
+                {t('returns.batch.modeDelivery')}
+              </Text>
+            </Pressable>
+          </View>
 
           <View style={styles.field}>
             <Text style={styles.label}>{t('returns.create.supplierLabel')}</Text>
@@ -124,14 +198,65 @@ export function BatchReturnSheet({ visible, onClose }: Props) {
             </View>
           </View>
 
-          <Pressable style={styles.exchangeToggle} onPress={() => setIsExchange((v) => !v)}>
-            <Ionicons
-              name={isExchange ? 'checkbox' : 'square-outline'}
-              size={22}
-              color={isExchange ? theme.colors.primary : theme.colors.textSecondary}
-            />
-            <Text style={styles.exchangeLabel}>{t('returns.create.exchangeLabel')}</Text>
-          </Pressable>
+          {mode === 'return' ? (
+            <Pressable style={styles.exchangeToggle} onPress={() => setIsExchange((v) => !v)}>
+              <Ionicons
+                name={isExchange ? 'checkbox' : 'square-outline'}
+                size={22}
+                color={isExchange ? theme.colors.primary : theme.colors.textSecondary}
+              />
+              <Text style={styles.exchangeLabel}>{t('returns.create.exchangeLabel')}</Text>
+            </Pressable>
+          ) : null}
+
+          {supplierId ? (
+            <View style={styles.field}>
+              {!scanningActive ? (
+                <Pressable style={styles.startScanButton} onPress={() => setScanningActive(true)}>
+                  <Ionicons name="scan-outline" size={20} color={theme.colors.onPrimary} />
+                  <Text style={styles.startScanText}>{t('deliveries.batch.startScan')}</Text>
+                </Pressable>
+              ) : !permission?.granted ? (
+                <View style={styles.permissionBox}>
+                  <Text style={styles.permissionText}>{t('scanner.noPermission')}</Text>
+                  <Button label={t('scanner.openSettings')} onPress={requestPermission} />
+                </View>
+              ) : (
+                <View style={styles.cameraWrap}>
+                  <CameraView
+                    style={styles.camera}
+                    barcodeScannerSettings={{
+                      barcodeTypes: ['ean13', 'ean8', 'upc_a', 'upc_e', 'code128', 'code39'],
+                    }}
+                    onBarcodeScanned={handleBarcodeScanned}
+                  />
+                  <View style={styles.cameraOverlay} pointerEvents="box-none">
+                    <View style={styles.frame} />
+                    <Pressable
+                      style={styles.stopScanButton}
+                      onPress={() => setScanningActive(false)}
+                      hitSlop={8}
+                    >
+                      <Ionicons name="close" size={18} color="#fff" />
+                    </Pressable>
+                  </View>
+                  {isLookingUp ? (
+                    <View style={styles.cameraStatusOverlay}>
+                      <ActivityIndicator color="#fff" />
+                    </View>
+                  ) : null}
+                  {toastMessage ? (
+                    <View style={styles.toast}>
+                      <Ionicons name="checkmark-circle" size={16} color={theme.colors.success} />
+                      <Text style={styles.toastText} numberOfLines={1}>
+                        {toastMessage}
+                      </Text>
+                    </View>
+                  ) : null}
+                </View>
+              )}
+            </View>
+          ) : null}
 
           <View style={styles.field}>
             <Text style={styles.label}>{t('returns.batch.addLineLabel')}</Text>
@@ -142,7 +267,7 @@ export function BatchReturnSheet({ visible, onClose }: Props) {
                 placeholderTextColor={theme.colors.textSecondary}
                 value={titleInput}
                 onChangeText={setTitleInput}
-                onSubmitEditing={addLine}
+                onSubmitEditing={addManualLine}
               />
               <TextInput
                 style={[styles.quickInput, styles.quickBarcode]}
@@ -158,7 +283,7 @@ export function BatchReturnSheet({ visible, onClose }: Props) {
                 onChangeText={setQuantityInput}
                 keyboardType="number-pad"
               />
-              <Pressable style={styles.addLineButton} onPress={addLine}>
+              <Pressable style={styles.addLineButton} onPress={addManualLine}>
                 <Ionicons name="add" size={22} color={theme.colors.onPrimary} />
               </Pressable>
             </View>
@@ -198,7 +323,11 @@ export function BatchReturnSheet({ visible, onClose }: Props) {
               style={styles.flexButton}
             />
             <Button
-              label={t('returns.batch.saveAll', { count: lines.length })}
+              label={
+                mode === 'return'
+                  ? t('returns.batch.saveAll', { count: lines.length })
+                  : t('deliveries.batch.saveAll', { count: lines.length })
+              }
               onPress={handleSaveAll}
               loading={batchMutation.isPending}
               disabled={!supplierId || lines.length === 0}
@@ -226,6 +355,26 @@ function createStyles(theme: ReturnType<typeof useTheme>) {
       color: theme.colors.textSecondary,
       marginTop: -theme.spacing.sm,
     },
+    modeToggle: {
+      flexDirection: 'row',
+      backgroundColor: theme.colors.card,
+      borderRadius: theme.radius.md,
+      padding: 4,
+      gap: 4,
+    },
+    modeButton: {
+      flex: 1,
+      alignItems: 'center',
+      paddingVertical: theme.spacing.sm,
+      borderRadius: theme.radius.sm,
+    },
+    modeButtonActive: { backgroundColor: theme.colors.primary },
+    modeText: {
+      fontSize: theme.fontSizes.sm,
+      fontWeight: theme.fontWeights.medium,
+      color: theme.colors.textSecondary,
+    },
+    modeTextActive: { color: theme.colors.onPrimary, fontWeight: theme.fontWeights.semiBold },
     field: { gap: theme.spacing.xs },
     label: {
       fontSize: theme.fontSizes.sm,
@@ -246,6 +395,77 @@ function createStyles(theme: ReturnType<typeof useTheme>) {
       fontWeight: theme.fontWeights.medium,
       color: theme.colors.textPrimary,
     },
+    startScanButton: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      justifyContent: 'center',
+      gap: theme.spacing.sm,
+      backgroundColor: theme.colors.primary,
+      borderRadius: theme.radius.md,
+      paddingVertical: theme.spacing.md,
+    },
+    startScanText: {
+      color: theme.colors.onPrimary,
+      fontSize: theme.fontSizes.md,
+      fontWeight: theme.fontWeights.semiBold,
+    },
+    permissionBox: {
+      alignItems: 'center',
+      gap: theme.spacing.md,
+      padding: theme.spacing.lg,
+      backgroundColor: theme.colors.card,
+      borderRadius: theme.radius.md,
+    },
+    permissionText: { color: theme.colors.textSecondary, textAlign: 'center' },
+    cameraWrap: {
+      height: 240,
+      borderRadius: theme.radius.lg,
+      overflow: 'hidden',
+    },
+    camera: { flex: 1 },
+    cameraOverlay: {
+      ...StyleSheet.absoluteFill,
+      alignItems: 'center',
+      justifyContent: 'center',
+    },
+    frame: {
+      width: 220,
+      height: 130,
+      borderWidth: 2,
+      borderColor: '#FFFFFF',
+      borderRadius: theme.radius.md,
+    },
+    stopScanButton: {
+      position: 'absolute',
+      top: theme.spacing.sm,
+      right: theme.spacing.sm,
+      width: 30,
+      height: 30,
+      borderRadius: 15,
+      backgroundColor: 'rgba(0,0,0,0.5)',
+      alignItems: 'center',
+      justifyContent: 'center',
+    },
+    cameraStatusOverlay: {
+      ...StyleSheet.absoluteFill,
+      backgroundColor: 'rgba(0,0,0,0.4)',
+      alignItems: 'center',
+      justifyContent: 'center',
+    },
+    toast: {
+      position: 'absolute',
+      bottom: theme.spacing.sm,
+      left: theme.spacing.sm,
+      right: theme.spacing.sm,
+      flexDirection: 'row',
+      alignItems: 'center',
+      gap: 6,
+      backgroundColor: 'rgba(0,0,0,0.75)',
+      borderRadius: theme.radius.sm,
+      paddingHorizontal: theme.spacing.sm,
+      paddingVertical: 6,
+    },
+    toastText: { color: '#fff', fontSize: theme.fontSizes.xs, flex: 1 },
     quickRow: { flexDirection: 'row', gap: theme.spacing.xs, alignItems: 'center' },
     quickInput: {
       borderWidth: 1,

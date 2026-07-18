@@ -20,7 +20,6 @@ import { usePendingSyncCount } from '@/features/statistics/hooks/usePendingSyncC
 import { useUnreadCount } from '@/features/notifications/hooks/useUnreadCount';
 import { ReturnFormSheet } from '@/features/returns/screens/ReturnFormSheet';
 import { BatchReturnSheet } from '@/features/returns/screens/BatchReturnSheet';
-import { DeliveryBatchSheet } from '@/features/deliveries/screens/DeliveryBatchSheet';
 import type { ReturnItem } from '@/features/returns/services/returns.service';
 
 const LOCALE_MAP: Record<string, string> = { ka: 'ka-GE', en: 'en-US', ru: 'ru-RU' };
@@ -44,7 +43,6 @@ export function DashboardScreen() {
   const unreadCount = useUnreadCount();
   const [formVisible, setFormVisible] = useState(false);
   const [batchVisible, setBatchVisible] = useState(false);
-  const [deliveryVisible, setDeliveryVisible] = useState(false);
   const styles = createStyles(theme);
 
   const { data: allReturns, isLoading } = useReturns();
@@ -193,11 +191,7 @@ export function DashboardScreen() {
               </View>
             </LinearGradient>
 
-            <ScrollView
-              horizontal
-              showsHorizontalScrollIndicator={false}
-              contentContainerStyle={styles.quickActionsRow}
-            >
+            <View style={styles.quickActionsRow}>
               <QuickAction
                 icon="add-circle-outline"
                 label={t('dashboard.actionCreateReturn')}
@@ -208,12 +202,6 @@ export function DashboardScreen() {
                 icon="scan-outline"
                 label={t('dashboard.actionScanner')}
                 onPress={() => router.push('/scanner')}
-                theme={theme}
-              />
-              <QuickAction
-                icon="cube-outline"
-                label={t('dashboard.actionDelivery')}
-                onPress={() => setDeliveryVisible(true)}
                 theme={theme}
               />
               <QuickAction
@@ -228,7 +216,7 @@ export function DashboardScreen() {
                 onPress={() => router.push('/statistics')}
                 theme={theme}
               />
-            </ScrollView>
+            </View>
 
             {urgentCount > 0 || todayCount > 0 || (pendingSyncCount ?? 0) > 0 ? (
               <View style={styles.section}>
@@ -338,7 +326,6 @@ export function DashboardScreen() {
 
       <ReturnFormSheet visible={formVisible} onClose={() => setFormVisible(false)} />
       <BatchReturnSheet visible={batchVisible} onClose={() => setBatchVisible(false)} />
-      <DeliveryBatchSheet visible={deliveryVisible} onClose={() => setDeliveryVisible(false)} />
     </Screen>
   );
 }
@@ -372,7 +359,7 @@ function QuickAction({
 function createQuickActionStyles(theme: Theme) {
   return StyleSheet.create({
     tile: {
-      width: 84,
+      flex: 1,
       minHeight: 108,
       backgroundColor: theme.colors.card,
       borderRadius: theme.radius.md,
@@ -527,11 +514,7 @@ function createStyles(theme: Theme) {
       color: theme.colors.textPrimary,
     },
     overviewLabel: { fontSize: theme.fontSizes.xs, color: theme.colors.textSecondary },
-    quickActionsRow: {
-      flexDirection: 'row',
-      gap: theme.spacing.sm,
-      paddingRight: theme.spacing.sm,
-    },
+    quickActionsRow: { flexDirection: 'row', gap: theme.spacing.sm },
     section: { gap: theme.spacing.sm },
     sectionHeaderRow: {
       flexDirection: 'row',

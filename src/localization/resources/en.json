@@ -248,7 +248,10 @@
       "addLineLabel": "Add item",
       "barcodeShort": "Code",
       "empty": "No items added yet",
-      "saveAll": "Save all ({{count}})"
+      "saveAll": "Save all ({{count}})",
+      "modeReturn": "Return",
+      "modeDelivery": "Receiving",
+      "scanAdded": "Added: {{title}}"
     }
   },
   "chat": {
@@ -331,7 +334,6 @@
     "overviewToday": "Today",
     "actionCreateReturn": "Return",
     "actionScanner": "Scanner",
-    "actionDelivery": "Receiving",
     "actionBatch": "Quick entry",
     "actionStatistics": "Statistics",
     "attentionTitle": "Needs attention",
