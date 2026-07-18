@@ -357,6 +357,8 @@
     "noStoreButton": "Go to stores"
   },
   "deliveries": {
+    "title": "Deliveries",
+    "empty": "No deliveries yet",
     "batch": {
       "title": "New delivery",
       "subtitle": "Pick a supplier and add the items from one delivery",

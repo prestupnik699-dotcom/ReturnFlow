@@ -87,6 +87,11 @@ export default function More() {
             onPress={() => router.push('/statistics')}
           />
           <MenuRow
+            icon="download-outline"
+            label={t('deliveries.title')}
+            onPress={() => router.push('/deliveries')}
+          />
+          <MenuRow
             icon="person-circle-outline"
             label={t('profile.title')}
             onPress={() => router.push('/profile-settings')}
