@@ -150,7 +150,8 @@
     "returnsCount": "{{count}} возвратов",
     "attentionBadge": "{{count}} срочных",
     "currentBadge": "Текущий",
-    "deleteAction": "Удалить"
+    "deleteAction": "Удалить",
+    "deliveriesCount": "{{count}} поставок"
   },
   "suppliers": {
     "title": "Поставщики",
@@ -177,7 +178,8 @@
     "filterAttention": "Требуют внимания",
     "returnsCount": "{{count}} возвратов",
     "attentionBadge": "{{count}} срочных",
-    "deleteAction": "Удалить"
+    "deleteAction": "Удалить",
+    "deliveriesCount": "{{count}} поставок"
   },
   "returns": {
     "title": "Возвраты",

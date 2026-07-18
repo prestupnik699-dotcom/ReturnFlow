@@ -150,7 +150,8 @@
     "returnsCount": "{{count}} returns",
     "attentionBadge": "{{count}} urgent",
     "currentBadge": "Current",
-    "deleteAction": "Delete"
+    "deleteAction": "Delete",
+    "deliveriesCount": "{{count}} deliveries"
   },
   "suppliers": {
     "title": "Suppliers",
@@ -177,7 +178,8 @@
     "filterAttention": "Needs attention",
     "returnsCount": "{{count}} returns",
     "attentionBadge": "{{count}} urgent",
-    "deleteAction": "Delete"
+    "deleteAction": "Delete",
+    "deliveriesCount": "{{count}} deliveries"
   },
   "returns": {
     "title": "Returns",

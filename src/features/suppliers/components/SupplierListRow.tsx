@@ -83,6 +83,7 @@ type Props = {
   supplier: Supplier;
   returnsTotal: number;
   returnsUrgent: number;
+  deliveriesTotal: number;
   onEdit: () => void;
   onToggleFavorite: () => void;
   onRequestDelete: () => void;
@@ -92,6 +93,7 @@ export function SupplierListRow({
   supplier,
   returnsTotal,
   returnsUrgent,
+  deliveriesTotal,
   onEdit,
   onToggleFavorite,
   onRequestDelete,
@@ -153,6 +155,12 @@ export function SupplierListRow({
             <Ionicons name="repeat-outline" size={13} color={theme.colors.textSecondary} />
             <Text style={styles.statText}>
               {t('suppliers.returnsCount', { count: returnsTotal })}
+            </Text>
+          </View>
+          <View style={styles.statBadge}>
+            <Ionicons name="download-outline" size={13} color={theme.colors.textSecondary} />
+            <Text style={styles.statText}>
+              {t('suppliers.deliveriesCount', { count: deliveriesTotal })}
             </Text>
           </View>
           {returnsUrgent > 0 ? (

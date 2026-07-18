@@ -24,6 +24,7 @@ import { useHasRole } from '@/features/auth/hooks/usePermissions';
 import { useStores } from '@/features/stores/hooks/useStores';
 import { useDeleteStore } from '@/features/stores/hooks/useDeleteStore';
 import { useStoreReturnCounts } from '@/features/stores/hooks/useStoreReturnCounts';
+import { useStoreDeliveryCounts } from '@/features/stores/hooks/useStoreDeliveryCounts';
 import { StoreFormSheet } from '@/features/stores/screens/StoreFormSheet';
 import { StoreListRow } from '@/features/stores/components/StoreListRow';
 import { useMembershipStore } from '@/stores/membership.store';
@@ -44,6 +45,7 @@ export function StoresScreen() {
   const canAdd = useHasRole(['Owner', 'Administrator']);
   const { data: stores, isLoading, isError } = useStores();
   const { data: returnCounts } = useStoreReturnCounts();
+  const { data: deliveryCounts } = useStoreDeliveryCounts();
   const deleteMutation = useDeleteStore();
   const activeOrganizationId = useMembershipStore((state) => state.activeOrganizationId);
   const activeStoreId = useMembershipStore((state) => state.activeStoreId);
@@ -186,6 +188,7 @@ export function StoresScreen() {
                     isCurrent={activeStoreId === item.id}
                     returnsTotal={counts.total}
                     returnsUrgent={counts.urgent}
+                    deliveriesTotal={deliveryCounts?.[item.id] ?? 0}
                     subtitle={storeSubtitle(item, t('stores.noAddress'))}
                     onSelectCurrent={() => handleSelectCurrent(item)}
                     onEdit={() => handleEdit(item)}

@@ -150,7 +150,8 @@
     "returnsCount": "{{count}} დაბრუნება",
     "attentionBadge": "{{count}} სასწრაფო",
     "currentBadge": "მიმდინარე",
-    "deleteAction": "წაშლა"
+    "deleteAction": "წაშლა",
+    "deliveriesCount": "{{count}} მიწოდება"
   },
   "suppliers": {
     "title": "მომწოდებლები",
@@ -177,7 +178,8 @@
     "filterAttention": "საჭიროებს ყურადღებას",
     "returnsCount": "{{count}} დაბრუნება",
     "attentionBadge": "{{count}} სასწრაფო",
-    "deleteAction": "წაშლა"
+    "deleteAction": "წაშლა",
+    "deliveriesCount": "{{count}} მიწოდება"
   },
   "returns": {
     "title": "დაბრუნებები",

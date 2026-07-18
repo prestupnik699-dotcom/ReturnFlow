@@ -120,3 +120,28 @@ export async function fetchDeliveryCountsByStore(
 
   return { success: true, data: counts };
 }
+
+export type DeliveryCountsBySupplier = Record<string, number>;
+
+export async function fetchDeliveryCountsBySupplier(
+  organizationId: string,
+): Promise<ServiceResult<DeliveryCountsBySupplier>> {
+  const { data, error } = await supabase
+    .from('delivery_items')
+    .select('supplier_id')
+    .eq('organization_id', organizationId)
+    .is('deleted_at', null);
+
+  if (error) {
+    return fromCaughtError(error, 'FETCH_SUPPLIER_DELIVERY_COUNTS_FAILED');
+  }
+
+  const rows = data as unknown as { supplier_id: string }[];
+  const counts: DeliveryCountsBySupplier = {};
+
+  for (const row of rows) {
+    counts[row.supplier_id] = (counts[row.supplier_id] ?? 0) + 1;
+  }
+
+  return { success: true, data: counts };
+}

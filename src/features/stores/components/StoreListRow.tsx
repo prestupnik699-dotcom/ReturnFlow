@@ -85,6 +85,7 @@ type Props = {
   isCurrent: boolean;
   returnsTotal: number;
   returnsUrgent: number;
+  deliveriesTotal: number;
   subtitle: string;
   onSelectCurrent: () => void;
   onEdit: () => void;
@@ -97,6 +98,7 @@ export function StoreListRow({
   isCurrent,
   returnsTotal,
   returnsUrgent,
+  deliveriesTotal,
   subtitle,
   onSelectCurrent,
   onEdit,
