@@ -9,6 +9,7 @@ import {
   type NativeScrollEvent,
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
+import { SafeAreaView } from 'react-native-safe-area-context';
 import { useTranslation } from 'react-i18next';
 import { useTheme } from '@/theme/ThemeProvider';
 import { Button } from '@/components/Button';
@@ -54,7 +55,7 @@ export function OnboardingTourScreen({ onFinish }: Props) {
   };
 
   return (
-    <View style={styles.container}>
+    <SafeAreaView style={styles.container} edges={['top', 'left', 'right', 'bottom']}>
       <FlatList
         ref={listRef}
         data={SLIDES}
@@ -96,7 +97,7 @@ export function OnboardingTourScreen({ onFinish }: Props) {
           </Text>
         ) : null}
       </View>
-    </View>
+    </SafeAreaView>
   );
 }
 
