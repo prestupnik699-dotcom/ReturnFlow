@@ -179,7 +179,8 @@
     "returnsCount": "{{count}} возвратов",
     "attentionBadge": "{{count}} срочных",
     "deleteAction": "Удалить",
-    "deliveriesCount": "{{count}} поставок"
+    "deliveriesCount": "{{count}} поставок",
+    "defectRate": "{{percent}}% брака"
   },
   "returns": {
     "title": "Возвраты",

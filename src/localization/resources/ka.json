@@ -179,7 +179,8 @@
     "returnsCount": "{{count}} დაბრუნება",
     "attentionBadge": "{{count}} სასწრაფო",
     "deleteAction": "წაშლა",
-    "deliveriesCount": "{{count}} მიწოდება"
+    "deliveriesCount": "{{count}} მიწოდება",
+    "defectRate": "{{percent}}% ბრაკი"
   },
   "returns": {
     "title": "დაბრუნებები",

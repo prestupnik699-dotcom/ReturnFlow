@@ -27,6 +27,7 @@ import {
 } from '@/features/suppliers/hooks/useSupplierMutations';
 import { useSupplierReturnCounts } from '@/features/suppliers/hooks/useSupplierReturnCounts';
 import { useSupplierDeliveryCounts } from '@/features/suppliers/hooks/useSupplierDeliveryCounts';
+import { useSupplierReliability } from '@/features/suppliers/hooks/useSupplierReliability';
 import { SupplierFormSheet } from '@/features/suppliers/screens/SupplierFormSheet';
 import { SupplierListRow } from '@/features/suppliers/components/SupplierListRow';
 import type { Supplier, SupplierSort } from '@/features/suppliers/services/suppliers.service';
@@ -45,6 +46,7 @@ export function SuppliersScreen() {
   const { data: allSuppliers, isLoading, isError } = useSuppliers(filterMode === 'favorites', sort);
   const { data: returnCounts } = useSupplierReturnCounts();
   const { data: deliveryCounts } = useSupplierDeliveryCounts();
+  const { data: reliability } = useSupplierReliability();
   const deleteMutation = useDeleteSupplier();
   const favoriteMutation = useToggleSupplierFavorite();
   const [formVisible, setFormVisible] = useState(false);
@@ -181,6 +183,7 @@ export function SuppliersScreen() {
                     returnsTotal={counts.total}
                     returnsUrgent={counts.urgent}
                     deliveriesTotal={deliveryCounts?.[item.id] ?? 0}
+                    reliability={reliability?.[item.id]}
                     onEdit={() => handleEdit(item)}
                     onToggleFavorite={() =>
                       favoriteMutation.mutate({ supplierId: item.id, favorite: !item.favorite })

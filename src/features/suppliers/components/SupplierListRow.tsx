@@ -11,6 +11,7 @@ import { Card } from '@/components/Card';
 import { PressableScale } from '@/components/PressableScale';
 import { useHasRole } from '@/features/auth/hooks/usePermissions';
 import type { Supplier } from '@/features/suppliers/services/suppliers.service';
+import type { SupplierReliability } from '@/features/suppliers/hooks/useSupplierReliability';
 
 type Theme = ReturnType<typeof useTheme>;
 
@@ -84,6 +85,7 @@ type Props = {
   returnsTotal: number;
   returnsUrgent: number;
   deliveriesTotal: number;
+  reliability?: SupplierReliability;
   onEdit: () => void;
   onToggleFavorite: () => void;
   onRequestDelete: () => void;
@@ -94,6 +96,7 @@ export function SupplierListRow({
   returnsTotal,
   returnsUrgent,
   deliveriesTotal,
+  reliability,
   onEdit,
   onToggleFavorite,
   onRequestDelete,
@@ -168,6 +171,46 @@ export function SupplierListRow({
               <View style={styles.urgentDot} />
               <Text style={[styles.statText, styles.urgentText]}>
                 {t('suppliers.attentionBadge', { count: returnsUrgent })}
+              </Text>
+            </View>
+          ) : null}
+          {reliability?.defectRatePercent != null ? (
+            <View
+              style={[
+                styles.statBadge,
+                reliability.defectRatePercent > 15
+                  ? styles.reliabilityBadgeBad
+                  : reliability.defectRatePercent > 5
+                    ? styles.reliabilityBadgeWarn
+                    : styles.reliabilityBadgeGood,
+              ]}
+            >
+              <Ionicons
+                name="analytics-outline"
+                size={12}
+                color={
+                  reliability.defectRatePercent > 15
+                    ? theme.colors.danger
+                    : reliability.defectRatePercent > 5
+                      ? theme.colors.warning
+                      : theme.colors.success
+                }
+              />
+              <Text
+                style={[
+                  styles.statText,
+                  {
+                    color:
+                      reliability.defectRatePercent > 15
+                        ? theme.colors.danger
+                        : reliability.defectRatePercent > 5
+                          ? theme.colors.warning
+                          : theme.colors.success,
+                    fontWeight: theme.fontWeights.semiBold,
+                  },
+                ]}
+              >
+                {t('suppliers.defectRate', { percent: reliability.defectRatePercent.toFixed(1) })}
               </Text>
             </View>
           ) : null}
@@ -255,5 +298,8 @@ function createStyles(theme: Theme) {
     urgentBadge: { backgroundColor: theme.colors.danger + '1F' },
     urgentDot: { width: 6, height: 6, borderRadius: 3, backgroundColor: theme.colors.danger },
     urgentText: { color: theme.colors.danger, fontWeight: theme.fontWeights.semiBold },
+    reliabilityBadgeGood: { backgroundColor: theme.colors.success + '1F' },
+    reliabilityBadgeWarn: { backgroundColor: theme.colors.warning + '1F' },
+    reliabilityBadgeBad: { backgroundColor: theme.colors.danger + '1F' },
   });
 }

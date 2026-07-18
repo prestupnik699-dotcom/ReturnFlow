@@ -184,6 +184,33 @@ export async function fetchReturnCountsBySupplier(
   return { success: true, data: counts };
 }
 
+export type QuantityBySupplier = Record<string, number>;
+
+// Sum of returned units (not row count) per supplier — the numerator for
+// the supplier reliability metric (returned units / delivered units).
+export async function fetchReturnQuantityBySupplier(
+  organizationId: string,
+): Promise<ServiceResult<QuantityBySupplier>> {
+  const { data, error } = await supabase
+    .from('return_items')
+    .select('supplier_id, quantity')
+    .eq('organization_id', organizationId)
+    .is('deleted_at', null);
+
+  if (error) {
+    return fromCaughtError(error, 'FETCH_RETURN_QUANTITY_BY_SUPPLIER_FAILED');
+  }
+
+  const rows = data as unknown as { supplier_id: string; quantity: number }[];
+  const totals: QuantityBySupplier = {};
+
+  for (const row of rows) {
+    totals[row.supplier_id] = (totals[row.supplier_id] ?? 0) + row.quantity;
+  }
+
+  return { success: true, data: totals };
+}
+
 type CreateReturnInput = {
   organizationId: string;
   storeId: string;

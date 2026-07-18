@@ -179,7 +179,8 @@
     "returnsCount": "{{count}} returns",
     "attentionBadge": "{{count}} urgent",
     "deleteAction": "Delete",
-    "deliveriesCount": "{{count}} deliveries"
+    "deliveriesCount": "{{count}} deliveries",
+    "defectRate": "{{percent}}% defect rate"
   },
   "returns": {
     "title": "Returns",
