@@ -102,7 +102,6 @@ function createStyles(theme: ReturnType<typeof useTheme>, variant: ButtonVariant
     // instead of stretching to fill the parent row like a full-width button.
     pressable: { alignSelf: 'center' },
     shadow: {
-      width: '100%',
       borderRadius: theme.radius.full,
       ...(variant === 'primary'
         ? Platform.select({
@@ -118,12 +117,6 @@ function createStyles(theme: ReturnType<typeof useTheme>, variant: ButtonVariant
         : {}),
     },
     base: {
-      // Explicit width (not just flexDirection/justifyContent) so the
-      // label+icon row always spans the button's real rendered width —
-      // whether that came from content-hugging (default) or an external
-      // flex: 1 override — instead of sometimes shrink-wrapping to content
-      // and drifting left inside a wider Pressable.
-      width: '100%',
       flexDirection: 'row',
       alignItems: 'center',
       justifyContent: 'center',
