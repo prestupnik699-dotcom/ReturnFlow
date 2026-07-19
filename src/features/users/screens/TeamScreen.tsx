@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { View, Text, FlatList, ActivityIndicator, StyleSheet } from 'react-native';
+import { View, Text, FlatList, Pressable, ActivityIndicator, StyleSheet } from 'react-native';
 import { useTranslation } from 'react-i18next';
 import Animated, { FadeInDown } from 'react-native-reanimated';
 import { useTheme } from '@/theme/ThemeProvider';
@@ -54,22 +54,24 @@ export function TeamScreen() {
             ListEmptyComponent={<Text style={styles.empty}>{t('users.team.empty')}</Text>}
             renderItem={({ item, index }) => (
               <Animated.View entering={FadeInDown.delay(index * 60).duration(300)}>
-                <Card>
-                  <View style={styles.row} onTouchEnd={() => setSelectedId(item.membershipId)}>
-                    <View style={styles.info}>
-                      <Text style={styles.name}>
-                        {item.firstName} {item.lastName}
+                <Pressable onPress={() => setSelectedId(item.membershipId)}>
+                  <Card>
+                    <View style={styles.row}>
+                      <View style={styles.info}>
+                        <Text style={styles.name}>
+                          {item.firstName} {item.lastName}
+                        </Text>
+                        <Text style={styles.role}>{item.role}</Text>
+                      </View>
+                      <View
+                        style={[styles.statusDot, { backgroundColor: statusColors[item.status] }]}
+                      />
+                      <Text style={[styles.statusText, { color: statusColors[item.status] }]}>
+                        {statusLabels[item.status]}
                       </Text>
-                      <Text style={styles.role}>{item.role}</Text>
                     </View>
-                    <View
-                      style={[styles.statusDot, { backgroundColor: statusColors[item.status] }]}
-                    />
-                    <Text style={[styles.statusText, { color: statusColors[item.status] }]}>
-                      {statusLabels[item.status]}
-                    </Text>
-                  </View>
-                </Card>
+                  </Card>
+                </Pressable>
               </Animated.View>
             )}
           />

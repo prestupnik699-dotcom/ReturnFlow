@@ -9,6 +9,7 @@ import { ScreenHeader } from '@/components/ScreenHeader';
 import { Button } from '@/components/Button';
 import { Chip } from '@/components/Chip';
 import { ConfirmDialog } from '@/components/ConfirmDialog';
+import { Card } from '@/components/Card';
 import { useOrganization } from '@/features/organizations/hooks/useOrganization';
 import { useUpdateOrganization } from '@/features/organizations/hooks/useUpdateOrganization';
 import { useDeleteOrganization } from '@/features/organizations/hooks/useDeleteOrganization';
@@ -87,45 +88,49 @@ export function OrganizationSettingsScreen() {
       <View style={styles.container}>
         <ScreenHeader title={t('organizations.settings.title')} />
 
-        <View style={styles.field}>
-          <Text style={styles.label}>{t('organizations.nameLabel')}</Text>
-          <Controller
-            control={control}
-            name="name"
-            render={({ field: { value, onChange, onBlur } }) => (
-              <TextInput
-                style={[styles.input, errors.name && styles.inputError]}
-                value={value}
-                onChangeText={(text) => {
-                  onChange(text);
-                  setSaved(false);
-                }}
-                onBlur={onBlur}
-                autoCapitalize="words"
-              />
-            )}
-          />
-          {errors.name ? (
-            <Text style={styles.errorText}>{t(errors.name.message ?? '')}</Text>
-          ) : null}
-        </View>
-
-        <View style={styles.field}>
-          <Text style={styles.label}>{t('organizations.settings.defaultLanguageLabel')}</Text>
-          <View style={styles.chipRow}>
-            {LANGUAGES.map((lang) => (
-              <Chip
-                key={lang}
-                label={lang.toUpperCase()}
-                selected={selectedLanguage === lang}
-                onPress={() => {
-                  setValue('defaultLanguage', lang);
-                  setSaved(false);
-                }}
-              />
-            ))}
+        <Card>
+          <View style={styles.cardField}>
+            <Text style={styles.label}>{t('organizations.nameLabel')}</Text>
+            <Controller
+              control={control}
+              name="name"
+              render={({ field: { value, onChange, onBlur } }) => (
+                <TextInput
+                  style={[styles.input, errors.name && styles.inputError]}
+                  value={value}
+                  onChangeText={(text) => {
+                    onChange(text);
+                    setSaved(false);
+                  }}
+                  onBlur={onBlur}
+                  autoCapitalize="words"
+                />
+              )}
+            />
+            {errors.name ? (
+              <Text style={styles.errorText}>{t(errors.name.message ?? '')}</Text>
+            ) : null}
           </View>
-        </View>
+        </Card>
+
+        <Card>
+          <View style={styles.cardField}>
+            <Text style={styles.label}>{t('organizations.settings.defaultLanguageLabel')}</Text>
+            <View style={styles.chipRow}>
+              {LANGUAGES.map((lang) => (
+                <Chip
+                  key={lang}
+                  label={lang.toUpperCase()}
+                  selected={selectedLanguage === lang}
+                  onPress={() => {
+                    setValue('defaultLanguage', lang);
+                    setSaved(false);
+                  }}
+                />
+              ))}
+            </View>
+          </View>
+        </Card>
 
         {mutation.isError ? (
           <View style={styles.errorBanner}>
@@ -145,18 +150,22 @@ export function OrganizationSettingsScreen() {
           loading={mutation.isPending}
         />
 
-        <View style={styles.dangerZone}>
-          <Text style={styles.dangerZoneTitle}>{t('organizations.settings.dangerZoneTitle')}</Text>
-          <Button
-            label={t('organizations.settings.deleteButton')}
-            variant="danger"
-            onPress={() => setDeleteConfirmVisible(true)}
-            loading={deleteMutation.isPending}
-          />
-          {deleteMutation.isError ? (
-            <Text style={styles.errorText}>{deleteMutation.error.message}</Text>
-          ) : null}
-        </View>
+        <Card>
+          <View style={styles.dangerZone}>
+            <Text style={styles.dangerZoneTitle}>
+              {t('organizations.settings.dangerZoneTitle')}
+            </Text>
+            <Button
+              label={t('organizations.settings.deleteButton')}
+              variant="danger"
+              onPress={() => setDeleteConfirmVisible(true)}
+              loading={deleteMutation.isPending}
+            />
+            {deleteMutation.isError ? (
+              <Text style={styles.errorText}>{deleteMutation.error.message}</Text>
+            ) : null}
+          </View>
+        </Card>
       </View>
 
       <ConfirmDialog
@@ -176,9 +185,10 @@ export function OrganizationSettingsScreen() {
 
 function createStyles(theme: ReturnType<typeof useTheme>) {
   return StyleSheet.create({
-    container: { flex: 1, gap: theme.spacing.xl },
+    container: { flex: 1, gap: theme.spacing.md },
     center: { flex: 1, justifyContent: 'center', alignItems: 'center' },
     field: { gap: theme.spacing.sm },
+    cardField: { padding: theme.spacing.lg, gap: theme.spacing.sm },
     label: {
       fontSize: theme.fontSizes.sm,
       fontWeight: theme.fontWeights.medium,
@@ -214,10 +224,7 @@ function createStyles(theme: ReturnType<typeof useTheme>) {
     },
     successText: { color: theme.colors.success, fontSize: theme.fontSizes.sm, textAlign: 'center' },
     dangerZone: {
-      marginTop: theme.spacing.lg,
-      paddingTop: theme.spacing.lg,
-      borderTopWidth: 1,
-      borderTopColor: theme.colors.border,
+      padding: theme.spacing.lg,
       gap: theme.spacing.sm,
       alignItems: 'center',
     },

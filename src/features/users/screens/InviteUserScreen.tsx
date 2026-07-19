@@ -7,6 +7,7 @@ import { Screen } from '@/components/Screen';
 import { ScreenHeader } from '@/components/ScreenHeader';
 import { Button } from '@/components/Button';
 import { Chip } from '@/components/Chip';
+import { Card } from '@/components/Card';
 import { useCreateInvitation } from '@/features/users/hooks/useCreateInvitation';
 import type { MembershipRole } from '@/features/auth/services/membership.service';
 
@@ -68,16 +69,18 @@ export function InviteUserScreen() {
         ) : null}
 
         {mutation.data ? (
-          <View style={styles.codeCard}>
-            <Text style={styles.codeLabel}>{t('users.invite.codeLabel')}</Text>
-            <Text style={styles.code}>{mutation.data.code}</Text>
-            <Text style={styles.validFor}>{t('users.invite.validFor')}</Text>
-            <Button
-              label={copied ? t('users.invite.copied') : t('users.invite.copy')}
-              variant="outline"
-              onPress={handleCopy}
-            />
-          </View>
+          <Card>
+            <View style={styles.codeCard}>
+              <Text style={styles.codeLabel}>{t('users.invite.codeLabel')}</Text>
+              <Text style={styles.code}>{mutation.data.code}</Text>
+              <Text style={styles.validFor}>{t('users.invite.validFor')}</Text>
+              <Button
+                label={copied ? t('users.invite.copied') : t('users.invite.copy')}
+                variant="outline"
+                onPress={handleCopy}
+              />
+            </View>
+          </Card>
         ) : null}
       </View>
     </Screen>
@@ -100,10 +103,6 @@ function createStyles(theme: ReturnType<typeof useTheme>) {
       textAlign: 'center',
     },
     codeCard: {
-      backgroundColor: theme.colors.surface,
-      borderWidth: 1,
-      borderColor: theme.colors.border,
-      borderRadius: theme.radius.lg,
       padding: theme.spacing.lg,
       alignItems: 'center',
       gap: theme.spacing.sm,
