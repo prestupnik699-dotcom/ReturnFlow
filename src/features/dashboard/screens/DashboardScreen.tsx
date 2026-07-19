@@ -169,24 +169,23 @@ export function DashboardScreen() {
           </View>
         ) : (
           <>
-            <LinearGradient
-              colors={[theme.colors.card, theme.colors.surfaceVariant]}
-              start={{ x: 0, y: 0 }}
-              end={{ x: 1, y: 1 }}
-              style={styles.overviewCard}
-            >
-              <View style={styles.overviewStat}>
-                <Ionicons name="repeat-outline" size={20} color={theme.colors.accent} />
-                <Text style={styles.overviewValue}>{totalCount}</Text>
-                <Text style={styles.overviewLabel}>{t('dashboard.overviewTotal')}</Text>
+            <View style={styles.bentoRow}>
+              <LinearGradient
+                colors={[theme.colors.primary, theme.colors.accent]}
+                start={{ x: 0, y: 0 }}
+                end={{ x: 1, y: 1 }}
+                style={styles.bentoHero}
+              >
+                <Ionicons name="repeat" size={22} color={theme.colors.onPrimary} />
+                <Text style={styles.bentoHeroValue}>{totalCount}</Text>
+                <Text style={styles.bentoHeroLabel}>{t('dashboard.overviewTotal')}</Text>
+              </LinearGradient>
+              <View style={styles.bentoSide}>
+                <Ionicons name="today-outline" size={18} color={theme.colors.accent} />
+                <Text style={styles.bentoSideValue}>{todayCount}</Text>
+                <Text style={styles.bentoSideLabel}>{t('dashboard.overviewToday')}</Text>
               </View>
-              <View style={styles.overviewDivider} />
-              <View style={styles.overviewStat}>
-                <Ionicons name="today-outline" size={20} color={theme.colors.accent} />
-                <Text style={styles.overviewValue}>{todayCount}</Text>
-                <Text style={styles.overviewLabel}>{t('dashboard.overviewToday')}</Text>
-              </View>
-            </LinearGradient>
+            </View>
 
             <View style={styles.quickActionsRow}>
               <QuickAction
@@ -498,20 +497,36 @@ function createStyles(theme: Theme) {
     },
     subtitle: { fontSize: theme.fontSizes.sm, color: theme.colors.textSecondary },
     emptyWrap: { alignItems: 'center', gap: theme.spacing.lg, paddingTop: theme.spacing['3xl'] },
-    overviewCard: {
-      flexDirection: 'row',
-      alignItems: 'center',
+    bentoRow: { flexDirection: 'row', gap: theme.spacing.sm },
+    bentoHero: {
+      flex: 1.4,
       borderRadius: theme.radius.lg,
       padding: theme.spacing.lg,
+      justifyContent: 'space-between',
+      minHeight: 120,
     },
-    overviewStat: { flex: 1, alignItems: 'center', gap: 4 },
-    overviewDivider: { width: 1, height: 40, backgroundColor: theme.colors.border },
-    overviewValue: {
+    bentoHeroValue: {
+      fontSize: theme.fontSizes['2xl'],
+      fontWeight: theme.fontWeights.bold,
+      fontFamily: theme.fontFamily.display,
+      color: theme.colors.onPrimary,
+    },
+    bentoHeroLabel: { fontSize: theme.fontSizes.sm, color: theme.colors.onPrimary, opacity: 0.85 },
+    bentoSide: {
+      flex: 1,
+      backgroundColor: theme.colors.card,
+      borderRadius: theme.radius.lg,
+      padding: theme.spacing.lg,
+      justifyContent: 'space-between',
+      minHeight: 120,
+    },
+    bentoSideValue: {
       fontSize: theme.fontSizes.xl,
       fontWeight: theme.fontWeights.bold,
+      fontFamily: theme.fontFamily.display,
       color: theme.colors.textPrimary,
     },
-    overviewLabel: { fontSize: theme.fontSizes.xs, color: theme.colors.textSecondary },
+    bentoSideLabel: { fontSize: theme.fontSizes.xs, color: theme.colors.textSecondary },
     quickActionsRow: { flexDirection: 'row', gap: theme.spacing.sm },
     section: { gap: theme.spacing.sm },
     sectionHeaderRow: {
