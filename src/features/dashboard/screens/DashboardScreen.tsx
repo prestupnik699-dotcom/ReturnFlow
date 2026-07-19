@@ -8,7 +8,6 @@ import Animated, { FadeInDown } from 'react-native-reanimated';
 import { useTheme } from '@/theme/ThemeProvider';
 import { Screen } from '@/components/Screen';
 import { Card } from '@/components/Card';
-import { Button } from '@/components/Button';
 import { EmptyState } from '@/components/EmptyState';
 import { useTabBarClearance } from '@/hooks/useTabBarClearance';
 import { useAuthStore } from '@/stores/auth.store';
