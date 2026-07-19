@@ -13,6 +13,7 @@ export type CreateReturnQueuePayload = {
   createdBy: string;
   title: string;
   quantity: number;
+  unitPrice: number | null;
   reason: string;
   priority: ReturnPriority;
   barcode: string;
@@ -61,6 +62,7 @@ export async function fetchPendingReturns(storeId: string): Promise<ReturnItem[]
       createdBy: payload.createdBy,
       title: payload.title,
       quantity: payload.quantity,
+      unitPrice: payload.unitPrice,
       reason: payload.reason,
       comment: null,
       status: initialStatusForPriority(payload.priority),

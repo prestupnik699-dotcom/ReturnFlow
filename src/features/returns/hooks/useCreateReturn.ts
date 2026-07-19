@@ -28,6 +28,7 @@ export function useCreateReturn(suppliers: SupplierLookup[] = []) {
         createdBy: profile.id,
         title: values.title,
         quantity: Number(values.quantity),
+        unitPrice: values.unitPrice.trim() === '' ? null : Number(values.unitPrice),
         reason: values.reason,
         priority: values.priority,
         barcode: values.barcode,

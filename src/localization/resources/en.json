@@ -210,12 +210,15 @@
       "barcodeLabel": "Barcode",
       "barcodePlaceholder": "Optional",
       "exchangeLabel": "Product exchange",
-      "exchangeHint": "Distributor took the damaged item and dropped off a replacement — no rs.ge invoice"
+      "exchangeHint": "Distributor took the damaged item and dropped off a replacement — no rs.ge invoice",
+      "priceLabel": "Unit price",
+      "pricePlaceholder": "Optional"
     },
     "errors": {
       "supplierRequired": "Select a supplier",
       "titleTooShort": "Title is too short",
-      "quantityInvalid": "Quantity must be at least 1"
+      "quantityInvalid": "Quantity must be at least 1",
+      "priceInvalid": "Enter a valid price"
     },
     "statusAll": "All",
     "detail": {
@@ -294,7 +297,9 @@
       "yes": "Yes",
       "no": "No",
       "reportTitle": "ReturnFlow — Returns Report",
-      "permissionDenied": "Couldn't save — permission denied"
+      "permissionDenied": "Couldn't save — permission denied",
+      "totalColumn": "Total",
+      "grandTotalLabel": "Grand total"
     }
   },
   "scanner": {

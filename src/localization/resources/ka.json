@@ -210,12 +210,15 @@
       "barcodeLabel": "შტრიხკოდი",
       "barcodePlaceholder": "არასავალდებულო",
       "exchangeLabel": "საქონლის შეცვლა",
-      "exchangeHint": "დისტრიბუტორმა წაიღო დაზიანებული, მოიტანა ახალი — rs.ge-ზე ატვირთვის გარეშე"
+      "exchangeHint": "დისტრიბუტორმა წაიღო დაზიანებული, მოიტანა ახალი — rs.ge-ზე ატვირთვის გარეშე",
+      "priceLabel": "ერთეულის ფასი",
+      "pricePlaceholder": "არასავალდებულო"
     },
     "errors": {
       "supplierRequired": "აირჩიეთ მომწოდებელი",
       "titleTooShort": "დასახელება ძალიან მოკლეა",
-      "quantityInvalid": "რაოდენობა უნდა იყოს მინიმუმ 1"
+      "quantityInvalid": "რაოდენობა უნდა იყოს მინიმუმ 1",
+      "priceInvalid": "შეიყვანეთ სწორი ფასი"
     },
     "statusAll": "ყველა",
     "detail": {
@@ -294,7 +297,9 @@
       "yes": "დიახ",
       "no": "არა",
       "reportTitle": "ReturnFlow — დაბრუნებების ანგარიში",
-      "permissionDenied": "ვერ მოხერხდა შენახვა — წვდომა უარყოფილია"
+      "permissionDenied": "ვერ მოხერხდა შენახვა — წვდომა უარყოფილია",
+      "totalColumn": "ჯამი",
+      "grandTotalLabel": "სულ ჯამი"
     }
   },
   "scanner": {

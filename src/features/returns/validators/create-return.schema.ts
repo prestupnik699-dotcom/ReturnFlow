@@ -9,6 +9,12 @@ export const createReturnSchema = z.object({
       (value) => Number.isInteger(Number(value)) && Number(value) >= 1,
       'returns.errors.quantityInvalid',
     ),
+  unitPrice: z
+    .string()
+    .refine(
+      (value) => value.trim() === '' || (!Number.isNaN(Number(value)) && Number(value) >= 0),
+      'returns.errors.priceInvalid',
+    ),
   reason: z.string(),
   priority: z.enum(['low', 'normal', 'high', 'critical']),
   barcode: z.string(),

@@ -65,6 +65,8 @@ export function StatisticsScreen() {
       title: t('returns.create.titleLabel'),
       supplier: t('returns.create.supplierLabel'),
       quantity: t('returns.create.quantityLabel'),
+      unitPrice: t('returns.create.priceLabel'),
+      total: t('statistics.export.totalColumn'),
       status: t('statistics.byStatus'),
       priority: t('returns.create.priorityLabel'),
       barcode: t('returns.create.barcodeLabel'),
@@ -77,6 +79,7 @@ export function StatisticsScreen() {
     yes: t('statistics.export.yes'),
     no: t('statistics.export.no'),
     reportTitle: t('statistics.export.reportTitle'),
+    grandTotalLabel: t('statistics.export.grandTotalLabel'),
   });
 
   const periodLabels: Record<StatsPeriod, string> = {

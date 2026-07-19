@@ -4,11 +4,6 @@ import { fromCaughtError, type ServiceResult } from '@/lib/result';
 export type ReturnStatus = 'pending' | 'urgent' | 'returned' | 'archived';
 export type ReturnPriority = 'low' | 'normal' | 'high' | 'critical';
 
-// High/critical priority items are surfaced under the "Urgent" status tab
-// automatically — there is no separate manual "mark as urgent" action in
-// the UI, so priority is the only signal that can drive it. Only applies
-// to items still in play (pending/urgent); a returned or archived item
-// keeps its resolved status regardless of what priority it's edited to.
 export function initialStatusForPriority(priority: ReturnPriority): ReturnStatus {
   return priority === 'high' || priority === 'critical' ? 'urgent' : 'pending';
 }
@@ -22,6 +17,7 @@ export type ReturnItem = {
   createdBy: string;
   title: string;
   quantity: number;
+  unitPrice: number | null;
   reason: string | null;
   comment: string | null;
   status: ReturnStatus;
@@ -42,6 +38,7 @@ type ReturnItemRow = {
   created_by: string;
   title: string;
   quantity: number;
+  unit_price: number | null;
   reason: string | null;
   comment: string | null;
   status: ReturnStatus;
@@ -63,6 +60,7 @@ function mapReturn(row: ReturnItemRow): ReturnItem {
     createdBy: row.created_by,
     title: row.title,
     quantity: row.quantity,
+    unitPrice: row.unit_price,
     reason: row.reason,
     comment: row.comment,
     status: row.status,
@@ -75,7 +73,7 @@ function mapReturn(row: ReturnItemRow): ReturnItem {
 }
 
 const SELECT_FIELDS =
-  'id, organization_id, store_id, supplier_id, created_by, title, quantity, reason, comment, status, priority, barcode, is_exchange, created_at, returned_at, suppliers(name)';
+  'id, organization_id, store_id, supplier_id, created_by, title, quantity, unit_price, reason, comment, status, priority, barcode, is_exchange, created_at, returned_at, suppliers(name)';
 
 type FetchReturnsInput = {
   storeId: string;
@@ -121,9 +119,6 @@ export async function fetchReturnById(returnId: string): Promise<ServiceResult<R
 
 export type StoreReturnCounts = Record<string, { total: number; urgent: number }>;
 
-// One aggregated query per organization instead of one query per store —
-// used by the Stores screen to show each store's return count and
-// whether it has anything urgent, without an N+1 fetch per card.
 export async function fetchReturnCountsByStore(
   organizationId: string,
 ): Promise<ServiceResult<StoreReturnCounts>> {
@@ -153,8 +148,6 @@ export async function fetchReturnCountsByStore(
   return { success: true, data: counts };
 }
 
-// Same aggregation pattern as fetchReturnCountsByStore, grouped by
-// supplier instead — used by the Suppliers screen's stat badges.
 export async function fetchReturnCountsBySupplier(
   organizationId: string,
 ): Promise<ServiceResult<StoreReturnCounts>> {
@@ -186,8 +179,6 @@ export async function fetchReturnCountsBySupplier(
 
 export type QuantityBySupplier = Record<string, number>;
 
-// Sum of returned units (not row count) per supplier — the numerator for
-// the supplier reliability metric (returned units / delivered units).
 export async function fetchReturnQuantityBySupplier(
   organizationId: string,
 ): Promise<ServiceResult<QuantityBySupplier>> {
@@ -218,6 +209,7 @@ type CreateReturnInput = {
   createdBy: string;
   title: string;
   quantity: number;
+  unitPrice?: number | null;
   reason: string;
   priority: ReturnPriority;
   barcode?: string;
@@ -234,6 +226,7 @@ export async function createReturn(input: CreateReturnInput): Promise<ServiceRes
       created_by: input.createdBy,
       title: input.title,
       quantity: input.quantity,
+      unit_price: input.unitPrice ?? null,
       reason: input.reason || null,
       priority: input.priority,
       status: initialStatusForPriority(input.priority),
@@ -254,14 +247,11 @@ type UpdateReturnInput = {
   supplierId: string;
   title: string;
   quantity: number;
+  unitPrice?: number | null;
   reason: string;
   priority: ReturnPriority;
   barcode?: string;
   isExchange?: boolean;
-  // The item's status BEFORE this edit. Used to decide whether the
-  // priority→status auto-promotion applies at all — a returned or
-  // archived item must never be silently reactivated to "urgent" just
-  // because someone bumped its priority while editing.
   currentStatus: ReturnStatus;
 };
 
@@ -277,6 +267,7 @@ export async function updateReturn(
       supplier_id: input.supplierId,
       title: input.title,
       quantity: input.quantity,
+      unit_price: input.unitPrice ?? null,
       reason: input.reason || null,
       priority: input.priority,
       ...(isResolved ? {} : { status: initialStatusForPriority(input.priority) }),

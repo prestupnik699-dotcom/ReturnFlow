@@ -56,6 +56,7 @@ export function ReturnFormSheet({
       supplierId: '',
       title: '',
       quantity: '1',
+      unitPrice: '',
       reason: '',
       priority: 'normal',
       barcode: '',
@@ -73,6 +74,7 @@ export function ReturnFormSheet({
         supplierId: returnItem?.supplierId ?? '',
         title: returnItem?.title ?? prefillTitle ?? '',
         quantity: returnItem ? String(returnItem.quantity) : '1',
+        unitPrice: returnItem?.unitPrice != null ? String(returnItem.unitPrice) : '',
         reason: returnItem?.reason ?? '',
         priority: returnItem?.priority ?? 'normal',
         barcode: returnItem?.barcode ?? prefillBarcode ?? '',
@@ -176,6 +178,28 @@ export function ReturnFormSheet({
           />
           {errors.quantity ? (
             <Text style={styles.errorText}>{t(errors.quantity.message ?? '')}</Text>
+          ) : null}
+        </View>
+
+        <View style={styles.field}>
+          <Text style={styles.label}>{t('returns.create.priceLabel')}</Text>
+          <Controller
+            control={control}
+            name="unitPrice"
+            render={({ field: { value, onChange, onBlur } }) => (
+              <TextInput
+                style={[styles.input, errors.unitPrice && styles.inputError]}
+                value={value}
+                onChangeText={onChange}
+                onBlur={onBlur}
+                keyboardType="decimal-pad"
+                placeholder={t('returns.create.pricePlaceholder')}
+                placeholderTextColor={theme.colors.textSecondary}
+              />
+            )}
+          />
+          {errors.unitPrice ? (
+            <Text style={styles.errorText}>{t(errors.unitPrice.message ?? '')}</Text>
           ) : null}
         </View>
 

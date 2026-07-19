@@ -210,12 +210,15 @@
       "barcodeLabel": "Штрихкод",
       "barcodePlaceholder": "Необязательно",
       "exchangeLabel": "Замена товара",
-      "exchangeHint": "Дистрибьютор забрал испорченный и принёс новый — без проводки на rs.ge"
+      "exchangeHint": "Дистрибьютор забрал испорченный и принёс новый — без проводки на rs.ge",
+      "priceLabel": "Цена за единицу",
+      "pricePlaceholder": "Необязательно"
     },
     "errors": {
       "supplierRequired": "Выберите поставщика",
       "titleTooShort": "Слишком короткое название",
-      "quantityInvalid": "Количество должно быть не меньше 1"
+      "quantityInvalid": "Количество должно быть не меньше 1",
+      "priceInvalid": "Введите корректную цену"
     },
     "statusAll": "Все",
     "detail": {
@@ -294,7 +297,9 @@
       "yes": "Да",
       "no": "Нет",
       "reportTitle": "ReturnFlow — Отчёт по возвратам",
-      "permissionDenied": "Не удалось сохранить — доступ отклонён"
+      "permissionDenied": "Не удалось сохранить — доступ отклонён",
+      "totalColumn": "Сумма",
+      "grandTotalLabel": "Итого"
     }
   },
   "scanner": {

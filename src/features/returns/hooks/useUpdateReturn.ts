@@ -13,6 +13,7 @@ export function useUpdateReturn(returnId: string, currentStatus: ReturnStatus) {
       const result = await updateReturn(returnId, {
         ...values,
         quantity: Number(values.quantity),
+        unitPrice: values.unitPrice.trim() === '' ? null : Number(values.unitPrice),
         currentStatus,
       });
       if (!result.success) throw new Error(result.error.message);

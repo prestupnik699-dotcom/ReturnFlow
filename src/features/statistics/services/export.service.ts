@@ -6,6 +6,7 @@ export type ExportRow = {
   title: string;
   supplierName: string;
   quantity: number;
+  unitPrice: number | null;
   status: ReturnStatus;
   priority: ReturnPriority;
   barcode: string | null;
@@ -17,6 +18,7 @@ export type ExportRow = {
 type ExportRowRaw = {
   title: string;
   quantity: number;
+  unit_price: number | null;
   status: ReturnStatus;
   priority: ReturnPriority;
   barcode: string | null;
@@ -33,7 +35,7 @@ export async function fetchReturnsForExport(
   let query = supabase
     .from('return_items')
     .select(
-      'title, quantity, status, priority, barcode, is_exchange, reason, created_at, suppliers(name)',
+      'title, quantity, unit_price, status, priority, barcode, is_exchange, reason, created_at, suppliers(name)',
     )
     .eq('store_id', storeId)
     .is('deleted_at', null)
@@ -57,6 +59,7 @@ export async function fetchReturnsForExport(
       title: row.title,
       supplierName: row.suppliers?.name ?? '',
       quantity: row.quantity,
+      unitPrice: row.unit_price,
       status: row.status,
       priority: row.priority,
       barcode: row.barcode,
@@ -79,6 +82,8 @@ export type ExportLabels = {
     title: string;
     supplier: string;
     quantity: string;
+    unitPrice: string;
+    total: string;
     status: string;
     priority: string;
     barcode: string;
@@ -91,6 +96,7 @@ export type ExportLabels = {
   yes: string;
   no: string;
   reportTitle: string;
+  grandTotalLabel: string;
 };
 
 function formatDate(iso: string): string {
@@ -99,11 +105,28 @@ function formatDate(iso: string): string {
   return `${pad(d.getDate())}.${pad(d.getMonth() + 1)}.${d.getFullYear()}`;
 }
 
+function formatMoney(value: number): string {
+  return value.toFixed(2);
+}
+
+function lineTotal(row: ExportRow): number | null {
+  return row.unitPrice == null ? null : row.unitPrice * row.quantity;
+}
+
+function grandTotal(rows: ExportRow[]): number {
+  return rows.reduce((sum, row) => {
+    const total = lineTotal(row);
+    return total == null ? sum : sum + total;
+  }, 0);
+}
+
 export function generateReturnsCsv(rows: ExportRow[], labels: ExportLabels): string {
   const header = [
     labels.columns.title,
     labels.columns.supplier,
     labels.columns.quantity,
+    labels.columns.unitPrice,
+    labels.columns.total,
     labels.columns.status,
     labels.columns.priority,
     labels.columns.barcode,
@@ -114,11 +137,14 @@ export function generateReturnsCsv(rows: ExportRow[], labels: ExportLabels): str
     .map(csvEscape)
     .join(',');
 
-  const lines = rows.map((row) =>
-    [
+  const lines = rows.map((row) => {
+    const total = lineTotal(row);
+    return [
       row.title,
       row.supplierName,
       String(row.quantity),
+      row.unitPrice != null ? formatMoney(row.unitPrice) : '',
+      total != null ? formatMoney(total) : '',
       labels.statusLabels[row.status],
       labels.priorityLabels[row.priority],
       row.barcode ?? '',
@@ -127,30 +153,52 @@ export function generateReturnsCsv(rows: ExportRow[], labels: ExportLabels): str
       formatDate(row.createdAt),
     ]
       .map((v) => csvEscape(v))
-      .join(','),
-  );
+      .join(',');
+  });
+
+  // A trailing summary row so the accountant sees the total value of the
+  // whole export at a glance, not just per-line amounts they'd have to
+  // sum themselves in a spreadsheet.
+  const totalRow = [
+    labels.grandTotalLabel,
+    '',
+    '',
+    '',
+    formatMoney(grandTotal(rows)),
+    '',
+    '',
+    '',
+    '',
+    '',
+    '',
+  ]
+    .map(csvEscape)
+    .join(',');
 
   // BOM so Excel opens Cyrillic/Georgian text as UTF-8 correctly instead of
   // garbling it — a very common gotcha with plain CSV + non-Latin text.
-  return '\uFEFF' + [header, ...lines].join('\n');
+  return '\uFEFF' + [header, ...lines, totalRow].join('\n');
 }
 
 export function generateReturnsHtml(rows: ExportRow[], labels: ExportLabels): string {
   const tableRows = rows
-    .map(
-      (row) => `
+    .map((row) => {
+      const total = lineTotal(row);
+      return `
       <tr>
         <td>${row.title}</td>
         <td>${row.supplierName}</td>
         <td style="text-align:center">${row.quantity}</td>
+        <td style="text-align:right">${row.unitPrice != null ? formatMoney(row.unitPrice) : ''}</td>
+        <td style="text-align:right">${total != null ? formatMoney(total) : ''}</td>
         <td>${labels.statusLabels[row.status]}</td>
         <td>${labels.priorityLabels[row.priority]}</td>
         <td>${row.barcode ?? ''}</td>
         <td style="text-align:center">${row.isExchange ? labels.yes : labels.no}</td>
         <td>${row.reason ?? ''}</td>
         <td>${formatDate(row.createdAt)}</td>
-      </tr>`,
-    )
+      </tr>`;
+    })
     .join('');
 
   return `
@@ -164,6 +212,7 @@ export function generateReturnsHtml(rows: ExportRow[], labels: ExportLabels): st
           table { width: 100%; border-collapse: collapse; font-size: 11px; }
           th, td { border: 1px solid #ccc; padding: 6px 8px; text-align: left; }
           th { background: #f2f2f2; font-weight: 600; }
+          tfoot td { font-weight: 700; background: #f8f8f8; }
         </style>
       </head>
       <body>
@@ -175,6 +224,8 @@ export function generateReturnsHtml(rows: ExportRow[], labels: ExportLabels): st
               <th>${labels.columns.title}</th>
               <th>${labels.columns.supplier}</th>
               <th>${labels.columns.quantity}</th>
+              <th>${labels.columns.unitPrice}</th>
+              <th>${labels.columns.total}</th>
               <th>${labels.columns.status}</th>
               <th>${labels.columns.priority}</th>
               <th>${labels.columns.barcode}</th>
@@ -184,6 +235,13 @@ export function generateReturnsHtml(rows: ExportRow[], labels: ExportLabels): st
             </tr>
           </thead>
           <tbody>${tableRows}</tbody>
+          <tfoot>
+            <tr>
+              <td colspan="4" style="text-align:right">${labels.grandTotalLabel}</td>
+              <td style="text-align:right">${formatMoney(grandTotal(rows))}</td>
+              <td colspan="6"></td>
+            </tr>
+          </tfoot>
         </table>
       </body>
     </html>
