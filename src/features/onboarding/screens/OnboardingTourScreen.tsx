@@ -122,6 +122,7 @@ function createStyles(theme: ReturnType<typeof useTheme>) {
     title: {
       fontSize: theme.fontSizes.xl,
       fontWeight: theme.fontWeights.bold,
+      fontFamily: theme.fontFamily.display,
       color: theme.colors.textPrimary,
       textAlign: 'center',
     },

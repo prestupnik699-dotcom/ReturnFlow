@@ -165,6 +165,7 @@ function createStyles(theme: ReturnType<typeof useTheme>) {
     title: {
       fontSize: theme.fontSizes['2xl'],
       fontWeight: theme.fontWeights.bold,
+      fontFamily: theme.fontFamily.display,
       color: theme.colors.textPrimary,
     },
     subtitle: {

@@ -57,6 +57,7 @@ function createStyles(theme: ReturnType<typeof useTheme>) {
       flex: 1,
       fontSize: theme.fontSizes.xl,
       fontWeight: theme.fontWeights.bold,
+      fontFamily: theme.fontFamily.display,
       color: theme.colors.textPrimary,
     },
     spacer: { width: 36 },

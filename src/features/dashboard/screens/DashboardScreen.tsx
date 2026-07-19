@@ -492,6 +492,7 @@ function createStyles(theme: Theme) {
     greeting: {
       fontSize: theme.fontSizes['2xl'],
       fontWeight: theme.fontWeights.bold,
+      fontFamily: theme.fontFamily.display,
       color: theme.colors.textPrimary,
       marginTop: theme.spacing.md,
     },

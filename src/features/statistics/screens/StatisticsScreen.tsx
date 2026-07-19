@@ -247,6 +247,7 @@ function createStyles(theme: ReturnType<typeof useTheme>) {
     summaryValue: {
       fontSize: theme.fontSizes['2xl'],
       fontWeight: theme.fontWeights.bold,
+      fontFamily: theme.fontFamily.display,
       color: theme.colors.textPrimary,
     },
     summaryLabel: {
