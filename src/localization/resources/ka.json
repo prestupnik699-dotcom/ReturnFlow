@@ -241,6 +241,7 @@
     },
     "edit": { "title": "დაბრუნების რედაქტირება", "submit": "შენახვა" },
     "pendingSync": "სინქრონიზაციის მოლოდინში",
+    "newReturnNotification": "ახალი დაბრუნება",
     "filterBySupplier": "მომწოდებლის მიხედვით",
     "selectedCount": "არჩეულია: {{count}}",
     "bulkMarkReturned": "დაბრუნებულად მონიშვნა",
@@ -365,6 +366,7 @@
   "deliveries": {
     "title": "მიწოდებები",
     "empty": "მიწოდება ჯერ არ არის",
+    "newDeliveryNotification": "ახალი მიწოდება",
     "batch": {
       "title": "ახალი მიწოდება",
       "subtitle": "აირჩიეთ მომწოდებელი და დაამატეთ ერთი მიწოდების საქონელი",

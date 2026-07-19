@@ -241,6 +241,7 @@
     },
     "edit": { "title": "Редактировать возврат", "submit": "Сохранить" },
     "pendingSync": "Ещё не отправлено",
+    "newReturnNotification": "Новый возврат",
     "filterBySupplier": "Фильтр по поставщику",
     "selectedCount": "Выбрано: {{count}}",
     "bulkMarkReturned": "Отметить возвращёнными",
@@ -365,6 +366,7 @@
   "deliveries": {
     "title": "Приёмки",
     "empty": "Пока нет ни одной приёмки",
+    "newDeliveryNotification": "Новая приёмка",
     "batch": {
       "title": "Новая поставка",
       "subtitle": "Выберите поставщика и добавьте товары одной поставки",

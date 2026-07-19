@@ -15,34 +15,124 @@ import {
 } from '@/features/notifications/hooks/useNotificationActions';
 import type { AppNotification } from '@/features/notifications/services/notifications.service';
 
-function formatDateTime(iso: string): string {
+type Theme = ReturnType<typeof useTheme>;
+
+function formatTime(iso: string): string {
   const d = new Date(iso);
   const pad = (n: number) => String(n).padStart(2, '0');
-  return `${pad(d.getDate())}.${pad(d.getMonth() + 1)} ${pad(d.getHours())}:${pad(d.getMinutes())}`;
+  return `${pad(d.getHours())}:${pad(d.getMinutes())}`;
 }
+
+function dayKey(iso: string): string {
+  const d = new Date(iso);
+  return `${d.getFullYear()}-${d.getMonth()}-${d.getDate()}`;
+}
+
+type TypeVisual = { icon: keyof typeof Ionicons.glyphMap; color: (theme: Theme) => string };
+
+const TYPE_VISUALS: Record<string, TypeVisual> = {
+  urgent_return_created: { icon: 'alert-circle', color: (t) => t.colors.danger },
+  return_created: { icon: 'repeat-outline', color: (t) => t.colors.primary },
+  delivery_created: { icon: 'download-outline', color: (t) => t.colors.accent },
+};
+
+const DEFAULT_VISUAL: TypeVisual = {
+  icon: 'notifications-outline',
+  color: (t) => t.colors.textSecondary,
+};
+
+type ListItem =
+  | { kind: 'divider'; id: string; label: string }
+  | { kind: 'notification'; id: string; notification: AppNotification };
 
 export function NotificationsScreen() {
   const theme = useTheme();
   const { t } = useTranslation();
   const router = useRouter();
   const tabBarClearance = useTabBarClearance();
-  const { data: notifications, isLoading, isError, error } = useNotifications();
+  // Chat messages get their own badge on the Chat entry point (Ещё) instead
+  // of showing up here — this list only ever fetches/renders non-chat rows.
+  const { data: allNotifications, isLoading, isError, error } = useNotifications();
   const markReadMutation = useMarkNotificationRead();
   const markAllMutation = useMarkAllNotificationsRead();
   const styles = createStyles(theme);
 
-  const unreadCount = notifications?.filter((n) => !n.isRead).length ?? 0;
+  const notifications = (allNotifications ?? []).filter((n) => n.type !== 'chat_message');
+  const unreadCount = notifications.filter((n) => !n.isRead).length;
 
-  const bodyOrTitle = (n: AppNotification) =>
-    n.type === 'chat_message' ? t('chat.newMessage') : n.title;
+  const dayLabel = (iso: string): string => {
+    const d = new Date(iso);
+    const now = new Date();
+    const yesterday = new Date(now);
+    yesterday.setDate(yesterday.getDate() - 1);
+    if (dayKey(iso) === dayKey(now.toISOString())) return t('chat.dateToday');
+    if (dayKey(iso) === dayKey(yesterday.toISOString())) return t('chat.dateYesterday');
+    const pad = (n: number) => String(n).padStart(2, '0');
+    return `${pad(d.getDate())}.${pad(d.getMonth() + 1)}.${d.getFullYear()}`;
+  };
+
+  const listItems: ListItem[] = [];
+  let lastDay: string | null = null;
+  for (const notification of notifications) {
+    const day = dayKey(notification.createdAt);
+    if (day !== lastDay) {
+      listItems.push({
+        kind: 'divider',
+        id: `divider-${day}`,
+        label: dayLabel(notification.createdAt),
+      });
+      lastDay = day;
+    }
+    listItems.push({ kind: 'notification', id: notification.id, notification });
+  }
 
   const handlePress = (item: AppNotification) => {
     if (!item.isRead) markReadMutation.mutate(item.id);
-    // Only one notification source exists today (D-030) — as more are added,
-    // this becomes a small type -> route lookup table instead of an if-chain.
-    if (item.type === 'chat_message') {
-      router.push('/chat');
+  };
+
+  const renderItem = ({ item }: { item: ListItem }) => {
+    if (item.kind === 'divider') {
+      return (
+        <View style={styles.dividerRow}>
+          <View style={styles.dividerPill}>
+            <Text style={styles.dividerText}>{item.label}</Text>
+          </View>
+        </View>
+      );
     }
+
+    const notification = item.notification;
+    const visual = TYPE_VISUALS[notification.type] ?? DEFAULT_VISUAL;
+    const color = visual.color(theme);
+
+    return (
+      <Animated.View entering={FadeInDown.duration(200)}>
+        <Pressable onPress={() => handlePress(notification)}>
+          <Card>
+            <View style={styles.row}>
+              <View style={[styles.iconWrap, { backgroundColor: color + '1F' }]}>
+                <Ionicons name={visual.icon} size={18} color={color} />
+              </View>
+              <View style={styles.info}>
+                <Text
+                  style={[styles.notifTitle, !notification.isRead && styles.notifTitleUnread]}
+                  numberOfLines={1}
+                >
+                  {t(notification.title)}
+                </Text>
+                <Text style={styles.notifBody} numberOfLines={2}>
+                  {notification.body}
+                </Text>
+              </View>
+              <View style={styles.metaCol}>
+                {!notification.isRead ? <View style={styles.unreadDot} /> : null}
+                <Text style={styles.notifTime}>{formatTime(notification.createdAt)}</Text>
+              </View>
+            </View>
+          </Card>
+        </Pressable>
+      </Animated.View>
+    );
   };
 
   return (
@@ -72,34 +162,11 @@ export function NotificationsScreen() {
           </View>
         ) : (
           <FlatList
-            data={notifications}
+            data={listItems}
             keyExtractor={(item) => item.id}
             contentContainerStyle={[styles.list, { paddingBottom: tabBarClearance }]}
             ListEmptyComponent={<EmptyState icon="notifications-outline" title={t('chat.empty')} />}
-            renderItem={({ item, index }) => (
-              <Animated.View entering={FadeInDown.delay(index * 40).duration(220)}>
-                <Pressable onPress={() => handlePress(item)}>
-                  <Card>
-                    <View style={styles.row}>
-                      {!item.isRead ? (
-                        <View style={styles.unreadDot} />
-                      ) : (
-                        <View style={styles.dotSpacer} />
-                      )}
-                      <View style={styles.info}>
-                        <Text style={[styles.notifTitle, !item.isRead && styles.notifTitleUnread]}>
-                          {bodyOrTitle(item)}
-                        </Text>
-                        <Text style={styles.notifBody} numberOfLines={2}>
-                          {item.body}
-                        </Text>
-                        <Text style={styles.notifMeta}>{formatDateTime(item.createdAt)}</Text>
-                      </View>
-                    </View>
-                  </Card>
-                </Pressable>
-              </Animated.View>
-            )}
+            renderItem={renderItem}
           />
         )}
       </View>
@@ -107,7 +174,7 @@ export function NotificationsScreen() {
   );
 }
 
-function createStyles(theme: ReturnType<typeof useTheme>) {
+function createStyles(theme: Theme) {
   return StyleSheet.create({
     container: { flex: 1, paddingTop: theme.spacing.xl },
     center: { flex: 1, justifyContent: 'center', alignItems: 'center' },
@@ -139,19 +206,42 @@ function createStyles(theme: ReturnType<typeof useTheme>) {
     spacer: { width: 36 },
     errorText: { color: theme.colors.danger, textAlign: 'center' },
     list: { gap: theme.spacing.sm },
-    row: { flexDirection: 'row', gap: theme.spacing.sm, padding: theme.spacing.lg },
+    dividerRow: { alignItems: 'center', marginVertical: theme.spacing.sm },
+    dividerPill: {
+      backgroundColor: theme.colors.card,
+      borderRadius: theme.radius.full,
+      paddingHorizontal: theme.spacing.md,
+      paddingVertical: 4,
+    },
+    dividerText: {
+      fontSize: theme.fontSizes.xs,
+      fontWeight: theme.fontWeights.medium,
+      color: theme.colors.textSecondary,
+    },
+    row: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      gap: theme.spacing.md,
+      padding: theme.spacing.lg,
+    },
+    iconWrap: {
+      width: 36,
+      height: 36,
+      borderRadius: theme.radius.full,
+      alignItems: 'center',
+      justifyContent: 'center',
+    },
+    info: { flex: 1, gap: 2 },
+    notifTitle: { fontSize: theme.fontSizes.md, color: theme.colors.textSecondary },
+    notifTitleUnread: { color: theme.colors.textPrimary, fontWeight: theme.fontWeights.semiBold },
+    notifBody: { fontSize: theme.fontSizes.sm, color: theme.colors.textSecondary },
+    metaCol: { alignItems: 'flex-end', gap: 4 },
     unreadDot: {
       width: 8,
       height: 8,
       borderRadius: 4,
       backgroundColor: theme.colors.primary,
-      marginTop: 6,
     },
-    dotSpacer: { width: 8 },
-    info: { flex: 1, gap: 3 },
-    notifTitle: { fontSize: theme.fontSizes.md, color: theme.colors.textSecondary },
-    notifTitleUnread: { color: theme.colors.textPrimary, fontWeight: theme.fontWeights.semiBold },
-    notifBody: { fontSize: theme.fontSizes.sm, color: theme.colors.textSecondary },
-    notifMeta: { fontSize: theme.fontSizes.xs, color: theme.colors.textSecondary, marginTop: 2 },
+    notifTime: { fontSize: theme.fontSizes.xs, color: theme.colors.textSecondary },
   });
 }

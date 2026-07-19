@@ -7,6 +7,7 @@ import { logout } from '@/features/auth/services/auth.service';
 import { useTheme } from '@/theme/ThemeProvider';
 import { useTabBarClearance } from '@/hooks/useTabBarClearance';
 import { useUnreadCount } from '@/features/notifications/hooks/useUnreadCount';
+import { useChatUnreadCount } from '@/features/notifications/hooks/useChatUnreadCount';
 import { Screen } from '@/components/Screen';
 import { Card } from '@/components/Card';
 import { MenuRow } from '@/components/MenuRow';
@@ -22,6 +23,7 @@ export default function More() {
   const profile = useAuthStore((state) => state.profile);
   const tabBarClearance = useTabBarClearance();
   const unreadCount = useUnreadCount();
+  const chatUnreadCount = useChatUnreadCount();
   const styles = createStyles(theme);
 
   const initials = profile
@@ -70,6 +72,7 @@ export default function More() {
             icon="chatbubble-outline"
             label={t('chat.title')}
             onPress={() => router.push('/chat')}
+            badgeCount={chatUnreadCount}
           />
           <MenuRow
             icon="notifications-outline"

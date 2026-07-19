@@ -27,6 +27,7 @@ import { useStoreName } from '@/features/stores/hooks/useStoreName';
 import { useAuthStore } from '@/stores/auth.store';
 import { useMembershipStore } from '@/stores/membership.store';
 import { useHasRole } from '@/features/auth/hooks/usePermissions';
+import { useMarkChatNotificationsRead } from '@/features/notifications/hooks/useMarkChatNotificationsRead';
 import type { ChatMessage } from '@/features/chat/services/chat.service';
 import Animated, { FadeInUp } from 'react-native-reanimated';
 
@@ -54,6 +55,7 @@ export function ChatScreen() {
   const activeStoreId = useMembershipStore((state) => state.activeStoreId);
   const profile = useAuthStore((state) => state.profile);
   const hasModeratorRole = useHasRole(['Owner', 'Administrator']);
+  const markChatRead = useMarkChatNotificationsRead();
   const { data: storeName } = useStoreName(activeStoreId);
   const { data: roomId } = useChatRoom();
   const { data: messages, isLoading } = useChatMessages(roomId ?? null);
@@ -73,6 +75,14 @@ export function ChatScreen() {
       setTimeout(() => listRef.current?.scrollToEnd({ animated: true }), 50);
     }
   }, [messageCount]);
+
+  // Opening the chat is what "reading" a chat notification means here —
+  // clears the badge on the Chat entry point the same way opening the
+  // Notification Center clears the bell.
+  useEffect(() => {
+    markChatRead.mutate();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   if (!activeStoreId) {
     return (

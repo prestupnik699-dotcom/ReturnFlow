@@ -241,6 +241,7 @@
     },
     "edit": { "title": "Edit return", "submit": "Save" },
     "pendingSync": "Not synced yet",
+    "newReturnNotification": "New return",
     "filterBySupplier": "Filter by supplier",
     "selectedCount": "{{count}} selected",
     "bulkMarkReturned": "Mark returned",
@@ -365,6 +366,7 @@
   "deliveries": {
     "title": "Deliveries",
     "empty": "No deliveries yet",
+    "newDeliveryNotification": "New delivery",
     "batch": {
       "title": "New delivery",
       "subtitle": "Pick a supplier and add the items from one delivery",

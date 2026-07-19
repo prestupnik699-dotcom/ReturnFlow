@@ -3,6 +3,7 @@ import { Ionicons } from '@expo/vector-icons';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useTheme } from '@/theme/ThemeProvider';
 import { useUnreadCount } from '@/features/notifications/hooks/useUnreadCount';
+import { useChatUnreadCount } from '@/features/notifications/hooks/useChatUnreadCount';
 import { useKeyboardVisible } from '@/hooks/useKeyboardVisible';
 
 const ICONS: Record<string, keyof typeof Ionicons.glyphMap> = {
@@ -25,6 +26,7 @@ export function FloatingTabBar({ state, navigation }: TabBarProps) {
   const theme = useTheme();
   const insets = useSafeAreaInsets();
   const unreadCount = useUnreadCount();
+  const chatUnreadCount = useChatUnreadCount();
   const keyboardVisible = useKeyboardVisible();
   const styles = createStyles(theme, insets);
 
@@ -71,7 +73,7 @@ export function FloatingTabBar({ state, navigation }: TabBarProps) {
               </View>
               {/* Chat and Notifications moved into the "Ещё" (More) menu — the
                   unread badge follows them there so the signal isn't lost. */}
-              {route.name === 'more' && unreadCount > 0 ? (
+              {route.name === 'more' && unreadCount + chatUnreadCount > 0 ? (
                 <View style={styles.badge}>
                   <View style={styles.badgeInner} />
                 </View>
