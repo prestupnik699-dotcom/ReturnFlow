@@ -1,5 +1,6 @@
 import { useState } from 'react';
-import { View, Text, Image, Pressable, StyleSheet, ActivityIndicator } from 'react-native';
+import { View, Image, Pressable, StyleSheet, ActivityIndicator } from 'react-native';
+import { Text } from '@/components/AppText';
 import * as ImagePicker from 'expo-image-picker';
 import { useTranslation } from 'react-i18next';
 import { Ionicons } from '@expo/vector-icons';

@@ -1,4 +1,5 @@
-import { Pressable, Text, StyleSheet } from 'react-native';
+import { Pressable, StyleSheet } from 'react-native';
+import { Text } from '@/components/AppText';
 import { useTheme } from '@/theme/ThemeProvider';
 
 type Props = { label: string; selected?: boolean; onPress: () => void; disabled?: boolean };

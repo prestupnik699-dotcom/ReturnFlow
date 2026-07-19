@@ -2,6 +2,19 @@ import '@/localization/i18n';
 import '@/features/returns/sync/returnsSyncHandler';
 import '@/features/deliveries/sync/deliveriesSyncHandler';
 import { useEffect } from 'react';
+import { useFonts } from 'expo-font';
+import {
+  SpaceGrotesk_400Regular,
+  SpaceGrotesk_500Medium,
+  SpaceGrotesk_600SemiBold,
+  SpaceGrotesk_700Bold,
+} from '@expo-google-fonts/space-grotesk';
+import {
+  Inter_400Regular,
+  Inter_500Medium,
+  Inter_600SemiBold,
+  Inter_700Bold,
+} from '@expo-google-fonts/inter';
 import { Stack } from 'expo-router';
 import { View, ActivityIndicator } from 'react-native';
 import * as SplashScreen from 'expo-splash-screen';
@@ -56,12 +69,26 @@ Sentry.init({
 export default Sentry.wrap(function RootLayout() {
   useSessionBootstrap();
   const isInitializing = useAuthStore((state) => state.isInitializing);
+  const [fontsLoaded] = useFonts({
+    SpaceGrotesk_400Regular,
+    SpaceGrotesk_500Medium,
+    SpaceGrotesk_600SemiBold,
+    SpaceGrotesk_700Bold,
+    Inter_400Regular,
+    Inter_500Medium,
+    Inter_600SemiBold,
+    Inter_700Bold,
+  });
 
   useEffect(() => {
-    if (!isInitializing) {
+    if (!isInitializing && fontsLoaded) {
       SplashScreen.hideAsync();
     }
-  }, [isInitializing]);
+  }, [isInitializing, fontsLoaded]);
+
+  if (!fontsLoaded) {
+    return null;
+  }
 
   return (
     <GestureHandlerRootView style={{ flex: 1 }}>

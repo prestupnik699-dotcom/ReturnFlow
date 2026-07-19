@@ -1,5 +1,6 @@
 import { useState } from 'react';
-import { View, Text, FlatList, Pressable, ActivityIndicator, StyleSheet } from 'react-native';
+import { View, FlatList, Pressable, ActivityIndicator, StyleSheet } from 'react-native';
+import { Text } from '@/components/AppText';
 import { useTranslation } from 'react-i18next';
 import Animated, { FadeInDown } from 'react-native-reanimated';
 import { useTheme } from '@/theme/ThemeProvider';

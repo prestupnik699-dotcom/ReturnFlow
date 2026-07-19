@@ -1,7 +1,6 @@
 import { useState } from 'react';
 import {
   View,
-  Text,
   FlatList,
   ActivityIndicator,
   StyleSheet,
@@ -9,6 +8,7 @@ import {
   TextInput,
   ScrollView,
 } from 'react-native';
+import { Text } from '@/components/AppText';
 import { useTranslation } from 'react-i18next';
 import { useRouter, useLocalSearchParams } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';

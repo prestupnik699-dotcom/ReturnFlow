@@ -1,7 +1,6 @@
 import { useState, useEffect, useRef } from 'react';
 import {
   View,
-  Text,
   FlatList,
   ActivityIndicator,
   StyleSheet,
@@ -9,6 +8,7 @@ import {
   TextInput,
   ScrollView,
 } from 'react-native';
+import { Text } from '@/components/AppText';
 import Animated, { FadeInDown } from 'react-native-reanimated';
 import { useTranslation } from 'react-i18next';
 import { useRouter, useLocalSearchParams } from 'expo-router';

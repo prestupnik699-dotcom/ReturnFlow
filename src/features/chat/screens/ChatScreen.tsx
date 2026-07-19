@@ -1,13 +1,6 @@
 import { useEffect, useRef, useState } from 'react';
-import {
-  View,
-  Text,
-  FlatList,
-  TextInput,
-  Pressable,
-  ActivityIndicator,
-  StyleSheet,
-} from 'react-native';
+import { View, FlatList, TextInput, Pressable, ActivityIndicator, StyleSheet } from 'react-native';
+import { Text } from '@/components/AppText';
 import { KeyboardStickyView } from 'react-native-keyboard-controller';
 import { useTranslation } from 'react-i18next';
 import { useRouter } from 'expo-router';

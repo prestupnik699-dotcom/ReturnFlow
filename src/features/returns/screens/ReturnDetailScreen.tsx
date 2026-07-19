@@ -1,13 +1,13 @@
 import { useState } from 'react';
 import {
   View,
-  Text,
   ScrollView,
   ActivityIndicator,
   StyleSheet,
   TextInput,
   Pressable,
 } from 'react-native';
+import { Text } from '@/components/AppText';
 import { useTranslation } from 'react-i18next';
 import { Ionicons } from '@expo/vector-icons';
 import { useTheme } from '@/theme/ThemeProvider';

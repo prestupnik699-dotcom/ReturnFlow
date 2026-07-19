@@ -2,7 +2,6 @@ import { useRef, useState } from 'react';
 import {
   Modal,
   View,
-  Text,
   TextInput,
   Pressable,
   ScrollView,
@@ -11,6 +10,7 @@ import {
   Platform,
   ActivityIndicator,
 } from 'react-native';
+import { Text } from '@/components/AppText';
 import { CameraView, useCameraPermissions } from 'expo-camera';
 import { useTranslation } from 'react-i18next';
 import { Ionicons } from '@expo/vector-icons';

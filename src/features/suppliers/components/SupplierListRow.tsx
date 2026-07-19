@@ -1,5 +1,6 @@
 import { useRef } from 'react';
-import { View, Text, Pressable, StyleSheet, Linking } from 'react-native';
+import { View, Pressable, StyleSheet, Linking } from 'react-native';
+import { Text } from '@/components/AppText';
 import ReanimatedSwipeable, {
   type SwipeableMethods,
 } from 'react-native-gesture-handler/ReanimatedSwipeable';

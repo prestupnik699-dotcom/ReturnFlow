@@ -1,5 +1,6 @@
 import { useState } from 'react';
-import { View, Text, FlatList, TextInput, ActivityIndicator, StyleSheet } from 'react-native';
+import { View, FlatList, TextInput, ActivityIndicator, StyleSheet } from 'react-native';
+import { Text } from '@/components/AppText';
 import { useTranslation } from 'react-i18next';
 import { useRouter } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';

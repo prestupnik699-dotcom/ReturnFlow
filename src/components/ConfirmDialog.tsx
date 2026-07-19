@@ -1,5 +1,6 @@
 import { useEffect } from 'react';
-import { Modal, View, Text, StyleSheet } from 'react-native';
+import { Modal, View, StyleSheet } from 'react-native';
+import { Text } from '@/components/AppText';
 import { Button } from '@/components/Button';
 import { useTheme } from '@/theme/ThemeProvider';
 import { hapticWarning, hapticImpactMedium } from '@/lib/haptics';

@@ -1,4 +1,5 @@
-import { Modal, View, Text, ScrollView, Pressable, StyleSheet } from 'react-native';
+import { Modal, View, ScrollView, Pressable, StyleSheet } from 'react-native';
+import { Text } from '@/components/AppText';
 import { useTranslation } from 'react-i18next';
 import { Ionicons } from '@expo/vector-icons';
 import { useTheme } from '@/theme/ThemeProvider';

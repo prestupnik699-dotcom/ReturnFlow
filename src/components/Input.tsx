@@ -1,5 +1,6 @@
 import { useState } from 'react';
-import { TextInput, View, Text, StyleSheet, type TextInputProps } from 'react-native';
+import { TextInput, View, StyleSheet, type TextInputProps } from 'react-native';
+import { Text } from '@/components/AppText';
 import { useTheme } from '@/theme/ThemeProvider';
 
 type Props = TextInputProps & { label?: string; error?: string };
