@@ -2,12 +2,14 @@ import { View, Text, TextInput, StyleSheet } from 'react-native';
 import { useForm, Controller } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useTranslation } from 'react-i18next';
+import { useRouter } from 'expo-router';
 import {
   createOrganizationSchema,
   type CreateOrganizationFormValues,
 } from '@/features/organizations/validators/create-organization.schema';
 import { useCreateOrganization } from '@/features/organizations/hooks/useCreateOrganization';
 import { useTheme } from '@/theme/ThemeProvider';
+import { Screen } from '@/components/Screen';
 import { Logo } from '@/components/Logo';
 import { Button } from '@/components/Button';
 import { logout } from '@/features/auth/services/auth.service';
@@ -16,6 +18,7 @@ import Animated, { FadeInDown, ZoomIn } from 'react-native-reanimated';
 export function CreateOrganizationScreen() {
   const theme = useTheme();
   const { t, i18n } = useTranslation();
+  const router = useRouter();
   const mutation = useCreateOrganization();
 
   const {
@@ -28,61 +31,71 @@ export function CreateOrganizationScreen() {
   });
 
   const onSubmit = (values: CreateOrganizationFormValues) => {
-    mutation.mutate({ name: values.name, defaultLanguage: i18n.language });
+    mutation.mutate(
+      { name: values.name, defaultLanguage: i18n.language },
+      {
+        // Skip the "no store yet" middle step entirely for a first-time
+        // organization — go straight to adding the first store instead
+        // of landing on Dashboard and requiring another tap to get there.
+        onSuccess: () => router.replace('/stores?new=1'),
+      },
+    );
   };
 
   const styles = createStyles(theme);
 
   return (
-    <View style={styles.container}>
-      <View style={styles.header}>
-        <Animated.View entering={ZoomIn.duration(500).springify()}>
-          <Logo size={56} />
-        </Animated.View>
-        <Animated.Text entering={FadeInDown.delay(150).duration(500)} style={styles.title}>
-          {t('organizations.title')}
-        </Animated.Text>
-        <Animated.Text entering={FadeInDown.delay(250).duration(500)} style={styles.subtitle}>
-          {t('organizations.subtitle')}
-        </Animated.Text>
-      </View>
-
-      <View style={styles.form}>
-        <View style={styles.field}>
-          <Text style={styles.label}>{t('organizations.nameLabel')}</Text>
-          <Controller
-            control={control}
-            name="name"
-            render={({ field: { value, onChange, onBlur } }) => (
-              <TextInput
-                style={[styles.input, errors.name && styles.inputError]}
-                placeholderTextColor={theme.colors.textSecondary}
-                autoCapitalize="words"
-                value={value}
-                onChangeText={onChange}
-                onBlur={onBlur}
-              />
-            )}
-          />
-          {errors.name ? (
-            <Text style={styles.errorText}>{t(errors.name.message ?? '')}</Text>
-          ) : null}
+    <Screen>
+      <View style={styles.container}>
+        <View style={styles.header}>
+          <Animated.View entering={ZoomIn.duration(500).springify()}>
+            <Logo size={56} />
+          </Animated.View>
+          <Animated.Text entering={FadeInDown.delay(150).duration(500)} style={styles.title}>
+            {t('organizations.title')}
+          </Animated.Text>
+          <Animated.Text entering={FadeInDown.delay(250).duration(500)} style={styles.subtitle}>
+            {t('organizations.subtitle')}
+          </Animated.Text>
         </View>
 
-        {mutation.isError ? (
-          <View style={styles.errorBanner}>
-            <Text style={styles.errorBannerText}>{mutation.error.message}</Text>
+        <View style={styles.form}>
+          <View style={styles.field}>
+            <Text style={styles.label}>{t('organizations.nameLabel')}</Text>
+            <Controller
+              control={control}
+              name="name"
+              render={({ field: { value, onChange, onBlur } }) => (
+                <TextInput
+                  style={[styles.input, errors.name && styles.inputError]}
+                  placeholderTextColor={theme.colors.textSecondary}
+                  autoCapitalize="words"
+                  value={value}
+                  onChangeText={onChange}
+                  onBlur={onBlur}
+                />
+              )}
+            />
+            {errors.name ? (
+              <Text style={styles.errorText}>{t(errors.name.message ?? '')}</Text>
+            ) : null}
           </View>
-        ) : null}
 
-        <Button
-          label={t('organizations.submit')}
-          onPress={handleSubmit(onSubmit)}
-          loading={mutation.isPending}
-        />
-        <Button label={t('common.logOut')} variant="outline" onPress={() => logout()} />
+          {mutation.isError ? (
+            <View style={styles.errorBanner}>
+              <Text style={styles.errorBannerText}>{mutation.error.message}</Text>
+            </View>
+          ) : null}
+
+          <Button
+            label={t('organizations.submit')}
+            onPress={handleSubmit(onSubmit)}
+            loading={mutation.isPending}
+          />
+          <Button label={t('common.logOut')} variant="outline" onPress={() => logout()} />
+        </View>
       </View>
-    </View>
+    </Screen>
   );
 }
 
@@ -90,9 +103,7 @@ function createStyles(theme: ReturnType<typeof useTheme>) {
   return StyleSheet.create({
     container: {
       flex: 1,
-      backgroundColor: theme.colors.background,
       justifyContent: 'center',
-      paddingHorizontal: theme.spacing.xl,
     },
     header: { alignItems: 'center', marginBottom: theme.spacing['2xl'], gap: theme.spacing.sm },
     title: {

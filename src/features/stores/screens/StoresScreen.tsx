@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import {
   View,
   Text,
@@ -11,7 +11,7 @@ import {
 } from 'react-native';
 import Animated, { FadeInDown } from 'react-native-reanimated';
 import { useTranslation } from 'react-i18next';
-import { useRouter } from 'expo-router';
+import { useRouter, useLocalSearchParams } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
 import { LinearGradient } from 'expo-linear-gradient';
 import { useTabBarClearance } from '@/hooks/useTabBarClearance';
@@ -41,6 +41,8 @@ export function StoresScreen() {
   const theme = useTheme();
   const { t } = useTranslation();
   const router = useRouter();
+  const params = useLocalSearchParams<{ new?: string }>();
+  const autoOpenedRef = useRef(false);
   const tabBarClearance = useTabBarClearance();
   const canAdd = useHasRole(['Owner', 'Administrator']);
   const { data: stores, isLoading, isError } = useStores();
@@ -74,6 +76,16 @@ export function StoresScreen() {
     setEditingStore(null);
     setFormVisible(true);
   };
+
+  // Coming straight from creating a new organization (?new=1) — open the
+  // add-store form immediately instead of making a first-time user find
+  // and tap the button themselves.
+  useEffect(() => {
+    if (params.new === '1' && !autoOpenedRef.current) {
+      autoOpenedRef.current = true;
+      handleAdd();
+    }
+  }, [params.new]);
 
   const handleEdit = (store: Store) => {
     setEditingStore(store);
