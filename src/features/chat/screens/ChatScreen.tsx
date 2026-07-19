@@ -221,7 +221,13 @@ export function ChatScreen() {
             renderItem={renderItem}
             contentContainerStyle={styles.list}
             showsVerticalScrollIndicator={false}
-            ListEmptyComponent={<EmptyState icon="chatbubbles-outline" title={t('chat.empty')} />}
+            ListEmptyComponent={
+              <EmptyState
+                icon="chatbubbles-outline"
+                title={t('chat.empty')}
+                message={t('chat.emptyMessage')}
+              />
+            }
             onContentSizeChange={() => listRef.current?.scrollToEnd({ animated: false })}
           />
         )}

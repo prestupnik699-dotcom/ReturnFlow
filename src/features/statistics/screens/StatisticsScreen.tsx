@@ -121,7 +121,11 @@ export function StatisticsScreen() {
             <ActivityIndicator color={theme.colors.primary} />
           </View>
         ) : !stats || stats.totalCount === 0 ? (
-          <EmptyState icon="bar-chart-outline" title={t('statistics.noData')} />
+          <EmptyState
+            icon="bar-chart-outline"
+            title={t('statistics.noData')}
+            message={t('statistics.noDataMessage')}
+          />
         ) : (
           <>
             <View style={styles.summaryRow}>

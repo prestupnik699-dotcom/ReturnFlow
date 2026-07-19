@@ -165,7 +165,13 @@ export function NotificationsScreen() {
             data={listItems}
             keyExtractor={(item) => item.id}
             contentContainerStyle={[styles.list, { paddingBottom: tabBarClearance }]}
-            ListEmptyComponent={<EmptyState icon="notifications-outline" title={t('chat.empty')} />}
+            ListEmptyComponent={
+              <EmptyState
+                icon="notifications-outline"
+                title={t('notifications.emptyTitle')}
+                message={t('notifications.emptyMessage')}
+              />
+            }
             renderItem={renderItem}
           />
         )}

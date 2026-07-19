@@ -171,7 +171,11 @@ export function SuppliersScreen() {
             showsVerticalScrollIndicator={false}
             ListEmptyComponent={
               <View style={styles.emptyWrap}>
-                <EmptyState icon="cube-outline" title={t('suppliers.empty')} />
+                <EmptyState
+                  icon="cube-outline"
+                  title={t('suppliers.empty')}
+                  message={t('suppliers.emptyMessage')}
+                />
               </View>
             }
             renderItem={({ item, index }) => {

@@ -73,7 +73,7 @@
       "title": "Organization settings",
       "defaultLanguageLabel": "Default language for new team members",
       "save": "Save",
-      "saved": "Saved",
+      "saved": "Changes saved",
       "loadError": "Couldn't load organization data",
       "dangerZoneTitle": "Danger zone",
       "deleteButton": "Delete organization",
@@ -114,7 +114,7 @@
     "themeLight": "Light",
     "themeDark": "Dark",
     "themeSystem": "System",
-    "saved": "Saved",
+    "saved": "Settings saved",
     "security": {
       "title": "Face ID / Touch ID",
       "hint": "Require biometrics every time the app opens",
@@ -144,6 +144,7 @@
   "stores": {
     "title": "Stores",
     "empty": "No stores added yet",
+    "emptyMessage": "Add your first store — returns, deliveries, and staff all connect to it",
     "addButton": "Add store",
     "create": {
       "title": "New store",
@@ -173,6 +174,7 @@
     "searchPlaceholder": "Search by name",
     "favoritesOnly": "Favorites only",
     "empty": "No suppliers added yet",
+    "emptyMessage": "Add your first supplier to start tracking returns against them",
     "addButton": "Add supplier",
     "create": {
       "title": "New supplier",
@@ -202,6 +204,7 @@
     "noStore": "Select an active store before creating a return",
     "noSuppliers": "Add at least one supplier first",
     "empty": "No returns yet",
+    "emptyMessage": "Scan a barcode or add a return manually — it will show up right away",
     "addButton": "Add return",
     "statsTotal": "Total",
     "statsPending": "Pending",
@@ -280,7 +283,8 @@
     "title": "Chat",
     "placeholder": "Message...",
     "noStore": "Select an active store to see its chat",
-    "empty": "No notifications",
+    "empty": "No messages yet",
+    "emptyMessage": "Send the first one — your team will see it right away",
     "markAllRead": "Mark all as read",
     "newMessage": "New chat message",
     "deleteConfirmTitle": "Delete message?",
@@ -293,6 +297,10 @@
     "dateToday": "Today",
     "dateYesterday": "Yesterday"
   },
+  "notifications": {
+    "emptyTitle": "All quiet",
+    "emptyMessage": "New returns, deliveries, and urgent items will show up here"
+  },
   "statistics": {
     "title": "Statistics",
     "periodToday": "Today",
@@ -304,6 +312,7 @@
     "byStatus": "By status",
     "topSuppliers": "Top suppliers",
     "noData": "No data for this period",
+    "noDataMessage": "Try a different period — data will appear once there are returns",
     "export": {
       "title": "Export",
       "csv": "CSV (Excel)",
@@ -381,6 +390,7 @@
   "deliveries": {
     "title": "Deliveries",
     "empty": "No deliveries yet",
+    "emptyMessage": "This will be a log of everything that physically arrived from suppliers",
     "newDeliveryNotification": "New delivery",
     "batch": {
       "title": "New delivery",

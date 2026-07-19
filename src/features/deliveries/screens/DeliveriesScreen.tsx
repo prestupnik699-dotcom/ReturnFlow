@@ -71,7 +71,11 @@ export function DeliveriesScreen() {
             showsVerticalScrollIndicator={false}
             ListEmptyComponent={
               <View style={styles.emptyWrap}>
-                <EmptyState icon="download-outline" title={t('deliveries.empty')} />
+                <EmptyState
+                  icon="download-outline"
+                  title={t('deliveries.empty')}
+                  message={t('deliveries.emptyMessage')}
+                />
               </View>
             }
             renderItem={({ item, index }: { item: DeliveryItem; index: number }) => (

@@ -188,7 +188,11 @@ export function StoresScreen() {
             showsVerticalScrollIndicator={false}
             ListEmptyComponent={
               <View style={styles.emptyWrap}>
-                <EmptyState icon="storefront-outline" title={t('stores.empty')} />
+                <EmptyState
+                  icon="storefront-outline"
+                  title={t('stores.empty')}
+                  message={t('stores.emptyMessage')}
+                />
               </View>
             }
             renderItem={({ item, index }) => {

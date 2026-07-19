@@ -312,7 +312,11 @@ export function ReturnsScreen() {
             showsVerticalScrollIndicator={false}
             ListEmptyComponent={
               <View style={styles.emptyWrap}>
-                <EmptyState icon="repeat-outline" title={t('returns.empty')} />
+                <EmptyState
+                  icon="repeat-outline"
+                  title={t('returns.empty')}
+                  message={t('returns.emptyMessage')}
+                />
               </View>
             }
             renderItem={({ item, index }) => (
