@@ -343,14 +343,14 @@ function QuickAction({
 }) {
   const styles = createQuickActionStyles(theme);
   return (
-    <PressableScale style={styles.tile} onPress={onPress}>
+    <Pressable style={styles.tile} onPress={onPress}>
       <View style={styles.tileIconWrap}>
         <Ionicons name={icon} size={22} color={theme.colors.primary} />
       </View>
       <Text style={styles.tileLabel} numberOfLines={2}>
         {label}
       </Text>
-    </PressableScale>
+    </Pressable>
   );
 }
 

@@ -8,12 +8,13 @@ type Props = {
   style?: StyleProp<TextStyle>;
 };
 
-// Counts up from the previous value to the new one on every change —
-// requestAnimationFrame + plain state, not Reanimated, since this is
-// changing text content over time rather than a UI-thread transform.
+// Always starts its very first count from 0 — the component typically
+// only mounts once real data has already loaded, so counting from the
+// previous *displayed* value (which would just be `value` itself on
+// first render) meant the 0→N animation never actually played.
 export function AnimatedNumber({ value, duration = 600, style }: Props) {
-  const [display, setDisplay] = useState(value);
-  const fromRef = useRef(value);
+  const [display, setDisplay] = useState(0);
+  const fromRef = useRef(0);
 
   useEffect(() => {
     const from = fromRef.current;
