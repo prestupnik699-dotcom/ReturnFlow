@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { View, ScrollView, ActivityIndicator, Pressable, StyleSheet } from 'react-native';
 import { PressableScale } from '@/components/PressableScale';
 import { Text } from '@/components/AppText';
@@ -6,7 +6,16 @@ import { useTranslation } from 'react-i18next';
 import { useRouter } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
 import { LinearGradient } from 'expo-linear-gradient';
-import Animated, { FadeInDown } from 'react-native-reanimated';
+import Animated, {
+  FadeInDown,
+  useAnimatedStyle,
+  useSharedValue,
+  withRepeat,
+  withTiming,
+  withSequence,
+  withDelay,
+} from 'react-native-reanimated';
+import type { StyleProp, ViewStyle } from 'react-native';
 import { useTheme } from '@/theme/ThemeProvider';
 import { Screen } from '@/components/Screen';
 import { Card } from '@/components/Card';
@@ -226,6 +235,7 @@ export function DashboardScreen() {
                     text={t('dashboard.attentionUrgent', { count: urgentCount })}
                     onPress={() => router.push('/returns')}
                     theme={theme}
+                    pulse
                   />
                 ) : null}
                 {todayCount > 0 ? (
@@ -255,17 +265,17 @@ export function DashboardScreen() {
                 <Card>
                   <View style={styles.chartCard}>
                     <View style={styles.chartBars}>
-                      {weeklyActivity.map((point) => (
+                      {weeklyActivity.map((point, index) => (
                         <View key={point.date} style={styles.chartBarColumn}>
                           <View style={styles.chartBarTrack}>
-                            <View
-                              style={[
-                                styles.chartBarFill,
-                                {
-                                  height: `${Math.max((point.count / maxActivity) * 100, point.count > 0 ? 6 : 2)}%`,
-                                  backgroundColor: theme.colors.primary,
-                                },
-                              ]}
+                            <AnimatedChartBarFill
+                              heightPercent={Math.max(
+                                (point.count / maxActivity) * 100,
+                                point.count > 0 ? 6 : 2,
+                              )}
+                              color={theme.colors.primary}
+                              delay={index * 50}
+                              style={styles.chartBarFill}
                             />
                           </View>
                           <Text style={styles.chartBarLabel}>{dayLabel(point.date)}</Text>
@@ -393,27 +403,66 @@ function createQuickActionStyles(theme: Theme) {
   });
 }
 
+function AnimatedChartBarFill({
+  heightPercent,
+  color,
+  delay,
+  style,
+}: {
+  heightPercent: number;
+  color: string;
+  delay: number;
+  style: StyleProp<ViewStyle>;
+}) {
+  const animatedHeight = useSharedValue(0);
+
+  useEffect(() => {
+    animatedHeight.value = withDelay(delay, withTiming(heightPercent, { duration: 600 }));
+  }, [heightPercent, delay, animatedHeight]);
+
+  const animatedStyle = useAnimatedStyle(() => ({ height: `${animatedHeight.value}%` }));
+
+  return <Animated.View style={[style, { backgroundColor: color }, animatedStyle]} />;
+}
+
 function AttentionCard({
   icon,
   color,
   text,
   onPress,
   theme,
+  pulse,
 }: {
   icon: keyof typeof Ionicons.glyphMap;
   color: string;
   text: string;
   onPress: () => void;
   theme: Theme;
+  pulse?: boolean;
 }) {
   const styles = createAttentionStyles(theme);
+  const pulseValue = useSharedValue(1);
+
+  useEffect(() => {
+    if (!pulse) return;
+    pulseValue.value = withRepeat(
+      withSequence(withTiming(1.15, { duration: 700 }), withTiming(1, { duration: 700 })),
+      -1,
+      false,
+    );
+  }, [pulse, pulseValue]);
+
+  const pulseStyle = useAnimatedStyle(() => ({
+    transform: [{ scale: pulse ? pulseValue.value : 1 }],
+  }));
+
   return (
     <PressableScale onPress={onPress}>
       <Card>
         <View style={styles.row}>
-          <View style={[styles.iconWrap, { backgroundColor: color + '1F' }]}>
+          <Animated.View style={[styles.iconWrap, { backgroundColor: color + '1F' }, pulseStyle]}>
             <Ionicons name={icon} size={18} color={color} />
-          </View>
+          </Animated.View>
           <Text style={styles.text}>{text}</Text>
           <Ionicons name="chevron-forward" size={18} color={theme.colors.textSecondary} />
         </View>

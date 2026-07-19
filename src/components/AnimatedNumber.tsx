@@ -1,5 +1,12 @@
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useState } from 'react';
 import type { TextStyle, StyleProp } from 'react-native';
+import {
+  useSharedValue,
+  useAnimatedReaction,
+  withTiming,
+  runOnJS,
+  Easing,
+} from 'react-native-reanimated';
 import { Text } from '@/components/AppText';
 
 type Props = {
@@ -8,38 +15,27 @@ type Props = {
   style?: StyleProp<TextStyle>;
 };
 
-// Always starts its very first count from 0 — the component typically
-// only mounts once real data has already loaded, so counting from the
-// previous *displayed* value (which would just be `value` itself on
-// first render) meant the 0→N animation never actually played.
+// Built on the same Reanimated timing engine StatBar already uses
+// successfully for its bar-width animation, instead of a hand-rolled
+// requestAnimationFrame loop — bridges the animated value to React state
+// via useAnimatedReaction + runOnJS so the displayed digits update as it
+// counts.
 export function AnimatedNumber({ value, duration = 600, style }: Props) {
   const [display, setDisplay] = useState(0);
-  const fromRef = useRef(0);
+  const animated = useSharedValue(0);
 
   useEffect(() => {
-    const from = fromRef.current;
-    if (from === value) return;
+    animated.value = withTiming(value, { duration, easing: Easing.out(Easing.cubic) });
+  }, [value, duration, animated]);
 
-    let startTime: number | null = null;
-    let raf: number;
-
-    const tick = (timestamp: number) => {
-      if (startTime === null) startTime = timestamp;
-      const elapsed = timestamp - startTime;
-      const progress = Math.min(elapsed / duration, 1);
-      const eased = 1 - Math.pow(1 - progress, 3); // ease-out cubic
-      setDisplay(Math.round(from + (value - from) * eased));
-
-      if (progress < 1) {
-        raf = requestAnimationFrame(tick);
-      } else {
-        fromRef.current = value;
+  useAnimatedReaction(
+    () => Math.round(animated.value),
+    (current, previous) => {
+      if (current !== previous) {
+        runOnJS(setDisplay)(current);
       }
-    };
-
-    raf = requestAnimationFrame(tick);
-    return () => cancelAnimationFrame(raf);
-  }, [value, duration]);
+    },
+  );
 
   return <Text style={style}>{display}</Text>;
 }

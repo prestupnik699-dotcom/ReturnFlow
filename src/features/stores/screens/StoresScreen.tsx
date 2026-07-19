@@ -192,6 +192,7 @@ export function StoresScreen() {
                   icon="storefront-outline"
                   title={t('stores.empty')}
                   message={t('stores.emptyMessage')}
+                  simple
                 />
               </View>
             }

@@ -11,6 +11,8 @@ type Props = {
   message?: string;
   actionLabel?: string;
   onAction?: () => void;
+  // Skips the abstract gradient backdrop, back to a plain icon circle.
+  simple?: boolean;
 };
 
 // A small abstract cluster of soft, overlapping circles in the brand
@@ -40,18 +42,24 @@ function AbstractBackdrop({ primary, accent }: { primary: string; accent: string
   );
 }
 
-export function EmptyState({ icon, title, message, actionLabel, onAction }: Props) {
+export function EmptyState({ icon, title, message, actionLabel, onAction, simple }: Props) {
   const theme = useTheme();
   const styles = createStyles(theme);
 
   return (
     <View style={styles.container}>
-      <Animated.View entering={ZoomIn.duration(400).springify()} style={styles.iconStage}>
-        <AbstractBackdrop primary={theme.colors.primary} accent={theme.colors.accent} />
-        <View style={styles.iconWrap}>
-          <Ionicons name={icon} size={26} color={theme.colors.primary} />
-        </View>
-      </Animated.View>
+      {simple ? (
+        <Animated.View entering={ZoomIn.duration(400).springify()} style={styles.iconWrapPlain}>
+          <Ionicons name={icon} size={28} color={theme.colors.primary} />
+        </Animated.View>
+      ) : (
+        <Animated.View entering={ZoomIn.duration(400).springify()} style={styles.iconStage}>
+          <AbstractBackdrop primary={theme.colors.primary} accent={theme.colors.accent} />
+          <View style={styles.iconWrap}>
+            <Ionicons name={icon} size={26} color={theme.colors.primary} />
+          </View>
+        </Animated.View>
+      )}
       <Animated.View entering={FadeInDown.delay(100).duration(350)} style={styles.textWrap}>
         <Text style={styles.title}>{title}</Text>
         {message ? <Text style={styles.message}>{message}</Text> : null}
@@ -83,6 +91,14 @@ function createStyles(theme: ReturnType<typeof useTheme>) {
       height: 56,
       borderRadius: theme.radius.full,
       backgroundColor: theme.colors.card,
+      alignItems: 'center',
+      justifyContent: 'center',
+    },
+    iconWrapPlain: {
+      width: 56,
+      height: 56,
+      borderRadius: theme.radius.full,
+      backgroundColor: theme.colors.surfaceVariant,
       alignItems: 'center',
       justifyContent: 'center',
     },
