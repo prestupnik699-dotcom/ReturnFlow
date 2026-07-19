@@ -1,4 +1,5 @@
 import { View, Pressable, StyleSheet, Platform } from 'react-native';
+import { LinearGradient } from 'expo-linear-gradient';
 import { Ionicons } from '@expo/vector-icons';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useTheme } from '@/theme/ThemeProvider';
@@ -64,13 +65,20 @@ export function FloatingTabBar({ state, navigation }: TabBarProps) {
               hitSlop={8}
               android_ripple={{ color: 'transparent' }}
             >
-              <View style={[styles.iconWrap, isFocused && styles.iconWrapActive]}>
-                <Ionicons
-                  name={icon}
-                  size={22}
-                  color={isFocused ? theme.colors.onPrimary : theme.colors.textSecondary}
-                />
-              </View>
+              {isFocused ? (
+                <LinearGradient
+                  colors={[theme.colors.primary, theme.colors.accent]}
+                  start={{ x: 0, y: 0 }}
+                  end={{ x: 1, y: 1 }}
+                  style={styles.iconWrap}
+                >
+                  <Ionicons name={icon} size={22} color={theme.colors.onPrimary} />
+                </LinearGradient>
+              ) : (
+                <View style={styles.iconWrap}>
+                  <Ionicons name={icon} size={22} color={theme.colors.textSecondary} />
+                </View>
+              )}
               {/* Chat and Notifications moved into the "Ещё" (More) menu — the
                   unread badge follows them there so the signal isn't lost. */}
               {route.name === 'more' && unreadCount + chatUnreadCount > 0 ? (
@@ -128,7 +136,6 @@ function createStyles(theme: ReturnType<typeof useTheme>, insets: { bottom: numb
       alignItems: 'center',
       justifyContent: 'center',
     },
-    iconWrapActive: { backgroundColor: theme.colors.primary },
     badge: {
       position: 'absolute',
       top: 4,

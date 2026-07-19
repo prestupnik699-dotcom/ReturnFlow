@@ -80,7 +80,7 @@ export function Button({
       <Animated.View style={[styles.shadow, isDisabled && styles.disabled, animatedStyle]}>
         {variant === 'primary' ? (
           <LinearGradient
-            colors={[theme.colors.primary, theme.colors.primaryPressed]}
+            colors={[theme.colors.primary, theme.colors.accent]}
             start={{ x: 0, y: 0 }}
             end={{ x: 1, y: 1 }}
             style={styles.base}

@@ -2,9 +2,12 @@ import { useEffect } from 'react';
 import { View, Pressable, StyleSheet } from 'react-native';
 import { Text } from '@/components/AppText';
 import { Ionicons } from '@expo/vector-icons';
+import { LinearGradient } from 'expo-linear-gradient';
 import Animated, { useAnimatedStyle, useSharedValue, withTiming } from 'react-native-reanimated';
 import { useTheme } from '@/theme/ThemeProvider';
 import { hapticSelection } from '@/lib/haptics';
+
+const AnimatedGradient = Animated.createAnimatedComponent(LinearGradient);
 
 type Props = {
   label: string;
@@ -46,9 +49,16 @@ export function StatBar({ label, value, maxValue, color, onPress }: Props) {
         ) : null}
       </View>
       <View style={styles.track}>
-        <Animated.View
-          style={[styles.fill, { backgroundColor: color ?? theme.colors.primary }, animatedStyle]}
-        />
+        {color ? (
+          <Animated.View style={[styles.fill, { backgroundColor: color }, animatedStyle]} />
+        ) : (
+          <AnimatedGradient
+            colors={[theme.colors.primary, theme.colors.accent]}
+            start={{ x: 0, y: 0 }}
+            end={{ x: 1, y: 0 }}
+            style={[styles.fill, animatedStyle]}
+          />
+        )}
       </View>
     </View>
   );
