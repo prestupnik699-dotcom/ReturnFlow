@@ -121,7 +121,7 @@ export function SupplierListRow({
   };
 
   const initials = supplier.name.slice(0, 2).toUpperCase();
-  const metaParts = [supplier.contactName, supplier.phone].filter(Boolean);
+  const metaParts = [supplier.contactName].filter(Boolean);
 
   const content = (
     <Card>
@@ -155,6 +155,7 @@ export function SupplierListRow({
           <Pressable
             style={styles.phoneRow}
             onPress={() => Linking.openURL(`tel:${supplier.phone}`)}
+            hitSlop={8}
           >
             <Ionicons name="call-outline" size={14} color={theme.colors.textSecondary} />
             <Text style={styles.phoneText}>{supplier.phone}</Text>
@@ -168,20 +169,6 @@ export function SupplierListRow({
               {t('suppliers.returnsCount', { count: returnsTotal })}
             </Text>
           </View>
-          <View style={styles.statBadge}>
-            <Ionicons name="download-outline" size={13} color={theme.colors.textSecondary} />
-            <Text style={styles.statText}>
-              {t('suppliers.deliveriesCount', { count: deliveriesTotal })}
-            </Text>
-          </View>
-          {returnsUrgent > 0 ? (
-            <View style={[styles.statBadge, styles.urgentBadge]}>
-              <View style={styles.urgentDot} />
-              <Text style={[styles.statText, styles.urgentText]}>
-                {t('suppliers.attentionBadge', { count: returnsUrgent })}
-              </Text>
-            </View>
-          ) : null}
           {reliability?.defectRatePercent != null ? (
             <View
               style={[
@@ -219,6 +206,20 @@ export function SupplierListRow({
                 ]}
               >
                 {t('suppliers.defectRate', { percent: reliability.defectRatePercent.toFixed(1) })}
+              </Text>
+            </View>
+          ) : null}
+          <View style={styles.statBadge}>
+            <Ionicons name="download-outline" size={13} color={theme.colors.textSecondary} />
+            <Text style={styles.statText}>
+              {t('suppliers.deliveriesCount', { count: deliveriesTotal })}
+            </Text>
+          </View>
+          {returnsUrgent > 0 ? (
+            <View style={[styles.statBadge, styles.urgentBadge]}>
+              <View style={styles.urgentDot} />
+              <Text style={[styles.statText, styles.urgentText]}>
+                {t('suppliers.attentionBadge', { count: returnsUrgent })}
               </Text>
             </View>
           ) : null}
