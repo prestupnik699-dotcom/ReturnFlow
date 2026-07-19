@@ -113,6 +113,7 @@ export function DashboardScreen() {
             message={t('dashboard.noStoreMessage')}
             actionLabel={t('dashboard.noStoreButton')}
             onAction={() => router.push('/stores')}
+            simple
           />
         </View>
       </Screen>
