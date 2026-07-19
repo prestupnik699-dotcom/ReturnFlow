@@ -46,7 +46,11 @@ export function ReturnsScreen() {
   const tabBarClearance = useTabBarClearance();
   const activeStoreId = useMembershipStore((state) => state.activeStoreId);
   const canDelete = useHasRole(['Owner', 'Administrator', 'StoreManager']);
-  const params = useLocalSearchParams<{ status?: string; supplierId?: string }>();
+  const params = useLocalSearchParams<{
+    status?: string;
+    supplierId?: string;
+    createdToday?: string;
+  }>();
   const [statusFilter, setStatusFilter] = useState<ReturnStatus | null>(
     (params.status as ReturnStatus) ?? null,
   );
@@ -78,8 +82,18 @@ export function ReturnsScreen() {
   const selectionMode = selectedIds.length > 0;
 
   const query = searchInput.trim().toLowerCase();
+  const isToday = (iso: string) => {
+    const d = new Date(iso);
+    const now = new Date();
+    return (
+      d.getFullYear() === now.getFullYear() &&
+      d.getMonth() === now.getMonth() &&
+      d.getDate() === now.getDate()
+    );
+  };
   const filtered = (allReturns ?? [])
     .filter((r) => !supplierFilter || r.supplierId === supplierFilter)
+    .filter((r) => params.createdToday !== '1' || isToday(r.createdAt))
     .filter(
       (r) =>
         !query ||

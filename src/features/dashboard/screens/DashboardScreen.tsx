@@ -233,7 +233,9 @@ export function DashboardScreen() {
                     icon="alert-circle"
                     color={theme.colors.danger}
                     text={t('dashboard.attentionUrgent', { count: urgentCount })}
-                    onPress={() => router.push('/returns')}
+                    onPress={() =>
+                      router.push({ pathname: '/returns', params: { status: 'urgent' } })
+                    }
                     theme={theme}
                     pulse
                   />
@@ -243,7 +245,9 @@ export function DashboardScreen() {
                     icon="today"
                     color={theme.colors.accent}
                     text={t('dashboard.attentionToday', { count: todayCount })}
-                    onPress={() => router.push('/returns')}
+                    onPress={() =>
+                      router.push({ pathname: '/returns', params: { createdToday: '1' } })
+                    }
                     theme={theme}
                   />
                 ) : null}
