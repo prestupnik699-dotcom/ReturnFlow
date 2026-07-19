@@ -10,7 +10,7 @@ import {
   ScrollView,
 } from 'react-native';
 import { useTranslation } from 'react-i18next';
-import { useRouter } from 'expo-router';
+import { useRouter, useLocalSearchParams } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
 import { LinearGradient } from 'expo-linear-gradient';
 import Animated, { FadeInDown } from 'react-native-reanimated';
@@ -46,8 +46,11 @@ export function ReturnsScreen() {
   const tabBarClearance = useTabBarClearance();
   const activeStoreId = useMembershipStore((state) => state.activeStoreId);
   const canDelete = useHasRole(['Owner', 'Administrator', 'StoreManager']);
-  const [statusFilter, setStatusFilter] = useState<ReturnStatus | null>(null);
-  const [supplierFilter, setSupplierFilter] = useState<string | null>(null);
+  const params = useLocalSearchParams<{ status?: string; supplierId?: string }>();
+  const [statusFilter, setStatusFilter] = useState<ReturnStatus | null>(
+    (params.status as ReturnStatus) ?? null,
+  );
+  const [supplierFilter, setSupplierFilter] = useState<string | null>(params.supplierId ?? null);
   const [supplierSheetVisible, setSupplierSheetVisible] = useState(false);
   const [searchInput, setSearchInput] = useState('');
   const [sortMode, setSortMode] = useState<SortMode>('recent');

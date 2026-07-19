@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { View, Text, ScrollView, ActivityIndicator, StyleSheet, Pressable } from 'react-native';
 import { useTranslation } from 'react-i18next';
 import { Ionicons } from '@expo/vector-icons';
+import { useRouter } from 'expo-router';
 import { useTheme } from '@/theme/ThemeProvider';
 import { Screen } from '@/components/Screen';
 import { ScreenHeader } from '@/components/ScreenHeader';
@@ -37,6 +38,7 @@ function periodToSinceIso(period: StatsPeriod): string | null {
 export function StatisticsScreen() {
   const theme = useTheme();
   const { t } = useTranslation();
+  const router = useRouter();
   const activeStoreId = useMembershipStore((state) => state.activeStoreId);
   const [period, setPeriod] = useState<StatsPeriod>('week');
   const { data: stats, isLoading } = useReturnStats(period);
@@ -154,6 +156,11 @@ export function StatisticsScreen() {
                       value={stats.byStatus[status]}
                       maxValue={maxStatusValue}
                       color={statusColors[status]}
+                      onPress={
+                        stats.byStatus[status] > 0
+                          ? () => router.push({ pathname: '/returns', params: { status } })
+                          : undefined
+                      }
                     />
                   ))}
                 </View>
@@ -171,6 +178,12 @@ export function StatisticsScreen() {
                         label={s.supplierName}
                         value={s.count}
                         maxValue={maxSupplierValue}
+                        onPress={() =>
+                          router.push({
+                            pathname: '/returns',
+                            params: { supplierId: s.supplierId },
+                          })
+                        }
                       />
                     ))}
                   </View>
