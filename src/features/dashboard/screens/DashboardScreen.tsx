@@ -100,11 +100,8 @@ export function DashboardScreen() {
             icon="storefront-outline"
             title={t('dashboard.noStoreTitle')}
             message={t('dashboard.noStoreMessage')}
-          />
-          <Button
-            label={t('dashboard.noStoreButton')}
-            icon="arrow-forward"
-            onPress={() => router.push('/stores')}
+            actionLabel={t('dashboard.noStoreButton')}
+            onAction={() => router.push('/stores')}
           />
         </View>
       </Screen>
@@ -163,11 +160,11 @@ export function DashboardScreen() {
 
         {totalCount === 0 ? (
           <View style={styles.emptyWrap}>
-            <EmptyState icon="repeat-outline" title={t('dashboard.emptyTitle')} />
-            <Button
-              label={t('returns.addButton')}
-              icon="add"
-              onPress={() => setFormVisible(true)}
+            <EmptyState
+              icon="repeat-outline"
+              title={t('dashboard.emptyTitle')}
+              actionLabel={t('returns.addButton')}
+              onAction={() => setFormVisible(true)}
             />
           </View>
         ) : (
