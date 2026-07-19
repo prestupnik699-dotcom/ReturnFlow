@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import {
   View,
   FlatList,
@@ -55,6 +55,21 @@ export function ReturnsScreen() {
     (params.status as ReturnStatus) ?? null,
   );
   const [supplierFilter, setSupplierFilter] = useState<string | null>(params.supplierId ?? null);
+
+  // Tab screens like this one typically stay mounted between visits, so
+  // re-navigating here with new params (e.g. from a Dashboard attention
+  // card) doesn't re-run the useState initializers above — without this,
+  // the filter would silently keep whatever was set on a previous visit.
+  useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect -- intentional: syncing from an incoming navigation param, not a derived render value
+    if (params.status) setStatusFilter(params.status as ReturnStatus);
+  }, [params.status]);
+
+  useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect -- intentional: syncing from an incoming navigation param, not a derived render value
+    if (params.supplierId) setSupplierFilter(params.supplierId);
+  }, [params.supplierId]);
+
   const [supplierSheetVisible, setSupplierSheetVisible] = useState(false);
   const [searchInput, setSearchInput] = useState('');
   const [sortMode, setSortMode] = useState<SortMode>('recent');
