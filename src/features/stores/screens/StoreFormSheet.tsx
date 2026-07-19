@@ -12,6 +12,7 @@ import {
 import { useCreateStore } from '@/features/stores/hooks/useCreateStore';
 import { useUpdateStore } from '@/features/stores/hooks/useUpdateStore';
 import type { Store } from '@/features/stores/services/stores.service';
+import { hapticSuccess } from '@/lib/haptics';
 
 type Props = { visible: boolean; onClose: () => void; store?: Store | null };
 
@@ -49,10 +50,14 @@ export function StoreFormSheet({ visible, onClose, store }: Props) {
   }, [visible, store]);
 
   const onSubmit = (values: CreateStoreFormValues) => {
+    const onSaveSuccess = () => {
+      hapticSuccess();
+      onClose();
+    };
     if (isEditing && store) {
-      updateMutation.mutate({ storeId: store.id, input: values }, { onSuccess: () => onClose() });
+      updateMutation.mutate({ storeId: store.id, input: values }, { onSuccess: onSaveSuccess });
     } else {
-      createMutation.mutate(values, { onSuccess: () => onClose() });
+      createMutation.mutate(values, { onSuccess: onSaveSuccess });
     }
   };
 

@@ -14,6 +14,7 @@ import {
 import { useCreateReturn } from '@/features/returns/hooks/useCreateReturn';
 import { useUpdateReturn } from '@/features/returns/hooks/useUpdateReturn';
 import { useSuppliers } from '@/features/suppliers/hooks/useSuppliers';
+import { hapticSuccess } from '@/lib/haptics';
 import type { ReturnItem, ReturnPriority } from '@/features/returns/services/returns.service';
 
 const PRIORITIES: ReturnPriority[] = ['low', 'normal', 'high', 'critical'];
@@ -94,6 +95,7 @@ export function ReturnFormSheet({
   const onSubmit = (values: CreateReturnFormValues) => {
     mutation.mutate(values, {
       onSuccess: () => {
+        hapticSuccess();
         if (!isEditing) {
           onCreated?.({ supplierId: values.supplierId, title: values.title });
         }

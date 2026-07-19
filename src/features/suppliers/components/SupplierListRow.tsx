@@ -10,6 +10,7 @@ import { useTheme } from '@/theme/ThemeProvider';
 import { Card } from '@/components/Card';
 import { PressableScale } from '@/components/PressableScale';
 import { useHasRole } from '@/features/auth/hooks/usePermissions';
+import { hapticImpactLight, hapticSelection } from '@/lib/haptics';
 import type { Supplier } from '@/features/suppliers/services/suppliers.service';
 import type { SupplierReliability } from '@/features/suppliers/hooks/useSupplierReliability';
 
@@ -108,8 +109,14 @@ export function SupplierListRow({
   const styles = createStyles(theme);
 
   const trigger = () => {
+    hapticImpactLight();
     onRequestDelete();
     swipeableRef.current?.close();
+  };
+
+  const handleToggleFavorite = () => {
+    hapticSelection();
+    onToggleFavorite();
   };
 
   const initials = supplier.name.slice(0, 2).toUpperCase();
@@ -134,7 +141,7 @@ export function SupplierListRow({
             ) : null}
           </PressableScale>
 
-          <Pressable onPress={onToggleFavorite} hitSlop={8}>
+          <Pressable onPress={handleToggleFavorite} hitSlop={8}>
             <Ionicons
               name={supplier.favorite ? 'star' : 'star-outline'}
               size={20}

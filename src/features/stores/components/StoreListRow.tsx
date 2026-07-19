@@ -10,6 +10,7 @@ import { useTheme } from '@/theme/ThemeProvider';
 import { Card } from '@/components/Card';
 import { PressableScale } from '@/components/PressableScale';
 import { useHasRole } from '@/features/auth/hooks/usePermissions';
+import { hapticImpactLight } from '@/lib/haptics';
 import type { Store } from '@/features/stores/services/stores.service';
 
 type Theme = ReturnType<typeof useTheme>;
@@ -112,6 +113,7 @@ export function StoreListRow({
   const styles = createStyles(theme);
 
   const trigger = () => {
+    hapticImpactLight();
     onRequestDelete();
     swipeableRef.current?.close();
   };

@@ -1,6 +1,8 @@
+import { useEffect } from 'react';
 import { Modal, View, Text, StyleSheet } from 'react-native';
 import { Button } from '@/components/Button';
 import { useTheme } from '@/theme/ThemeProvider';
+import { hapticWarning, hapticImpactMedium } from '@/lib/haptics';
 
 type Props = {
   visible: boolean;
@@ -28,6 +30,20 @@ export function ConfirmDialog({
   const theme = useTheme();
   const styles = createStyles(theme);
 
+  // A light warning buzz the moment a destructive confirmation appears —
+  // reinforces "careful, this one matters" before the person even reads
+  // the text, the same way native iOS delete sheets feel.
+  useEffect(() => {
+    if (visible && destructive) {
+      hapticWarning();
+    }
+  }, [visible, destructive]);
+
+  const handleConfirm = () => {
+    hapticImpactMedium();
+    onConfirm();
+  };
+
   return (
     <Modal visible={visible} transparent animationType="fade" onRequestClose={onCancel}>
       <View style={styles.backdrop}>
@@ -44,7 +60,7 @@ export function ConfirmDialog({
             <Button
               label={confirmLabel}
               variant={destructive ? 'danger' : 'primary'}
-              onPress={onConfirm}
+              onPress={handleConfirm}
               loading={loading}
               style={styles.flexButton}
             />

@@ -21,6 +21,7 @@ import { useSuppliers } from '@/features/suppliers/hooks/useSuppliers';
 import { useCreateReturnsBatch } from '@/features/returns/hooks/useCreateReturnsBatch';
 import { useCreateDeliveriesBatch } from '@/features/deliveries/hooks/useCreateDeliveriesBatch';
 import { lookupProductNameByBarcode } from '@/features/scanner/services/productLookup.service';
+import { hapticSuccess } from '@/lib/haptics';
 
 type Mode = 'return' | 'delivery';
 type Line = { id: string; title: string; quantity: number; barcode: string };
@@ -131,16 +132,21 @@ export function BatchReturnSheet({ visible, onClose }: Props) {
       barcode: line.barcode,
     }));
 
+    const onSaveSuccess = () => {
+      hapticSuccess();
+      handleClose();
+    };
+
     if (mode === 'return') {
       returnsBatchMutation.mutate(
         { supplierId, isExchange, lines: lineInputs },
-        { onSuccess: handleClose },
+        { onSuccess: onSaveSuccess },
       );
     } else {
       const supplierName = suppliers?.find((s) => s.id === supplierId)?.name ?? '';
       deliveriesBatchMutation.mutate(
         { supplierId, supplierName, lines: lineInputs },
-        { onSuccess: handleClose },
+        { onSuccess: onSaveSuccess },
       );
     }
   };

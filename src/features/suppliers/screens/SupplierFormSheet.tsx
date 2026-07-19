@@ -14,6 +14,7 @@ import {
   useUpdateSupplier,
 } from '@/features/suppliers/hooks/useSupplierMutations';
 import { useSupplier } from '@/features/suppliers/hooks/useSupplier';
+import { hapticSuccess } from '@/lib/haptics';
 
 type Props = { visible: boolean; onClose: () => void; supplierId: string | null };
 
@@ -52,10 +53,14 @@ export function SupplierFormSheet({ visible, onClose, supplierId }: Props) {
   }, [visible, supplier]);
 
   const onSubmit = (values: CreateSupplierFormValues) => {
+    const onSaveSuccess = () => {
+      hapticSuccess();
+      onClose();
+    };
     if (isEditing && supplierId) {
-      updateMutation.mutate({ supplierId, input: values }, { onSuccess: () => onClose() });
+      updateMutation.mutate({ supplierId, input: values }, { onSuccess: onSaveSuccess });
     } else {
-      createMutation.mutate(values, { onSuccess: () => onClose() });
+      createMutation.mutate(values, { onSuccess: onSaveSuccess });
     }
   };
 

@@ -5,6 +5,7 @@ import { Ionicons } from '@expo/vector-icons';
 import { useTheme } from '@/theme/ThemeProvider';
 import { Screen } from '@/components/Screen';
 import { Button } from '@/components/Button';
+import { hapticSuccess, hapticError } from '@/lib/haptics';
 
 type Props = { onUnlock: () => Promise<boolean> };
 
@@ -17,7 +18,12 @@ export function LockScreen({ onUnlock }: Props) {
   const attempt = async () => {
     setFailed(false);
     const success = await onUnlock();
-    if (!success) setFailed(true);
+    if (success) {
+      hapticSuccess();
+    } else {
+      hapticError();
+      setFailed(true);
+    }
   };
 
   // Prompt automatically on mount — matches how banking apps behave,
