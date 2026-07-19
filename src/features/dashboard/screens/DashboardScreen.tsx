@@ -531,7 +531,7 @@ function createStyles(theme: Theme) {
     },
     chartCard: { padding: theme.spacing.lg },
     chartBars: { flexDirection: 'row', alignItems: 'flex-end', gap: theme.spacing.sm, height: 100 },
-    chartBarColumn: { flex: 1, alignItems: 'center', gap: 6, height: '100%' },
+    chartBarColumn: { flex: 1, alignItems: 'center', gap: theme.spacing.xsPlus, height: '100%' },
     chartBarTrack: {
       flex: 1,
       width: '100%',

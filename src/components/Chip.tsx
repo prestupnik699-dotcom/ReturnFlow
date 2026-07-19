@@ -25,7 +25,7 @@ function createStyles(theme: ReturnType<typeof useTheme>) {
       backgroundColor: theme.colors.surfaceVariant,
       borderRadius: theme.radius.full,
       paddingHorizontal: theme.spacing.md,
-      paddingVertical: 10,
+      paddingVertical: theme.spacing.smPlus,
     },
     chipActive: { backgroundColor: theme.colors.primary },
     chipDisabled: { opacity: 0.4 },

@@ -354,11 +354,16 @@ function createStyles(theme: ReturnType<typeof useTheme>) {
       fontSize: theme.fontSizes.xs,
       fontWeight: theme.fontWeights.semiBold,
       color: theme.colors.primary,
-      marginBottom: 2,
+      marginBottom: theme.spacing.xxs,
     },
     messageText: { fontSize: theme.fontSizes.md, color: theme.colors.textPrimary },
     messageTextOwn: { color: theme.colors.onPrimary },
-    time: { fontSize: 10, color: theme.colors.textSecondary, marginTop: 2, alignSelf: 'flex-end' },
+    time: {
+      fontSize: 10,
+      color: theme.colors.textSecondary,
+      marginTop: theme.spacing.xxs,
+      alignSelf: 'flex-end',
+    },
     timeOwn: { color: theme.colors.onPrimary, opacity: 0.7 },
     errorText: {
       fontSize: theme.fontSizes.xs,

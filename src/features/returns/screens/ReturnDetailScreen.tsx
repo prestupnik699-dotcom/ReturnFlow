@@ -310,7 +310,7 @@ function createStyles(theme: ReturnType<typeof useTheme>) {
       padding: theme.spacing.lg,
       borderTopWidth: StyleSheet.hairlineWidth,
       borderTopColor: theme.colors.border,
-      gap: 2,
+      gap: theme.spacing.xxs,
     },
     commentAuthor: {
       fontSize: theme.fontSizes.sm,
@@ -336,7 +336,7 @@ function createStyles(theme: ReturnType<typeof useTheme>) {
       padding: theme.spacing.lg,
       borderTopWidth: StyleSheet.hairlineWidth,
       borderTopColor: theme.colors.border,
-      gap: 2,
+      gap: theme.spacing.xxs,
     },
     historyAction: {
       fontSize: theme.fontSizes.sm,

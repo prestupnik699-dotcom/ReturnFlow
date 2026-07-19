@@ -251,7 +251,7 @@ function createStyles(theme: ReturnType<typeof useTheme>) {
       justifyContent: 'space-between',
       padding: theme.spacing.lg,
     },
-    switchTextWrap: { flex: 1, gap: 2, marginRight: theme.spacing.md },
+    switchTextWrap: { flex: 1, gap: theme.spacing.xxs, marginRight: theme.spacing.md },
     switchHint: { fontSize: theme.fontSizes.xs, color: theme.colors.textSecondary },
     errorBanner: {
       backgroundColor: theme.colors.danger + '15',

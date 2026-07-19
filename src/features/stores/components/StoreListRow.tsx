@@ -233,7 +233,7 @@ function createStyles(theme: Theme) {
     phoneRow: {
       flexDirection: 'row',
       alignItems: 'center',
-      gap: 6,
+      gap: theme.spacing.xsPlus,
       marginLeft: 60,
     },
     phoneText: { fontSize: theme.fontSizes.xs, color: theme.colors.textSecondary },

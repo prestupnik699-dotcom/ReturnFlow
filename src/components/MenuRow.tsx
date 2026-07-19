@@ -62,7 +62,7 @@ function createStyles(theme: ReturnType<typeof useTheme>) {
       minWidth: 20,
       height: 20,
       borderRadius: 10,
-      paddingHorizontal: 6,
+      paddingHorizontal: theme.spacing.xsPlus,
       backgroundColor: theme.colors.danger,
       alignItems: 'center',
       justifyContent: 'center',

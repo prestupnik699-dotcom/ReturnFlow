@@ -267,10 +267,10 @@ function createChipStyles(theme: Theme) {
     chip: {
       flexDirection: 'row',
       alignItems: 'center',
-      gap: 6,
+      gap: theme.spacing.xsPlus,
       borderRadius: theme.radius.full,
       paddingHorizontal: theme.spacing.md,
-      paddingVertical: 10,
+      paddingVertical: theme.spacing.smPlus,
       overflow: 'hidden',
     },
     chipInactive: { backgroundColor: theme.colors.card },

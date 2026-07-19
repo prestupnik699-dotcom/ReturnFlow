@@ -451,10 +451,10 @@ function createChipStyles(theme: Theme) {
     chip: {
       flexDirection: 'row',
       alignItems: 'center',
-      gap: 6,
+      gap: theme.spacing.xsPlus,
       borderRadius: theme.radius.full,
       paddingHorizontal: theme.spacing.md,
-      paddingVertical: 10,
+      paddingVertical: theme.spacing.smPlus,
       overflow: 'hidden',
     },
     chipInactive: { backgroundColor: theme.colors.card },
@@ -511,7 +511,7 @@ function createStyles(theme: Theme) {
       paddingHorizontal: theme.spacing.xs,
       alignItems: 'center',
       justifyContent: 'center',
-      gap: 2,
+      gap: theme.spacing.xxs,
     },
     statNumber: {
       fontSize: theme.fontSizes.xl,
@@ -546,10 +546,10 @@ function createStyles(theme: Theme) {
     activeSupplierChip: {
       flexDirection: 'row',
       alignItems: 'center',
-      gap: 6,
+      gap: theme.spacing.xsPlus,
       borderRadius: theme.radius.full,
       paddingHorizontal: theme.spacing.md,
-      paddingVertical: 6,
+      paddingVertical: theme.spacing.xsPlus,
     },
     activeSupplierChipText: {
       color: theme.colors.onPrimary,

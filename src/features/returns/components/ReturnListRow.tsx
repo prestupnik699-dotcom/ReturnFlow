@@ -315,7 +315,7 @@ function createStyles(theme: Theme) {
     statusBadge: {
       flexDirection: 'row',
       alignItems: 'center',
-      gap: 6,
+      gap: theme.spacing.xsPlus,
       borderRadius: theme.radius.full,
       paddingHorizontal: theme.spacing.sm,
       paddingVertical: 4,
