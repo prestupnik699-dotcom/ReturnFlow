@@ -234,7 +234,7 @@ function createStyles(theme: Theme) {
       flexDirection: 'row',
       alignItems: 'center',
       gap: theme.spacing.xsPlus,
-      marginLeft: 60,
+      marginLeft: 86,
     },
     phoneText: { fontSize: theme.fontSizes.xs, color: theme.colors.textSecondary },
     statsRow: {
@@ -242,7 +242,7 @@ function createStyles(theme: Theme) {
       alignItems: 'center',
       flexWrap: 'wrap',
       gap: theme.spacing.xs,
-      marginLeft: 60,
+      marginLeft: 86,
     },
     statBadge: {
       flexDirection: 'row',
