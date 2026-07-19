@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { View, ScrollView, ActivityIndicator, Pressable, StyleSheet } from 'react-native';
+import { PressableScale } from '@/components/PressableScale';
 import { Text } from '@/components/AppText';
 import { useTranslation } from 'react-i18next';
 import { useRouter } from 'expo-router';
@@ -10,6 +11,7 @@ import { useTheme } from '@/theme/ThemeProvider';
 import { Screen } from '@/components/Screen';
 import { Card } from '@/components/Card';
 import { EmptyState } from '@/components/EmptyState';
+import { AnimatedNumber } from '@/components/AnimatedNumber';
 import { useTabBarClearance } from '@/hooks/useTabBarClearance';
 import { useAuthStore } from '@/stores/auth.store';
 import { useLanguageStore } from '@/stores/language.store';
@@ -177,12 +179,12 @@ export function DashboardScreen() {
                 style={styles.bentoHero}
               >
                 <Ionicons name="repeat" size={22} color={theme.colors.onPrimary} />
-                <Text style={styles.bentoHeroValue}>{totalCount}</Text>
+                <AnimatedNumber value={totalCount} style={styles.bentoHeroValue} />
                 <Text style={styles.bentoHeroLabel}>{t('dashboard.overviewTotal')}</Text>
               </LinearGradient>
               <View style={styles.bentoSide}>
                 <Ionicons name="today-outline" size={18} color={theme.colors.accent} />
-                <Text style={styles.bentoSideValue}>{todayCount}</Text>
+                <AnimatedNumber value={todayCount} style={styles.bentoSideValue} />
                 <Text style={styles.bentoSideLabel}>{t('dashboard.overviewToday')}</Text>
               </View>
             </View>
@@ -290,7 +292,7 @@ export function DashboardScreen() {
                     key={item.id}
                     entering={FadeInDown.delay(index * 40).duration(200)}
                   >
-                    <Pressable onPress={() => router.push(`/return/${item.id}`)}>
+                    <PressableScale onPress={() => router.push(`/return/${item.id}`)}>
                       <Card>
                         <View style={styles.recentRow}>
                           <View style={styles.recentIconWrap}>
@@ -311,7 +313,7 @@ export function DashboardScreen() {
                           </Text>
                         </View>
                       </Card>
-                    </Pressable>
+                    </PressableScale>
                   </Animated.View>
                 ))
               )}
@@ -341,14 +343,14 @@ function QuickAction({
 }) {
   const styles = createQuickActionStyles(theme);
   return (
-    <Pressable style={styles.tile} onPress={onPress}>
+    <PressableScale style={styles.tile} onPress={onPress}>
       <View style={styles.tileIconWrap}>
         <Ionicons name={icon} size={22} color={theme.colors.primary} />
       </View>
       <Text style={styles.tileLabel} numberOfLines={2}>
         {label}
       </Text>
-    </Pressable>
+    </PressableScale>
   );
 }
 
@@ -406,7 +408,7 @@ function AttentionCard({
 }) {
   const styles = createAttentionStyles(theme);
   return (
-    <Pressable onPress={onPress}>
+    <PressableScale onPress={onPress}>
       <Card>
         <View style={styles.row}>
           <View style={[styles.iconWrap, { backgroundColor: color + '1F' }]}>
@@ -416,7 +418,7 @@ function AttentionCard({
           <Ionicons name="chevron-forward" size={18} color={theme.colors.textSecondary} />
         </View>
       </Card>
-    </Pressable>
+    </PressableScale>
   );
 }
 

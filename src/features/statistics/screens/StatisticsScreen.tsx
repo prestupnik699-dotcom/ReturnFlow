@@ -11,6 +11,7 @@ import { Card } from '@/components/Card';
 import { Chip } from '@/components/Chip';
 import { StatBar } from '@/components/StatBar';
 import { EmptyState } from '@/components/EmptyState';
+import { AnimatedNumber } from '@/components/AnimatedNumber';
 import { useReturnStats, type StatsPeriod } from '@/features/statistics/hooks/useReturnStats';
 import { useExportReturns } from '@/features/statistics/hooks/useExportReturns';
 import { useMembershipStore } from '@/stores/membership.store';
@@ -134,13 +135,13 @@ export function StatisticsScreen() {
             <View style={styles.summaryRow}>
               <Card>
                 <View style={styles.summaryCard}>
-                  <Text style={styles.summaryValue}>{stats.totalCount}</Text>
+                  <AnimatedNumber value={stats.totalCount} style={styles.summaryValue} />
                   <Text style={styles.summaryLabel}>{t('statistics.totalReturns')}</Text>
                 </View>
               </Card>
               <Card>
                 <View style={styles.summaryCard}>
-                  <Text style={styles.summaryValue}>{stats.totalQuantity}</Text>
+                  <AnimatedNumber value={stats.totalQuantity} style={styles.summaryValue} />
                   <Text style={styles.summaryLabel}>{t('statistics.totalQuantity')}</Text>
                 </View>
               </Card>

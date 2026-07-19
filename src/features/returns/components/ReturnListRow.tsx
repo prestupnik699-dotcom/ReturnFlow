@@ -1,5 +1,6 @@
 import { useEffect, useRef } from 'react';
 import { View, Pressable, StyleSheet } from 'react-native';
+import { PressableScale } from '@/components/PressableScale';
 import { Text } from '@/components/AppText';
 import ReanimatedSwipeable, {
   type SwipeableMethods,
@@ -230,7 +231,7 @@ export function ReturnListRow({
     : undefined;
 
   const content = (
-    <Pressable onPress={onPress} onLongPress={onLongPress}>
+    <PressableScale onPress={onPress} onLongPress={onLongPress}>
       <Card>
         <View style={styles.container}>
           <View style={styles.topRow}>
@@ -273,7 +274,7 @@ export function ReturnListRow({
           </View>
         </View>
       </Card>
-    </Pressable>
+    </PressableScale>
   );
 
   if (item.pendingSync || selectionMode) {

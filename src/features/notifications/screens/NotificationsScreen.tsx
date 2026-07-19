@@ -1,4 +1,5 @@
 import { View, FlatList, Pressable, ActivityIndicator, StyleSheet } from 'react-native';
+import { PressableScale } from '@/components/PressableScale';
 import { Text } from '@/components/AppText';
 import { useTranslation } from 'react-i18next';
 import { useRouter } from 'expo-router';
@@ -108,7 +109,7 @@ export function NotificationsScreen() {
 
     return (
       <Animated.View entering={FadeInDown.duration(200)}>
-        <Pressable onPress={() => handlePress(notification)}>
+        <PressableScale onPress={() => handlePress(notification)}>
           <Card>
             <View style={styles.row}>
               <View style={[styles.iconWrap, { backgroundColor: color + '1F' }]}>
@@ -131,7 +132,7 @@ export function NotificationsScreen() {
               </View>
             </View>
           </Card>
-        </Pressable>
+        </PressableScale>
       </Animated.View>
     );
   };

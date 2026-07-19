@@ -1,5 +1,6 @@
 import { useState } from 'react';
-import { View, FlatList, Pressable, ActivityIndicator, StyleSheet } from 'react-native';
+import { View, FlatList, ActivityIndicator, StyleSheet } from 'react-native';
+import { PressableScale } from '@/components/PressableScale';
 import { Text } from '@/components/AppText';
 import { useTranslation } from 'react-i18next';
 import Animated, { FadeInDown } from 'react-native-reanimated';
@@ -55,7 +56,7 @@ export function TeamScreen() {
             ListEmptyComponent={<Text style={styles.empty}>{t('users.team.empty')}</Text>}
             renderItem={({ item, index }) => (
               <Animated.View entering={FadeInDown.delay(index * 60).duration(300)}>
-                <Pressable onPress={() => setSelectedId(item.membershipId)}>
+                <PressableScale onPress={() => setSelectedId(item.membershipId)}>
                   <Card>
                     <View style={styles.row}>
                       <View style={styles.info}>
@@ -72,7 +73,7 @@ export function TeamScreen() {
                       </Text>
                     </View>
                   </Card>
-                </Pressable>
+                </PressableScale>
               </Animated.View>
             )}
           />
