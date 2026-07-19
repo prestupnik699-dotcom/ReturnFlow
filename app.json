@@ -19,7 +19,10 @@
     },
     "ios": {
       "supportsTablet": true,
-      "bundleIdentifier": "com.returnflow.app"
+      "bundleIdentifier": "com.returnflow.app",
+      "infoPlist": {
+        "NSFaceIDUsageDescription": "ReturnFlow использует Face ID для быстрого и безопасного входа в приложение"
+      }
     },
     "plugins": [
       "expo-router",
@@ -29,6 +32,7 @@
           "cameraPermission": "ReturnFlow использует камеру для сканирования штрихкодов товаров"
         }
       ],
+      "expo-local-authentication",
       [
         "expo-splash-screen",
         {

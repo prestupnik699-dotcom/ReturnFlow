@@ -21,9 +21,13 @@ import { usePushNotificationRegistration } from '@/features/notifications/hooks/
 import { getDatabase } from '@/lib/database';
 import { useAuthStore } from '@/stores/auth.store';
 import { useMembershipStore } from '@/stores/membership.store';
+import { useBiometricLockStore } from '@/stores/biometricLock.store';
+import { useAppLock } from '@/features/auth/hooks/useAppLock';
+import { LockScreen } from '@/features/auth/screens/LockScreen';
 import { ErrorBoundary } from '@/components/ErrorBoundary';
 
 getDatabase();
+useBiometricLockStore.getState().init();
 
 SplashScreen.preventAutoHideAsync();
 
@@ -80,18 +84,21 @@ function RootNavigator() {
   useSyncOnReconnect();
   useHandleAuthDeepLink();
   usePushNotificationRegistration();
+  const { isLocked, unlock } = useAppLock();
 
   const theme = useTheme();
   const session = useAuthStore((state) => state.session);
   const isPasswordRecovery = useAuthStore((state) => state.isPasswordRecovery);
   const memberships = useMembershipStore((state) => state.memberships);
   const membershipsLoaded = useMembershipStore((state) => state.membershipsLoaded);
+  const biometricHydrated = useBiometricLockStore((state) => state.hydrated);
   const hasOrganization = memberships.length > 0;
 
   // There IS a session, but we don't yet know whether it has any
-  // organizations — wait rather than guess, to avoid flashing the
-  // onboarding screen for a single frame before redirecting.
-  if (session && !isPasswordRecovery && !membershipsLoaded) {
+  // organizations, or whether the Face ID lock setting is loaded yet —
+  // wait rather than guess, to avoid flashing the wrong screen (or an
+  // unlocked app) for a single frame before the real state is known.
+  if (session && !isPasswordRecovery && (!membershipsLoaded || !biometricHydrated)) {
     return (
       <View
         style={{
@@ -104,6 +111,10 @@ function RootNavigator() {
         <ActivityIndicator color={theme.colors.primary} />
       </View>
     );
+  }
+
+  if (session && !isPasswordRecovery && isLocked) {
+    return <LockScreen onUnlock={unlock} />;
   }
 
   return (

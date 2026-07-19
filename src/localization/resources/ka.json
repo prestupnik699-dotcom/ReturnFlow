@@ -115,6 +115,21 @@
     "themeDark": "მუქი",
     "themeSystem": "სისტემური",
     "saved": "შენახულია",
+    "security": {
+      "title": "Face ID / Touch ID",
+      "hint": "მოითხოვეთ ბიომეტრია ყოველ გახსნაზე",
+      "confirmPrompt": "დაადასტურეთ ბიომეტრიული შესვლის ჩასართავად",
+      "unlockPrompt": "განბლოკეთ ReturnFlow",
+      "unlockTitle": "აპლიკაცია დაბლოკილია",
+      "unlockButton": "განბლოკვა",
+      "unlockFailed": "ვერ მოხერხდა ვინაობის დადასტურება. სცადეთ თავიდან."
+    },
+    "about": {
+      "title": "აპლიკაციის შესახებ",
+      "version": "ვერსია",
+      "privacyPolicy": "კონფიდენციალურობის პოლიტიკა",
+      "termsOfService": "მომსახურების პირობები"
+    },
     "deleteAccount": {
       "dangerZoneTitle": "საშიში ზონა",
       "deleteAccountButton": "ანგარიშის წაშლა",

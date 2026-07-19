@@ -115,6 +115,21 @@
     "themeDark": "Тёмная",
     "themeSystem": "Системная",
     "saved": "Сохранено",
+    "security": {
+      "title": "Face ID / Touch ID",
+      "hint": "Запрашивать биометрию при каждом открытии приложения",
+      "confirmPrompt": "Подтвердите, чтобы включить вход по биометрии",
+      "unlockPrompt": "Разблокируйте ReturnFlow",
+      "unlockTitle": "Приложение заблокировано",
+      "unlockButton": "Разблокировать",
+      "unlockFailed": "Не удалось подтвердить личность. Попробуйте ещё раз."
+    },
+    "about": {
+      "title": "О приложении",
+      "version": "Версия",
+      "privacyPolicy": "Политика конфиденциальности",
+      "termsOfService": "Условия использования"
+    },
     "deleteAccount": {
       "dangerZoneTitle": "Опасная зона",
       "deleteAccountButton": "Удалить аккаунт",

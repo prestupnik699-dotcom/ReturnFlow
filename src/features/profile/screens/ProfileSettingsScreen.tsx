@@ -1,21 +1,26 @@
-import { useState } from 'react';
-import { View, Text, StyleSheet } from 'react-native';
+import { useEffect, useState } from 'react';
+import { View, Text, StyleSheet, Switch, Linking, Platform } from 'react-native';
 import { useTranslation } from 'react-i18next';
+import Constants from 'expo-constants';
+import * as LocalAuthentication from 'expo-local-authentication';
 import { useTheme } from '@/theme/ThemeProvider';
 import { Screen } from '@/components/Screen';
 import { ScreenHeader } from '@/components/ScreenHeader';
-import { Card } from '@/components/Card';
 import { Chip } from '@/components/Chip';
 import { Button } from '@/components/Button';
 import { ConfirmDialog } from '@/components/ConfirmDialog';
+import { Card } from '@/components/Card';
 import { useAuthStore } from '@/stores/auth.store';
 import { useLanguageStore, type AppLanguage } from '@/stores/language.store';
 import { useThemeStore, type ThemeMode } from '@/stores/theme.store';
+import { useBiometricLockStore } from '@/stores/biometricLock.store';
 import { updateProfileSettings } from '@/features/auth/services/profile.service';
 import { useDeleteAccount } from '@/features/profile/hooks/useDeleteAccount';
 
 const LANGUAGES: AppLanguage[] = ['ka', 'en', 'ru'];
 const THEME_MODES: ThemeMode[] = ['light', 'dark', 'system'];
+const PRIVACY_URL = 'https://prestupnik699-dotcom.github.io/returnflow-legal/';
+const TERMS_URL = 'https://prestupnik699-dotcom.github.io/returnflow-legal/terms.html';
 
 export function ProfileSettingsScreen() {
   const theme = useTheme();
@@ -25,12 +30,23 @@ export function ProfileSettingsScreen() {
   const setLanguage = useLanguageStore((state) => state.setLanguage);
   const mode = useThemeStore((state) => state.mode);
   const setMode = useThemeStore((state) => state.setMode);
+  const biometricEnabled = useBiometricLockStore((state) => state.enabled);
+  const setBiometricEnabled = useBiometricLockStore((state) => state.setEnabled);
+  const [bioAvailable, setBioAvailable] = useState<boolean | null>(null);
   const [saved, setSaved] = useState(false);
   const [saveError, setSaveError] = useState<string | null>(null);
   const [deleteConfirmVisible, setDeleteConfirmVisible] = useState(false);
   const [blockedInfo, setBlockedInfo] = useState<string | null>(null);
   const deleteAccountMutation = useDeleteAccount();
   const styles = createStyles(theme);
+
+  useEffect(() => {
+    (async () => {
+      const hasHardware = await LocalAuthentication.hasHardwareAsync();
+      const isEnrolled = await LocalAuthentication.isEnrolledAsync();
+      setBioAvailable(hasHardware && isEnrolled);
+    })();
+  }, []);
 
   const persist = async (nextLanguage: AppLanguage, nextMode: ThemeMode) => {
     if (!profile) return;
@@ -54,6 +70,22 @@ export function ProfileSettingsScreen() {
   const handleModeChange = (nextMode: ThemeMode) => {
     setMode(nextMode);
     persist(language, nextMode);
+  };
+
+  const handleToggleBiometric = async (value: boolean) => {
+    if (!value) {
+      setBiometricEnabled(false);
+      return;
+    }
+    // Confirm the person can actually authenticate before turning the
+    // lock on — otherwise a failed sensor could lock them out of their
+    // own app with no way back in.
+    const result = await LocalAuthentication.authenticateAsync({
+      promptMessage: t('profile.security.confirmPrompt'),
+    });
+    if (result.success) {
+      setBiometricEnabled(true);
+    }
   };
 
   const confirmDeleteAccount = () => {
@@ -88,6 +120,8 @@ export function ProfileSettingsScreen() {
     dark: t('profile.themeDark'),
     system: t('profile.themeSystem'),
   };
+
+  const appVersion = Constants.expoConfig?.version ?? '—';
 
   return (
     <Screen>
@@ -126,6 +160,23 @@ export function ProfileSettingsScreen() {
           </View>
         </Card>
 
+        {bioAvailable ? (
+          <Card>
+            <View style={styles.switchRow}>
+              <View style={styles.switchTextWrap}>
+                <Text style={styles.label}>{t('profile.security.title')}</Text>
+                <Text style={styles.switchHint}>{t('profile.security.hint')}</Text>
+              </View>
+              <Switch
+                value={biometricEnabled}
+                onValueChange={handleToggleBiometric}
+                trackColor={{ true: theme.colors.primary, false: theme.colors.border }}
+                thumbColor={Platform.OS === 'android' ? theme.colors.onPrimary : undefined}
+              />
+            </View>
+          </Card>
+        ) : null}
+
         {saveError ? (
           <View style={styles.errorBanner}>
             <Text style={styles.errorBannerText}>{saveError}</Text>
@@ -137,6 +188,21 @@ export function ProfileSettingsScreen() {
             <Text style={styles.successText}>{t('profile.saved')}</Text>
           </View>
         ) : null}
+
+        <Card>
+          <View style={styles.cardField}>
+            <Text style={styles.label}>{t('profile.about.title')}</Text>
+            <Text style={styles.aboutRow}>
+              {t('profile.about.version')}: {appVersion}
+            </Text>
+            <Text style={styles.linkRow} onPress={() => Linking.openURL(PRIVACY_URL)}>
+              {t('profile.about.privacyPolicy')}
+            </Text>
+            <Text style={styles.linkRow} onPress={() => Linking.openURL(TERMS_URL)}>
+              {t('profile.about.termsOfService')}
+            </Text>
+          </View>
+        </Card>
 
         <Card>
           <View style={styles.dangerZone}>
@@ -178,6 +244,14 @@ function createStyles(theme: ReturnType<typeof useTheme>) {
       color: theme.colors.textSecondary,
     },
     row: { flexDirection: 'row', gap: theme.spacing.sm },
+    switchRow: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      justifyContent: 'space-between',
+      padding: theme.spacing.lg,
+    },
+    switchTextWrap: { flex: 1, gap: 2, marginRight: theme.spacing.md },
+    switchHint: { fontSize: theme.fontSizes.xs, color: theme.colors.textSecondary },
     errorBanner: {
       backgroundColor: theme.colors.danger + '15',
       borderRadius: theme.radius.sm,
@@ -194,6 +268,12 @@ function createStyles(theme: ReturnType<typeof useTheme>) {
       padding: theme.spacing.md,
     },
     successText: { color: theme.colors.success, fontSize: theme.fontSizes.sm, textAlign: 'center' },
+    aboutRow: { fontSize: theme.fontSizes.sm, color: theme.colors.textSecondary },
+    linkRow: {
+      fontSize: theme.fontSizes.sm,
+      color: theme.colors.primary,
+      fontWeight: theme.fontWeights.medium,
+    },
     dangerZone: {
       padding: theme.spacing.lg,
       gap: theme.spacing.sm,

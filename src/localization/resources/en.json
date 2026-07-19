@@ -115,6 +115,21 @@
     "themeDark": "Dark",
     "themeSystem": "System",
     "saved": "Saved",
+    "security": {
+      "title": "Face ID / Touch ID",
+      "hint": "Require biometrics every time the app opens",
+      "confirmPrompt": "Confirm to turn on biometric sign-in",
+      "unlockPrompt": "Unlock ReturnFlow",
+      "unlockTitle": "App is locked",
+      "unlockButton": "Unlock",
+      "unlockFailed": "Couldn't verify your identity. Try again."
+    },
+    "about": {
+      "title": "About",
+      "version": "Version",
+      "privacyPolicy": "Privacy Policy",
+      "termsOfService": "Terms of Service"
+    },
     "deleteAccount": {
       "dangerZoneTitle": "Danger zone",
       "deleteAccountButton": "Delete account",
