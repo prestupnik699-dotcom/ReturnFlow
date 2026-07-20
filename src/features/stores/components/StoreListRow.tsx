@@ -139,9 +139,6 @@ export function StoreListRow({
             <Text style={styles.name} numberOfLines={1}>
               {store.name}
             </Text>
-            <Text style={styles.meta} numberOfLines={1}>
-              {subtitle}
-            </Text>
           </PressableScale>
 
           <Pressable style={styles.chatButton} onPress={onOpenChat} hitSlop={8}>
@@ -149,44 +146,23 @@ export function StoreListRow({
           </Pressable>
         </View>
 
-        {store.phone ? (
-          <Pressable style={styles.phoneRow} onPress={() => Linking.openURL(`tel:${store.phone}`)}>
-            <Ionicons name="call-outline" size={14} color={theme.colors.textSecondary} />
-            <Text style={styles.phoneText}>{store.phone}</Text>
-          </Pressable>
-        ) : null}
-
-        <View style={styles.statsGroup}>
-          <View style={styles.statsRow}>
-            <View style={styles.statBadge}>
-              <Ionicons name="repeat-outline" size={13} color={theme.colors.textSecondary} />
-              <Text style={styles.statText}>
-                {t('stores.returnsCount', { count: returnsTotal })}
-              </Text>
-            </View>
-            <View style={styles.statBadge}>
-              <Ionicons name="download-outline" size={13} color={theme.colors.textSecondary} />
-              <Text style={styles.statText}>
-                {t('stores.deliveriesCount', { count: deliveriesTotal })}
-              </Text>
-            </View>
-          </View>
-          {returnsUrgent > 0 || isCurrent ? (
-            <View style={styles.statsRow}>
-              {returnsUrgent > 0 ? (
-                <View style={[styles.statBadge, styles.urgentBadge]}>
-                  <View style={styles.urgentDot} />
-                  <Text style={[styles.statText, styles.urgentText]}>
-                    {t('stores.attentionBadge', { count: returnsUrgent })}
-                  </Text>
-                </View>
-              ) : null}
-              {isCurrent ? (
-                <View style={styles.currentBadge}>
-                  <Text style={styles.currentBadgeText}>{t('stores.currentBadge')}</Text>
-                </View>
-              ) : null}
-            </View>
+        <View style={styles.detailsList}>
+          <Text style={styles.detailLine} numberOfLines={1}>
+            {subtitle}
+          </Text>
+          {store.phone ? (
+            <Pressable onPress={() => Linking.openURL(`tel:${store.phone}`)}>
+              <Text style={styles.detailLine}>{store.phone}</Text>
+            </Pressable>
+          ) : null}
+          <Text style={styles.detailLine}>{t('stores.returnsCount', { count: returnsTotal })}</Text>
+          <Text style={styles.detailLine}>
+            {t('stores.deliveriesCount', { count: deliveriesTotal })}
+          </Text>
+          {returnsUrgent > 0 ? (
+            <Text style={[styles.detailLine, styles.urgentLine]}>
+              {t('stores.attentionBadge', { count: returnsUrgent })}
+            </Text>
           ) : null}
         </View>
       </View>
@@ -235,7 +211,6 @@ function createStyles(theme: Theme) {
       fontWeight: theme.fontWeights.semiBold,
       color: theme.colors.textPrimary,
     },
-    meta: { fontSize: theme.fontSizes.sm, color: theme.colors.textSecondary },
     chatButton: {
       width: 36,
       height: 36,
@@ -244,46 +219,11 @@ function createStyles(theme: Theme) {
       alignItems: 'center',
       justifyContent: 'center',
     },
-    phoneRow: {
-      flexDirection: 'row',
-      alignItems: 'center',
-      gap: theme.spacing.xsPlus,
-      marginLeft: 86,
-    },
-    phoneText: { fontSize: theme.fontSizes.xs, color: theme.colors.textSecondary },
-    statsGroup: { marginLeft: 86, gap: theme.spacing.xs },
-    statsRow: {
-      flexDirection: 'row',
-      alignItems: 'center',
-      gap: theme.spacing.xs,
-    },
-    statBadge: {
-      flexDirection: 'row',
-      alignItems: 'center',
-      gap: 4,
-      backgroundColor: theme.colors.card,
-      borderRadius: theme.radius.full,
-      paddingHorizontal: theme.spacing.sm,
-      paddingVertical: 4,
-    },
-    statText: {
-      fontSize: theme.fontSizes.xs,
+    detailsList: { marginLeft: 86, gap: 4 },
+    detailLine: {
+      fontSize: theme.fontSizes.sm,
       color: theme.colors.textSecondary,
-      fontWeight: theme.fontWeights.medium,
     },
-    urgentBadge: { backgroundColor: theme.colors.danger + '1F' },
-    urgentDot: { width: 6, height: 6, borderRadius: 3, backgroundColor: theme.colors.danger },
-    urgentText: { color: theme.colors.danger, fontWeight: theme.fontWeights.semiBold },
-    currentBadge: {
-      backgroundColor: theme.colors.primary + '1F',
-      borderRadius: theme.radius.full,
-      paddingHorizontal: theme.spacing.sm,
-      paddingVertical: 4,
-    },
-    currentBadgeText: {
-      fontSize: theme.fontSizes.xs,
-      color: theme.colors.primary,
-      fontWeight: theme.fontWeights.semiBold,
-    },
+    urgentLine: { color: theme.colors.danger, fontWeight: theme.fontWeights.semiBold },
   });
 }
