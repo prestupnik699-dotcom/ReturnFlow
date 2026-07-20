@@ -214,7 +214,6 @@ function createStyles(theme: Theme) {
       alignItems: 'center',
       alignSelf: 'flex-start',
       gap: theme.spacing.xs,
-      marginLeft: 44,
       backgroundColor: theme.colors.primary + '15',
       borderRadius: theme.radius.full,
       paddingHorizontal: theme.spacing.md,
