@@ -189,7 +189,7 @@ function createStyles(theme: Theme) {
   return StyleSheet.create({
     container: { flex: 1, paddingTop: theme.spacing.xl },
     center: { flex: 1, justifyContent: 'center', alignItems: 'center' },
-    headerGroup: { marginBottom: theme.spacing.lg, gap: theme.spacing.xs },
+    headerGroup: { marginBottom: theme.spacing.lg, gap: theme.spacing.md },
     header: {
       flexDirection: 'row',
       alignItems: 'center',

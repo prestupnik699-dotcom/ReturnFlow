@@ -250,7 +250,9 @@ export function ChatScreen() {
         ) : null}
 
         <KeyboardStickyView offset={{ closed: 0, opened: 0 }}>
-          <View style={[styles.inputRow, { paddingBottom: keyboardVisible ? 0 : insets.bottom }]}>
+          <View
+            style={[styles.inputRow, { paddingBottom: keyboardVisible ? 40 : insets.bottom + 40 }]}
+          >
             <TextInput
               style={styles.input}
               placeholder={t('chat.placeholder')}
