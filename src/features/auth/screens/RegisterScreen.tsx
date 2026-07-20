@@ -28,7 +28,7 @@ export function RegisterScreen() {
   const theme = useTheme();
   const { t } = useTranslation();
   const [submitError, setSubmitError] = useState<string | null>(null);
-  const inputRefs = useRef<Array<TextInput | null>>([]);
+  const inputRefs = useRef<(TextInput | null)[]>([]);
 
   const {
     control,
