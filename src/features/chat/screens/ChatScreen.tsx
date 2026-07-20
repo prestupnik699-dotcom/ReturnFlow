@@ -1,5 +1,13 @@
 import { useEffect, useRef, useState } from 'react';
-import { View, FlatList, TextInput, Pressable, ActivityIndicator, StyleSheet } from 'react-native';
+import {
+  View,
+  FlatList,
+  TextInput,
+  Pressable,
+  ActivityIndicator,
+  StyleSheet,
+  Keyboard,
+} from 'react-native';
 import { Text } from '@/components/AppText';
 import { KeyboardStickyView } from 'react-native-keyboard-controller';
 import { useTranslation } from 'react-i18next';
@@ -68,6 +76,14 @@ export function ChatScreen() {
       setTimeout(() => listRef.current?.scrollToEnd({ animated: true }), 50);
     }
   }, [messageCount]);
+
+  // Keep the latest message visible above the keyboard instead of letting
+  // it hide behind it the moment the keyboard opens.
+  useEffect(() => {
+    if (keyboardVisible) {
+      setTimeout(() => listRef.current?.scrollToEnd({ animated: true }), 50);
+    }
+  }, [keyboardVisible]);
 
   // Opening the chat is what "reading" a chat notification means here —
   // clears the badge on the Chat entry point the same way opening the
@@ -152,7 +168,10 @@ export function ChatScreen() {
     const message = item.message;
     const isOwn = message.authorId === profile?.id;
     return (
-      <Pressable onLongPress={() => handleLongPressMessage(message)}>
+      <Pressable
+        onPress={() => Keyboard.dismiss()}
+        onLongPress={() => handleLongPressMessage(message)}
+      >
         <Animated.View
           entering={FadeInUp.duration(220)}
           style={[styles.bubbleRow, isOwn ? styles.bubbleRowOwn : styles.bubbleRowOther]}
@@ -214,6 +233,7 @@ export function ChatScreen() {
             renderItem={renderItem}
             contentContainerStyle={styles.list}
             showsVerticalScrollIndicator={false}
+            keyboardDismissMode="on-drag"
             ListEmptyComponent={
               <EmptyState
                 icon="chatbubbles-outline"
