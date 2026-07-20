@@ -241,7 +241,12 @@ function createStyles(theme: Theme) {
       fontSize: theme.fontSizes.sm,
       color: theme.colors.textSecondary,
     },
-    statsRow: { flexDirection: 'row', alignItems: 'center', gap: theme.spacing.xs },
+    statsRow: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      gap: theme.spacing.xs,
+      marginLeft: -theme.spacing.sm,
+    },
     statBadge: {
       flexDirection: 'row',
       alignItems: 'center',

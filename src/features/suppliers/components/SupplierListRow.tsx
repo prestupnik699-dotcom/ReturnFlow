@@ -287,6 +287,7 @@ function createStyles(theme: Theme) {
       alignItems: 'center',
       flexWrap: 'wrap',
       gap: theme.spacing.xs,
+      marginLeft: -theme.spacing.sm,
     },
     statBadge: {
       flexDirection: 'row',
