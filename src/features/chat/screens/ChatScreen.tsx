@@ -17,7 +17,6 @@ import { useTheme } from '@/theme/ThemeProvider';
 import { Screen } from '@/components/Screen';
 import { EmptyState } from '@/components/EmptyState';
 import { ConfirmDialog } from '@/components/ConfirmDialog';
-import { useTabBarClearance } from '@/hooks/useTabBarClearance';
 import { useKeyboardVisible } from '@/hooks/useKeyboardVisible';
 import { useChatRoom } from '@/features/chat/hooks/useChatRoom';
 import { useChatMessages } from '@/features/chat/hooks/useChatMessages';
@@ -51,7 +50,6 @@ export function ChatScreen() {
   const theme = useTheme();
   const { t } = useTranslation();
   const router = useRouter();
-  const tabBarClearance = useTabBarClearance();
   const keyboardVisible = useKeyboardVisible();
   const activeStoreId = useMembershipStore((state) => state.activeStoreId);
   const profile = useAuthStore((state) => state.profile);
@@ -250,7 +248,7 @@ export function ChatScreen() {
         ) : null}
 
         <KeyboardStickyView offset={{ closed: 0, opened: 0 }}>
-          <View style={[styles.inputRow, { marginBottom: keyboardVisible ? 0 : tabBarClearance }]}>
+          <View style={styles.inputRow}>
             <TextInput
               style={styles.input}
               placeholder={t('chat.placeholder')}
