@@ -144,7 +144,9 @@ export function NotificationsScreen() {
           <Pressable onPress={() => router.back()} hitSlop={12} style={styles.backButton}>
             <Ionicons name="chevron-back" size={22} color={theme.colors.textPrimary} />
           </Pressable>
-          <Text style={styles.title}>{t('common.notifications')}</Text>
+          <Text style={styles.title} numberOfLines={1} adjustsFontSizeToFit minimumFontScale={0.6}>
+            {t('common.notifications')}
+          </Text>
           {unreadCount > 0 ? (
             <Pressable onPress={() => markAllMutation.mutate()}>
               <Text style={styles.markAllText}>{t('chat.markAllRead')}</Text>

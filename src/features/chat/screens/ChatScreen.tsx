@@ -10,6 +10,7 @@ import {
 } from 'react-native';
 import { Text } from '@/components/AppText';
 import { KeyboardStickyView } from 'react-native-keyboard-controller';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useTranslation } from 'react-i18next';
 import { useRouter } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
@@ -51,6 +52,7 @@ export function ChatScreen() {
   const { t } = useTranslation();
   const router = useRouter();
   const keyboardVisible = useKeyboardVisible();
+  const insets = useSafeAreaInsets();
   const activeStoreId = useMembershipStore((state) => state.activeStoreId);
   const profile = useAuthStore((state) => state.profile);
   const hasModeratorRole = useHasRole(['Owner', 'Administrator']);
@@ -248,7 +250,7 @@ export function ChatScreen() {
         ) : null}
 
         <KeyboardStickyView offset={{ closed: 0, opened: 0 }}>
-          <View style={styles.inputRow}>
+          <View style={[styles.inputRow, { paddingBottom: keyboardVisible ? 0 : insets.bottom }]}>
             <TextInput
               style={styles.input}
               placeholder={t('chat.placeholder')}
