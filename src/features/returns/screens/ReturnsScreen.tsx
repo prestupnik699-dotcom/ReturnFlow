@@ -27,6 +27,7 @@ import { ReturnFormSheet } from '@/features/returns/screens/ReturnFormSheet';
 import { SupplierFilterSheet } from '@/features/returns/screens/SupplierFilterSheet';
 import { BatchReturnSheet } from '@/features/returns/screens/BatchReturnSheet';
 import { ReturnListRow } from '@/features/returns/components/ReturnListRow';
+import { SkeletonList } from '@/components/Skeleton';
 import {
   useBulkMarkReturned,
   useBulkArchive,
@@ -326,8 +327,8 @@ export function ReturnsScreen() {
         </ScrollView>
 
         {isLoading ? (
-          <View style={styles.center}>
-            <ActivityIndicator color={theme.colors.primary} />
+          <View style={{ paddingHorizontal: theme.spacing.xl, flex: 1 }}>
+            <SkeletonList />
           </View>
         ) : isError ? (
           <Text style={styles.errorText}>{t('organizations.settings.loadError')}</Text>
