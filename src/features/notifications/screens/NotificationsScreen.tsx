@@ -140,20 +140,24 @@ export function NotificationsScreen() {
   return (
     <Screen>
       <View style={styles.container}>
-        <View style={styles.header}>
-          <Pressable onPress={() => router.back()} hitSlop={12} style={styles.backButton}>
-            <Ionicons name="chevron-back" size={22} color={theme.colors.textPrimary} />
-          </Pressable>
-          <Text style={styles.title} numberOfLines={1} adjustsFontSizeToFit minimumFontScale={0.6}>
-            {t('common.notifications')}
-          </Text>
+        <View style={styles.headerGroup}>
+          <View style={styles.header}>
+            <Pressable onPress={() => router.back()} hitSlop={12} style={styles.backButton}>
+              <Ionicons name="chevron-back" size={22} color={theme.colors.textPrimary} />
+            </Pressable>
+            <Text style={styles.title} numberOfLines={1}>
+              {t('common.notifications')}
+            </Text>
+          </View>
           {unreadCount > 0 ? (
-            <Pressable onPress={() => markAllMutation.mutate()}>
+            <Pressable
+              onPress={() => markAllMutation.mutate()}
+              style={styles.markAllRow}
+              hitSlop={8}
+            >
               <Text style={styles.markAllText}>{t('chat.markAllRead')}</Text>
             </Pressable>
-          ) : (
-            <View style={styles.spacer} />
-          )}
+          ) : null}
         </View>
 
         {isLoading ? (
@@ -188,11 +192,11 @@ function createStyles(theme: Theme) {
   return StyleSheet.create({
     container: { flex: 1, paddingTop: theme.spacing.xl },
     center: { flex: 1, justifyContent: 'center', alignItems: 'center' },
+    headerGroup: { marginBottom: theme.spacing.lg, gap: theme.spacing.xs },
     header: {
       flexDirection: 'row',
       alignItems: 'center',
       gap: theme.spacing.sm,
-      marginBottom: theme.spacing.lg,
     },
     backButton: {
       width: 36,
@@ -208,12 +212,12 @@ function createStyles(theme: Theme) {
       fontWeight: theme.fontWeights.bold,
       color: theme.colors.textPrimary,
     },
+    markAllRow: { alignSelf: 'flex-end', marginLeft: 44 },
     markAllText: {
       fontSize: theme.fontSizes.sm,
       color: theme.colors.primary,
       fontWeight: theme.fontWeights.medium,
     },
-    spacer: { width: 36 },
     errorText: { color: theme.colors.danger, textAlign: 'center' },
     list: { gap: theme.spacing.sm },
     dividerRow: { alignItems: 'center', marginVertical: theme.spacing.sm },

@@ -85,33 +85,38 @@ export function FloatingTabBar({ state, navigation }: TabBarProps) {
           };
 
           return (
-            <Pressable
-              key={route.key}
-              onPress={onPress}
-              style={styles.tab}
-              hitSlop={8}
-              android_ripple={{ color: 'transparent' }}
-            >
-              {isFocused ? (
-                <LinearGradient
-                  colors={[theme.colors.primary, theme.colors.accent]}
-                  start={{ x: 0, y: 0 }}
-                  end={{ x: 1, y: 1 }}
-                  style={styles.iconWrap}
-                >
-                  <Ionicons name={icon} size={22} color={theme.colors.onPrimary} />
-                </LinearGradient>
-              ) : (
-                <View style={styles.iconWrap}>
-                  <Ionicons name={icon} size={22} color={theme.colors.textSecondary} />
-                </View>
-              )}
+            // The badge lives outside the Pressable's overflow:hidden
+            // boundary — the pulse animation scales it up to 1.3x, and
+            // if it were still a child of the clipped tab, that growth
+            // got cut off at the tab's rounded edge (looked "обрезана").
+            <View key={route.key} style={styles.tabOuter}>
+              <Pressable
+                onPress={onPress}
+                style={styles.tab}
+                hitSlop={8}
+                android_ripple={{ color: 'transparent' }}
+              >
+                {isFocused ? (
+                  <LinearGradient
+                    colors={[theme.colors.primary, theme.colors.accent]}
+                    start={{ x: 0, y: 0 }}
+                    end={{ x: 1, y: 1 }}
+                    style={styles.iconWrap}
+                  >
+                    <Ionicons name={icon} size={22} color={theme.colors.onPrimary} />
+                  </LinearGradient>
+                ) : (
+                  <View style={styles.iconWrap}>
+                    <Ionicons name={icon} size={22} color={theme.colors.textSecondary} />
+                  </View>
+                )}
+              </Pressable>
               {/* Chat and Notifications moved into the "Ещё" (More) menu — the
                   unread badge follows them there so the signal isn't lost. */}
               {route.name === 'more' && unreadCount + chatUnreadCount > 0 ? (
                 <PulsingBadge style={styles.badge} />
               ) : null}
-            </Pressable>
+            </View>
           );
         })}
       </View>
@@ -147,6 +152,7 @@ function createStyles(theme: ReturnType<typeof useTheme>, insets: { bottom: numb
         default: {},
       }),
     },
+    tabOuter: { position: 'relative' },
     tab: {
       alignItems: 'center',
       justifyContent: 'center',
