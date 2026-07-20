@@ -1,13 +1,5 @@
 import { useState, useEffect, useRef } from 'react';
-import {
-  View,
-  FlatList,
-  ActivityIndicator,
-  StyleSheet,
-  Pressable,
-  TextInput,
-  ScrollView,
-} from 'react-native';
+import { View, FlatList, StyleSheet, Pressable, TextInput, ScrollView } from 'react-native';
 import { Text } from '@/components/AppText';
 import Animated, { FadeInDown } from 'react-native-reanimated';
 import { useTranslation } from 'react-i18next';
@@ -29,6 +21,7 @@ import { StoreFormSheet } from '@/features/stores/screens/StoreFormSheet';
 import { StoreListRow } from '@/features/stores/components/StoreListRow';
 import { useMembershipStore } from '@/stores/membership.store';
 import type { Store } from '@/features/stores/services/stores.service';
+import { SkeletonList } from '@/components/Skeleton';
 
 type FilterMode = 'all' | 'attention';
 
@@ -109,8 +102,8 @@ export function StoresScreen() {
   if (isLoading) {
     return (
       <Screen>
-        <View style={styles.center}>
-          <ActivityIndicator color={theme.colors.primary} />
+        <View style={[styles.container, { padding: theme.spacing.xl }]}>
+          <SkeletonList />
         </View>
       </Screen>
     );

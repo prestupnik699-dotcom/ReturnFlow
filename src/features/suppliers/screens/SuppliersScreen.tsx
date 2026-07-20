@@ -1,13 +1,5 @@
 import { useState } from 'react';
-import {
-  View,
-  FlatList,
-  ActivityIndicator,
-  StyleSheet,
-  Pressable,
-  TextInput,
-  ScrollView,
-} from 'react-native';
+import { View, FlatList, StyleSheet, Pressable, TextInput, ScrollView } from 'react-native';
 import { Text } from '@/components/AppText';
 import { useTranslation } from 'react-i18next';
 import { Ionicons } from '@expo/vector-icons';
@@ -31,6 +23,7 @@ import { useSupplierReliability } from '@/features/suppliers/hooks/useSupplierRe
 import { SupplierFormSheet } from '@/features/suppliers/screens/SupplierFormSheet';
 import { SupplierListRow } from '@/features/suppliers/components/SupplierListRow';
 import type { Supplier, SupplierSort } from '@/features/suppliers/services/suppliers.service';
+import { SkeletonList } from '@/components/Skeleton';
 
 const EDIT_ROLES = ['Owner', 'Administrator', 'StoreManager', 'Receiver'] as const;
 type FilterMode = 'all' | 'favorites' | 'attention';
@@ -79,8 +72,8 @@ export function SuppliersScreen() {
   if (isLoading) {
     return (
       <Screen>
-        <View style={styles.center}>
-          <ActivityIndicator color={theme.colors.primary} />
+        <View style={[styles.container, { padding: theme.spacing.xl }]}>
+          <SkeletonList />
         </View>
       </Screen>
     );
