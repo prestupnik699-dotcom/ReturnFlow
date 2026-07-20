@@ -1,11 +1,38 @@
+import { useEffect } from 'react';
 import { View, Pressable, StyleSheet, Platform } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
+import Animated, {
+  useAnimatedStyle,
+  useSharedValue,
+  withRepeat,
+  withTiming,
+  withSequence,
+} from 'react-native-reanimated';
 import { Ionicons } from '@expo/vector-icons';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useTheme } from '@/theme/ThemeProvider';
 import { useUnreadCount } from '@/features/notifications/hooks/useUnreadCount';
 import { useChatUnreadCount } from '@/features/notifications/hooks/useChatUnreadCount';
 import { useKeyboardVisible } from '@/hooks/useKeyboardVisible';
+
+// Separate component (not inlined in the route.map() below) so the
+// shared value/effect follow React's hook rules correctly — you can't
+// call useSharedValue conditionally inside a loop callback.
+function PulsingBadge({ style }: { style: object }) {
+  const scale = useSharedValue(1);
+
+  useEffect(() => {
+    scale.value = withRepeat(
+      withSequence(withTiming(1.3, { duration: 600 }), withTiming(1, { duration: 600 })),
+      -1,
+      false,
+    );
+  }, [scale]);
+
+  const animatedStyle = useAnimatedStyle(() => ({ transform: [{ scale: scale.value }] }));
+
+  return <Animated.View style={[style, animatedStyle]} />;
+}
 
 const ICONS: Record<string, keyof typeof Ionicons.glyphMap> = {
   index: 'home-outline',
@@ -82,9 +109,7 @@ export function FloatingTabBar({ state, navigation }: TabBarProps) {
               {/* Chat and Notifications moved into the "Ещё" (More) menu — the
                   unread badge follows them there so the signal isn't lost. */}
               {route.name === 'more' && unreadCount + chatUnreadCount > 0 ? (
-                <View style={styles.badge}>
-                  <View style={styles.badgeInner} />
-                </View>
+                <PulsingBadge style={styles.badge} />
               ) : null}
             </Pressable>
           );
