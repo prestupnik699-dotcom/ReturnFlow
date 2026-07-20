@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useRef } from 'react';
 import {
   View,
   TextInput,
@@ -25,6 +25,7 @@ export function LoginScreen() {
   const theme = useTheme();
   const { t } = useTranslation();
   const [submitError, setSubmitError] = useState<string | null>(null);
+  const passwordRef = useRef<TextInput>(null);
 
   const {
     control,
@@ -88,6 +89,9 @@ export function LoginScreen() {
                       setSubmitError(null);
                     }}
                     onBlur={onBlur}
+                    returnKeyType="next"
+                    onSubmitEditing={() => passwordRef.current?.focus()}
+                    blurOnSubmit={false}
                   />
                 )}
               />
@@ -103,6 +107,7 @@ export function LoginScreen() {
                 name="password"
                 render={({ field: { value, onChange, onBlur } }) => (
                   <TextInput
+                    ref={passwordRef}
                     style={[styles.input, errors.password && styles.inputError]}
                     placeholder="••••••••"
                     placeholderTextColor={theme.colors.textSecondary}
@@ -113,6 +118,8 @@ export function LoginScreen() {
                       setSubmitError(null);
                     }}
                     onBlur={onBlur}
+                    returnKeyType="done"
+                    onSubmitEditing={handleSubmit(onSubmit)}
                   />
                 )}
               />

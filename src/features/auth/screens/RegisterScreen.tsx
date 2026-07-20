@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useRef } from 'react';
 import {
   View,
   TextInput,
@@ -28,6 +28,7 @@ export function RegisterScreen() {
   const theme = useTheme();
   const { t } = useTranslation();
   const [submitError, setSubmitError] = useState<string | null>(null);
+  const inputRefs = useRef<Array<TextInput | null>>([]);
 
   const {
     control,
@@ -87,7 +88,7 @@ export function RegisterScreen() {
           </View>
 
           <View style={styles.form}>
-            {fields.map((field) => (
+            {fields.map((field, index) => (
               <View style={styles.field} key={field.name}>
                 <Text style={styles.label}>{t(field.labelKey)}</Text>
                 <Controller
@@ -95,6 +96,9 @@ export function RegisterScreen() {
                   name={field.name}
                   render={({ field: { value, onChange, onBlur } }) => (
                     <TextInput
+                      ref={(el) => {
+                        inputRefs.current[index] = el;
+                      }}
                       style={[styles.input, errors[field.name] && styles.inputError]}
                       placeholderTextColor={theme.colors.textSecondary}
                       autoCapitalize={field.autoCapitalize ?? 'none'}
@@ -107,6 +111,13 @@ export function RegisterScreen() {
                         setSubmitError(null);
                       }}
                       onBlur={onBlur}
+                      returnKeyType={index === fields.length - 1 ? 'done' : 'next'}
+                      onSubmitEditing={
+                        index === fields.length - 1
+                          ? handleSubmit(onSubmit)
+                          : () => inputRefs.current[index + 1]?.focus()
+                      }
+                      blurOnSubmit={index === fields.length - 1}
                     />
                   )}
                 />
