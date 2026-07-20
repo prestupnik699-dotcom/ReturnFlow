@@ -156,22 +156,36 @@ export function StoreListRow({
           </Pressable>
         ) : null}
 
-        <View style={styles.statsRow}>
-          <View style={styles.statBadge}>
-            <Ionicons name="repeat-outline" size={13} color={theme.colors.textSecondary} />
-            <Text style={styles.statText}>{t('stores.returnsCount', { count: returnsTotal })}</Text>
-          </View>
-          {returnsUrgent > 0 ? (
-            <View style={[styles.statBadge, styles.urgentBadge]}>
-              <View style={styles.urgentDot} />
-              <Text style={[styles.statText, styles.urgentText]}>
-                {t('stores.attentionBadge', { count: returnsUrgent })}
+        <View style={styles.statsGroup}>
+          <View style={styles.statsRow}>
+            <View style={styles.statBadge}>
+              <Ionicons name="repeat-outline" size={13} color={theme.colors.textSecondary} />
+              <Text style={styles.statText}>
+                {t('stores.returnsCount', { count: returnsTotal })}
               </Text>
             </View>
-          ) : null}
-          {isCurrent ? (
-            <View style={styles.currentBadge}>
-              <Text style={styles.currentBadgeText}>{t('stores.currentBadge')}</Text>
+            <View style={styles.statBadge}>
+              <Ionicons name="download-outline" size={13} color={theme.colors.textSecondary} />
+              <Text style={styles.statText}>
+                {t('stores.deliveriesCount', { count: deliveriesTotal })}
+              </Text>
+            </View>
+          </View>
+          {returnsUrgent > 0 || isCurrent ? (
+            <View style={styles.statsRow}>
+              {returnsUrgent > 0 ? (
+                <View style={[styles.statBadge, styles.urgentBadge]}>
+                  <View style={styles.urgentDot} />
+                  <Text style={[styles.statText, styles.urgentText]}>
+                    {t('stores.attentionBadge', { count: returnsUrgent })}
+                  </Text>
+                </View>
+              ) : null}
+              {isCurrent ? (
+                <View style={styles.currentBadge}>
+                  <Text style={styles.currentBadgeText}>{t('stores.currentBadge')}</Text>
+                </View>
+              ) : null}
             </View>
           ) : null}
         </View>
@@ -237,12 +251,11 @@ function createStyles(theme: Theme) {
       marginLeft: 86,
     },
     phoneText: { fontSize: theme.fontSizes.xs, color: theme.colors.textSecondary },
+    statsGroup: { marginLeft: 86, gap: theme.spacing.xs },
     statsRow: {
       flexDirection: 'row',
       alignItems: 'center',
-      flexWrap: 'wrap',
       gap: theme.spacing.xs,
-      marginLeft: 86,
     },
     statBadge: {
       flexDirection: 'row',

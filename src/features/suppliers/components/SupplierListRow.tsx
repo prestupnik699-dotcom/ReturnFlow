@@ -162,65 +162,73 @@ export function SupplierListRow({
           </Pressable>
         ) : null}
 
-        <View style={styles.statsRow}>
-          <View style={styles.statBadge}>
-            <Ionicons name="repeat-outline" size={13} color={theme.colors.textSecondary} />
-            <Text style={styles.statText}>
-              {t('suppliers.returnsCount', { count: returnsTotal })}
-            </Text>
+        <View style={styles.statsGroup}>
+          <View style={styles.statsRow}>
+            <View style={styles.statBadge}>
+              <Ionicons name="repeat-outline" size={13} color={theme.colors.textSecondary} />
+              <Text style={styles.statText}>
+                {t('suppliers.returnsCount', { count: returnsTotal })}
+              </Text>
+            </View>
+            <View style={styles.statBadge}>
+              <Ionicons name="download-outline" size={13} color={theme.colors.textSecondary} />
+              <Text style={styles.statText}>
+                {t('suppliers.deliveriesCount', { count: deliveriesTotal })}
+              </Text>
+            </View>
           </View>
-          {reliability?.defectRatePercent != null ? (
-            <View
-              style={[
-                styles.statBadge,
-                reliability.defectRatePercent > 15
-                  ? styles.reliabilityBadgeBad
-                  : reliability.defectRatePercent > 5
-                    ? styles.reliabilityBadgeWarn
-                    : styles.reliabilityBadgeGood,
-              ]}
-            >
-              <Ionicons
-                name="analytics-outline"
-                size={12}
-                color={
-                  reliability.defectRatePercent > 15
-                    ? theme.colors.danger
-                    : reliability.defectRatePercent > 5
-                      ? theme.colors.warning
-                      : theme.colors.success
-                }
-              />
-              <Text
-                style={[
-                  styles.statText,
-                  {
-                    color:
+          {reliability?.defectRatePercent != null || returnsUrgent > 0 ? (
+            <View style={styles.statsRow}>
+              {reliability?.defectRatePercent != null ? (
+                <View
+                  style={[
+                    styles.statBadge,
+                    reliability.defectRatePercent > 15
+                      ? styles.reliabilityBadgeBad
+                      : reliability.defectRatePercent > 5
+                        ? styles.reliabilityBadgeWarn
+                        : styles.reliabilityBadgeGood,
+                  ]}
+                >
+                  <Ionicons
+                    name="analytics-outline"
+                    size={12}
+                    color={
                       reliability.defectRatePercent > 15
                         ? theme.colors.danger
                         : reliability.defectRatePercent > 5
                           ? theme.colors.warning
-                          : theme.colors.success,
-                    fontWeight: theme.fontWeights.semiBold,
-                  },
-                ]}
-              >
-                {t('suppliers.defectRate', { percent: reliability.defectRatePercent.toFixed(1) })}
-              </Text>
-            </View>
-          ) : null}
-          <View style={styles.statBadge}>
-            <Ionicons name="download-outline" size={13} color={theme.colors.textSecondary} />
-            <Text style={styles.statText}>
-              {t('suppliers.deliveriesCount', { count: deliveriesTotal })}
-            </Text>
-          </View>
-          {returnsUrgent > 0 ? (
-            <View style={[styles.statBadge, styles.urgentBadge]}>
-              <View style={styles.urgentDot} />
-              <Text style={[styles.statText, styles.urgentText]}>
-                {t('suppliers.attentionBadge', { count: returnsUrgent })}
-              </Text>
+                          : theme.colors.success
+                    }
+                  />
+                  <Text
+                    style={[
+                      styles.statText,
+                      {
+                        color:
+                          reliability.defectRatePercent > 15
+                            ? theme.colors.danger
+                            : reliability.defectRatePercent > 5
+                              ? theme.colors.warning
+                              : theme.colors.success,
+                        fontWeight: theme.fontWeights.semiBold,
+                      },
+                    ]}
+                  >
+                    {t('suppliers.defectRate', {
+                      percent: reliability.defectRatePercent.toFixed(1),
+                    })}
+                  </Text>
+                </View>
+              ) : null}
+              {returnsUrgent > 0 ? (
+                <View style={[styles.statBadge, styles.urgentBadge]}>
+                  <View style={styles.urgentDot} />
+                  <Text style={[styles.statText, styles.urgentText]}>
+                    {t('suppliers.attentionBadge', { count: returnsUrgent })}
+                  </Text>
+                </View>
+              ) : null}
             </View>
           ) : null}
         </View>
@@ -283,12 +291,11 @@ function createStyles(theme: Theme) {
       marginLeft: 52,
     },
     phoneText: { fontSize: theme.fontSizes.xs, color: theme.colors.textSecondary },
+    statsGroup: { marginLeft: 52, gap: theme.spacing.xs },
     statsRow: {
       flexDirection: 'row',
       alignItems: 'center',
-      flexWrap: 'wrap',
       gap: theme.spacing.xs,
-      marginLeft: 52,
     },
     statBadge: {
       flexDirection: 'row',
