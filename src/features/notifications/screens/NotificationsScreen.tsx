@@ -150,11 +150,8 @@ export function NotificationsScreen() {
             </Text>
           </View>
           {unreadCount > 0 ? (
-            <Pressable
-              onPress={() => markAllMutation.mutate()}
-              style={styles.markAllRow}
-              hitSlop={8}
-            >
+            <Pressable onPress={() => markAllMutation.mutate()} style={styles.markAllPill}>
+              <Ionicons name="checkmark-done" size={14} color={theme.colors.primary} />
               <Text style={styles.markAllText}>{t('chat.markAllRead')}</Text>
             </Pressable>
           ) : null}
@@ -212,7 +209,17 @@ function createStyles(theme: Theme) {
       fontWeight: theme.fontWeights.bold,
       color: theme.colors.textPrimary,
     },
-    markAllRow: { alignSelf: 'flex-end', marginLeft: 44 },
+    markAllPill: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      alignSelf: 'flex-start',
+      gap: theme.spacing.xs,
+      marginLeft: 44,
+      backgroundColor: theme.colors.primary + '15',
+      borderRadius: theme.radius.full,
+      paddingHorizontal: theme.spacing.md,
+      paddingVertical: theme.spacing.xs,
+    },
     markAllText: {
       fontSize: theme.fontSizes.sm,
       color: theme.colors.primary,
