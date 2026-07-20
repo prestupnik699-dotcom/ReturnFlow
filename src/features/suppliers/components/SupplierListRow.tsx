@@ -135,11 +135,6 @@ export function SupplierListRow({
             <Text style={styles.name} numberOfLines={1}>
               {supplier.name}
             </Text>
-            {metaParts.length > 0 ? (
-              <Text style={styles.meta} numberOfLines={1}>
-                {metaParts.join(' · ')}
-              </Text>
-            ) : null}
           </PressableScale>
 
           <Pressable onPress={handleToggleFavorite} hitSlop={8}>
@@ -151,85 +146,41 @@ export function SupplierListRow({
           </Pressable>
         </View>
 
-        {supplier.phone ? (
-          <Pressable
-            style={styles.phoneRow}
-            onPress={() => Linking.openURL(`tel:${supplier.phone}`)}
-            hitSlop={8}
-          >
-            <Ionicons name="call-outline" size={14} color={theme.colors.textSecondary} />
-            <Text style={styles.phoneText}>{supplier.phone}</Text>
-          </Pressable>
-        ) : null}
-
-        <View style={styles.statsGroup}>
-          <View style={styles.statsRow}>
-            <View style={styles.statBadge}>
-              <Ionicons name="repeat-outline" size={13} color={theme.colors.textSecondary} />
-              <Text style={styles.statText}>
-                {t('suppliers.returnsCount', { count: returnsTotal })}
-              </Text>
-            </View>
-            <View style={styles.statBadge}>
-              <Ionicons name="download-outline" size={13} color={theme.colors.textSecondary} />
-              <Text style={styles.statText}>
-                {t('suppliers.deliveriesCount', { count: deliveriesTotal })}
-              </Text>
-            </View>
-          </View>
-          {reliability?.defectRatePercent != null || returnsUrgent > 0 ? (
-            <View style={styles.statsRow}>
-              {reliability?.defectRatePercent != null ? (
-                <View
-                  style={[
-                    styles.statBadge,
-                    reliability.defectRatePercent > 15
-                      ? styles.reliabilityBadgeBad
-                      : reliability.defectRatePercent > 5
-                        ? styles.reliabilityBadgeWarn
-                        : styles.reliabilityBadgeGood,
-                  ]}
-                >
-                  <Ionicons
-                    name="analytics-outline"
-                    size={12}
-                    color={
-                      reliability.defectRatePercent > 15
-                        ? theme.colors.danger
-                        : reliability.defectRatePercent > 5
-                          ? theme.colors.warning
-                          : theme.colors.success
-                    }
-                  />
-                  <Text
-                    style={[
-                      styles.statText,
-                      {
-                        color:
-                          reliability.defectRatePercent > 15
-                            ? theme.colors.danger
-                            : reliability.defectRatePercent > 5
-                              ? theme.colors.warning
-                              : theme.colors.success,
-                        fontWeight: theme.fontWeights.semiBold,
-                      },
-                    ]}
-                  >
-                    {t('suppliers.defectRate', {
-                      percent: reliability.defectRatePercent.toFixed(1),
-                    })}
-                  </Text>
-                </View>
-              ) : null}
-              {returnsUrgent > 0 ? (
-                <View style={[styles.statBadge, styles.urgentBadge]}>
-                  <View style={styles.urgentDot} />
-                  <Text style={[styles.statText, styles.urgentText]}>
-                    {t('suppliers.attentionBadge', { count: returnsUrgent })}
-                  </Text>
-                </View>
-              ) : null}
-            </View>
+        <View style={styles.detailsList}>
+          {metaParts.length > 0 ? (
+            <Text style={styles.detailLine} numberOfLines={1}>
+              {metaParts.join(' · ')}
+            </Text>
+          ) : null}
+          {supplier.phone ? (
+            <Pressable onPress={() => Linking.openURL(`tel:${supplier.phone}`)} hitSlop={8}>
+              <Text style={styles.detailLine}>{supplier.phone}</Text>
+            </Pressable>
+          ) : null}
+          <Text style={styles.detailLine}>
+            {t('suppliers.returnsCount', { count: returnsTotal })}
+          </Text>
+          <Text style={styles.detailLine}>
+            {t('suppliers.deliveriesCount', { count: deliveriesTotal })}
+          </Text>
+          {reliability?.defectRatePercent != null ? (
+            <Text
+              style={[
+                styles.detailLine,
+                reliability.defectRatePercent > 15
+                  ? styles.reliabilityLineBad
+                  : reliability.defectRatePercent > 5
+                    ? styles.reliabilityLineWarn
+                    : styles.reliabilityLineGood,
+              ]}
+            >
+              {t('suppliers.defectRate', { percent: reliability.defectRatePercent.toFixed(1) })}
+            </Text>
+          ) : null}
+          {returnsUrgent > 0 ? (
+            <Text style={[styles.detailLine, styles.urgentLine]}>
+              {t('suppliers.attentionBadge', { count: returnsUrgent })}
+            </Text>
           ) : null}
         </View>
       </View>
@@ -283,39 +234,14 @@ function createStyles(theme: Theme) {
       fontWeight: theme.fontWeights.semiBold,
       color: theme.colors.textPrimary,
     },
-    meta: { fontSize: theme.fontSizes.sm, color: theme.colors.textSecondary },
-    phoneRow: {
-      flexDirection: 'row',
-      alignItems: 'center',
-      gap: theme.spacing.xsPlus,
-      marginLeft: 52,
-    },
-    phoneText: { fontSize: theme.fontSizes.xs, color: theme.colors.textSecondary },
-    statsGroup: { marginLeft: 52, gap: theme.spacing.xs },
-    statsRow: {
-      flexDirection: 'row',
-      alignItems: 'center',
-      gap: theme.spacing.xs,
-    },
-    statBadge: {
-      flexDirection: 'row',
-      alignItems: 'center',
-      gap: 4,
-      backgroundColor: theme.colors.card,
-      borderRadius: theme.radius.full,
-      paddingHorizontal: theme.spacing.sm,
-      paddingVertical: 4,
-    },
-    statText: {
-      fontSize: theme.fontSizes.xs,
+    detailsList: { marginLeft: 52, gap: 4 },
+    detailLine: {
+      fontSize: theme.fontSizes.sm,
       color: theme.colors.textSecondary,
-      fontWeight: theme.fontWeights.medium,
     },
-    urgentBadge: { backgroundColor: theme.colors.danger + '1F' },
-    urgentDot: { width: 6, height: 6, borderRadius: 3, backgroundColor: theme.colors.danger },
-    urgentText: { color: theme.colors.danger, fontWeight: theme.fontWeights.semiBold },
-    reliabilityBadgeGood: { backgroundColor: theme.colors.success + '1F' },
-    reliabilityBadgeWarn: { backgroundColor: theme.colors.warning + '1F' },
-    reliabilityBadgeBad: { backgroundColor: theme.colors.danger + '1F' },
+    urgentLine: { color: theme.colors.danger, fontWeight: theme.fontWeights.semiBold },
+    reliabilityLineGood: { color: theme.colors.success, fontWeight: theme.fontWeights.semiBold },
+    reliabilityLineWarn: { color: theme.colors.warning, fontWeight: theme.fontWeights.semiBold },
+    reliabilityLineBad: { color: theme.colors.danger, fontWeight: theme.fontWeights.semiBold },
   });
 }
