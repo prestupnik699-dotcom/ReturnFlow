@@ -12,14 +12,7 @@ import { Card } from '@/components/Card';
 import { useCreateInvitation } from '@/features/users/hooks/useCreateInvitation';
 import type { MembershipRole } from '@/features/auth/services/membership.service';
 
-const ROLES: MembershipRole[] = [
-  'Employee',
-  'Receiver',
-  'Viewer',
-  'StoreManager',
-  'Administrator',
-  'Owner',
-];
+const ROLES: MembershipRole[] = ['Employee', 'StoreManager', 'Owner'];
 
 export function InviteUserScreen() {
   const theme = useTheme();

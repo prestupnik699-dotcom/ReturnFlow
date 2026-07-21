@@ -36,7 +36,8 @@ import type { ReturnStatus, ReturnPriority } from '@/features/returns/services/r
 
 type Props = { returnId: string };
 
-const EDIT_ROLES = ['Owner', 'Administrator', 'StoreManager', 'Receiver'] as const;
+const EDIT_ROLES = ['Owner', 'StoreManager', 'Employee'] as const;
+const DELETE_ROLES = ['Owner', 'StoreManager'] as const;
 
 function formatDateTime(iso: string): string {
   const d = new Date(iso);
@@ -59,6 +60,7 @@ export function ReturnDetailScreen({ returnId }: Props) {
   const restoreMutation = useRestoreReturn(returnId);
   const hardDeleteMutation = useHardDeleteReturn(returnId);
   const hasEditRole = useHasRole([...EDIT_ROLES]);
+  const hasDeleteRole = useHasRole([...DELETE_ROLES]);
   const [commentText, setCommentText] = useState('');
   const [editVisible, setEditVisible] = useState(false);
   const [historyOpen, setHistoryOpen] = useState(false);
@@ -86,7 +88,7 @@ export function ReturnDetailScreen({ returnId }: Props) {
   }
 
   const canEdit = hasEditRole || item.createdBy === profile?.id;
-  const canHardDelete = canEdit && item.status === 'archived';
+  const canHardDelete = hasDeleteRole && item.status === 'archived';
 
   const statusLabels: Record<ReturnStatus, string> = {
     pending: t('returns.statusPending'),

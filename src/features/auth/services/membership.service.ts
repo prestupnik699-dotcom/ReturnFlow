@@ -1,7 +1,6 @@
 import { supabase } from '@/lib/supabase';
 
-export type MembershipRole =
-  'Owner' | 'Administrator' | 'StoreManager' | 'Receiver' | 'Employee' | 'Viewer';
+export type MembershipRole = 'Owner' | 'StoreManager' | 'Employee';
 
 export type Membership = {
   id: string;

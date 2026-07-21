@@ -109,7 +109,7 @@ export function StoreListRow({
 }: Props) {
   const theme = useTheme();
   const { t } = useTranslation();
-  const canDelete = useHasRole(['Owner', 'Administrator']);
+  const canDelete = useHasRole(['Owner']);
   const swipeableRef = useRef<SwipeableMethods>(null);
   const styles = createStyles(theme);
 

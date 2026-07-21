@@ -16,14 +16,7 @@ import type { ProfileStatus } from '@/features/users/services/team.service';
 import type { MembershipRole } from '@/features/auth/services/membership.service';
 import { useAuthStore } from '@/stores/auth.store';
 
-const ROLES: MembershipRole[] = [
-  'Employee',
-  'Receiver',
-  'Viewer',
-  'StoreManager',
-  'Administrator',
-  'Owner',
-];
+const ROLES: MembershipRole[] = ['Employee', 'StoreManager', 'Owner'];
 const STATUSES: ProfileStatus[] = ['active', 'vacation', 'blocked'];
 
 type Props = { visible: boolean; onClose: () => void; membershipId: string | null };

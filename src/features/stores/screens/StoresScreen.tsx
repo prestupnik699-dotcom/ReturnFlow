@@ -37,7 +37,7 @@ export function StoresScreen() {
   const params = useLocalSearchParams<{ new?: string }>();
   const autoOpenedRef = useRef(false);
   const tabBarClearance = useTabBarClearance();
-  const canAdd = useHasRole(['Owner', 'Administrator']);
+  const canAdd = useHasRole(['Owner']);
   const { data: stores, isLoading, isError } = useStores();
   const { data: returnCounts } = useStoreReturnCounts();
   const { data: deliveryCounts } = useStoreDeliveryCounts();

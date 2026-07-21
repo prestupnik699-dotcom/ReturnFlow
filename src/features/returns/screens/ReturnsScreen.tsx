@@ -38,7 +38,7 @@ export function ReturnsScreen() {
   const router = useRouter();
   const tabBarClearance = useTabBarClearance();
   const activeStoreId = useMembershipStore((state) => state.activeStoreId);
-  const canDelete = useHasRole(['Owner', 'Administrator', 'StoreManager']);
+  const canDelete = useHasRole(['Owner', 'StoreManager']);
   const params = useLocalSearchParams<{
     status?: string;
     supplierId?: string;

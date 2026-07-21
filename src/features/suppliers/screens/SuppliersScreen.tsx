@@ -25,7 +25,7 @@ import { SupplierListRow } from '@/features/suppliers/components/SupplierListRow
 import type { Supplier, SupplierSort } from '@/features/suppliers/services/suppliers.service';
 import { SkeletonList } from '@/components/Skeleton';
 
-const EDIT_ROLES = ['Owner', 'Administrator', 'StoreManager', 'Receiver'] as const;
+const EDIT_ROLES = ['Owner', 'StoreManager', 'Employee'] as const;
 type FilterMode = 'all' | 'favorites' | 'attention';
 
 export function SuppliersScreen() {

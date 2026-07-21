@@ -107,7 +107,7 @@ export default function More() {
           />
         </Card>
 
-        <RequireRole roles={['Owner', 'Administrator']}>
+        <RequireRole roles={['Owner', 'StoreManager']}>
           <Text style={styles.sectionLabel}>{t('common.organization')}</Text>
           <Card>
             <MenuRow

@@ -17,7 +17,7 @@ import type { SupplierReliability } from '@/features/suppliers/hooks/useSupplier
 
 type Theme = ReturnType<typeof useTheme>;
 
-const EDIT_ROLES = ['Owner', 'Administrator', 'StoreManager', 'Receiver'] as const;
+const EDIT_ROLES = ['Owner', 'StoreManager', 'Employee'] as const;
 
 function DeleteActionPanel({
   progress,

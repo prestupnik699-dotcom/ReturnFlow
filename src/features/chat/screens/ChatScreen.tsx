@@ -44,7 +44,7 @@ export function ChatScreen() {
   const router = useRouter();
   const activeStoreId = useMembershipStore((state) => state.activeStoreId);
   const profile = useAuthStore((state) => state.profile);
-  const hasModeratorRole = useHasRole(['Owner', 'Administrator']);
+  const hasModeratorRole = useHasRole(['Owner']);
   const markChatRead = useMarkChatNotificationsRead();
   const { data: storeName } = useStoreName(activeStoreId);
   const { data: roomId } = useChatRoom();
