@@ -323,6 +323,7 @@ function createStyles(theme: Theme) {
       color: theme.colors.textPrimary,
     },
     exchangeBadge: {
+      alignSelf: 'flex-start',
       backgroundColor: theme.colors.primary + '22',
       borderRadius: theme.radius.sm,
       paddingHorizontal: theme.spacing.sm,
