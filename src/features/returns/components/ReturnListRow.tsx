@@ -243,18 +243,9 @@ export function ReturnListRow({
               />
             ) : null}
             <View style={styles.info}>
-              <View style={styles.titleRow}>
-                <Text style={styles.itemTitle} numberOfLines={1}>
-                  {item.title}
-                </Text>
-                {item.isExchange ? (
-                  <View style={styles.exchangeBadge}>
-                    <Text style={styles.exchangeBadgeText} numberOfLines={1}>
-                      {t('returns.create.exchangeLabel')}
-                    </Text>
-                  </View>
-                ) : null}
-              </View>
+              <Text style={styles.itemTitle} numberOfLines={1}>
+                {item.title}
+              </Text>
               <Text style={styles.meta} numberOfLines={1}>
                 {item.supplierName} · ×{item.quantity}
               </Text>
@@ -267,6 +258,13 @@ export function ReturnListRow({
                 </View>
               ) : null}
             </View>
+            {item.isExchange ? (
+              <View style={styles.exchangeBadge}>
+                <Text style={styles.exchangeBadgeText} numberOfLines={1}>
+                  {t('returns.create.exchangeLabel')}
+                </Text>
+              </View>
+            ) : null}
           </View>
           <View style={styles.bottomRow}>
             {item.pendingSync ? (
@@ -319,9 +317,7 @@ function createStyles(theme: Theme) {
     container: { padding: theme.spacing.lg, gap: theme.spacing.sm },
     topRow: { flexDirection: 'row', alignItems: 'center', gap: theme.spacing.md },
     info: { flex: 1, gap: 4 },
-    titleRow: { flexDirection: 'row', alignItems: 'center', gap: theme.spacing.xs },
     itemTitle: {
-      flexShrink: 1,
       fontSize: theme.fontSizes.md,
       fontWeight: theme.fontWeights.semiBold,
       color: theme.colors.textPrimary,
