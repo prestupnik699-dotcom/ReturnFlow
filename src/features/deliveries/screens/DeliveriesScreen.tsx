@@ -93,6 +93,18 @@ export function DeliveriesScreen() {
                       <Text style={styles.meta} numberOfLines={1}>
                         {item.supplierName} · ×{item.quantity}
                       </Text>
+                      {item.barcode ? (
+                        <View style={styles.barcodeRow}>
+                          <Ionicons
+                            name="barcode-outline"
+                            size={12}
+                            color={theme.colors.textSecondary}
+                          />
+                          <Text style={styles.barcodeText} numberOfLines={1}>
+                            {item.barcode}
+                          </Text>
+                        </View>
+                      ) : null}
                     </View>
                     <View style={styles.dateColumn}>
                       {item.pendingSync ? (
@@ -158,6 +170,12 @@ function createStyles(theme: ReturnType<typeof useTheme>) {
       color: theme.colors.textPrimary,
     },
     meta: { fontSize: theme.fontSizes.sm, color: theme.colors.textSecondary },
+    barcodeRow: { flexDirection: 'row', alignItems: 'center', gap: 4 },
+    barcodeText: {
+      fontSize: theme.fontSizes.xs,
+      color: theme.colors.textSecondary,
+      fontVariant: ['tabular-nums'],
+    },
     dateColumn: { alignItems: 'flex-end', gap: 2 },
     date: { fontSize: theme.fontSizes.xs, color: theme.colors.textSecondary },
     pendingText: {
