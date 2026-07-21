@@ -30,7 +30,6 @@ import { useWeeklyActivity } from '@/features/statistics/hooks/useWeeklyActivity
 import { usePendingSyncCount } from '@/features/statistics/hooks/usePendingSyncCount';
 import { useUnreadCount } from '@/features/notifications/hooks/useUnreadCount';
 import { ReturnFormSheet } from '@/features/returns/screens/ReturnFormSheet';
-import { BatchReturnSheet } from '@/features/returns/screens/BatchReturnSheet';
 import type { ReturnItem } from '@/features/returns/services/returns.service';
 
 const LOCALE_MAP: Record<string, string> = { ka: 'ka-GE', en: 'en-US', ru: 'ru-RU' };
@@ -53,7 +52,7 @@ export function DashboardScreen() {
   const activeStoreId = useMembershipStore((state) => state.activeStoreId);
   const unreadCount = useUnreadCount();
   const [formVisible, setFormVisible] = useState(false);
-  const [batchVisible, setBatchVisible] = useState(false);
+  const [activityOpen, setActivityOpen] = useState(false);
   const styles = createStyles(theme);
 
   const { data: allReturns, isLoading } = useReturns();
@@ -212,12 +211,6 @@ export function DashboardScreen() {
                 theme={theme}
               />
               <QuickAction
-                icon="flash-outline"
-                label={t('dashboard.actionBatch')}
-                onPress={() => setBatchVisible(true)}
-                theme={theme}
-              />
-              <QuickAction
                 icon="bar-chart-outline"
                 label={t('dashboard.actionStatistics')}
                 onPress={() => router.push('/statistics')}
@@ -265,29 +258,41 @@ export function DashboardScreen() {
 
             {weeklyActivity ? (
               <View style={styles.section}>
-                <Text style={styles.sectionTitle}>{t('dashboard.activityTitle')}</Text>
-                <Card>
-                  <View style={styles.chartCard}>
-                    <View style={styles.chartBars}>
-                      {weeklyActivity.map((point, index) => (
-                        <View key={point.date} style={styles.chartBarColumn}>
-                          <View style={styles.chartBarTrack}>
-                            <AnimatedChartBarFill
-                              heightPercent={Math.max(
-                                (point.count / maxActivity) * 100,
-                                point.count > 0 ? 6 : 2,
-                              )}
-                              color={theme.colors.primary}
-                              delay={index * 50}
-                              style={styles.chartBarFill}
-                            />
+                <Pressable
+                  style={styles.sectionHeaderRow}
+                  onPress={() => setActivityOpen((v) => !v)}
+                >
+                  <Text style={styles.sectionTitle}>{t('dashboard.activityTitle')}</Text>
+                  <Ionicons
+                    name={activityOpen ? 'chevron-up' : 'chevron-down'}
+                    size={18}
+                    color={theme.colors.textSecondary}
+                  />
+                </Pressable>
+                {activityOpen ? (
+                  <Card>
+                    <View style={styles.chartCard}>
+                      <View style={styles.chartBars}>
+                        {weeklyActivity.map((point, index) => (
+                          <View key={point.date} style={styles.chartBarColumn}>
+                            <View style={styles.chartBarTrack}>
+                              <AnimatedChartBarFill
+                                heightPercent={Math.max(
+                                  (point.count / maxActivity) * 100,
+                                  point.count > 0 ? 6 : 2,
+                                )}
+                                color={theme.colors.primary}
+                                delay={index * 50}
+                                style={styles.chartBarFill}
+                              />
+                            </View>
+                            <Text style={styles.chartBarLabel}>{dayLabel(point.date)}</Text>
                           </View>
-                          <Text style={styles.chartBarLabel}>{dayLabel(point.date)}</Text>
-                        </View>
-                      ))}
+                        ))}
+                      </View>
                     </View>
-                  </View>
-                </Card>
+                  </Card>
+                ) : null}
               </View>
             ) : null}
 
@@ -337,7 +342,6 @@ export function DashboardScreen() {
       </ScrollView>
 
       <ReturnFormSheet visible={formVisible} onClose={() => setFormVisible(false)} />
-      <BatchReturnSheet visible={batchVisible} onClose={() => setBatchVisible(false)} />
     </Screen>
   );
 }
