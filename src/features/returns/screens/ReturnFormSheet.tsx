@@ -167,7 +167,11 @@ export function ReturnFormSheet({
         {frequentChips.length > 0 ? (
           <View style={styles.field}>
             <Text style={styles.label}>{t('returns.create.frequentLabel')}</Text>
-            <View style={styles.chipRow}>
+            <ScrollView
+              horizontal
+              showsHorizontalScrollIndicator={false}
+              contentContainerStyle={styles.frequentChipRow}
+            >
               {frequentChips.map((s) => (
                 <Chip
                   key={s.title}
@@ -179,7 +183,7 @@ export function ReturnFormSheet({
                   }}
                 />
               ))}
-            </View>
+            </ScrollView>
           </View>
         ) : null}
 
@@ -434,6 +438,7 @@ function createStyles(theme: ReturnType<typeof useTheme>) {
       textAlign: 'center',
     },
     chipRow: { flexDirection: 'row', flexWrap: 'wrap', gap: theme.spacing.sm },
+    frequentChipRow: { flexDirection: 'row', gap: theme.spacing.sm },
     exchangeToggle: {
       flexDirection: 'row',
       alignItems: 'center',
