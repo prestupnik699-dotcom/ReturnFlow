@@ -239,7 +239,8 @@
       "exchangeLabel": "Product exchange",
       "exchangeHint": "Distributor took the damaged item and dropped off a replacement — no rs.ge invoice",
       "priceLabel": "Unit price",
-      "pricePlaceholder": "Optional"
+      "pricePlaceholder": "Optional",
+      "frequentLabel": "Frequently used"
     },
     "errors": {
       "supplierRequired": "Select a supplier",

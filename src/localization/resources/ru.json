@@ -239,7 +239,8 @@
       "exchangeLabel": "Замена товара",
       "exchangeHint": "Дистрибьютор забрал испорченный и принёс новый — без проводки на rs.ge",
       "priceLabel": "Цена за единицу",
-      "pricePlaceholder": "Необязательно"
+      "pricePlaceholder": "Необязательно",
+      "frequentLabel": "Часто вводимые"
     },
     "errors": {
       "supplierRequired": "Выберите поставщика",

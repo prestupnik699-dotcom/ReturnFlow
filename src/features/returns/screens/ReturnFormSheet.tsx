@@ -1,4 +1,4 @@
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { Modal, View, TextInput, Pressable, ScrollView, StyleSheet } from 'react-native';
 import { Text } from '@/components/AppText';
 import { useForm, useWatch, Controller } from 'react-hook-form';
@@ -15,10 +15,14 @@ import {
 import { useCreateReturn } from '@/features/returns/hooks/useCreateReturn';
 import { useUpdateReturn } from '@/features/returns/hooks/useUpdateReturn';
 import { useSuppliers } from '@/features/suppliers/hooks/useSuppliers';
+import { useTitleSuggestions } from '@/features/returns/hooks/useTitleSuggestions';
+import { useMembershipStore } from '@/stores/membership.store';
 import { hapticSuccess } from '@/lib/haptics';
 import type { ReturnItem, ReturnPriority } from '@/features/returns/services/returns.service';
 
 const PRIORITIES: ReturnPriority[] = ['low', 'normal', 'high', 'critical'];
+const FREQUENT_CHIPS_LIMIT = 6;
+const AUTOCOMPLETE_LIMIT = 5;
 
 type Props = {
   visible: boolean;
@@ -39,11 +43,13 @@ export function ReturnFormSheet({
 }: Props) {
   const theme = useTheme();
   const { t } = useTranslation();
+  const activeStoreId = useMembershipStore((state) => state.activeStoreId);
   const { data: suppliers } = useSuppliers(false, 'name');
   const isEditing = !!returnItem;
   const createMutation = useCreateReturn(suppliers ?? []);
   const updateMutation = useUpdateReturn(returnItem?.id ?? '', returnItem?.status ?? 'pending');
   const mutation = isEditing ? updateMutation : createMutation;
+  const [titleFocused, setTitleFocused] = useState(false);
   const styles = createStyles(theme);
 
   const {
@@ -68,7 +74,20 @@ export function ReturnFormSheet({
 
   const priority = useWatch({ control, name: 'priority' });
   const supplierId = useWatch({ control, name: 'supplierId' });
+  const titleValue = useWatch({ control, name: 'title' });
   const isExchange = useWatch({ control, name: 'isExchange' });
+
+  const { data: titleSuggestions } = useTitleSuggestions(activeStoreId, supplierId);
+
+  const frequentChips = (titleSuggestions ?? []).slice(0, FREQUENT_CHIPS_LIMIT);
+
+  const query = titleValue.trim().toLowerCase();
+  const autocompleteMatches =
+    titleFocused && query.length > 0
+      ? (titleSuggestions ?? [])
+          .filter((s) => s.title.toLowerCase().includes(query) && s.title.toLowerCase() !== query)
+          .slice(0, AUTOCOMPLETE_LIMIT)
+      : [];
 
   useEffect(() => {
     if (visible) {
@@ -145,6 +164,25 @@ export function ReturnFormSheet({
           ) : null}
         </View>
 
+        {frequentChips.length > 0 ? (
+          <View style={styles.field}>
+            <Text style={styles.label}>{t('returns.create.frequentLabel')}</Text>
+            <View style={styles.chipRow}>
+              {frequentChips.map((s) => (
+                <Chip
+                  key={s.title}
+                  label={s.title}
+                  selected={titleValue === s.title}
+                  onPress={() => {
+                    setValue('title', s.title);
+                    setTitleFocused(false);
+                  }}
+                />
+              ))}
+            </View>
+          </View>
+        ) : null}
+
         <View style={styles.field}>
           <Text style={styles.label}>{t('returns.create.titleLabel')}</Text>
           <Controller
@@ -155,10 +193,35 @@ export function ReturnFormSheet({
                 style={[styles.input, errors.title && styles.inputError]}
                 value={value}
                 onChangeText={onChange}
-                onBlur={onBlur}
+                onFocus={() => setTitleFocused(true)}
+                onBlur={() => {
+                  onBlur();
+                  // Small delay so a tap on a suggestion row registers
+                  // before the list disappears from the blur.
+                  setTimeout(() => setTitleFocused(false), 150);
+                }}
               />
             )}
           />
+          {autocompleteMatches.length > 0 ? (
+            <View style={styles.suggestionsBox}>
+              {autocompleteMatches.map((s) => (
+                <Pressable
+                  key={s.title}
+                  style={styles.suggestionRow}
+                  onPress={() => {
+                    setValue('title', s.title);
+                    setTitleFocused(false);
+                  }}
+                >
+                  <Ionicons name="time-outline" size={14} color={theme.colors.textSecondary} />
+                  <Text style={styles.suggestionText} numberOfLines={1}>
+                    {s.title}
+                  </Text>
+                </Pressable>
+              ))}
+            </View>
+          ) : null}
           {errors.title ? (
             <Text style={styles.errorText}>{t(errors.title.message ?? '')}</Text>
           ) : null}
@@ -325,6 +388,23 @@ function createStyles(theme: ReturnType<typeof useTheme>) {
       fontSize: theme.fontSizes.md,
       color: theme.colors.textPrimary,
     },
+    suggestionsBox: {
+      borderWidth: 1,
+      borderColor: theme.colors.border,
+      backgroundColor: theme.colors.surface,
+      borderRadius: theme.radius.md,
+      overflow: 'hidden',
+    },
+    suggestionRow: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      gap: theme.spacing.sm,
+      paddingHorizontal: theme.spacing.md,
+      paddingVertical: theme.spacing.sm,
+      borderTopWidth: StyleSheet.hairlineWidth,
+      borderTopColor: theme.colors.border,
+    },
+    suggestionText: { flex: 1, fontSize: theme.fontSizes.sm, color: theme.colors.textPrimary },
     barcodeRow: {
       flexDirection: 'row',
       alignItems: 'center',

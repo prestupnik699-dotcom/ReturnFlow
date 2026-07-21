@@ -239,7 +239,8 @@
       "exchangeLabel": "საქონლის შეცვლა",
       "exchangeHint": "დისტრიბუტორმა წაიღო დაზიანებული, მოიტანა ახალი — rs.ge-ზე ატვირთვის გარეშე",
       "priceLabel": "ერთეულის ფასი",
-      "pricePlaceholder": "არასავალდებულო"
+      "pricePlaceholder": "არასავალდებულო",
+      "frequentLabel": "ხშირად გამოყენებული"
     },
     "errors": {
       "supplierRequired": "აირჩიეთ მომწოდებელი",

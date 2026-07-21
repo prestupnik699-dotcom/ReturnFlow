@@ -349,3 +349,41 @@ export async function hardDeleteReturn(returnId: string): Promise<ServiceResult<
 
   return { success: true, data: null };
 }
+
+export type TitleSuggestion = { title: string; count: number };
+
+// Aggregated client-side (same pattern as fetchReturnCountsByStore) rather
+// than via a DB-side GROUP BY, since Supabase's JS client has no group-by
+// helper and a single store's return history is small enough that this is
+// cheap. Ordered by frequency (most-typed first), tie-broken by recency,
+// so the person's most common items for this supplier surface first.
+export async function fetchTitleSuggestions(
+  storeId: string,
+  supplierId: string,
+): Promise<ServiceResult<TitleSuggestion[]>> {
+  const { data, error } = await supabase
+    .from('return_items')
+    .select('title, created_at')
+    .eq('store_id', storeId)
+    .eq('supplier_id', supplierId)
+    .is('deleted_at', null)
+    .order('created_at', { ascending: false })
+    .limit(500);
+
+  if (error) {
+    return fromCaughtError(error, 'FETCH_TITLE_SUGGESTIONS_FAILED');
+  }
+
+  const rows = data as unknown as { title: string; created_at: string }[];
+  const counts = new Map<string, number>();
+
+  for (const row of rows) {
+    counts.set(row.title, (counts.get(row.title) ?? 0) + 1);
+  }
+
+  const suggestions = Array.from(counts.entries())
+    .map(([title, count]) => ({ title, count }))
+    .sort((a, b) => b.count - a.count);
+
+  return { success: true, data: suggestions };
+}
