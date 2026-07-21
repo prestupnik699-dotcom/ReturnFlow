@@ -1,15 +1,10 @@
 import { useState } from 'react';
-import { View, TextInput, StyleSheet } from 'react-native';
+import { View, StyleSheet } from 'react-native';
 import { Text } from '@/components/AppText';
-import { useForm, Controller } from 'react-hook-form';
-import { zodResolver } from '@hookform/resolvers/zod';
 import { useRouter } from 'expo-router';
 import { useTranslation } from 'react-i18next';
-import {
-  changePasswordSchema,
-  type ChangePasswordFormValues,
-} from '@/features/auth/validators/change-password.schema';
-import { changePassword } from '@/features/auth/services/auth.service';
+import { useChangePasswordForm } from '@/features/auth/hooks/useChangePasswordForm';
+import { PasswordFields } from '@/features/auth/components/PasswordFields';
 import { useTheme } from '@/theme/ThemeProvider';
 import { Screen } from '@/components/Screen';
 import { ScreenHeader } from '@/components/ScreenHeader';
@@ -19,30 +14,10 @@ export function ChangePasswordScreen() {
   const router = useRouter();
   const theme = useTheme();
   const { t } = useTranslation();
-  const [submitError, setSubmitError] = useState<string | null>(null);
   const [success, setSuccess] = useState(false);
-
-  const {
-    control,
-    handleSubmit,
-    formState: { errors, isSubmitting },
-  } = useForm<ChangePasswordFormValues>({
-    resolver: zodResolver(changePasswordSchema),
-    defaultValues: { newPassword: '', confirmNewPassword: '' },
-  });
-
-  const onSubmit = async (values: ChangePasswordFormValues) => {
-    setSubmitError(null);
-    const result = await changePassword(values.newPassword);
-
-    if (!result.success) {
-      setSubmitError(result.error.message);
-      return;
-    }
-
-    setSuccess(true);
-  };
-
+  const { control, errors, isSubmitting, submitError, clearError, submit } = useChangePasswordForm(
+    () => setSuccess(true),
+  );
   const styles = createStyles(theme);
 
   return (
@@ -59,51 +34,7 @@ export function ChangePasswordScreen() {
           </>
         ) : (
           <View style={styles.form}>
-            <View style={styles.field}>
-              <Text style={styles.label}>{t('auth.changePassword.newPasswordLabel')}</Text>
-              <Controller
-                control={control}
-                name="newPassword"
-                render={({ field: { value, onChange, onBlur } }) => (
-                  <TextInput
-                    style={[styles.input, errors.newPassword && styles.inputError]}
-                    secureTextEntry
-                    value={value}
-                    onChangeText={(text) => {
-                      onChange(text);
-                      setSubmitError(null);
-                    }}
-                    onBlur={onBlur}
-                  />
-                )}
-              />
-              {errors.newPassword ? (
-                <Text style={styles.errorText}>{t(errors.newPassword.message ?? '')}</Text>
-              ) : null}
-            </View>
-
-            <View style={styles.field}>
-              <Text style={styles.label}>{t('auth.changePassword.confirmNewPasswordLabel')}</Text>
-              <Controller
-                control={control}
-                name="confirmNewPassword"
-                render={({ field: { value, onChange, onBlur } }) => (
-                  <TextInput
-                    style={[styles.input, errors.confirmNewPassword && styles.inputError]}
-                    secureTextEntry
-                    value={value}
-                    onChangeText={(text) => {
-                      onChange(text);
-                      setSubmitError(null);
-                    }}
-                    onBlur={onBlur}
-                  />
-                )}
-              />
-              {errors.confirmNewPassword ? (
-                <Text style={styles.errorText}>{t(errors.confirmNewPassword.message ?? '')}</Text>
-              ) : null}
-            </View>
+            <PasswordFields control={control} errors={errors} onChangeAny={clearError} />
 
             {submitError ? (
               <View style={styles.errorBanner}>
@@ -113,7 +44,7 @@ export function ChangePasswordScreen() {
 
             <Button
               label={t('auth.changePassword.submit')}
-              onPress={handleSubmit(onSubmit)}
+              onPress={submit}
               loading={isSubmitting}
               style={styles.submitButton}
             />
@@ -128,24 +59,6 @@ function createStyles(theme: ReturnType<typeof useTheme>) {
   return StyleSheet.create({
     container: { flex: 1, gap: theme.spacing.xl },
     form: { gap: theme.spacing.md },
-    field: { gap: theme.spacing.xs },
-    label: {
-      fontSize: theme.fontSizes.sm,
-      fontWeight: theme.fontWeights.medium,
-      color: theme.colors.textSecondary,
-    },
-    input: {
-      borderWidth: 1,
-      borderColor: theme.colors.border,
-      backgroundColor: theme.colors.surface,
-      borderRadius: theme.radius.md,
-      paddingHorizontal: theme.spacing.md,
-      paddingVertical: theme.spacing.md,
-      fontSize: theme.fontSizes.md,
-      color: theme.colors.textPrimary,
-    },
-    inputError: { borderColor: theme.colors.danger },
-    errorText: { fontSize: theme.fontSizes.xs, color: theme.colors.danger },
     errorBanner: {
       backgroundColor: theme.colors.danger + '15',
       borderRadius: theme.radius.sm,
