@@ -339,3 +339,13 @@ export async function deleteReturn(returnId: string): Promise<ServiceResult<null
 
   return { success: true, data: null };
 }
+
+export async function hardDeleteReturn(returnId: string): Promise<ServiceResult<null>> {
+  const { error } = await supabase.from('return_items').delete().eq('id', returnId);
+
+  if (error) {
+    return fromCaughtError(error, 'HARD_DELETE_RETURN_FAILED');
+  }
+
+  return { success: true, data: null };
+}

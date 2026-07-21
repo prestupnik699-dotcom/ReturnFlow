@@ -3,6 +3,7 @@ import {
   markReturnAsReturned,
   archiveReturn,
   restoreReturn,
+  hardDeleteReturn,
   type ReturnStatus,
 } from '@/features/returns/services/returns.service';
 import { enqueueUpdateReturnStatus } from '@/features/returns/services/offlineReturns.service';
@@ -118,5 +119,27 @@ export function useRestoreReturn(returnId: string) {
       return { synced: true };
     },
     onSuccess: ({ synced }) => (synced ? invalidate() : applyOptimistic()),
+  });
+}
+
+export function useHardDeleteReturn(returnId: string) {
+  const isOnline = useNetworkStatus();
+  const activeStoreId = useMembershipStore((state) => state.activeStoreId);
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: async (): Promise<void> => {
+      // Необратимое действие — разрешаем только онлайн, без офлайн-очереди
+      if (!isOnline) {
+        throw new Error('OFFLINE');
+      }
+
+      const result = await hardDeleteReturn(returnId);
+      if (!result.success) throw new Error(result.error.message);
+    },
+    onSuccess: () => {
+      queryClient.removeQueries({ queryKey: ['return', returnId] });
+      queryClient.invalidateQueries({ queryKey: ['returns', activeStoreId] });
+    },
   });
 }

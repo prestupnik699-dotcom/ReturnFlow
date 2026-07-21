@@ -1,5 +1,7 @@
 {
-  "app": { "name": "ReturnFlow" },
+  "app": {
+    "name": "ReturnFlow"
+  },
   "auth": {
     "login": {
       "subtitle": "Управление возвратами поставщикам",
@@ -68,7 +70,9 @@
     "subtitle": "Настройте компанию, чтобы начать работу с возвратами",
     "nameLabel": "Название организации",
     "submit": "Создать",
-    "errors": { "nameTooShort": "Слишком короткое название" },
+    "errors": {
+      "nameTooShort": "Слишком короткое название"
+    },
     "settings": {
       "title": "Настройки организации",
       "defaultLanguageLabel": "Язык по умолчанию для новых сотрудников",
@@ -156,7 +160,9 @@
     },
     "deleteConfirmTitle": "Удалить магазин?",
     "deleteConfirmMessage": "Магазин будет удалён. Действие необратимо.",
-    "errors": { "nameTooShort": "Слишком короткое название" },
+    "errors": {
+      "nameTooShort": "Слишком короткое название"
+    },
     "activeStoreHint": "Нажмите на магазин, чтобы отредактировать, на кружок — чтобы сделать активным",
     "noAddress": "Адрес не указан",
     "summaryStores": "Магазинов",
@@ -186,7 +192,10 @@
     },
     "deleteConfirmTitle": "Удалить поставщика?",
     "deleteConfirmMessage": "Поставщик будет удалён. Действие необратимо.",
-    "errors": { "nameTooShort": "Слишком короткое название", "emailInvalid": "Некорректный email" },
+    "errors": {
+      "nameTooShort": "Слишком короткое название",
+      "emailInvalid": "Некорректный email"
+    },
     "sortByName": "По названию",
     "sortByRecent": "Недавно добавленные",
     "summarySuppliers": "Поставщиков",
@@ -249,7 +258,13 @@
       "commentSend": "Отправить",
       "noComments": "Пока нет комментариев",
       "photosTitle": "Фото",
-      "cancelReturn": "Отменить возврат"
+      "cancelReturn": "Отменить возврат",
+      "deleteButton": "Удалить навсегда",
+      "deleteConfirmTitle": "Удалить безвозвратно?",
+      "deleteConfirmMessage": "Товар, фото, комментарии и история будут удалены без возможности восстановления.",
+      "deleteConfirmButton": "Удалить",
+      "deleteCancelButton": "Отмена",
+      "deleteOfflineError": "Удаление недоступно без интернета"
     },
     "history": {
       "created": "Создан",
@@ -257,7 +272,10 @@
       "comment_added": "Добавлен комментарий",
       "photo_added": "Добавлено фото"
     },
-    "edit": { "title": "Редактировать возврат", "submit": "Сохранить" },
+    "edit": {
+      "title": "Редактировать возврат",
+      "submit": "Сохранить"
+    },
     "pendingSync": "Ещё не отправлено",
     "newReturnNotification": "Новый возврат",
     "filterBySupplier": "Фильтр по поставщику",

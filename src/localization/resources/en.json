@@ -1,5 +1,7 @@
 {
-  "app": { "name": "ReturnFlow" },
+  "app": {
+    "name": "ReturnFlow"
+  },
   "auth": {
     "login": {
       "subtitle": "Supplier return management",
@@ -68,7 +70,9 @@
     "subtitle": "Set up your business to start managing returns",
     "nameLabel": "Organization name",
     "submit": "Create",
-    "errors": { "nameTooShort": "Name is too short" },
+    "errors": {
+      "nameTooShort": "Name is too short"
+    },
     "settings": {
       "title": "Organization settings",
       "defaultLanguageLabel": "Default language for new team members",
@@ -156,7 +160,9 @@
     },
     "deleteConfirmTitle": "Delete store?",
     "deleteConfirmMessage": "This will delete the store. This cannot be undone.",
-    "errors": { "nameTooShort": "Name is too short" },
+    "errors": {
+      "nameTooShort": "Name is too short"
+    },
     "activeStoreHint": "Tap a store to edit it, tap the circle to make it your active store",
     "noAddress": "No address specified",
     "summaryStores": "Stores",
@@ -186,7 +192,10 @@
     },
     "deleteConfirmTitle": "Delete supplier?",
     "deleteConfirmMessage": "This will delete the supplier. This cannot be undone.",
-    "errors": { "nameTooShort": "Name is too short", "emailInvalid": "Invalid email" },
+    "errors": {
+      "nameTooShort": "Name is too short",
+      "emailInvalid": "Invalid email"
+    },
     "sortByName": "By name",
     "sortByRecent": "Recently added",
     "summarySuppliers": "Suppliers",
@@ -249,7 +258,13 @@
       "commentSend": "Send",
       "noComments": "No comments yet",
       "photosTitle": "Photos",
-      "cancelReturn": "Undo return"
+      "cancelReturn": "Undo return",
+      "deleteButton": "Delete permanently",
+      "deleteConfirmTitle": "Delete permanently?",
+      "deleteConfirmMessage": "The item, photos, comments and history will be deleted with no way to recover them.",
+      "deleteConfirmButton": "Delete",
+      "deleteCancelButton": "Cancel",
+      "deleteOfflineError": "Deletion is unavailable offline"
     },
     "history": {
       "created": "Created",
@@ -257,7 +272,10 @@
       "comment_added": "Comment added",
       "photo_added": "Photo added"
     },
-    "edit": { "title": "Edit return", "submit": "Save" },
+    "edit": {
+      "title": "Edit return",
+      "submit": "Save"
+    },
     "pendingSync": "Not synced yet",
     "newReturnNotification": "New return",
     "filterBySupplier": "Filter by supplier",

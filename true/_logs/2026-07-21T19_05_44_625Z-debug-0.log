@@ -1,0 +1,18 @@
+0 verbose cli /usr/local/bin/node /Users/hovodavitiani/.npm-global/bin/npm
+1 info using npm@12.0.1
+2 info using node@v24.15.0
+3 silly config load:file:/Users/hovodavitiani/.npm-global/lib/node_modules/npm/npmrc
+4 silly config load:file:/Users/hovodavitiani/Developer/ReturnFlow/.npmrc
+5 silly config load:file:/Users/hovodavitiani/.npmrc
+6 silly config load:file:/Users/hovodavitiani/.npm-global/etc/npmrc
+7 verbose title npm notice run eslint /Users/hovodavitiani/Developer/ReturnFlow/src
+8 verbose argv "notice" "run" "eslint" "/Users/hovodavitiani/Developer/ReturnFlow/src" "--fix" "false" "--cache" "true" "--cache-location" "/Users/hovodavitiani/Developer/ReturnFlow/.expo/cache/eslint/"
+9 verbose logfile logs-max:10 dir:/Users/hovodavitiani/Developer/ReturnFlow/true/_logs/2026-07-21T19_05_44_625Z-
+10 verbose logfile /Users/hovodavitiani/Developer/ReturnFlow/true/_logs/2026-07-21T19_05_44_625Z-debug-0.log
+11 silly logfile done cleaning log files
+12 verbose cwd /Users/hovodavitiani/Developer/ReturnFlow
+13 verbose os Darwin 25.5.0
+14 verbose node v24.15.0
+15 verbose npm  v12.0.1
+16 verbose exit 1
+17 verbose code 1

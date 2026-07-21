@@ -7,6 +7,7 @@ import {
   TextInput,
   Pressable,
 } from 'react-native';
+import { useRouter } from 'expo-router';
 import { Text } from '@/components/AppText';
 import { useTranslation } from 'react-i18next';
 import { Ionicons } from '@expo/vector-icons';
@@ -15,6 +16,7 @@ import { Screen } from '@/components/Screen';
 import { ScreenHeader } from '@/components/ScreenHeader';
 import { Card } from '@/components/Card';
 import { Button } from '@/components/Button';
+import { ConfirmDialog } from '@/components/ConfirmDialog';
 import { ReturnPhotos } from '@/features/returns/components/ReturnPhotos';
 import { ReturnFormSheet } from '@/features/returns/screens/ReturnFormSheet';
 import { useReturn } from '@/features/returns/hooks/useReturn';
@@ -25,9 +27,11 @@ import {
   useMarkReturned,
   useArchiveReturn,
   useRestoreReturn,
+  useHardDeleteReturn,
 } from '@/features/returns/hooks/useReturnStatusActions';
 import { useAuthStore } from '@/stores/auth.store';
 import { useHasRole } from '@/features/auth/hooks/usePermissions';
+import { useNetworkStatus } from '@/hooks/useNetworkStatus';
 import type { ReturnStatus, ReturnPriority } from '@/features/returns/services/returns.service';
 
 type Props = { returnId: string };
@@ -43,6 +47,8 @@ function formatDateTime(iso: string): string {
 export function ReturnDetailScreen({ returnId }: Props) {
   const theme = useTheme();
   const { t } = useTranslation();
+  const router = useRouter();
+  const isOnline = useNetworkStatus();
   const profile = useAuthStore((state) => state.profile);
   const { data: item, isLoading, isError } = useReturn(returnId);
   const { data: history } = useReturnHistory(returnId);
@@ -51,10 +57,12 @@ export function ReturnDetailScreen({ returnId }: Props) {
   const markReturnedMutation = useMarkReturned(returnId);
   const archiveMutation = useArchiveReturn(returnId);
   const restoreMutation = useRestoreReturn(returnId);
+  const hardDeleteMutation = useHardDeleteReturn(returnId);
   const hasEditRole = useHasRole([...EDIT_ROLES]);
   const [commentText, setCommentText] = useState('');
   const [editVisible, setEditVisible] = useState(false);
   const [historyOpen, setHistoryOpen] = useState(false);
+  const [deleteDialogVisible, setDeleteDialogVisible] = useState(false);
   const styles = createStyles(theme);
 
   if (isLoading) {
@@ -78,6 +86,7 @@ export function ReturnDetailScreen({ returnId }: Props) {
   }
 
   const canEdit = hasEditRole || item.createdBy === profile?.id;
+  const canHardDelete = canEdit && item.status === 'archived';
 
   const statusLabels: Record<ReturnStatus, string> = {
     pending: t('returns.statusPending'),
@@ -105,6 +114,19 @@ export function ReturnDetailScreen({ returnId }: Props) {
     if (!text) return;
     setCommentText('');
     commentMutation.mutate(text);
+  };
+
+  const handleConfirmDelete = () => {
+    if (!isOnline) {
+      setDeleteDialogVisible(false);
+      return;
+    }
+    hardDeleteMutation.mutate(undefined, {
+      onSuccess: () => {
+        setDeleteDialogVisible(false);
+        router.back();
+      },
+    });
   };
 
   const primaryAction = !canEdit
@@ -178,6 +200,14 @@ export function ReturnDetailScreen({ returnId }: Props) {
           />
         ) : null}
 
+        {canHardDelete ? (
+          <Button
+            label={t('returns.detail.deleteButton')}
+            variant="danger"
+            onPress={() => setDeleteDialogVisible(true)}
+          />
+        ) : null}
+
         <ReturnPhotos returnId={returnId} canEdit={canEdit} />
 
         <View style={styles.section}>
@@ -248,6 +278,22 @@ export function ReturnDetailScreen({ returnId }: Props) {
         visible={editVisible}
         onClose={() => setEditVisible(false)}
         returnItem={item}
+      />
+
+      <ConfirmDialog
+        visible={deleteDialogVisible}
+        title={t('returns.detail.deleteConfirmTitle')}
+        message={
+          isOnline
+            ? t('returns.detail.deleteConfirmMessage')
+            : t('returns.detail.deleteOfflineError')
+        }
+        confirmLabel={t('returns.detail.deleteConfirmButton')}
+        cancelLabel={t('returns.detail.deleteCancelButton')}
+        destructive
+        loading={hardDeleteMutation.isPending}
+        onConfirm={handleConfirmDelete}
+        onCancel={() => setDeleteDialogVisible(false)}
       />
     </Screen>
   );
