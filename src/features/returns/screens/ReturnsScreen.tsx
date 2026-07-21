@@ -73,11 +73,11 @@ export function ReturnsScreen() {
     isLoading,
     isError,
   } = useReturns(statusFilter ? [statusFilter] : undefined);
-  // Unfiltered fetch for the stat row so the totals always reflect the
-  // whole store regardless of which status chip is currently selected.
-  // Same query the default (no-filter) view already uses, so when no
-  // chip is active this is served from the same cache entry — no extra
-  // network round trip in the common case.
+  // Unfiltered fetch so filter-chip counts always reflect the whole store
+  // regardless of which chip is currently active. Same query the default
+  // (no-filter) view already uses, so when no chip is active this is
+  // served from the same cache entry — no extra network round trip in
+  // the common case.
   const { data: statsReturns } = useReturns();
   const { data: suppliers } = useSuppliers(false, 'name');
   const [formVisible, setFormVisible] = useState(false);
@@ -116,9 +116,19 @@ export function ReturnsScreen() {
       : new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime();
   });
 
-  const totalCount = statsReturns?.length ?? 0;
-  const pendingCount = statsReturns?.filter((r) => r.status === 'pending').length ?? 0;
-  const urgentCount = statsReturns?.filter((r) => r.status === 'urgent').length ?? 0;
+  // Chip counts: "all" excludes archived, same convention fetchReturns
+  // already uses for its default (no-filter) query — archived items are
+  // reachable via their own chip, not folded into the "all" total.
+  const allCount = (statsReturns ?? []).filter((r) => r.status !== 'archived').length;
+  const countByStatus: Record<ReturnStatus, number> = {
+    pending: 0,
+    urgent: 0,
+    returned: 0,
+    archived: 0,
+  };
+  for (const r of statsReturns ?? []) {
+    countByStatus[r.status] += 1;
+  }
 
   const statusLabels: Record<ReturnStatus, string> = {
     pending: t('returns.statusPending'),
@@ -214,48 +224,6 @@ export function ReturnsScreen() {
           </View>
         </View>
 
-        <View style={styles.statsRow}>
-          <View style={styles.statCard}>
-            <Text
-              style={styles.statNumber}
-              numberOfLines={1}
-              adjustsFontSizeToFit
-              minimumFontScale={0.6}
-            >
-              {totalCount}
-            </Text>
-            <Text style={styles.statLabel} numberOfLines={1}>
-              {t('returns.statsTotal')}
-            </Text>
-          </View>
-          <View style={styles.statCard}>
-            <Text
-              style={styles.statNumber}
-              numberOfLines={1}
-              adjustsFontSizeToFit
-              minimumFontScale={0.6}
-            >
-              {pendingCount}
-            </Text>
-            <Text style={styles.statLabel} numberOfLines={1}>
-              {t('returns.statsPending')}
-            </Text>
-          </View>
-          <View style={styles.statCard}>
-            <Text
-              style={styles.statNumber}
-              numberOfLines={1}
-              adjustsFontSizeToFit
-              minimumFontScale={0.6}
-            >
-              {urgentCount}
-            </Text>
-            <Text style={styles.statLabel} numberOfLines={1}>
-              {t('returns.statsUrgent')}
-            </Text>
-          </View>
-        </View>
-
         <View style={styles.searchRow}>
           <Ionicons name="search" size={18} color={theme.colors.textSecondary} />
           <TextInput
@@ -302,6 +270,7 @@ export function ReturnsScreen() {
         >
           <FilterChip
             label={t('returns.statusAll')}
+            count={allCount}
             active={statusFilter === null}
             onPress={() => setStatusFilter(null)}
             theme={theme}
@@ -310,6 +279,7 @@ export function ReturnsScreen() {
             <FilterChip
               key={status}
               label={statusLabels[status]}
+              count={countByStatus[status]}
               dotColor={statusColors[status]}
               active={statusFilter === status}
               onPress={() => setStatusFilter(status)}
@@ -436,12 +406,14 @@ type Theme = ReturnType<typeof useTheme>;
 
 function FilterChip({
   label,
+  count,
   active,
   onPress,
   theme,
   dotColor,
 }: {
   label: string;
+  count: number;
   active: boolean;
   onPress: () => void;
   theme: Theme;
@@ -462,6 +434,9 @@ function FilterChip({
         ) : null}
         {dotColor && !active ? <View style={[styles.dot, { backgroundColor: dotColor }]} /> : null}
         <Text style={active ? styles.chipTextActive : styles.chipText}>{label}</Text>
+        <View style={[styles.countPill, active && styles.countPillActive]}>
+          <Text style={active ? styles.countTextActive : styles.countTextInactive}>{count}</Text>
+        </View>
       </View>
     </Pressable>
   );
@@ -489,6 +464,24 @@ function createChipStyles(theme: Theme) {
     chipTextActive: {
       color: theme.colors.onPrimary,
       fontSize: theme.fontSizes.sm,
+      fontWeight: theme.fontWeights.semiBold,
+    },
+    countPill: {
+      backgroundColor: theme.colors.surfaceVariant,
+      borderRadius: theme.radius.full,
+      paddingHorizontal: 6,
+      minWidth: 20,
+      alignItems: 'center',
+    },
+    countPillActive: { backgroundColor: 'rgba(255,255,255,0.25)' },
+    countTextInactive: {
+      color: theme.colors.textSecondary,
+      fontSize: theme.fontSizes.xs,
+      fontWeight: theme.fontWeights.semiBold,
+    },
+    countTextActive: {
+      color: theme.colors.onPrimary,
+      fontSize: theme.fontSizes.xs,
       fontWeight: theme.fontWeights.semiBold,
     },
   });
@@ -519,34 +512,6 @@ function createStyles(theme: Theme) {
       justifyContent: 'center',
     },
     emptyStateText: { color: theme.colors.textSecondary, textAlign: 'center' },
-    statsRow: {
-      flexDirection: 'row',
-      gap: theme.spacing.sm,
-      marginBottom: theme.spacing.sm,
-    },
-    statCard: {
-      flex: 1,
-      minHeight: 68,
-      backgroundColor: theme.colors.card,
-      borderRadius: theme.radius.md,
-      paddingVertical: theme.spacing.md,
-      paddingHorizontal: theme.spacing.xs,
-      alignItems: 'center',
-      justifyContent: 'center',
-      gap: theme.spacing.xxs,
-    },
-    statNumber: {
-      fontSize: theme.fontSizes.xl,
-      fontWeight: theme.fontWeights.bold,
-      color: theme.colors.textPrimary,
-      textAlign: 'center',
-      width: '100%',
-    },
-    statLabel: {
-      fontSize: theme.fontSizes.xs,
-      color: theme.colors.textSecondary,
-      fontWeight: theme.fontWeights.medium,
-    },
     searchRow: {
       flexDirection: 'row',
       alignItems: 'center',
