@@ -1,9 +1,16 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { View, ScrollView, ActivityIndicator, StyleSheet, Pressable } from 'react-native';
 import { Text } from '@/components/AppText';
 import { useTranslation } from 'react-i18next';
 import { Ionicons } from '@expo/vector-icons';
 import { useRouter } from 'expo-router';
+import Animated, {
+  useAnimatedStyle,
+  useSharedValue,
+  withTiming,
+  withDelay,
+} from 'react-native-reanimated';
+import type { StyleProp, ViewStyle } from 'react-native';
 import { useTheme } from '@/theme/ThemeProvider';
 import { Screen } from '@/components/Screen';
 import { ScreenHeader } from '@/components/ScreenHeader';
@@ -14,11 +21,14 @@ import { EmptyState } from '@/components/EmptyState';
 import { AnimatedNumber } from '@/components/AnimatedNumber';
 import { useReturnStats, type StatsPeriod } from '@/features/statistics/hooks/useReturnStats';
 import { useExportReturns } from '@/features/statistics/hooks/useExportReturns';
+import { useWeeklyActivity } from '@/features/statistics/hooks/useWeeklyActivity';
+import { useLanguageStore } from '@/stores/language.store';
 import { useMembershipStore } from '@/stores/membership.store';
 import type { ReturnStatus, ReturnPriority } from '@/features/returns/services/returns.service';
 
 const PERIODS: StatsPeriod[] = ['today', 'week', 'month', 'all'];
 const STATUSES: ReturnStatus[] = ['pending', 'urgent', 'returned', 'archived'];
+const LOCALE_MAP: Record<string, string> = { ka: 'ka-GE', en: 'en-US', ru: 'ru-RU' };
 
 function periodToSinceIso(period: StatsPeriod): string | null {
   const now = new Date();
@@ -41,9 +51,11 @@ export function StatisticsScreen() {
   const theme = useTheme();
   const { t } = useTranslation();
   const router = useRouter();
+  const language = useLanguageStore((state) => state.language);
   const activeStoreId = useMembershipStore((state) => state.activeStoreId);
   const [period, setPeriod] = useState<StatsPeriod>('week');
   const { data: stats, isLoading } = useReturnStats(period);
+  const { data: weeklyActivity } = useWeeklyActivity();
   const styles = createStyles(theme);
 
   const statusLabels: Record<ReturnStatus, string> = {
@@ -103,6 +115,13 @@ export function StatisticsScreen() {
   const maxStatusValue = stats ? Math.max(...STATUSES.map((s) => stats.byStatus[s]), 1) : 1;
   const maxSupplierValue =
     stats && stats.bySupplier.length > 0 ? Math.max(...stats.bySupplier.map((s) => s.count)) : 1;
+  const maxActivity = Math.max(...(weeklyActivity ?? []).map((p) => p.count), 1);
+
+  const dayLabel = (isoDate: string) => {
+    const d = new Date(`${isoDate}T00:00:00`);
+    const locale = LOCALE_MAP[language] ?? 'en-US';
+    return new Intl.DateTimeFormat(locale, { weekday: 'short' }).format(d);
+  };
 
   return (
     <Screen>
@@ -193,6 +212,34 @@ export function StatisticsScreen() {
               </View>
             ) : null}
 
+            {weeklyActivity ? (
+              <View style={styles.section}>
+                <Text style={styles.sectionTitle}>{t('dashboard.activityTitle')}</Text>
+                <Card>
+                  <View style={styles.chartCard}>
+                    <View style={styles.chartBars}>
+                      {weeklyActivity.map((point, index) => (
+                        <View key={point.date} style={styles.chartBarColumn}>
+                          <View style={styles.chartBarTrack}>
+                            <AnimatedChartBarFill
+                              heightPercent={Math.max(
+                                (point.count / maxActivity) * 100,
+                                point.count > 0 ? 6 : 2,
+                              )}
+                              color={theme.colors.primary}
+                              delay={index * 50}
+                              style={styles.chartBarFill}
+                            />
+                          </View>
+                          <Text style={styles.chartBarLabel}>{dayLabel(point.date)}</Text>
+                        </View>
+                      ))}
+                    </View>
+                  </View>
+                </Card>
+              </View>
+            ) : null}
+
             <View style={styles.section}>
               <Text style={styles.sectionTitle}>{t('statistics.export.title')}</Text>
               <View style={styles.exportRow}>
@@ -238,6 +285,28 @@ export function StatisticsScreen() {
   );
 }
 
+function AnimatedChartBarFill({
+  heightPercent,
+  color,
+  delay,
+  style,
+}: {
+  heightPercent: number;
+  color: string;
+  delay: number;
+  style: StyleProp<ViewStyle>;
+}) {
+  const animatedHeight = useSharedValue(0);
+
+  useEffect(() => {
+    animatedHeight.value = withDelay(delay, withTiming(heightPercent, { duration: 600 }));
+  }, [heightPercent, delay, animatedHeight]);
+
+  const animatedStyle = useAnimatedStyle(() => ({ height: `${animatedHeight.value}%` }));
+
+  return <Animated.View style={[style, { backgroundColor: color }, animatedStyle]} />;
+}
+
 function createStyles(theme: ReturnType<typeof useTheme>) {
   return StyleSheet.create({
     container: { gap: theme.spacing.xl, paddingBottom: theme.spacing['2xl'] },
@@ -263,6 +332,19 @@ function createStyles(theme: ReturnType<typeof useTheme>) {
       color: theme.colors.textSecondary,
     },
     statList: { padding: theme.spacing.lg, gap: theme.spacing.md },
+    chartCard: { padding: theme.spacing.lg },
+    chartBars: { flexDirection: 'row', alignItems: 'flex-end', gap: theme.spacing.sm, height: 100 },
+    chartBarColumn: { flex: 1, alignItems: 'center', gap: theme.spacing.xsPlus, height: '100%' },
+    chartBarTrack: {
+      flex: 1,
+      width: '100%',
+      justifyContent: 'flex-end',
+      backgroundColor: theme.colors.surfaceVariant,
+      borderRadius: theme.radius.sm,
+      overflow: 'hidden',
+    },
+    chartBarFill: { width: '100%', borderRadius: theme.radius.sm },
+    chartBarLabel: { fontSize: theme.fontSizes.xs, color: theme.colors.textSecondary },
     exportRow: { flexDirection: 'row', gap: theme.spacing.md },
     exportButton: {
       flex: 1,

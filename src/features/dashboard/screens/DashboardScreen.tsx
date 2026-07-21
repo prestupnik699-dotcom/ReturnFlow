@@ -13,9 +13,7 @@ import Animated, {
   withRepeat,
   withTiming,
   withSequence,
-  withDelay,
 } from 'react-native-reanimated';
-import type { StyleProp, ViewStyle } from 'react-native';
 import { useTheme } from '@/theme/ThemeProvider';
 import { Screen } from '@/components/Screen';
 import { Card } from '@/components/Card';
@@ -26,13 +24,10 @@ import { useAuthStore } from '@/stores/auth.store';
 import { useLanguageStore } from '@/stores/language.store';
 import { useMembershipStore } from '@/stores/membership.store';
 import { useReturns } from '@/features/returns/hooks/useReturns';
-import { useWeeklyActivity } from '@/features/statistics/hooks/useWeeklyActivity';
 import { usePendingSyncCount } from '@/features/statistics/hooks/usePendingSyncCount';
 import { useUnreadCount } from '@/features/notifications/hooks/useUnreadCount';
 import { ReturnFormSheet } from '@/features/returns/screens/ReturnFormSheet';
 import type { ReturnItem } from '@/features/returns/services/returns.service';
-
-const LOCALE_MAP: Record<string, string> = { ka: 'ka-GE', en: 'en-US', ru: 'ru-RU' };
 
 function isSameDay(a: Date, b: Date): boolean {
   return (
@@ -52,11 +47,9 @@ export function DashboardScreen() {
   const activeStoreId = useMembershipStore((state) => state.activeStoreId);
   const unreadCount = useUnreadCount();
   const [formVisible, setFormVisible] = useState(false);
-  const [activityOpen, setActivityOpen] = useState(false);
   const styles = createStyles(theme);
 
   const { data: allReturns, isLoading } = useReturns();
-  const { data: weeklyActivity } = useWeeklyActivity();
   const { data: pendingSyncCount } = usePendingSyncCount();
 
   const today = new Date();
@@ -79,8 +72,6 @@ export function DashboardScreen() {
     ? `${profile.firstName.charAt(0)}${profile.lastName.charAt(0)}`.toUpperCase()
     : '?';
 
-  const maxActivity = Math.max(...(weeklyActivity ?? []).map((p) => p.count), 1);
-
   const formatRelativeTime = (iso: string) => {
     const diffMs = today.getTime() - new Date(iso).getTime();
     const minutes = Math.floor(diffMs / 60000);
@@ -90,12 +81,6 @@ export function DashboardScreen() {
     if (hours < 24) return t('dashboard.timeHoursAgo', { count: hours });
     const days = Math.floor(hours / 24);
     return t('dashboard.timeDaysAgo', { count: days });
-  };
-
-  const dayLabel = (isoDate: string) => {
-    const d = new Date(`${isoDate}T00:00:00`);
-    const locale = LOCALE_MAP[language] ?? 'en-US';
-    return new Intl.DateTimeFormat(locale, { weekday: 'short' }).format(d);
   };
 
   // No active store yet — this isn't "no returns", it's a setup step the
@@ -256,46 +241,6 @@ export function DashboardScreen() {
               </View>
             ) : null}
 
-            {weeklyActivity ? (
-              <View style={styles.section}>
-                <Pressable
-                  style={styles.sectionHeaderRow}
-                  onPress={() => setActivityOpen((v) => !v)}
-                >
-                  <Text style={styles.sectionTitle}>{t('dashboard.activityTitle')}</Text>
-                  <Ionicons
-                    name={activityOpen ? 'chevron-up' : 'chevron-down'}
-                    size={18}
-                    color={theme.colors.textSecondary}
-                  />
-                </Pressable>
-                {activityOpen ? (
-                  <Card>
-                    <View style={styles.chartCard}>
-                      <View style={styles.chartBars}>
-                        {weeklyActivity.map((point, index) => (
-                          <View key={point.date} style={styles.chartBarColumn}>
-                            <View style={styles.chartBarTrack}>
-                              <AnimatedChartBarFill
-                                heightPercent={Math.max(
-                                  (point.count / maxActivity) * 100,
-                                  point.count > 0 ? 6 : 2,
-                                )}
-                                color={theme.colors.primary}
-                                delay={index * 50}
-                                style={styles.chartBarFill}
-                              />
-                            </View>
-                            <Text style={styles.chartBarLabel}>{dayLabel(point.date)}</Text>
-                          </View>
-                        ))}
-                      </View>
-                    </View>
-                  </Card>
-                ) : null}
-              </View>
-            ) : null}
-
             <View style={styles.section}>
               <View style={styles.sectionHeaderRow}>
                 <Text style={styles.sectionTitle}>{t('dashboard.recentTitle')}</Text>
@@ -409,28 +354,6 @@ function createQuickActionStyles(theme: Theme) {
       textAlign: 'center',
     },
   });
-}
-
-function AnimatedChartBarFill({
-  heightPercent,
-  color,
-  delay,
-  style,
-}: {
-  heightPercent: number;
-  color: string;
-  delay: number;
-  style: StyleProp<ViewStyle>;
-}) {
-  const animatedHeight = useSharedValue(0);
-
-  useEffect(() => {
-    animatedHeight.value = withDelay(delay, withTiming(heightPercent, { duration: 600 }));
-  }, [heightPercent, delay, animatedHeight]);
-
-  const animatedStyle = useAnimatedStyle(() => ({ height: `${animatedHeight.value}%` }));
-
-  return <Animated.View style={[style, { backgroundColor: color }, animatedStyle]} />;
 }
 
 function AttentionCard({
@@ -603,19 +526,6 @@ function createStyles(theme: Theme) {
       color: theme.colors.primary,
       fontWeight: theme.fontWeights.medium,
     },
-    chartCard: { padding: theme.spacing.lg },
-    chartBars: { flexDirection: 'row', alignItems: 'flex-end', gap: theme.spacing.sm, height: 100 },
-    chartBarColumn: { flex: 1, alignItems: 'center', gap: theme.spacing.xsPlus, height: '100%' },
-    chartBarTrack: {
-      flex: 1,
-      width: '100%',
-      justifyContent: 'flex-end',
-      backgroundColor: theme.colors.surfaceVariant,
-      borderRadius: theme.radius.sm,
-      overflow: 'hidden',
-    },
-    chartBarFill: { width: '100%', borderRadius: theme.radius.sm },
-    chartBarLabel: { fontSize: theme.fontSizes.xs, color: theme.colors.textSecondary },
     emptyRecentText: {
       fontSize: theme.fontSizes.sm,
       color: theme.colors.textSecondary,
