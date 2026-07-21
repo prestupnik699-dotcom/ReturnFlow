@@ -1,15 +1,7 @@
 import { useEffect, useRef, useState } from 'react';
-import {
-  View,
-  FlatList,
-  TextInput,
-  Pressable,
-  ActivityIndicator,
-  StyleSheet,
-  Keyboard,
-} from 'react-native';
+import { View, TextInput, Pressable, ActivityIndicator, StyleSheet, Keyboard } from 'react-native';
 import { Text } from '@/components/AppText';
-import { KeyboardStickyView } from 'react-native-keyboard-controller';
+import { KeyboardStickyView, KeyboardChatScrollView } from 'react-native-keyboard-controller';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useTranslation } from 'react-i18next';
 import { useRouter } from 'expo-router';
@@ -18,7 +10,6 @@ import { useTheme } from '@/theme/ThemeProvider';
 import { Screen } from '@/components/Screen';
 import { EmptyState } from '@/components/EmptyState';
 import { ConfirmDialog } from '@/components/ConfirmDialog';
-import { useKeyboardVisible } from '@/hooks/useKeyboardVisible';
 import { useChatRoom } from '@/features/chat/hooks/useChatRoom';
 import { useChatMessages } from '@/features/chat/hooks/useChatMessages';
 import { useSendChatMessage } from '@/features/chat/hooks/useSendChatMessage';
@@ -51,7 +42,6 @@ export function ChatScreen() {
   const theme = useTheme();
   const { t } = useTranslation();
   const router = useRouter();
-  const keyboardVisible = useKeyboardVisible();
   const activeStoreId = useMembershipStore((state) => state.activeStoreId);
   const profile = useAuthStore((state) => state.profile);
   const hasModeratorRole = useHasRole(['Owner', 'Administrator']);
@@ -65,7 +55,7 @@ export function ChatScreen() {
   const [text, setText] = useState('');
   const [pendingDelete, setPendingDelete] = useState<ChatMessage | null>(null);
   const [clearConfirmVisible, setClearConfirmVisible] = useState(false);
-  const listRef = useRef<FlatList<ListItem>>(null);
+  const listRef = useRef<React.ComponentRef<typeof KeyboardChatScrollView>>(null);
   const styles = createStyles(theme);
 
   const messageCount = messages?.length ?? 0;
@@ -75,14 +65,10 @@ export function ChatScreen() {
       setTimeout(() => listRef.current?.scrollToEnd({ animated: true }), 50);
     }
   }, [messageCount]);
-
-  // Keep the latest message visible above the keyboard instead of letting
-  // it hide behind it the moment the keyboard opens.
-  useEffect(() => {
-    if (keyboardVisible) {
-      setTimeout(() => listRef.current?.scrollToEnd({ animated: true }), 50);
-    }
-  }, [keyboardVisible]);
+  // Keeping the last message visible when the keyboard opens is now
+  // handled natively by KeyboardChatScrollView's keyboardLiftBehavior
+  // below, instead of a manual setTimeout guess that could fire before
+  // the keyboard's real height was known.
 
   // Opening the chat is what "reading" a chat notification means here —
   // clears the badge on the Chat entry point the same way opening the
@@ -225,23 +211,24 @@ export function ChatScreen() {
             <ActivityIndicator color={theme.colors.primary} />
           </View>
         ) : (
-          <FlatList
+          <KeyboardChatScrollView
             ref={listRef}
-            data={listItems}
-            keyExtractor={(item) => item.id}
-            renderItem={renderItem}
+            keyboardLiftBehavior="always"
             contentContainerStyle={styles.list}
             showsVerticalScrollIndicator={false}
             keyboardDismissMode="on-drag"
-            ListEmptyComponent={
+            onContentSizeChange={() => listRef.current?.scrollToEnd({ animated: false })}
+          >
+            {listItems.length === 0 ? (
               <EmptyState
                 icon="chatbubbles-outline"
                 title={t('chat.empty')}
                 message={t('chat.emptyMessage')}
               />
-            }
-            onContentSizeChange={() => listRef.current?.scrollToEnd({ animated: false })}
-          />
+            ) : (
+              listItems.map((item) => <View key={item.id}>{renderItem({ item })}</View>)
+            )}
+          </KeyboardChatScrollView>
         )}
 
         {sendMutation.isError ? (
