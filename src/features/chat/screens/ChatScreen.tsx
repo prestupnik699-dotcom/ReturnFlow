@@ -10,7 +10,7 @@ import {
 } from 'react-native';
 import { Text } from '@/components/AppText';
 import { KeyboardStickyView } from 'react-native-keyboard-controller';
-import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import { SafeAreaView } from 'react-native-safe-area-context';
 import { useTranslation } from 'react-i18next';
 import { useRouter } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
@@ -52,7 +52,6 @@ export function ChatScreen() {
   const { t } = useTranslation();
   const router = useRouter();
   const keyboardVisible = useKeyboardVisible();
-  const insets = useSafeAreaInsets();
   const activeStoreId = useMembershipStore((state) => state.activeStoreId);
   const profile = useAuthStore((state) => state.profile);
   const hasModeratorRole = useHasRole(['Owner', 'Administrator']);
@@ -191,7 +190,7 @@ export function ChatScreen() {
   };
 
   return (
-    <Screen>
+    <SafeAreaView style={styles.safeArea} edges={['top', 'left', 'right', 'bottom']}>
       <View style={styles.flex}>
         <View style={styles.header}>
           <Pressable onPress={() => router.back()} hitSlop={12} style={styles.backButton}>
@@ -250,9 +249,7 @@ export function ChatScreen() {
         ) : null}
 
         <KeyboardStickyView offset={{ closed: 0, opened: 0 }}>
-          <View
-            style={[styles.inputRow, { paddingBottom: keyboardVisible ? 40 : insets.bottom + 40 }]}
-          >
+          <View style={[styles.inputRow, { paddingBottom: theme.spacing.sm }]}>
             <TextInput
               style={styles.input}
               placeholder={t('chat.placeholder')}
@@ -299,13 +296,14 @@ export function ChatScreen() {
         onConfirm={confirmClearChat}
         onCancel={() => setClearConfirmVisible(false)}
       />
-    </Screen>
+    </SafeAreaView>
   );
 }
 
 function createStyles(theme: ReturnType<typeof useTheme>) {
   return StyleSheet.create({
-    flex: { flex: 1 },
+    safeArea: { flex: 1, backgroundColor: theme.colors.background },
+    flex: { flex: 1, paddingHorizontal: theme.spacing.xl, paddingTop: theme.spacing.lg },
     center: { flex: 1, justifyContent: 'center', alignItems: 'center' },
     noStoreText: { color: theme.colors.textSecondary, textAlign: 'center' },
     header: {
