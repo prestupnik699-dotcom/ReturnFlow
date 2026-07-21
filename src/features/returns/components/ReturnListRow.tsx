@@ -243,9 +243,18 @@ export function ReturnListRow({
               />
             ) : null}
             <View style={styles.info}>
-              <Text style={styles.itemTitle} numberOfLines={1}>
-                {item.title}
-              </Text>
+              <View style={styles.titleRow}>
+                <Text style={styles.itemTitle} numberOfLines={1}>
+                  {item.title}
+                </Text>
+                {item.isExchange ? (
+                  <View style={styles.exchangeBadge}>
+                    <Text style={styles.exchangeBadgeText} numberOfLines={1}>
+                      {t('returns.create.exchangeLabel')}
+                    </Text>
+                  </View>
+                ) : null}
+              </View>
               <Text style={styles.meta} numberOfLines={1}>
                 {item.supplierName} · ×{item.quantity}
               </Text>
@@ -310,10 +319,23 @@ function createStyles(theme: Theme) {
     container: { padding: theme.spacing.lg, gap: theme.spacing.sm },
     topRow: { flexDirection: 'row', alignItems: 'center', gap: theme.spacing.md },
     info: { flex: 1, gap: 4 },
+    titleRow: { flexDirection: 'row', alignItems: 'center', gap: theme.spacing.xs },
     itemTitle: {
+      flexShrink: 1,
       fontSize: theme.fontSizes.md,
       fontWeight: theme.fontWeights.semiBold,
       color: theme.colors.textPrimary,
+    },
+    exchangeBadge: {
+      backgroundColor: theme.colors.primary + '22',
+      borderRadius: theme.radius.sm,
+      paddingHorizontal: theme.spacing.sm,
+      paddingVertical: 2,
+    },
+    exchangeBadgeText: {
+      fontSize: theme.fontSizes.xs,
+      fontWeight: theme.fontWeights.semiBold,
+      color: theme.colors.primary,
     },
     meta: { fontSize: theme.fontSizes.sm, color: theme.colors.textSecondary },
     barcodeRow: { flexDirection: 'row', alignItems: 'center', gap: 4 },
