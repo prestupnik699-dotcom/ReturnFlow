@@ -1,9 +1,9 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { View, ScrollView, ActivityIndicator, Pressable, StyleSheet } from 'react-native';
 import { PressableScale } from '@/components/PressableScale';
 import { Text } from '@/components/AppText';
 import { useTranslation } from 'react-i18next';
-import { useRouter } from 'expo-router';
+import { useRouter, useFocusEffect } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
 import { LinearGradient } from 'expo-linear-gradient';
 import Animated, {
@@ -41,21 +41,32 @@ function isSameDay(a: Date, b: Date): boolean {
 // A few quick left-right rotations on mount, settling back to rest — reads
 // as a single friendly wave rather than a continuous idle animation that
 // would keep distracting the eye every time this screen is revisited.
-function WavingHand({ size, color }: { size: number; color: string }) {
+function WavingHand({
+  size,
+  color,
+  replayKey,
+}: {
+  size: number;
+  color: string;
+  replayKey: number;
+}) {
   const rotate = useSharedValue(0);
 
   useEffect(() => {
+    rotate.value = 0;
     rotate.value = withDelay(
-      400,
+      300,
       withSequence(
-        withTiming(22, { duration: 150 }),
-        withTiming(-14, { duration: 150 }),
-        withTiming(18, { duration: 150 }),
-        withTiming(-10, { duration: 150 }),
-        withTiming(0, { duration: 150 }),
+        withTiming(32, { duration: 220 }),
+        withTiming(-22, { duration: 220 }),
+        withTiming(28, { duration: 220 }),
+        withTiming(-18, { duration: 220 }),
+        withTiming(14, { duration: 180 }),
+        withTiming(0, { duration: 180 }),
       ),
     );
-  }, [rotate]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- intentional: replayKey is the only thing that should re-trigger this
+  }, [replayKey]);
 
   const animatedStyle = useAnimatedStyle(() => ({
     transform: [{ rotate: `${rotate.value}deg` }],
@@ -78,7 +89,14 @@ export function DashboardScreen() {
   const activeStoreId = useMembershipStore((state) => state.activeStoreId);
   const unreadCount = useUnreadCount();
   const [formVisible, setFormVisible] = useState(false);
+  const [greetingReplayKey, setGreetingReplayKey] = useState(0);
   const styles = createStyles(theme);
+
+  useFocusEffect(
+    useCallback(() => {
+      setGreetingReplayKey((k) => k + 1);
+    }, []),
+  );
 
   const { data: allReturns, isLoading } = useReturns();
   const { data: pendingSyncCount } = usePendingSyncCount();
@@ -173,18 +191,23 @@ export function DashboardScreen() {
           </View>
         </View>
 
-        <Animated.View entering={FadeInDown.duration(450).springify()}>
+        <Animated.View
+          key={`greeting-${greetingReplayKey}`}
+          entering={FadeInDown.duration(550).springify().damping(11)}
+        >
           <Text
             style={styles.greeting}
             numberOfLines={language === 'ka' ? 1 : undefined}
             adjustsFontSizeToFit={language === 'ka'}
             minimumFontScale={0.75}
           >
-            {greeting} <WavingHand size={26} color={theme.colors.textPrimary} />
+            {greeting}{' '}
+            <WavingHand size={26} color={theme.colors.textPrimary} replayKey={greetingReplayKey} />
           </Text>
         </Animated.View>
         <Animated.Text
-          entering={FadeInDown.delay(120).duration(450).springify()}
+          key={`subtitle-${greetingReplayKey}`}
+          entering={FadeInDown.delay(150).duration(550).springify().damping(11)}
           style={styles.subtitle}
         >
           {t('dashboard.subtitle')}
@@ -358,10 +381,9 @@ function createQuickActionStyles(theme: Theme) {
   return StyleSheet.create({
     tile: {
       flex: 1,
-      minHeight: 108,
+      height: 108,
       backgroundColor: theme.colors.card,
       borderRadius: theme.radius.md,
-      paddingVertical: theme.spacing.md,
       paddingHorizontal: 4,
       alignItems: 'center',
       justifyContent: 'center',
@@ -370,6 +392,7 @@ function createQuickActionStyles(theme: Theme) {
     tileIconWrap: {
       width: 44,
       height: 44,
+      marginTop: -2,
       borderRadius: theme.radius.full,
       backgroundColor: theme.colors.primary + '15',
       alignItems: 'center',
