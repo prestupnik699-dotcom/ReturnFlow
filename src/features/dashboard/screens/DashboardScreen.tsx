@@ -4,7 +4,7 @@ import { PressableScale } from '@/components/PressableScale';
 import { Text } from '@/components/AppText';
 import { useTranslation } from 'react-i18next';
 import { useRouter, useFocusEffect } from 'expo-router';
-import { Ionicons } from '@expo/vector-icons';
+import { Feather, Ionicons } from '@expo/vector-icons';
 import { LinearGradient } from 'expo-linear-gradient';
 import Animated, {
   FadeInDown,
@@ -38,9 +38,13 @@ function isSameDay(a: Date, b: Date): boolean {
   );
 }
 
-// A few quick left-right rotations on mount, settling back to rest — reads
-// as a single friendly wave rather than a continuous idle animation that
-// would keep distracting the eye every time this screen is revisited.
+// A handful of pronounced left-right rotations, replayed every time this
+// screen regains focus (not just once per app session — tab screens in
+// Expo Router stay mounted after the first visit, so a plain "entering"
+// animation would otherwise never play again after leaving and coming
+// back to this tab). Ionicons is kept here deliberately — Feather has no
+// hand/wave glyph, so this is the one intentional exception to the
+// Feather-icon switch across the rest of this screen.
 function WavingHand({
   size,
   color,
@@ -141,7 +145,7 @@ export function DashboardScreen() {
       <Screen>
         <View style={styles.emptyWrap}>
           <EmptyState
-            icon="storefront-outline"
+            icon="shopping-bag"
             title={t('dashboard.noStoreTitle')}
             message={t('dashboard.noStoreMessage')}
             actionLabel={t('dashboard.noStoreButton')}
@@ -178,7 +182,7 @@ export function DashboardScreen() {
               onPress={() => router.push('/notifications')}
               hitSlop={8}
             >
-              <Ionicons name="notifications-outline" size={20} color={theme.colors.primary} />
+              <Feather name="bell" size={20} color={theme.colors.primary} />
               {unreadCount > 0 ? <View style={styles.headerBadge} /> : null}
             </Pressable>
             <Pressable
@@ -186,7 +190,7 @@ export function DashboardScreen() {
               onPress={() => router.push('/profile-settings')}
               hitSlop={8}
             >
-              <Ionicons name="settings-outline" size={20} color={theme.colors.primary} />
+              <Feather name="settings" size={20} color={theme.colors.primary} />
             </Pressable>
           </View>
         </View>
@@ -216,7 +220,7 @@ export function DashboardScreen() {
         {totalCount === 0 ? (
           <View style={styles.emptyWrap}>
             <EmptyState
-              icon="repeat-outline"
+              icon="repeat"
               title={t('dashboard.emptyTitle')}
               actionLabel={t('returns.addButton')}
               onAction={() => setFormVisible(true)}
@@ -231,12 +235,12 @@ export function DashboardScreen() {
                 end={{ x: 1, y: 1 }}
                 style={styles.bentoHero}
               >
-                <Ionicons name="repeat" size={22} color={theme.colors.onPrimary} />
+                <Feather name="repeat" size={22} color={theme.colors.onPrimary} />
                 <AnimatedNumber value={totalCount} style={styles.bentoHeroValue} />
                 <Text style={styles.bentoHeroLabel}>{t('dashboard.overviewTotal')}</Text>
               </LinearGradient>
               <View style={styles.bentoSide}>
-                <Ionicons name="today-outline" size={18} color={theme.colors.accent} />
+                <Feather name="calendar" size={18} color={theme.colors.accent} />
                 <AnimatedNumber value={todayCount} style={styles.bentoSideValue} />
                 <Text style={styles.bentoSideLabel}>{t('dashboard.overviewToday')}</Text>
               </View>
@@ -244,19 +248,19 @@ export function DashboardScreen() {
 
             <View style={styles.quickActionsRow}>
               <QuickAction
-                icon="add-circle-outline"
+                icon="plus-circle"
                 label={t('dashboard.actionCreateReturn')}
                 onPress={() => setFormVisible(true)}
                 theme={theme}
               />
               <QuickAction
-                icon="scan-outline"
+                icon="maximize"
                 label={t('dashboard.actionScanner')}
                 onPress={() => router.push('/scanner')}
                 theme={theme}
               />
               <QuickAction
-                icon="bar-chart-outline"
+                icon="bar-chart-2"
                 label={t('dashboard.actionStatistics')}
                 onPress={() => router.push('/statistics')}
                 theme={theme}
@@ -280,7 +284,7 @@ export function DashboardScreen() {
                 ) : null}
                 {todayCount > 0 ? (
                   <AttentionCard
-                    icon="today"
+                    icon="calendar"
                     color={theme.colors.accent}
                     text={t('dashboard.attentionToday', { count: todayCount })}
                     onPress={() =>
@@ -291,7 +295,7 @@ export function DashboardScreen() {
                 ) : null}
                 {(pendingSyncCount ?? 0) > 0 ? (
                   <AttentionCard
-                    icon="cloud-upload"
+                    icon="upload-cloud"
                     color={theme.colors.warning}
                     text={t('dashboard.attentionPendingSync', { count: pendingSyncCount })}
                     onPress={() => router.push('/returns')}
@@ -320,11 +324,7 @@ export function DashboardScreen() {
                       <Card>
                         <View style={styles.recentRow}>
                           <View style={styles.recentIconWrap}>
-                            <Ionicons
-                              name="repeat-outline"
-                              size={16}
-                              color={theme.colors.primary}
-                            />
+                            <Feather name="repeat" size={16} color={theme.colors.primary} />
                           </View>
                           <View style={styles.recentInfo}>
                             <Text style={styles.recentTitle}>{t('dashboard.returnCreated')}</Text>
@@ -359,7 +359,7 @@ function QuickAction({
   onPress,
   theme,
 }: {
-  icon: keyof typeof Ionicons.glyphMap;
+  icon: keyof typeof Feather.glyphMap;
   label: string;
   onPress: () => void;
   theme: Theme;
@@ -368,7 +368,7 @@ function QuickAction({
   return (
     <Pressable style={styles.tile} onPress={onPress}>
       <View style={styles.tileIconWrap}>
-        <Ionicons name={icon} size={22} color={theme.colors.primary} />
+        <Feather name={icon} size={22} color={theme.colors.primary} />
       </View>
       <Text style={styles.tileLabel} numberOfLines={2}>
         {label}
@@ -423,7 +423,7 @@ function AttentionCard({
   theme,
   pulse,
 }: {
-  icon: keyof typeof Ionicons.glyphMap;
+  icon: keyof typeof Feather.glyphMap;
   color: string;
   text: string;
   onPress: () => void;
@@ -451,10 +451,10 @@ function AttentionCard({
       <Card>
         <View style={styles.row}>
           <Animated.View style={[styles.iconWrap, { backgroundColor: color + '1F' }, pulseStyle]}>
-            <Ionicons name={icon} size={18} color={color} />
+            <Feather name={icon} size={18} color={color} />
           </Animated.View>
           <Text style={styles.text}>{text}</Text>
-          <Ionicons name="chevron-forward" size={18} color={theme.colors.textSecondary} />
+          <Feather name="chevron-right" size={18} color={theme.colors.textSecondary} />
         </View>
       </Card>
     </PressableScale>

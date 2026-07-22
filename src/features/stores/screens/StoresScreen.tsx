@@ -182,7 +182,7 @@ export function StoresScreen() {
             ListEmptyComponent={
               <View style={styles.emptyWrap}>
                 <EmptyState
-                  icon="storefront-outline"
+                  icon="shopping-bag"
                   title={t('stores.empty')}
                   message={t('stores.emptyMessage')}
                 />

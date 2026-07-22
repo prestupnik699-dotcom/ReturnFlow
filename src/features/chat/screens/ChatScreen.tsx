@@ -221,7 +221,7 @@ export function ChatScreen() {
           >
             {listItems.length === 0 ? (
               <EmptyState
-                icon="chatbubbles-outline"
+                icon="message-circle"
                 title={t('chat.empty')}
                 message={t('chat.emptyMessage')}
               />

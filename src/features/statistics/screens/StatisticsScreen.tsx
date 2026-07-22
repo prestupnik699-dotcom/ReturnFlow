@@ -145,7 +145,7 @@ export function StatisticsScreen() {
           </View>
         ) : !stats || stats.totalCount === 0 ? (
           <EmptyState
-            icon="bar-chart-outline"
+            icon="bar-chart-2"
             title={t('statistics.noData')}
             message={t('statistics.noDataMessage')}
           />

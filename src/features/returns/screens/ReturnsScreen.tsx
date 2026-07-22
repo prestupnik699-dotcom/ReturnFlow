@@ -319,7 +319,7 @@ export function ReturnsScreen() {
             ListEmptyComponent={
               <View style={styles.emptyWrap}>
                 <EmptyState
-                  icon="repeat-outline"
+                  icon="repeat"
                   title={t('returns.empty')}
                   message={t('returns.emptyMessage')}
                 />

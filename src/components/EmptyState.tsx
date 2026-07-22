@@ -1,11 +1,11 @@
 import { View, Text, StyleSheet } from 'react-native';
-import { Ionicons } from '@expo/vector-icons';
+import { Feather } from '@expo/vector-icons';
 import Animated, { FadeInDown, ZoomIn } from 'react-native-reanimated';
 import { useTheme } from '@/theme/ThemeProvider';
 import { Button } from '@/components/Button';
 
 type Props = {
-  icon: keyof typeof Ionicons.glyphMap;
+  icon: keyof typeof Feather.glyphMap;
   title: string;
   message?: string;
   actionLabel?: string;
@@ -19,7 +19,7 @@ export function EmptyState({ icon, title, message, actionLabel, onAction }: Prop
   return (
     <View style={styles.container}>
       <Animated.View entering={ZoomIn.duration(400).springify()} style={styles.iconWrap}>
-        <Ionicons name={icon} size={28} color={theme.colors.primary} />
+        <Feather name={icon} size={28} color={theme.colors.primary} />
       </Animated.View>
       <Animated.View entering={FadeInDown.delay(100).duration(350)} style={styles.textWrap}>
         <Text style={styles.title}>{title}</Text>
@@ -27,7 +27,7 @@ export function EmptyState({ icon, title, message, actionLabel, onAction }: Prop
       </Animated.View>
       {actionLabel && onAction ? (
         <Animated.View entering={FadeInDown.delay(200).duration(350)}>
-          <Button label={actionLabel} icon="add" onPress={onAction} style={styles.actionButton} />
+          <Button label={actionLabel} icon="plus" onPress={onAction} style={styles.actionButton} />
         </Animated.View>
       ) : null}
     </View>

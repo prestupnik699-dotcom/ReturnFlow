@@ -172,7 +172,7 @@ export function NotificationsScreen() {
             contentContainerStyle={[styles.list, { paddingBottom: tabBarClearance }]}
             ListEmptyComponent={
               <EmptyState
-                icon="notifications-outline"
+                icon="bell"
                 title={t('notifications.emptyTitle')}
                 message={t('notifications.emptyMessage')}
               />

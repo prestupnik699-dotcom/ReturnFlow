@@ -165,7 +165,7 @@ export function SuppliersScreen() {
             ListEmptyComponent={
               <View style={styles.emptyWrap}>
                 <EmptyState
-                  icon="cube-outline"
+                  icon="box"
                   title={t('suppliers.empty')}
                   message={t('suppliers.emptyMessage')}
                 />

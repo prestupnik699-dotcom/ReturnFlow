@@ -73,7 +73,7 @@ export function DeliveriesScreen() {
             ListEmptyComponent={
               <View style={styles.emptyWrap}>
                 <EmptyState
-                  icon="download-outline"
+                  icon="download"
                   title={t('deliveries.empty')}
                   message={t('deliveries.emptyMessage')}
                 />
