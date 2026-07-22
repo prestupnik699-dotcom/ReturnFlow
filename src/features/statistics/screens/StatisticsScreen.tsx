@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import { View, ScrollView, ActivityIndicator, StyleSheet, Pressable } from 'react-native';
 import { Text } from '@/components/AppText';
 import { useTranslation } from 'react-i18next';
-import { Ionicons } from '@expo/vector-icons';
+import { Feather } from '@expo/vector-icons';
 import { useRouter } from 'expo-router';
 import Animated, {
   useAnimatedStyle,
@@ -251,7 +251,7 @@ export function StatisticsScreen() {
                   {isExporting === 'csv' ? (
                     <ActivityIndicator size="small" color={theme.colors.primary} />
                   ) : (
-                    <Ionicons name="grid-outline" size={18} color={theme.colors.primary} />
+                    <Feather name="grid" size={18} color={theme.colors.primary} />
                   )}
                   <Text style={styles.exportButtonText}>{t('statistics.export.csv')}</Text>
                 </Pressable>
@@ -263,7 +263,7 @@ export function StatisticsScreen() {
                   {isExporting === 'pdf' ? (
                     <ActivityIndicator size="small" color={theme.colors.primary} />
                   ) : (
-                    <Ionicons name="document-text-outline" size={18} color={theme.colors.primary} />
+                    <Feather name="file-text" size={18} color={theme.colors.primary} />
                   )}
                   <Text style={styles.exportButtonText}>{t('statistics.export.pdf')}</Text>
                 </Pressable>

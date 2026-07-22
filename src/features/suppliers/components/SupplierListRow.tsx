@@ -1,11 +1,19 @@
-import { useRef } from 'react';
+import { useRef, useEffect } from 'react';
 import { View, Pressable, StyleSheet, Linking } from 'react-native';
 import { Text } from '@/components/AppText';
 import ReanimatedSwipeable, {
   type SwipeableMethods,
 } from 'react-native-gesture-handler/ReanimatedSwipeable';
-import { useAnimatedReaction, runOnJS, type SharedValue } from 'react-native-reanimated';
-import { Ionicons } from '@expo/vector-icons';
+import Animated, {
+  useAnimatedReaction,
+  useAnimatedStyle,
+  useSharedValue,
+  runOnJS,
+  withSequence,
+  withTiming,
+  type SharedValue,
+} from 'react-native-reanimated';
+import { Feather } from '@expo/vector-icons';
 import { useTranslation } from 'react-i18next';
 import { useTheme } from '@/theme/ThemeProvider';
 import { Card } from '@/components/Card';
@@ -48,7 +56,7 @@ function DeleteActionPanel({
   return (
     <View style={styles.actionContainer}>
       <Pressable style={styles.actionButton} onPress={onTriggered}>
-        <Ionicons name="trash-outline" size={20} color="#fff" />
+        <Feather name="trash-2" size={20} color="#fff" />
         <Text style={styles.actionLabel} numberOfLines={2}>
           {label}
         </Text>
@@ -79,6 +87,47 @@ function createPanelStyles(theme: Theme) {
       fontWeight: theme.fontWeights.semiBold,
       textAlign: 'center',
     },
+  });
+}
+
+// Feather icons are all single-weight outline glyphs — there is no
+// separate "filled star" variant the way Ionicons had star/star-outline.
+// A colored pill behind the star stands in for that fill, with a small
+// pop animation on toggle so the state change still reads clearly.
+function FavoriteStar({ favorite, theme }: { favorite: boolean; theme: Theme }) {
+  const scale = useSharedValue(1);
+  const styles = createFavoriteStyles(theme);
+
+  useEffect(() => {
+    scale.value = withSequence(
+      withTiming(1.25, { duration: 110 }),
+      withTiming(1, { duration: 160 }),
+    );
+  }, [favorite, scale]);
+
+  const animatedStyle = useAnimatedStyle(() => ({ transform: [{ scale: scale.value }] }));
+
+  return (
+    <Animated.View style={[styles.wrap, favorite && styles.wrapActive, animatedStyle]}>
+      <Feather
+        name="star"
+        size={16}
+        color={favorite ? theme.colors.onPrimary : theme.colors.textSecondary}
+      />
+    </Animated.View>
+  );
+}
+
+function createFavoriteStyles(theme: Theme) {
+  return StyleSheet.create({
+    wrap: {
+      width: 30,
+      height: 30,
+      borderRadius: theme.radius.full,
+      alignItems: 'center',
+      justifyContent: 'center',
+    },
+    wrapActive: { backgroundColor: theme.colors.warning },
   });
 }
 
@@ -138,11 +187,7 @@ export function SupplierListRow({
           </PressableScale>
 
           <Pressable onPress={handleToggleFavorite} hitSlop={8}>
-            <Ionicons
-              name={supplier.favorite ? 'star' : 'star-outline'}
-              size={20}
-              color={supplier.favorite ? theme.colors.warning : theme.colors.textSecondary}
-            />
+            <FavoriteStar favorite={supplier.favorite} theme={theme} />
           </Pressable>
         </View>
 
@@ -160,7 +205,7 @@ export function SupplierListRow({
 
           <View style={styles.statsRow}>
             <View style={styles.statBadge}>
-              <Ionicons name="repeat-outline" size={13} color={theme.colors.textSecondary} />
+              <Feather name="repeat" size={13} color={theme.colors.textSecondary} />
               <Text style={styles.statText}>
                 {t('suppliers.returnsCount', { count: returnsTotal })}
               </Text>
@@ -169,7 +214,7 @@ export function SupplierListRow({
 
           <View style={styles.statsRow}>
             <View style={styles.statBadge}>
-              <Ionicons name="download-outline" size={13} color={theme.colors.textSecondary} />
+              <Feather name="download" size={13} color={theme.colors.textSecondary} />
               <Text style={styles.statText}>
                 {t('suppliers.deliveriesCount', { count: deliveriesTotal })}
               </Text>
@@ -185,8 +230,8 @@ export function SupplierListRow({
                       : styles.reliabilityBadgeGood,
                 ]}
               >
-                <Ionicons
-                  name="analytics-outline"
+                <Feather
+                  name="trending-up"
                   size={12}
                   color={
                     reliability.defectRatePercent > 15

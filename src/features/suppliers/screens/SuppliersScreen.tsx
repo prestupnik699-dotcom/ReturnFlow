@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { View, FlatList, StyleSheet, Pressable, TextInput, ScrollView } from 'react-native';
 import { Text } from '@/components/AppText';
 import { useTranslation } from 'react-i18next';
-import { Ionicons } from '@expo/vector-icons';
+import { Feather } from '@expo/vector-icons';
 import { LinearGradient } from 'expo-linear-gradient';
 import Animated, { FadeInDown } from 'react-native-reanimated';
 import { useTabBarClearance } from '@/hooks/useTabBarClearance';
@@ -89,7 +89,7 @@ export function SuppliersScreen() {
             onPress={() => setSort((s) => (s === 'name' ? 'recent' : 'name'))}
             hitSlop={8}
           >
-            <Ionicons name="swap-vertical" size={18} color={theme.colors.primary} />
+            <Feather name="chevrons-down" size={18} color={theme.colors.primary} />
           </Pressable>
         </View>
 
@@ -100,20 +100,20 @@ export function SuppliersScreen() {
           style={styles.summaryCard}
         >
           <View style={styles.summaryStat}>
-            <Ionicons name="cube-outline" size={18} color={theme.colors.accent} />
+            <Feather name="box" size={18} color={theme.colors.accent} />
             <Text style={styles.summaryValue}>{allSuppliers?.length ?? 0}</Text>
             <Text style={styles.summaryLabel}>{t('suppliers.summarySuppliers')}</Text>
           </View>
           <View style={styles.summaryDivider} />
           <View style={styles.summaryStat}>
-            <Ionicons name="repeat-outline" size={18} color={theme.colors.accent} />
+            <Feather name="repeat" size={18} color={theme.colors.accent} />
             <Text style={styles.summaryValue}>{totalReturns}</Text>
             <Text style={styles.summaryLabel}>{t('suppliers.summaryReturns')}</Text>
           </View>
         </LinearGradient>
 
         <View style={styles.searchRow}>
-          <Ionicons name="search" size={18} color={theme.colors.textSecondary} />
+          <Feather name="search" size={18} color={theme.colors.textSecondary} />
           <TextInput
             style={styles.searchInput}
             placeholder={t('suppliers.searchPlaceholder')}
