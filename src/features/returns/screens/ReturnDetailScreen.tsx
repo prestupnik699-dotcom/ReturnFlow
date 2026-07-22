@@ -10,7 +10,7 @@ import {
 import { useRouter } from 'expo-router';
 import { Text } from '@/components/AppText';
 import { useTranslation } from 'react-i18next';
-import { Ionicons } from '@expo/vector-icons';
+import { Feather, Ionicons } from '@expo/vector-icons';
 import { useTheme } from '@/theme/ThemeProvider';
 import { Screen } from '@/components/Screen';
 import { ScreenHeader } from '@/components/ScreenHeader';
@@ -156,7 +156,7 @@ export function ReturnDetailScreen({ returnId }: Props) {
       <ScrollView contentContainerStyle={styles.container} showsVerticalScrollIndicator={false}>
         <ScreenHeader
           title={item.title}
-          rightIcon={canEdit ? 'create-outline' : undefined}
+          rightIcon={canEdit ? 'edit-2' : undefined}
           onRightPress={canEdit ? () => setEditVisible(true) : undefined}
         />
 
@@ -252,7 +252,7 @@ export function ReturnDetailScreen({ returnId }: Props) {
             <Text style={styles.sectionTitle}>
               {t('returns.detail.historyTitle')} ({history?.length ?? 0})
             </Text>
-            <Ionicons
+            <Feather
               name={historyOpen ? 'chevron-up' : 'chevron-down'}
               size={18}
               color={theme.colors.textSecondary}

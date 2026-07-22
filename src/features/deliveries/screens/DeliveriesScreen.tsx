@@ -3,7 +3,7 @@ import { View, FlatList, TextInput, ActivityIndicator, StyleSheet } from 'react-
 import { Text } from '@/components/AppText';
 import { useTranslation } from 'react-i18next';
 import { useRouter } from 'expo-router';
-import { Ionicons } from '@expo/vector-icons';
+import { Feather, Ionicons } from '@expo/vector-icons';
 import Animated, { FadeInDown } from 'react-native-reanimated';
 import { useTheme } from '@/theme/ThemeProvider';
 import { Screen } from '@/components/Screen';
@@ -43,7 +43,7 @@ export function DeliveriesScreen() {
         <ScreenHeader title={t('deliveries.title')} onBack={() => router.back()} />
 
         <View style={styles.searchRow}>
-          <Ionicons name="search" size={18} color={theme.colors.textSecondary} />
+          <Feather name="search" size={18} color={theme.colors.textSecondary} />
           <TextInput
             style={styles.searchInput}
             placeholder={t('suppliers.searchPlaceholder')}
@@ -84,7 +84,7 @@ export function DeliveriesScreen() {
                 <Card>
                   <View style={styles.row}>
                     <View style={styles.iconWrap}>
-                      <Ionicons name="download-outline" size={18} color={theme.colors.primary} />
+                      <Feather name="download" size={18} color={theme.colors.primary} />
                     </View>
                     <View style={styles.info}>
                       <Text style={styles.title} numberOfLines={1}>
