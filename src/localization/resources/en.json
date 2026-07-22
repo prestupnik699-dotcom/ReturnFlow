@@ -353,7 +353,14 @@
     "openSettings": "Open settings",
     "instructions": "Point the camera at a barcode",
     "lookingUp": "Looking up product...",
-    "instantAdded": "Added automatically"
+    "instantAdded": "Added automatically",
+    "batchModeToggle": "Batch",
+    "batchInstructions": "Scan items one after another",
+    "batchQueueCount": "Queued: {{count}} · Review",
+    "batchReviewTitle": "Review before adding",
+    "batchReviewSubtitle": "{{count}} items in the list",
+    "batchConfirmAll": "Confirm all",
+    "batchSubmitting": "Adding..."
   },
   "support": {
     "sectionLabel": "Support",

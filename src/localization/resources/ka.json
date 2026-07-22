@@ -353,7 +353,14 @@
     "openSettings": "პარამეტრების გახსნა",
     "instructions": "მიმართეთ კამერა ბარკოდისკენ",
     "lookingUp": "ეძებს პროდუქტს...",
-    "instantAdded": "დაემატა ავტომატურად"
+    "instantAdded": "დაემატა ავტომატურად",
+    "batchModeToggle": "პაკეტურად",
+    "batchInstructions": "დაასკანერეთ ნივთები ერთმანეთის მიყოლებით",
+    "batchQueueCount": "რიგში: {{count}} · გადამოწმება",
+    "batchReviewTitle": "გადამოწმება დამატებამდე",
+    "batchReviewSubtitle": "სიაში {{count}} ნივთი",
+    "batchConfirmAll": "ყველას დადასტურება",
+    "batchSubmitting": "მიმდინარეობს დამატება..."
   },
   "support": {
     "sectionLabel": "მხარდაჭერა",

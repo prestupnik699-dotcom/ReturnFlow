@@ -353,7 +353,14 @@
     "openSettings": "Открыть настройки",
     "instructions": "Наведите камеру на штрихкод",
     "lookingUp": "Ищем товар...",
-    "instantAdded": "Добавлено автоматически"
+    "instantAdded": "Добавлено автоматически",
+    "batchModeToggle": "Пакетно",
+    "batchInstructions": "Сканируйте товары один за другим",
+    "batchQueueCount": "В очереди: {{count}} · Проверить",
+    "batchReviewTitle": "Проверка перед добавлением",
+    "batchReviewSubtitle": "Товаров в списке: {{count}}",
+    "batchConfirmAll": "Подтвердить всё",
+    "batchSubmitting": "Добавляем..."
   },
   "support": {
     "sectionLabel": "Поддержка",
