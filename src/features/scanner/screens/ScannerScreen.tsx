@@ -197,7 +197,9 @@ export function ScannerScreen() {
     <Screen>
       <View style={styles.container}>
         <View style={styles.headerRow}>
-          <ScreenHeader title={t('scanner.title')} onBack={() => router.back()} />
+          <View style={styles.headerTitleWrap}>
+            <ScreenHeader title={t('scanner.title')} onBack={() => router.back()} />
+          </View>
           <Pressable
             style={[styles.batchToggle, batchMode && styles.batchToggleActive]}
             onPress={() => setBatchMode((v) => !v)}
@@ -282,16 +284,19 @@ export function ScannerScreen() {
 function createStyles(theme: ReturnType<typeof useTheme>) {
   return StyleSheet.create({
     container: { flex: 1 },
-    headerRow: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' },
+    headerRow: { flexDirection: 'row', alignItems: 'center', gap: theme.spacing.sm },
+    headerTitleWrap: { flex: 1, minWidth: 0 },
     batchToggle: {
       flexDirection: 'row',
       alignItems: 'center',
       gap: 4,
+      flexShrink: 0,
       borderWidth: 1,
       borderColor: theme.colors.primary,
       borderRadius: theme.radius.full,
       paddingHorizontal: theme.spacing.sm,
       paddingVertical: 6,
+      marginBottom: theme.spacing.lg,
     },
     batchToggleActive: { backgroundColor: theme.colors.primary },
     batchToggleText: {
