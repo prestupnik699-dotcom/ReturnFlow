@@ -296,7 +296,9 @@
       "modeReturn": "Return",
       "modeDelivery": "Receiving",
       "scanAdded": "Added: {{title}}"
-    }
+    },
+    "selectAll": "Select all",
+    "deselectAll": "Deselect all"
   },
   "chat": {
     "title": "Chat",

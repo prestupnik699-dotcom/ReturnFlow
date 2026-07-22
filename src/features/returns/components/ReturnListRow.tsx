@@ -1,4 +1,4 @@
-import { useEffect, useRef } from 'react';
+import { useEffect, useRef, memo } from 'react';
 import { View, Pressable, StyleSheet } from 'react-native';
 import { PressableScale } from '@/components/PressableScale';
 import { Text } from '@/components/AppText';
@@ -153,7 +153,7 @@ type Props = {
   selected: boolean;
 };
 
-export function ReturnListRow({
+export const ReturnListRow = memo(function ReturnListRow({
   item,
   statusLabels,
   statusColors,
@@ -310,7 +310,7 @@ export function ReturnListRow({
       {content}
     </ReanimatedSwipeable>
   );
-}
+});
 
 function createStyles(theme: Theme) {
   return StyleSheet.create({

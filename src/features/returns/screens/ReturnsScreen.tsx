@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import { View, FlatList, StyleSheet, Pressable, TextInput, ScrollView } from 'react-native';
 import { Text } from '@/components/AppText';
 import { useTranslation } from 'react-i18next';
@@ -79,6 +79,11 @@ export function ReturnsScreen() {
   // served from the same cache entry — no extra network round trip in
   // the common case.
   const { data: statsReturns } = useReturns();
+  // Archived items are excluded from the no-filter query above by design
+  // (D: keeps the main list free of archive noise), so its count must be
+  // fetched separately with an explicit filter — otherwise the Archive
+  // chip always reads 0 regardless of how many items are actually archived.
+  const { data: archivedReturns } = useReturns(['archived']);
   const { data: suppliers } = useSuppliers(false, 'name');
   const [formVisible, setFormVisible] = useState(false);
   const [batchVisible, setBatchVisible] = useState(false);
@@ -124,25 +129,31 @@ export function ReturnsScreen() {
     pending: 0,
     urgent: 0,
     returned: 0,
-    archived: 0,
+    archived: archivedReturns?.length ?? 0,
   };
   for (const r of statsReturns ?? []) {
     countByStatus[r.status] += 1;
   }
 
-  const statusLabels: Record<ReturnStatus, string> = {
-    pending: t('returns.statusPending'),
-    urgent: t('returns.statusUrgent'),
-    returned: t('returns.statusReturned'),
-    archived: t('returns.statusArchived'),
-  };
+  const statusLabels = useMemo<Record<ReturnStatus, string>>(
+    () => ({
+      pending: t('returns.statusPending'),
+      urgent: t('returns.statusUrgent'),
+      returned: t('returns.statusReturned'),
+      archived: t('returns.statusArchived'),
+    }),
+    [t],
+  );
 
-  const statusColors: Record<ReturnStatus, string> = {
-    pending: theme.colors.textSecondary,
-    urgent: theme.colors.danger,
-    returned: theme.colors.success,
-    archived: theme.colors.textSecondary,
-  };
+  const statusColors = useMemo<Record<ReturnStatus, string>>(
+    () => ({
+      pending: theme.colors.textSecondary,
+      urgent: theme.colors.danger,
+      returned: theme.colors.success,
+      archived: theme.colors.textSecondary,
+    }),
+    [theme],
+  );
 
   const selectedSupplierName = supplierFilter
     ? suppliers?.find((s) => s.id === supplierFilter)?.name
@@ -339,6 +350,20 @@ export function ReturnsScreen() {
               <View style={styles.bulkBarTop}>
                 <Pressable style={styles.cancelButton} onPress={() => setSelectedIds([])}>
                   <Text style={styles.cancelText}>{t('returns.cancelSelection')}</Text>
+                </Pressable>
+                <Pressable
+                  style={styles.selectAllButton}
+                  onPress={() =>
+                    setSelectedIds(
+                      selectedIds.length === sorted.length ? [] : sorted.map((r) => r.id),
+                    )
+                  }
+                >
+                  <Text style={styles.selectAllText}>
+                    {selectedIds.length === sorted.length
+                      ? t('returns.deselectAll')
+                      : t('returns.selectAll')}
+                  </Text>
                 </Pressable>
                 <Text style={styles.countText}>
                   {t('returns.selectedCount', { count: selectedIds.length })}
@@ -573,6 +598,18 @@ function createStyles(theme: Theme) {
     },
     cancelText: {
       color: theme.colors.textPrimary,
+      fontSize: theme.fontSizes.sm,
+      fontWeight: theme.fontWeights.medium,
+    },
+    selectAllButton: {
+      borderWidth: 1,
+      borderColor: theme.colors.primary,
+      borderRadius: theme.radius.full,
+      paddingHorizontal: theme.spacing.md,
+      paddingVertical: 8,
+    },
+    selectAllText: {
+      color: theme.colors.primary,
       fontSize: theme.fontSizes.sm,
       fontWeight: theme.fontWeights.medium,
     },

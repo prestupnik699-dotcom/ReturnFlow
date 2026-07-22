@@ -1,5 +1,6 @@
 import { useState, useRef } from 'react';
 import { View, StyleSheet, ActivityIndicator, Pressable } from 'react-native';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Text } from '@/components/AppText';
 import { CameraView, useCameraPermissions } from 'expo-camera';
 import { useRouter } from 'expo-router';
@@ -31,6 +32,7 @@ export function ScannerScreen() {
   const theme = useTheme();
   const { t } = useTranslation();
   const router = useRouter();
+  const insets = useSafeAreaInsets();
   const [permission, requestPermission] = useCameraPermissions();
   const profile = useAuthStore((state) => state.profile);
   const activeOrganizationId = useMembershipStore((state) => state.activeOrganizationId);
@@ -286,7 +288,10 @@ export function ScannerScreen() {
         </View>
 
         {batchMode && batchQueue.length > 0 ? (
-          <Pressable style={styles.batchBar} onPress={() => setBatchReviewVisible(true)}>
+          <Pressable
+            style={[styles.batchBar, { marginBottom: insets.bottom || theme.spacing.md }]}
+            onPress={() => setBatchReviewVisible(true)}
+          >
             <Ionicons name="list-outline" size={18} color={theme.colors.onPrimary} />
             <Text style={styles.batchBarText}>
               {t('scanner.batchQueueCount', { count: batchQueue.length })}

@@ -296,7 +296,9 @@
       "modeReturn": "დაბრუნება",
       "modeDelivery": "მიღება",
       "scanAdded": "დაემატა: {{title}}"
-    }
+    },
+    "selectAll": "ყველას მონიშვნა",
+    "deselectAll": "მონიშვნის მოხსნა"
   },
   "chat": {
     "title": "ჩატი",

@@ -296,7 +296,9 @@
       "modeReturn": "Возврат",
       "modeDelivery": "Приёмка",
       "scanAdded": "Добавлено: {{title}}"
-    }
+    },
+    "selectAll": "Выбрать всё",
+    "deselectAll": "Снять всё"
   },
   "chat": {
     "title": "Чат",
