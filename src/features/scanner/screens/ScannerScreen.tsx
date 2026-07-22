@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useRef } from 'react';
 import { View, StyleSheet, ActivityIndicator, Pressable } from 'react-native';
 import { Text } from '@/components/AppText';
 import { CameraView, useCameraPermissions } from 'expo-camera';
@@ -9,6 +9,7 @@ import { useTheme } from '@/theme/ThemeProvider';
 import { Screen } from '@/components/Screen';
 import { ScreenHeader } from '@/components/ScreenHeader';
 import { Button } from '@/components/Button';
+import { ConfirmDialog } from '@/components/ConfirmDialog';
 import { ReturnFormSheet } from '@/features/returns/screens/ReturnFormSheet';
 import {
   BatchScanReviewSheet,
@@ -23,6 +24,8 @@ import { useAuthStore } from '@/stores/auth.store';
 import { useMembershipStore } from '@/stores/membership.store';
 import { useQueryClient } from '@tanstack/react-query';
 import { hapticSelection, hapticSuccess } from '@/lib/haptics';
+
+const BATCH_RESCAN_COOLDOWN_MS = 1500;
 
 export function ScannerScreen() {
   const theme = useTheme();
@@ -46,6 +49,14 @@ export function ScannerScreen() {
   const [batchQueue, setBatchQueue] = useState<QueuedScanItem[]>([]);
   const [batchReviewVisible, setBatchReviewVisible] = useState(false);
   const [batchSubmitting, setBatchSubmitting] = useState(false);
+  const [exitConfirmVisible, setExitConfirmVisible] = useState(false);
+  // Guards against the camera firing onBarcodeScanned dozens of times per
+  // second while the same code sits in frame in batch mode (batch mode
+  // never sets isPaused, unlike the single-scan flow, so without this the
+  // queued quantity would rocket up for every millisecond the item is held
+  // in view). Set synchronously, before any await, so near-simultaneous
+  // re-fires for the same code are blocked regardless of async timing.
+  const lastScanRef = useRef<{ barcode: string; time: number } | null>(null);
   const styles = createStyles(theme);
 
   const resumeScanning = () => {
@@ -56,6 +67,17 @@ export function ScannerScreen() {
 
   const handleBarcodeScanned = async ({ data }: { data: string }) => {
     if (isPaused || !activeStoreId || !activeOrganizationId || !profile) return;
+
+    if (batchMode) {
+      const last = lastScanRef.current;
+      if (last && last.barcode === data && Date.now() - last.time < BATCH_RESCAN_COOLDOWN_MS) {
+        return;
+      }
+      // Lock immediately, before the async lookup below, so a
+      // near-simultaneous re-fire for this same code can't slip through
+      // while we're still awaiting getBarcodeShortcut.
+      lastScanRef.current = { barcode: data, time: Date.now() };
+    }
 
     const shortcut = await getBarcodeShortcut(activeStoreId, data);
 
@@ -169,6 +191,20 @@ export function ScannerScreen() {
     setBatchReviewVisible(false);
   };
 
+  const handleBackPress = () => {
+    if (batchQueue.length > 0) {
+      setExitConfirmVisible(true);
+      return;
+    }
+    router.back();
+  };
+
+  const confirmDiscardAndExit = () => {
+    setBatchQueue([]);
+    setExitConfirmVisible(false);
+    router.back();
+  };
+
   if (!permission) {
     return (
       <Screen>
@@ -198,7 +234,7 @@ export function ScannerScreen() {
       <View style={styles.container}>
         <View style={styles.headerRow}>
           <View style={styles.headerTitleWrap}>
-            <ScreenHeader title={t('scanner.title')} onBack={() => router.back()} />
+            <ScreenHeader title={t('scanner.title')} onBack={handleBackPress} />
           </View>
           <Pressable
             style={[styles.batchToggle, batchMode && styles.batchToggleActive]}
@@ -276,6 +312,17 @@ export function ScannerScreen() {
         onRemove={handleRemoveFromQueue}
         onConfirm={handleConfirmBatch}
         onCancel={() => setBatchReviewVisible(false)}
+      />
+
+      <ConfirmDialog
+        visible={exitConfirmVisible}
+        title={t('scanner.exitConfirmTitle')}
+        message={t('scanner.exitConfirmMessage', { count: batchQueue.length })}
+        confirmLabel={t('scanner.exitConfirmButton')}
+        cancelLabel={t('organizations.settings.cancelButton')}
+        destructive
+        onConfirm={confirmDiscardAndExit}
+        onCancel={() => setExitConfirmVisible(false)}
       />
     </Screen>
   );

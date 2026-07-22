@@ -360,7 +360,10 @@
     "batchReviewTitle": "გადამოწმება დამატებამდე",
     "batchReviewSubtitle": "სიაში {{count}} ნივთი",
     "batchConfirmAll": "ყველას დადასტურება",
-    "batchSubmitting": "მიმდინარეობს დამატება..."
+    "batchSubmitting": "მიმდინარეობს დამატება...",
+    "exitConfirmTitle": "გასვლა შენახვის გარეშე?",
+    "exitConfirmMessage": "რიგში დარჩა {{count}} დაუდასტურებელი ნივთი, ისინი დაიკარგება.",
+    "exitConfirmButton": "გასვლა შენახვის გარეშე"
   },
   "support": {
     "sectionLabel": "მხარდაჭერა",

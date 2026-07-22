@@ -360,7 +360,10 @@
     "batchReviewTitle": "Проверка перед добавлением",
     "batchReviewSubtitle": "Товаров в списке: {{count}}",
     "batchConfirmAll": "Подтвердить всё",
-    "batchSubmitting": "Добавляем..."
+    "batchSubmitting": "Добавляем...",
+    "exitConfirmTitle": "Выйти без сохранения?",
+    "exitConfirmMessage": "В очереди {{count}} неподтверждённых товаров. Они будут потеряны.",
+    "exitConfirmButton": "Выйти без сохранения"
   },
   "support": {
     "sectionLabel": "Поддержка",

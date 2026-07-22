@@ -360,7 +360,10 @@
     "batchReviewTitle": "Review before adding",
     "batchReviewSubtitle": "{{count}} items in the list",
     "batchConfirmAll": "Confirm all",
-    "batchSubmitting": "Adding..."
+    "batchSubmitting": "Adding...",
+    "exitConfirmTitle": "Exit without saving?",
+    "exitConfirmMessage": "{{count}} unconfirmed items are queued and will be lost.",
+    "exitConfirmButton": "Exit without saving"
   },
   "support": {
     "sectionLabel": "Support",
