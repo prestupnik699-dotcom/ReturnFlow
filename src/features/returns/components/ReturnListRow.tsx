@@ -15,7 +15,7 @@ import {
   type SharedValue,
 } from 'react-native-reanimated';
 import Animated from 'react-native-reanimated';
-import { Ionicons } from '@expo/vector-icons';
+import { Feather, Ionicons } from '@expo/vector-icons';
 import { useTranslation } from 'react-i18next';
 import { useTheme } from '@/theme/ThemeProvider';
 import { Card } from '@/components/Card';
@@ -28,7 +28,7 @@ import type { ReturnItem, ReturnStatus } from '@/features/returns/services/retur
 
 type ActionSpec = {
   label: string;
-  icon: keyof typeof Ionicons.glyphMap;
+  icon: keyof typeof Feather.glyphMap;
   color: string;
   run: () => void;
 };
@@ -76,7 +76,7 @@ function SwipeActionPanel({
   return (
     <View style={[styles.actionContainer, { backgroundColor: action.color }]}>
       <Pressable style={styles.actionButton} onPress={onTriggered}>
-        <Ionicons name={action.icon} size={20} color="#fff" />
+        <Feather name={action.icon} size={20} color="#fff" />
         <Text style={styles.actionLabel} numberOfLines={2}>
           {action.label}
         </Text>
@@ -133,8 +133,8 @@ function SelectionCheckbox({
 
   return (
     <Animated.View style={animatedStyle}>
-      <Ionicons
-        name={selected ? 'checkmark-circle' : 'ellipse-outline'}
+      <Feather
+        name={selected ? 'check-circle' : 'circle'}
         size={22}
         color={selected ? color : inactiveColor}
       />
@@ -175,20 +175,20 @@ export const ReturnListRow = memo(function ReturnListRow({
     item.status === 'pending' || item.status === 'urgent'
       ? {
           label: t('returns.detail.markReturned'),
-          icon: 'checkmark-circle-outline',
+          icon: 'check-circle',
           color: theme.colors.success,
           run: () => markReturnedMutation.mutate(),
         }
       : item.status === 'returned'
         ? {
             label: t('returns.detail.archive'),
-            icon: 'archive-outline',
+            icon: 'archive',
             color: theme.colors.textSecondary,
             run: () => archiveMutation.mutate(),
           }
         : {
             label: t('returns.detail.restore'),
-            icon: 'refresh-outline',
+            icon: 'refresh-cw',
             color: theme.colors.primary,
             run: () => restoreMutation.mutate(),
           };
@@ -197,7 +197,7 @@ export const ReturnListRow = memo(function ReturnListRow({
     item.status === 'returned'
       ? {
           label: t('returns.detail.cancelReturn'),
-          icon: 'arrow-undo-outline',
+          icon: 'corner-up-left',
           color: theme.colors.warning,
           run: () => restoreMutation.mutate(),
         }
@@ -269,7 +269,7 @@ export const ReturnListRow = memo(function ReturnListRow({
           <View style={styles.bottomRow}>
             {item.pendingSync ? (
               <View style={styles.pendingBadge}>
-                <Ionicons name="cloud-upload-outline" size={12} color={theme.colors.warning} />
+                <Feather name="upload-cloud" size={12} color={theme.colors.warning} />
                 <Text style={styles.pendingBadgeText}>{pendingLabel}</Text>
               </View>
             ) : (
@@ -283,7 +283,7 @@ export const ReturnListRow = memo(function ReturnListRow({
               </View>
             )}
             <View style={styles.dateRow}>
-              <Ionicons name="calendar-outline" size={12} color={theme.colors.textSecondary} />
+              <Feather name="calendar" size={12} color={theme.colors.textSecondary} />
               <Text style={styles.dateText}>{formatDateTime(item.createdAt)}</Text>
             </View>
           </View>

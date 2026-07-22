@@ -3,7 +3,7 @@ import { View, FlatList, StyleSheet, Pressable, TextInput, ScrollView } from 're
 import { Text } from '@/components/AppText';
 import { useTranslation } from 'react-i18next';
 import { useRouter, useLocalSearchParams } from 'expo-router';
-import { Ionicons } from '@expo/vector-icons';
+import { Feather } from '@expo/vector-icons';
 import { LinearGradient } from 'expo-linear-gradient';
 import Animated, { FadeInDown } from 'react-native-reanimated';
 import { useTheme } from '@/theme/ThemeProvider';
@@ -223,20 +223,20 @@ export function ReturnsScreen() {
               onPress={() => setBatchVisible(true)}
               hitSlop={8}
             >
-              <Ionicons name="flash-outline" size={20} color={theme.colors.primary} />
+              <Feather name="zap" size={20} color={theme.colors.primary} />
             </Pressable>
             <Pressable
               style={styles.headerIconButton}
               onPress={() => router.push('/scanner')}
               hitSlop={8}
             >
-              <Ionicons name="scan-outline" size={20} color={theme.colors.primary} />
+              <Feather name="maximize" size={20} color={theme.colors.primary} />
             </Pressable>
           </View>
         </View>
 
         <View style={styles.searchRow}>
-          <Ionicons name="search" size={18} color={theme.colors.textSecondary} />
+          <Feather name="search" size={18} color={theme.colors.textSecondary} />
           <TextInput
             style={styles.searchInput}
             placeholder={t('suppliers.searchPlaceholder')}
@@ -245,8 +245,8 @@ export function ReturnsScreen() {
             onChangeText={setSearchInput}
           />
           <Pressable onPress={() => setSupplierSheetVisible(true)} hitSlop={8}>
-            <Ionicons
-              name="funnel-outline"
+            <Feather
+              name="filter"
               size={18}
               color={supplierFilter ? theme.colors.primary : theme.colors.textSecondary}
             />
@@ -255,7 +255,7 @@ export function ReturnsScreen() {
             onPress={() => setSortMode((s) => (s === 'recent' ? 'oldest' : 'recent'))}
             hitSlop={8}
           >
-            <Ionicons name="swap-vertical" size={18} color={theme.colors.textSecondary} />
+            <Feather name="chevrons-down" size={18} color={theme.colors.textSecondary} />
           </Pressable>
         </View>
 
@@ -268,7 +268,7 @@ export function ReturnsScreen() {
               style={styles.activeSupplierChip}
             >
               <Text style={styles.activeSupplierChipText}>{selectedSupplierName}</Text>
-              <Ionicons name="close-circle" size={16} color={theme.colors.onPrimary} />
+              <Feather name="x-circle" size={16} color={theme.colors.onPrimary} />
             </LinearGradient>
           </Pressable>
         ) : null}
@@ -376,7 +376,7 @@ export function ReturnsScreen() {
                     onPress={() => setDeleteConfirmVisible(true)}
                     hitSlop={8}
                   >
-                    <Ionicons name="trash-outline" size={20} color={theme.colors.danger} />
+                    <Feather name="trash-2" size={20} color={theme.colors.danger} />
                   </Pressable>
                 ) : null}
                 <Button
