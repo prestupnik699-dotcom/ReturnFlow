@@ -5,7 +5,7 @@ import ReanimatedSwipeable, {
   type SwipeableMethods,
 } from 'react-native-gesture-handler/ReanimatedSwipeable';
 import { useAnimatedReaction, runOnJS, type SharedValue } from 'react-native-reanimated';
-import { Ionicons } from '@expo/vector-icons';
+import { Feather } from '@expo/vector-icons';
 import { useTranslation } from 'react-i18next';
 import { useTheme } from '@/theme/ThemeProvider';
 import { Card } from '@/components/Card';
@@ -48,7 +48,7 @@ function DeleteActionPanel({
   return (
     <View style={styles.actionContainer}>
       <Pressable style={styles.actionButton} onPress={onTriggered}>
-        <Ionicons name="trash-outline" size={20} color="#fff" />
+        <Feather name="trash-2" size={20} color="#fff" />
         <Text style={styles.actionLabel} numberOfLines={2}>
           {label}
         </Text>
@@ -124,15 +124,15 @@ export function StoreListRow({
       <View style={styles.container}>
         <View style={styles.topRow}>
           <Pressable onPress={onSelectCurrent} hitSlop={8}>
-            <Ionicons
-              name={isCurrent ? 'radio-button-on' : 'radio-button-off'}
+            <Feather
+              name={isCurrent ? 'check-circle' : 'circle'}
               size={22}
               color={isCurrent ? theme.colors.primary : theme.colors.textSecondary}
             />
           </Pressable>
 
           <View style={styles.avatar}>
-            <Ionicons name="storefront-outline" size={20} color={theme.colors.primary} />
+            <Feather name="shopping-bag" size={20} color={theme.colors.primary} />
           </View>
 
           <PressableScale style={styles.info} onPress={onEdit}>
@@ -142,7 +142,7 @@ export function StoreListRow({
           </PressableScale>
 
           <Pressable style={styles.chatButton} onPress={onOpenChat} hitSlop={8}>
-            <Ionicons name="chatbubble-outline" size={18} color={theme.colors.primary} />
+            <Feather name="message-circle" size={18} color={theme.colors.primary} />
           </Pressable>
         </View>
 
@@ -158,7 +158,7 @@ export function StoreListRow({
 
           <View style={styles.statsRow}>
             <View style={styles.statBadge}>
-              <Ionicons name="repeat-outline" size={13} color={theme.colors.textSecondary} />
+              <Feather name="repeat" size={13} color={theme.colors.textSecondary} />
               <Text style={styles.statText}>
                 {t('stores.returnsCount', { count: returnsTotal })}
               </Text>
@@ -167,7 +167,7 @@ export function StoreListRow({
 
           <View style={styles.statsRow}>
             <View style={styles.statBadge}>
-              <Ionicons name="download-outline" size={13} color={theme.colors.textSecondary} />
+              <Feather name="download" size={13} color={theme.colors.textSecondary} />
               <Text style={styles.statText}>
                 {t('stores.deliveriesCount', { count: deliveriesTotal })}
               </Text>
