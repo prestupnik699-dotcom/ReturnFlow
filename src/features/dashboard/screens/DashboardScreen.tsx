@@ -13,6 +13,7 @@ import Animated, {
   withRepeat,
   withTiming,
   withSequence,
+  withDelay,
 } from 'react-native-reanimated';
 import { useTheme } from '@/theme/ThemeProvider';
 import { Screen } from '@/components/Screen';
@@ -34,6 +35,36 @@ function isSameDay(a: Date, b: Date): boolean {
     a.getFullYear() === b.getFullYear() &&
     a.getMonth() === b.getMonth() &&
     a.getDate() === b.getDate()
+  );
+}
+
+// A few quick left-right rotations on mount, settling back to rest — reads
+// as a single friendly wave rather than a continuous idle animation that
+// would keep distracting the eye every time this screen is revisited.
+function WavingHand({ size, color }: { size: number; color: string }) {
+  const rotate = useSharedValue(0);
+
+  useEffect(() => {
+    rotate.value = withDelay(
+      400,
+      withSequence(
+        withTiming(22, { duration: 150 }),
+        withTiming(-14, { duration: 150 }),
+        withTiming(18, { duration: 150 }),
+        withTiming(-10, { duration: 150 }),
+        withTiming(0, { duration: 150 }),
+      ),
+    );
+  }, [rotate]);
+
+  const animatedStyle = useAnimatedStyle(() => ({
+    transform: [{ rotate: `${rotate.value}deg` }],
+  }));
+
+  return (
+    <Animated.View style={animatedStyle}>
+      <Ionicons name="hand-left-outline" size={size} color={color} />
+    </Animated.View>
   );
 }
 
@@ -142,16 +173,22 @@ export function DashboardScreen() {
           </View>
         </View>
 
-        <Text
-          style={styles.greeting}
-          numberOfLines={language === 'ka' ? 1 : undefined}
-          adjustsFontSizeToFit={language === 'ka'}
-          minimumFontScale={0.75}
+        <Animated.View entering={FadeInDown.duration(450).springify()}>
+          <Text
+            style={styles.greeting}
+            numberOfLines={language === 'ka' ? 1 : undefined}
+            adjustsFontSizeToFit={language === 'ka'}
+            minimumFontScale={0.75}
+          >
+            {greeting} <WavingHand size={26} color={theme.colors.textPrimary} />
+          </Text>
+        </Animated.View>
+        <Animated.Text
+          entering={FadeInDown.delay(120).duration(450).springify()}
+          style={styles.subtitle}
         >
-          {greeting}{' '}
-          <Ionicons name="hand-left-outline" size={26} color={theme.colors.textPrimary} />
-        </Text>
-        <Text style={styles.subtitle}>{t('dashboard.subtitle')}</Text>
+          {t('dashboard.subtitle')}
+        </Animated.Text>
 
         {totalCount === 0 ? (
           <View style={styles.emptyWrap}>
@@ -324,11 +361,10 @@ function createQuickActionStyles(theme: Theme) {
       minHeight: 108,
       backgroundColor: theme.colors.card,
       borderRadius: theme.radius.md,
-      paddingTop: theme.spacing.md,
-      paddingBottom: theme.spacing.sm,
+      paddingVertical: theme.spacing.md,
       paddingHorizontal: 4,
       alignItems: 'center',
-      justifyContent: 'flex-start',
+      justifyContent: 'center',
       gap: 8,
     },
     tileIconWrap: {
