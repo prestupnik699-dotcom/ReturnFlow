@@ -1,5 +1,4 @@
-import { useState } from 'react';
-import { Modal, View, Pressable, ActivityIndicator, StyleSheet } from 'react-native';
+import { Modal, View, Pressable, StyleSheet } from 'react-native';
 import { Text } from '@/components/AppText';
 import { useTranslation } from 'react-i18next';
 import { Ionicons } from '@expo/vector-icons';
