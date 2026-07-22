@@ -59,7 +59,7 @@ function WavingHand({
   useEffect(() => {
     rotate.value = 0;
     rotate.value = withDelay(
-      300,
+      600,
       withSequence(
         withTiming(32, { duration: 220 }),
         withTiming(-22, { duration: 220 }),
@@ -195,10 +195,7 @@ export function DashboardScreen() {
           </View>
         </View>
 
-        <Animated.View
-          key={`greeting-${greetingReplayKey}`}
-          entering={FadeInDown.duration(550).springify().damping(11)}
-        >
+        <Animated.View key={`greeting-${greetingReplayKey}`} entering={FadeInDown.duration(450)}>
           <Text
             style={styles.greeting}
             numberOfLines={language === 'ka' ? 1 : undefined}
@@ -211,7 +208,7 @@ export function DashboardScreen() {
         </Animated.View>
         <Animated.Text
           key={`subtitle-${greetingReplayKey}`}
-          entering={FadeInDown.delay(150).duration(550).springify().damping(11)}
+          entering={FadeInDown.delay(150).duration(450)}
           style={styles.subtitle}
         >
           {t('dashboard.subtitle')}
