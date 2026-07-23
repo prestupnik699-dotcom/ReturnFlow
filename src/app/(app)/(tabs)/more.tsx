@@ -70,13 +70,13 @@ export default function More() {
 
         <Card>
           <MenuRow
-            icon="chatbubble-outline"
+            icon="message-circle"
             label={t('chat.title')}
             onPress={() => router.push('/chat')}
             badgeCount={chatUnreadCount}
           />
           <MenuRow
-            icon="notifications-outline"
+            icon="bell"
             label={t('common.notifications')}
             onPress={() => router.push('/notifications')}
             badgeCount={unreadCount}
@@ -86,22 +86,22 @@ export default function More() {
         <Text style={styles.sectionLabel}>{t('common.account')}</Text>
         <Card>
           <MenuRow
-            icon="bar-chart-outline"
+            icon="bar-chart-2"
             label={t('statistics.title')}
             onPress={() => router.push('/statistics')}
           />
           <MenuRow
-            icon="download-outline"
+            icon="download"
             label={t('deliveries.title')}
             onPress={() => router.push('/deliveries')}
           />
           <MenuRow
-            icon="person-circle-outline"
+            icon="user"
             label={t('profile.title')}
             onPress={() => router.push('/profile-settings')}
           />
           <MenuRow
-            icon="key-outline"
+            icon="key"
             label={t('auth.changePassword.title')}
             onPress={() => router.push('/change-password')}
           />
@@ -111,17 +111,17 @@ export default function More() {
           <Text style={styles.sectionLabel}>{t('common.organization')}</Text>
           <Card>
             <MenuRow
-              icon="person-add-outline"
+              icon="user-plus"
               label={t('users.invite.title')}
               onPress={() => router.push('/invite-user')}
             />
             <MenuRow
-              icon="people-outline"
+              icon="users"
               label={t('users.team.title')}
               onPress={() => router.push('/team')}
             />
             <MenuRow
-              icon="business-outline"
+              icon="briefcase"
               label={t('organizations.settings.title')}
               onPress={() => router.push('/organization-settings')}
             />
@@ -130,16 +130,12 @@ export default function More() {
 
         <Text style={styles.sectionLabel}>{t('support.sectionLabel')}</Text>
         <Card>
-          <MenuRow
-            icon="mail-outline"
-            label={t('support.contactSupport')}
-            onPress={handleContactSupport}
-          />
+          <MenuRow icon="mail" label={t('support.contactSupport')} onPress={handleContactSupport} />
         </Card>
 
         <Card>
           <MenuRow
-            icon="log-out-outline"
+            icon="log-out"
             label={t('common.logOut')}
             onPress={() => logout()}
             tone="danger"

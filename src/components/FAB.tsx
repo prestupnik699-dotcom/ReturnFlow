@@ -1,12 +1,12 @@
 import { Pressable, StyleSheet, Platform, type StyleProp, type ViewStyle } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import Animated, { useAnimatedStyle, useSharedValue, withTiming } from 'react-native-reanimated';
-import { Ionicons } from '@expo/vector-icons';
+import { Feather } from '@expo/vector-icons';
 import { useTheme } from '@/theme/ThemeProvider';
 
 type Props = {
   onPress: () => void;
-  icon?: keyof typeof Ionicons.glyphMap;
+  icon?: keyof typeof Feather.glyphMap;
   style?: StyleProp<ViewStyle>;
 };
 
@@ -15,7 +15,7 @@ type Props = {
 // Kept separate from Button.tsx because Button is pill/full-width
 // oriented (alignSelf: center, horizontal padding); a FAB is a fixed-size
 // circle meant to be absolutely positioned by the caller via `style`.
-export function FAB({ onPress, icon = 'add', style }: Props) {
+export function FAB({ onPress, icon = 'plus', style }: Props) {
   const theme = useTheme();
   const scale = useSharedValue(1);
   const styles = createStyles(theme);
@@ -48,7 +48,7 @@ export function FAB({ onPress, icon = 'add', style }: Props) {
           end={{ x: 1, y: 1 }}
           style={styles.circle}
         >
-          <Ionicons name={icon} size={26} color={theme.colors.onPrimary} />
+          <Feather name={icon} size={26} color={theme.colors.onPrimary} />
         </LinearGradient>
       </Animated.View>
     </Pressable>

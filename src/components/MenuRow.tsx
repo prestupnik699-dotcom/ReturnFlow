@@ -1,10 +1,10 @@
 import { Pressable, View, StyleSheet } from 'react-native';
 import { Text } from '@/components/AppText';
-import { Ionicons } from '@expo/vector-icons';
+import { Feather } from '@expo/vector-icons';
 import { useTheme } from '@/theme/ThemeProvider';
 
 type Props = {
-  icon: keyof typeof Ionicons.glyphMap;
+  icon: keyof typeof Feather.glyphMap;
   label: string;
   onPress: () => void;
   tone?: 'default' | 'danger';
@@ -19,7 +19,7 @@ export function MenuRow({ icon, label, onPress, tone = 'default', badgeCount }: 
   return (
     <Pressable style={({ pressed }) => [styles.row, pressed && styles.pressed]} onPress={onPress}>
       <View style={[styles.iconWrap, tone === 'danger' && styles.iconWrapDanger]}>
-        <Ionicons
+        <Feather
           name={icon}
           size={18}
           color={tone === 'danger' ? theme.colors.danger : theme.colors.primary}
@@ -32,7 +32,7 @@ export function MenuRow({ icon, label, onPress, tone = 'default', badgeCount }: 
         </View>
       ) : null}
       {tone !== 'danger' ? (
-        <Ionicons name="chevron-forward" size={18} color={theme.colors.textSecondary} />
+        <Feather name="chevron-right" size={18} color={theme.colors.textSecondary} />
       ) : null}
     </Pressable>
   );

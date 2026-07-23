@@ -1,7 +1,7 @@
 import { useEffect } from 'react';
 import { View, Pressable, StyleSheet } from 'react-native';
 import { Text } from '@/components/AppText';
-import { Ionicons } from '@expo/vector-icons';
+import { Feather } from '@expo/vector-icons';
 import { LinearGradient } from 'expo-linear-gradient';
 import Animated, { useAnimatedStyle, useSharedValue, withTiming } from 'react-native-reanimated';
 import { useTheme } from '@/theme/ThemeProvider';
@@ -45,7 +45,7 @@ export function StatBar({ label, value, maxValue, color, onPress }: Props) {
         </Text>
         <Text style={styles.value}>{value}</Text>
         {onPress ? (
-          <Ionicons name="chevron-forward" size={14} color={theme.colors.textSecondary} />
+          <Feather name="chevron-right" size={14} color={theme.colors.textSecondary} />
         ) : null}
       </View>
       <View style={styles.track}>

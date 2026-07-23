@@ -8,7 +8,7 @@ import Animated, {
   withTiming,
   withSequence,
 } from 'react-native-reanimated';
-import { Ionicons } from '@expo/vector-icons';
+import { Feather } from '@expo/vector-icons';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useTheme } from '@/theme/ThemeProvider';
 import { useUnreadCount } from '@/features/notifications/hooks/useUnreadCount';
@@ -34,12 +34,12 @@ function PulsingBadge({ style }: { style: object }) {
   return <Animated.View style={[style, animatedStyle]} />;
 }
 
-const ICONS: Record<string, keyof typeof Ionicons.glyphMap> = {
-  index: 'home-outline',
-  stores: 'storefront-outline',
-  suppliers: 'cube-outline',
-  returns: 'repeat-outline',
-  more: 'menu-outline',
+const ICONS: Record<string, keyof typeof Feather.glyphMap> = {
+  index: 'home',
+  stores: 'shopping-bag',
+  suppliers: 'box',
+  returns: 'repeat',
+  more: 'menu',
 };
 
 const ICON_SIZE = 48;
@@ -71,7 +71,7 @@ export function FloatingTabBar({ state, navigation }: TabBarProps) {
       <View style={styles.bar}>
         {state.routes.map((route, index) => {
           const isFocused = state.index === index;
-          const icon = ICONS[route.name] ?? 'ellipse-outline';
+          const icon = ICONS[route.name] ?? 'circle';
 
           const onPress = () => {
             const event = navigation.emit({
@@ -103,11 +103,11 @@ export function FloatingTabBar({ state, navigation }: TabBarProps) {
                     end={{ x: 1, y: 1 }}
                     style={styles.iconWrap}
                   >
-                    <Ionicons name={icon} size={22} color={theme.colors.onPrimary} />
+                    <Feather name={icon} size={22} color={theme.colors.onPrimary} />
                   </LinearGradient>
                 ) : (
                   <View style={styles.iconWrap}>
-                    <Ionicons name={icon} size={22} color={theme.colors.textSecondary} />
+                    <Feather name={icon} size={22} color={theme.colors.textSecondary} />
                   </View>
                 )}
               </Pressable>
