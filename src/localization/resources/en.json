@@ -415,7 +415,7 @@
     "timeDaysAgo": "{{count}}d ago",
     "emptyTitle": "No returns yet",
     "noStoreTitle": "Pick a store first",
-    "noStoreMessage": "Add a store or select an active one in Stores — then your returns data will show up here",
+    "noStoreMessage": "Select a store in Stores",
     "noStoreButton": "Go to stores"
   },
   "deliveries": {
