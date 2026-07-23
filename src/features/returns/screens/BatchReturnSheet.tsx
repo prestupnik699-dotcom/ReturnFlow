@@ -13,7 +13,7 @@ import {
 import { Text } from '@/components/AppText';
 import { CameraView, useCameraPermissions } from 'expo-camera';
 import { useTranslation } from 'react-i18next';
-import { Ionicons } from '@expo/vector-icons';
+import { Feather } from '@expo/vector-icons';
 import { useTheme } from '@/theme/ThemeProvider';
 import { Button } from '@/components/Button';
 import { Chip } from '@/components/Chip';
@@ -210,8 +210,8 @@ export function BatchReturnSheet({ visible, onClose }: Props) {
 
           {mode === 'return' ? (
             <Pressable style={styles.exchangeToggle} onPress={() => setIsExchange((v) => !v)}>
-              <Ionicons
-                name={isExchange ? 'checkbox' : 'square-outline'}
+              <Feather
+                name={isExchange ? 'check-square' : 'square'}
                 size={22}
                 color={isExchange ? theme.colors.primary : theme.colors.textSecondary}
               />
@@ -223,7 +223,7 @@ export function BatchReturnSheet({ visible, onClose }: Props) {
             <View style={styles.field}>
               {!scanningActive ? (
                 <Pressable style={styles.startScanButton} onPress={() => setScanningActive(true)}>
-                  <Ionicons name="scan-outline" size={20} color={theme.colors.onPrimary} />
+                  <Feather name="maximize" size={20} color={theme.colors.onPrimary} />
                   <Text style={styles.startScanText}>{t('deliveries.batch.startScan')}</Text>
                 </Pressable>
               ) : !permission?.granted ? (
@@ -247,7 +247,7 @@ export function BatchReturnSheet({ visible, onClose }: Props) {
                       onPress={() => setScanningActive(false)}
                       hitSlop={8}
                     >
-                      <Ionicons name="close" size={18} color="#fff" />
+                      <Feather name="x" size={18} color="#fff" />
                     </Pressable>
                   </View>
                   {isLookingUp ? (
@@ -257,7 +257,7 @@ export function BatchReturnSheet({ visible, onClose }: Props) {
                   ) : null}
                   {toastMessage ? (
                     <View style={styles.toast}>
-                      <Ionicons name="checkmark-circle" size={16} color={theme.colors.success} />
+                      <Feather name="check-circle" size={16} color={theme.colors.success} />
                       <Text style={styles.toastText} numberOfLines={1}>
                         {toastMessage}
                       </Text>
@@ -294,7 +294,7 @@ export function BatchReturnSheet({ visible, onClose }: Props) {
                 keyboardType="number-pad"
               />
               <Pressable style={styles.addLineButton} onPress={addManualLine}>
-                <Ionicons name="add" size={22} color={theme.colors.onPrimary} />
+                <Feather name="plus" size={22} color={theme.colors.onPrimary} />
               </Pressable>
             </View>
           </View>
@@ -310,7 +310,7 @@ export function BatchReturnSheet({ visible, onClose }: Props) {
                     </Text>
                   </View>
                   <Pressable onPress={() => removeLine(line.id)} hitSlop={8}>
-                    <Ionicons name="close-circle" size={20} color={theme.colors.danger} />
+                    <Feather name="x-circle" size={20} color={theme.colors.danger} />
                   </Pressable>
                 </View>
               ))}
