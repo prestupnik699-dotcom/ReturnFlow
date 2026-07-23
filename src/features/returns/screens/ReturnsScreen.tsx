@@ -87,6 +87,7 @@ export function ReturnsScreen() {
   const { data: suppliers } = useSuppliers(false, 'name');
   const [formVisible, setFormVisible] = useState(false);
   const [batchVisible, setBatchVisible] = useState(false);
+  const [duplicateSource, setDuplicateSource] = useState<ReturnItem | null>(null);
   const bulkMarkReturnedMutation = useBulkMarkReturned();
   const bulkArchiveMutation = useBulkArchive();
   const bulkDeleteMutation = useBulkDeleteReturns();
@@ -232,6 +233,18 @@ export function ReturnsScreen() {
             >
               <Feather name="maximize" size={20} color={theme.colors.primary} />
             </Pressable>
+            {statsReturns && statsReturns.length > 0 ? (
+              <Pressable
+                style={styles.headerIconButton}
+                onPress={() => {
+                  setDuplicateSource(statsReturns[0] ?? null);
+                  setFormVisible(true);
+                }}
+                hitSlop={8}
+              >
+                <Feather name="copy" size={20} color={theme.colors.primary} />
+              </Pressable>
+            ) : null}
           </View>
         </View>
 
@@ -398,13 +411,23 @@ export function ReturnsScreen() {
           </View>
         ) : (
           <FAB
-            onPress={() => setFormVisible(true)}
+            onPress={() => {
+              setDuplicateSource(null);
+              setFormVisible(true);
+            }}
             style={[styles.fab, { bottom: tabBarClearance + theme.spacing.md }]}
           />
         )}
       </View>
 
-      <ReturnFormSheet visible={formVisible} onClose={() => setFormVisible(false)} />
+      <ReturnFormSheet
+        visible={formVisible}
+        duplicateFrom={duplicateSource}
+        onClose={() => {
+          setFormVisible(false);
+          setDuplicateSource(null);
+        }}
+      />
       <BatchReturnSheet visible={batchVisible} onClose={() => setBatchVisible(false)} />
       <SupplierFilterSheet
         visible={supplierSheetVisible}

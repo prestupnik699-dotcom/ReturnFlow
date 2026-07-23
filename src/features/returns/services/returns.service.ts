@@ -350,20 +350,22 @@ export async function hardDeleteReturn(returnId: string): Promise<ServiceResult<
   return { success: true, data: null };
 }
 
-export type TitleSuggestion = { title: string; count: number };
+export type TitleSuggestion = { title: string; count: number; lastUnitPrice: number | null };
 
 // Aggregated client-side (same pattern as fetchReturnCountsByStore) rather
 // than via a DB-side GROUP BY, since Supabase's JS client has no group-by
 // helper and a single store's return history is small enough that this is
-// cheap. Ordered by frequency (most-typed first), tie-broken by recency,
-// so the person's most common items for this supplier surface first.
+// cheap. Ordered by frequency (most-typed first). Rows arrive newest-first
+// (order by created_at desc below), so the first row seen for a given
+// title is also its most recent — that row's price becomes "the last
+// known price" for autofill, with no separate query needed.
 export async function fetchTitleSuggestions(
   storeId: string,
   supplierId: string,
 ): Promise<ServiceResult<TitleSuggestion[]>> {
   const { data, error } = await supabase
     .from('return_items')
-    .select('title, created_at')
+    .select('title, unit_price, created_at')
     .eq('store_id', storeId)
     .eq('supplier_id', supplierId)
     .is('deleted_at', null)
@@ -374,15 +376,64 @@ export async function fetchTitleSuggestions(
     return fromCaughtError(error, 'FETCH_TITLE_SUGGESTIONS_FAILED');
   }
 
-  const rows = data as unknown as { title: string; created_at: string }[];
-  const counts = new Map<string, number>();
+  const rows = data as unknown as {
+    title: string;
+    unit_price: number | null;
+    created_at: string;
+  }[];
+  const counts = new Map<string, { count: number; lastUnitPrice: number | null }>();
 
   for (const row of rows) {
-    counts.set(row.title, (counts.get(row.title) ?? 0) + 1);
+    const existing = counts.get(row.title);
+    if (existing) {
+      existing.count += 1;
+    } else {
+      counts.set(row.title, { count: 1, lastUnitPrice: row.unit_price });
+    }
   }
 
   const suggestions = Array.from(counts.entries())
-    .map(([title, count]) => ({ title, count }))
+    .map(([title, v]) => ({ title, count: v.count, lastUnitPrice: v.lastUnitPrice }))
+    .sort((a, b) => b.count - a.count);
+
+  return { success: true, data: suggestions };
+}
+
+export type ReasonSuggestion = { reason: string; count: number };
+
+// Same aggregation pattern as fetchTitleSuggestions, but grouping by the
+// free-text reason field instead of title — surfaces the handful of
+// reasons this store actually types most often for this supplier
+// ("Брак", "Истёк срок"...) so they can be picked instead of retyped.
+export async function fetchReasonSuggestions(
+  storeId: string,
+  supplierId: string,
+): Promise<ServiceResult<ReasonSuggestion[]>> {
+  const { data, error } = await supabase
+    .from('return_items')
+    .select('reason')
+    .eq('store_id', storeId)
+    .eq('supplier_id', supplierId)
+    .is('deleted_at', null)
+    .not('reason', 'is', null)
+    .order('created_at', { ascending: false })
+    .limit(500);
+
+  if (error) {
+    return fromCaughtError(error, 'FETCH_REASON_SUGGESTIONS_FAILED');
+  }
+
+  const rows = data as unknown as { reason: string | null }[];
+  const counts = new Map<string, number>();
+
+  for (const row of rows) {
+    const reason = row.reason?.trim();
+    if (!reason) continue;
+    counts.set(reason, (counts.get(reason) ?? 0) + 1);
+  }
+
+  const suggestions = Array.from(counts.entries())
+    .map(([reason, count]) => ({ reason, count }))
     .sort((a, b) => b.count - a.count);
 
   return { success: true, data: suggestions };

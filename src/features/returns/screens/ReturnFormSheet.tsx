@@ -16,18 +16,21 @@ import { useCreateReturn } from '@/features/returns/hooks/useCreateReturn';
 import { useUpdateReturn } from '@/features/returns/hooks/useUpdateReturn';
 import { useSuppliers } from '@/features/suppliers/hooks/useSuppliers';
 import { useTitleSuggestions } from '@/features/returns/hooks/useTitleSuggestions';
+import { useReasonSuggestions } from '@/features/returns/hooks/useReasonSuggestions';
 import { useMembershipStore } from '@/stores/membership.store';
-import { hapticSuccess } from '@/lib/haptics';
+import { hapticSuccess, hapticSelection } from '@/lib/haptics';
 import type { ReturnItem, ReturnPriority } from '@/features/returns/services/returns.service';
 
 const PRIORITIES: ReturnPriority[] = ['low', 'normal', 'high', 'critical'];
 const FREQUENT_CHIPS_LIMIT = 6;
 const AUTOCOMPLETE_LIMIT = 5;
+const FREQUENT_REASONS_LIMIT = 6;
 
 type Props = {
   visible: boolean;
   onClose: () => void;
   returnItem?: ReturnItem | null;
+  duplicateFrom?: ReturnItem | null;
   prefillTitle?: string;
   prefillBarcode?: string;
   onCreated?: (values: { supplierId: string; title: string }) => void;
@@ -37,6 +40,7 @@ export function ReturnFormSheet({
   visible,
   onClose,
   returnItem,
+  duplicateFrom,
   prefillTitle,
   prefillBarcode,
   onCreated,
@@ -57,6 +61,7 @@ export function ReturnFormSheet({
     handleSubmit,
     reset,
     setValue,
+    getValues,
     formState: { errors },
   } = useForm<CreateReturnFormValues>({
     resolver: zodResolver(createReturnSchema),
@@ -75,11 +80,14 @@ export function ReturnFormSheet({
   const priority = useWatch({ control, name: 'priority' });
   const supplierId = useWatch({ control, name: 'supplierId' });
   const titleValue = useWatch({ control, name: 'title' });
+  const reasonValue = useWatch({ control, name: 'reason' });
   const isExchange = useWatch({ control, name: 'isExchange' });
 
   const { data: titleSuggestions } = useTitleSuggestions(activeStoreId, supplierId);
+  const { data: reasonSuggestions } = useReasonSuggestions(activeStoreId, supplierId);
 
   const frequentChips = (titleSuggestions ?? []).slice(0, FREQUENT_CHIPS_LIMIT);
+  const frequentReasons = (reasonSuggestions ?? []).slice(0, FREQUENT_REASONS_LIMIT);
 
   const query = titleValue.trim().toLowerCase();
   const autocompleteMatches =
@@ -89,23 +97,35 @@ export function ReturnFormSheet({
           .slice(0, AUTOCOMPLETE_LIMIT)
       : [];
 
+  // Picking a known title also carries over the price it last sold at —
+  // only when the price field is still empty, so this never clobbers a
+  // price the person already typed in manually for this entry.
+  const applyTitleSuggestion = (suggestionTitle: string, lastUnitPrice: number | null) => {
+    setValue('title', suggestionTitle);
+    setTitleFocused(false);
+    if (lastUnitPrice != null && !getValues('unitPrice')) {
+      setValue('unitPrice', String(lastUnitPrice));
+    }
+  };
+
   useEffect(() => {
     if (visible) {
+      const source = returnItem ?? duplicateFrom ?? null;
       reset({
-        supplierId: returnItem?.supplierId ?? '',
-        title: returnItem?.title ?? prefillTitle ?? '',
-        quantity: returnItem ? String(returnItem.quantity) : '1',
-        unitPrice: returnItem?.unitPrice != null ? String(returnItem.unitPrice) : '',
-        reason: returnItem?.reason ?? '',
-        priority: returnItem?.priority ?? 'normal',
-        barcode: returnItem?.barcode ?? prefillBarcode ?? '',
-        isExchange: returnItem?.isExchange ?? false,
+        supplierId: source?.supplierId ?? '',
+        title: source?.title ?? prefillTitle ?? '',
+        quantity: source ? String(source.quantity) : '1',
+        unitPrice: source?.unitPrice != null ? String(source.unitPrice) : '',
+        reason: source?.reason ?? '',
+        priority: source?.priority ?? 'normal',
+        barcode: source?.barcode ?? prefillBarcode ?? '',
+        isExchange: source?.isExchange ?? false,
       });
       createMutation.reset();
       updateMutation.reset();
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [visible, returnItem, prefillTitle, prefillBarcode]);
+  }, [visible, returnItem, duplicateFrom, prefillTitle, prefillBarcode]);
 
   const handleClose = () => {
     reset();
@@ -177,10 +197,7 @@ export function ReturnFormSheet({
                   key={s.title}
                   label={s.title}
                   selected={titleValue === s.title}
-                  onPress={() => {
-                    setValue('title', s.title);
-                    setTitleFocused(false);
-                  }}
+                  onPress={() => applyTitleSuggestion(s.title, s.lastUnitPrice)}
                 />
               ))}
             </ScrollView>
@@ -213,10 +230,7 @@ export function ReturnFormSheet({
                 <Pressable
                   key={s.title}
                   style={styles.suggestionRow}
-                  onPress={() => {
-                    setValue('title', s.title);
-                    setTitleFocused(false);
-                  }}
+                  onPress={() => applyTitleSuggestion(s.title, s.lastUnitPrice)}
                 >
                   <Feather name="clock" size={14} color={theme.colors.textSecondary} />
                   <Text style={styles.suggestionText} numberOfLines={1}>
@@ -236,15 +250,41 @@ export function ReturnFormSheet({
           <Controller
             control={control}
             name="quantity"
-            render={({ field: { value, onChange, onBlur } }) => (
-              <TextInput
-                style={[styles.input, errors.quantity && styles.inputError]}
-                value={value}
-                onChangeText={onChange}
-                onBlur={onBlur}
-                keyboardType="number-pad"
-              />
-            )}
+            render={({ field: { value, onChange, onBlur } }) => {
+              const numeric = Math.max(0, parseInt(value, 10) || 0);
+              return (
+                <View style={[styles.stepperRow, errors.quantity && styles.inputError]}>
+                  <Pressable
+                    style={styles.stepperButton}
+                    onPress={() => {
+                      hapticSelection();
+                      onChange(String(Math.max(1, numeric - 1)));
+                    }}
+                    hitSlop={8}
+                  >
+                    <Feather name="minus" size={18} color={theme.colors.primary} />
+                  </Pressable>
+                  <TextInput
+                    style={styles.stepperInput}
+                    value={value}
+                    onChangeText={onChange}
+                    onBlur={onBlur}
+                    keyboardType="number-pad"
+                    textAlign="center"
+                  />
+                  <Pressable
+                    style={styles.stepperButton}
+                    onPress={() => {
+                      hapticSelection();
+                      onChange(String(numeric + 1));
+                    }}
+                    hitSlop={8}
+                  >
+                    <Feather name="plus" size={18} color={theme.colors.primary} />
+                  </Pressable>
+                </View>
+              );
+            }}
           />
           {errors.quantity ? (
             <Text style={styles.errorText}>{t(errors.quantity.message ?? '')}</Text>
@@ -297,6 +337,22 @@ export function ReturnFormSheet({
 
         <View style={styles.field}>
           <Text style={styles.label}>{t('returns.create.reasonLabel')}</Text>
+          {frequentReasons.length > 0 ? (
+            <ScrollView
+              horizontal
+              showsHorizontalScrollIndicator={false}
+              contentContainerStyle={styles.frequentChipRow}
+            >
+              {frequentReasons.map((r) => (
+                <Chip
+                  key={r.reason}
+                  label={r.reason}
+                  selected={reasonValue === r.reason}
+                  onPress={() => setValue('reason', r.reason)}
+                />
+              ))}
+            </ScrollView>
+          ) : null}
           <Controller
             control={control}
             name="reason"
@@ -391,6 +447,28 @@ function createStyles(theme: ReturnType<typeof useTheme>) {
       paddingVertical: theme.spacing.md,
       fontSize: theme.fontSizes.md,
       color: theme.colors.textPrimary,
+    },
+    stepperRow: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      borderWidth: 1,
+      borderColor: theme.colors.border,
+      backgroundColor: theme.colors.surface,
+      borderRadius: theme.radius.md,
+      overflow: 'hidden',
+    },
+    stepperButton: {
+      width: 48,
+      height: 48,
+      alignItems: 'center',
+      justifyContent: 'center',
+    },
+    stepperInput: {
+      flex: 1,
+      textAlign: 'center',
+      fontSize: theme.fontSizes.md,
+      color: theme.colors.textPrimary,
+      paddingVertical: theme.spacing.md,
     },
     suggestionsBox: {
       borderWidth: 1,
