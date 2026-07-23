@@ -5,7 +5,6 @@ import { useForm, Controller } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useTranslation } from 'react-i18next';
 import { useTheme } from '@/theme/ThemeProvider';
-import { Feather } from '@expo/vector-icons';
 import { Button } from '@/components/Button';
 import {
   createSupplierSchema,
