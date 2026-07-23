@@ -57,7 +57,18 @@ export function SupplierFormSheet({ visible, onClose, supplierId }: Props) {
     activeOrganizationId,
     supplierId,
     supplier?.name ?? '',
-    supplierId ? (reliability?.[supplierId] ?? null) : null,
+    // A supplier with returns but zero delivery history has no entry in
+    // reliability at all (it's keyed off the union of delivered/returned
+    // supplier IDs) — falling back to null here silently disabled the share
+    // button with no explanation. Default to zero-delivered instead, so the
+    // report still generates, just with an honest "no data" defect rate.
+    supplierId
+      ? (reliability?.[supplierId] ?? {
+          deliveredQuantity: 0,
+          returnedQuantity: 0,
+          defectRatePercent: null,
+        })
+      : null,
     {
       columns: {
         title: t('returns.create.titleLabel'),
