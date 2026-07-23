@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback } from 'react';
-import { View, ScrollView, ActivityIndicator, Pressable, StyleSheet } from 'react-native';
+import { View, ScrollView, ActivityIndicator, Pressable, Image, StyleSheet } from 'react-native';
 import { PressableScale } from '@/components/PressableScale';
 import { Text } from '@/components/AppText';
 import { useTranslation } from 'react-i18next';
@@ -173,9 +173,13 @@ export function DashboardScreen() {
         showsVerticalScrollIndicator={false}
       >
         <View style={styles.headerRow}>
-          <View style={styles.avatar}>
-            <Text style={styles.avatarText}>{initials}</Text>
-          </View>
+          <Pressable style={styles.avatar} onPress={() => router.push('/profile-settings')}>
+            {profile?.photoUrl ? (
+              <Image source={{ uri: profile.photoUrl }} style={styles.avatarImage} />
+            ) : (
+              <Text style={styles.avatarText}>{initials}</Text>
+            )}
+          </Pressable>
           <View style={styles.headerActions}>
             <Pressable
               style={styles.headerIconButton}
@@ -494,7 +498,9 @@ function createStyles(theme: Theme) {
       backgroundColor: theme.colors.primary,
       alignItems: 'center',
       justifyContent: 'center',
+      overflow: 'hidden',
     },
+    avatarImage: { width: 40, height: 40 },
     avatarText: {
       color: theme.colors.onPrimary,
       fontSize: theme.fontSizes.sm,

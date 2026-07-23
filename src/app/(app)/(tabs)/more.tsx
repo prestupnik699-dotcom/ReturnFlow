@@ -1,4 +1,4 @@
-import { View, ScrollView, StyleSheet, Linking, Platform } from 'react-native';
+import { View, ScrollView, StyleSheet, Linking, Platform, Pressable, Image } from 'react-native';
 import { Text } from '@/components/AppText';
 import { useRouter } from 'expo-router';
 import { useTranslation } from 'react-i18next';
@@ -57,9 +57,13 @@ export default function More() {
         <Text style={styles.pageTitle}>{t('common.more')}</Text>
 
         <View style={styles.header}>
-          <View style={styles.avatar}>
-            <Text style={styles.avatarText}>{initials}</Text>
-          </View>
+          <Pressable style={styles.avatar} onPress={() => router.push('/profile-settings')}>
+            {profile?.photoUrl ? (
+              <Image source={{ uri: profile.photoUrl }} style={styles.avatarImage} />
+            ) : (
+              <Text style={styles.avatarText}>{initials}</Text>
+            )}
+          </Pressable>
           <View style={styles.headerText}>
             <Text style={styles.name}>
               {profile ? `${profile.firstName} ${profile.lastName}` : (session?.user.email ?? '')}
@@ -162,7 +166,9 @@ function createStyles(theme: ReturnType<typeof useTheme>) {
       backgroundColor: theme.colors.primary,
       alignItems: 'center',
       justifyContent: 'center',
+      overflow: 'hidden',
     },
+    avatarImage: { width: 56, height: 56 },
     avatarText: {
       color: theme.colors.onPrimary,
       fontSize: theme.fontSizes.lg,

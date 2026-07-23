@@ -1,9 +1,12 @@
 import { useEffect, useState } from 'react';
-import { View, StyleSheet, Switch, Linking, Platform } from 'react-native';
+import { View, StyleSheet, Switch, Linking, Platform, Pressable } from 'react-native';
 import { Text } from '@/components/AppText';
 import { useTranslation } from 'react-i18next';
 import Constants from 'expo-constants';
 import * as LocalAuthentication from 'expo-local-authentication';
+import * as ImagePicker from 'expo-image-picker';
+import { Image } from 'react-native';
+import { Feather } from '@expo/vector-icons';
 import { useTheme } from '@/theme/ThemeProvider';
 import { Screen } from '@/components/Screen';
 import { ScreenHeader } from '@/components/ScreenHeader';
@@ -17,6 +20,7 @@ import { useThemeStore, type ThemeMode } from '@/stores/theme.store';
 import { useBiometricLockStore } from '@/stores/biometricLock.store';
 import { updateProfileSettings } from '@/features/auth/services/profile.service';
 import { useDeleteAccount } from '@/features/profile/hooks/useDeleteAccount';
+import { useUpdateProfilePhoto } from '@/features/profile/hooks/useUpdateProfilePhoto';
 
 const LANGUAGES: AppLanguage[] = ['ka', 'en', 'ru'];
 const THEME_MODES: ThemeMode[] = ['light', 'dark', 'system'];
@@ -33,6 +37,7 @@ export function ProfileSettingsScreen() {
   const setMode = useThemeStore((state) => state.setMode);
   const biometricEnabled = useBiometricLockStore((state) => state.enabled);
   const setBiometricEnabled = useBiometricLockStore((state) => state.setEnabled);
+  const photoMutation = useUpdateProfilePhoto();
   const [bioAvailable, setBioAvailable] = useState<boolean | null>(null);
   const [saved, setSaved] = useState(false);
   const [saveError, setSaveError] = useState<string | null>(null);
@@ -89,6 +94,33 @@ export function ProfileSettingsScreen() {
     }
   };
 
+  const pickPhoto = async (source: 'camera' | 'gallery') => {
+    const permission =
+      source === 'camera'
+        ? await ImagePicker.requestCameraPermissionsAsync()
+        : await ImagePicker.requestMediaLibraryPermissionsAsync();
+    if (!permission.granted) return;
+
+    const result =
+      source === 'camera'
+        ? await ImagePicker.launchCameraAsync({
+            quality: 0.8,
+            mediaTypes: ['images'],
+            allowsEditing: true,
+            aspect: [1, 1],
+          })
+        : await ImagePicker.launchImageLibraryAsync({
+            quality: 0.8,
+            mediaTypes: ['images'],
+            allowsEditing: true,
+            aspect: [1, 1],
+          });
+
+    if (!result.canceled && result.assets[0]) {
+      photoMutation.mutate(result.assets[0].uri);
+    }
+  };
+
   const confirmDeleteAccount = () => {
     setBlockedInfo(null);
     deleteAccountMutation.mutate(undefined, {
@@ -123,11 +155,40 @@ export function ProfileSettingsScreen() {
   };
 
   const appVersion = Constants.expoConfig?.version ?? '—';
+  const initials = profile
+    ? `${profile.firstName.charAt(0)}${profile.lastName.charAt(0)}`.toUpperCase()
+    : '?';
 
   return (
     <Screen>
       <View style={styles.container}>
         <ScreenHeader title={t('profile.title')} />
+
+        <View style={styles.avatarSection}>
+          <Pressable
+            style={styles.avatarWrap}
+            onPress={() => pickPhoto('gallery')}
+            onLongPress={() => pickPhoto('camera')}
+          >
+            {profile?.photoUrl ? (
+              <Image source={{ uri: profile.photoUrl }} style={styles.avatarImage} />
+            ) : (
+              <View style={styles.avatarPlaceholder}>
+                <Text style={styles.avatarInitials}>{initials}</Text>
+              </View>
+            )}
+            <View style={styles.avatarEditBadge}>
+              <Feather name="camera" size={14} color={theme.colors.onPrimary} />
+            </View>
+          </Pressable>
+          <Text style={styles.avatarName}>
+            {profile ? `${profile.firstName} ${profile.lastName}` : ''}
+          </Text>
+          <Text style={styles.avatarHint}>{t('profile.photoHint')}</Text>
+          {photoMutation.isError ? (
+            <Text style={styles.avatarErrorText}>{photoMutation.error.message}</Text>
+          ) : null}
+        </View>
 
         <Card>
           <View style={styles.cardField}>
@@ -237,6 +298,52 @@ export function ProfileSettingsScreen() {
 function createStyles(theme: ReturnType<typeof useTheme>) {
   return StyleSheet.create({
     container: { flex: 1, gap: theme.spacing.md },
+    avatarSection: { alignItems: 'center', gap: 4, paddingVertical: theme.spacing.md },
+    avatarWrap: { position: 'relative' },
+    avatarImage: {
+      width: 88,
+      height: 88,
+      borderRadius: 44,
+      backgroundColor: theme.colors.surfaceVariant,
+    },
+    avatarPlaceholder: {
+      width: 88,
+      height: 88,
+      borderRadius: 44,
+      backgroundColor: theme.colors.primary,
+      alignItems: 'center',
+      justifyContent: 'center',
+    },
+    avatarInitials: {
+      color: theme.colors.onPrimary,
+      fontSize: theme.fontSizes.xl,
+      fontWeight: theme.fontWeights.bold,
+    },
+    avatarEditBadge: {
+      position: 'absolute',
+      bottom: 0,
+      right: 0,
+      width: 28,
+      height: 28,
+      borderRadius: 14,
+      backgroundColor: theme.colors.primary,
+      alignItems: 'center',
+      justifyContent: 'center',
+      borderWidth: 2,
+      borderColor: theme.colors.background,
+    },
+    avatarName: {
+      fontSize: theme.fontSizes.md,
+      fontWeight: theme.fontWeights.semiBold,
+      color: theme.colors.textPrimary,
+      marginTop: theme.spacing.sm,
+    },
+    avatarHint: { fontSize: theme.fontSizes.xs, color: theme.colors.textSecondary },
+    avatarErrorText: {
+      fontSize: theme.fontSizes.xs,
+      color: theme.colors.danger,
+      textAlign: 'center',
+    },
     field: { gap: theme.spacing.sm },
     cardField: { padding: theme.spacing.lg, gap: theme.spacing.sm },
     label: {
