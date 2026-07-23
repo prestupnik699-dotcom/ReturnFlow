@@ -5,7 +5,7 @@ import { KeyboardStickyView, KeyboardChatScrollView } from 'react-native-keyboar
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useTranslation } from 'react-i18next';
 import { useRouter } from 'expo-router';
-import { Ionicons } from '@expo/vector-icons';
+import { Feather } from '@expo/vector-icons';
 import { useTheme } from '@/theme/ThemeProvider';
 import { Screen } from '@/components/Screen';
 import { EmptyState } from '@/components/EmptyState';
@@ -180,10 +180,10 @@ export function ChatScreen() {
       <View style={styles.flex}>
         <View style={styles.header}>
           <Pressable onPress={() => router.back()} hitSlop={12} style={styles.backButton}>
-            <Ionicons name="chevron-back" size={22} color={theme.colors.textPrimary} />
+            <Feather name="chevron-left" size={22} color={theme.colors.textPrimary} />
           </Pressable>
           <View style={styles.headerAvatar}>
-            <Ionicons name="chatbubbles-outline" size={18} color={theme.colors.primary} />
+            <Feather name="message-circle" size={18} color={theme.colors.primary} />
           </View>
           <View style={styles.headerText}>
             <Text style={styles.title} numberOfLines={1}>
@@ -201,7 +201,7 @@ export function ChatScreen() {
               onPress={() => setClearConfirmVisible(true)}
               hitSlop={8}
             >
-              <Ionicons name="trash-outline" size={18} color={theme.colors.danger} />
+              <Feather name="trash-2" size={18} color={theme.colors.danger} />
             </Pressable>
           ) : null}
         </View>
@@ -253,7 +253,7 @@ export function ChatScreen() {
               {sendMutation.isPending ? (
                 <ActivityIndicator size="small" color={theme.colors.onPrimary} />
               ) : (
-                <Ionicons name="arrow-up" size={20} color={theme.colors.onPrimary} />
+                <Feather name="arrow-up" size={20} color={theme.colors.onPrimary} />
               )}
             </Pressable>
           </View>

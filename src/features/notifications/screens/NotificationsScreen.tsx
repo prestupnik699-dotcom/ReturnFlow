@@ -3,7 +3,7 @@ import { PressableScale } from '@/components/PressableScale';
 import { Text } from '@/components/AppText';
 import { useTranslation } from 'react-i18next';
 import { useRouter } from 'expo-router';
-import { Ionicons } from '@expo/vector-icons';
+import { Feather } from '@expo/vector-icons';
 import Animated, { FadeInDown } from 'react-native-reanimated';
 import { useTheme } from '@/theme/ThemeProvider';
 import { Screen } from '@/components/Screen';
@@ -30,16 +30,16 @@ function dayKey(iso: string): string {
   return `${d.getFullYear()}-${d.getMonth()}-${d.getDate()}`;
 }
 
-type TypeVisual = { icon: keyof typeof Ionicons.glyphMap; color: (theme: Theme) => string };
+type TypeVisual = { icon: keyof typeof Feather.glyphMap; color: (theme: Theme) => string };
 
 const TYPE_VISUALS: Record<string, TypeVisual> = {
   urgent_return_created: { icon: 'alert-circle', color: (t) => t.colors.danger },
-  return_created: { icon: 'repeat-outline', color: (t) => t.colors.primary },
-  delivery_created: { icon: 'download-outline', color: (t) => t.colors.accent },
+  return_created: { icon: 'repeat', color: (t) => t.colors.primary },
+  delivery_created: { icon: 'download', color: (t) => t.colors.accent },
 };
 
 const DEFAULT_VISUAL: TypeVisual = {
-  icon: 'notifications-outline',
+  icon: 'bell',
   color: (t) => t.colors.textSecondary,
 };
 
@@ -113,7 +113,7 @@ export function NotificationsScreen() {
           <Card>
             <View style={styles.row}>
               <View style={[styles.iconWrap, { backgroundColor: color + '1F' }]}>
-                <Ionicons name={visual.icon} size={18} color={color} />
+                <Feather name={visual.icon} size={18} color={color} />
               </View>
               <View style={styles.info}>
                 <Text
@@ -143,7 +143,7 @@ export function NotificationsScreen() {
         <View style={styles.headerGroup}>
           <View style={styles.header}>
             <Pressable onPress={() => router.back()} hitSlop={12} style={styles.backButton}>
-              <Ionicons name="chevron-back" size={22} color={theme.colors.textPrimary} />
+              <Feather name="chevron-left" size={22} color={theme.colors.textPrimary} />
             </Pressable>
             <Text style={styles.title} numberOfLines={1}>
               {t('common.notifications')}
@@ -151,7 +151,7 @@ export function NotificationsScreen() {
           </View>
           {unreadCount > 0 ? (
             <Pressable onPress={() => markAllMutation.mutate()} style={styles.markAllPill}>
-              <Ionicons name="checkmark-done" size={14} color={theme.colors.primary} />
+              <Feather name="check" size={14} color={theme.colors.primary} />
               <Text style={styles.markAllText}>{t('chat.markAllRead')}</Text>
             </Pressable>
           ) : null}
