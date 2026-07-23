@@ -3,7 +3,7 @@ import { View, Image, Pressable, StyleSheet, ActivityIndicator } from 'react-nat
 import { Text } from '@/components/AppText';
 import * as ImagePicker from 'expo-image-picker';
 import { useTranslation } from 'react-i18next';
-import { Ionicons } from '@expo/vector-icons';
+import { Feather } from '@expo/vector-icons';
 import { useTheme } from '@/theme/ThemeProvider';
 import { ImageViewerModal } from '@/components/ImageViewerModal';
 import { useReturnImages } from '@/features/returns/hooks/useReturnImages';
@@ -64,7 +64,7 @@ export function ReturnPhotos({ returnId, canEdit }: Props) {
             </Pressable>
             {canEdit ? (
               <Pressable style={styles.deleteBadge} onPress={() => handleDelete(image)} hitSlop={8}>
-                <Ionicons name="close" size={12} color="#fff" />
+                <Feather name="x" size={12} color="#fff" />
               </Pressable>
             ) : null}
           </View>
@@ -73,10 +73,10 @@ export function ReturnPhotos({ returnId, canEdit }: Props) {
         {canEdit ? (
           <>
             <Pressable style={styles.addTile} onPress={handlePickFromCamera}>
-              <Ionicons name="camera-outline" size={22} color={theme.colors.textSecondary} />
+              <Feather name="camera" size={22} color={theme.colors.textSecondary} />
             </Pressable>
             <Pressable style={styles.addTile} onPress={handlePickFromGallery}>
-              <Ionicons name="image-outline" size={22} color={theme.colors.textSecondary} />
+              <Feather name="image" size={22} color={theme.colors.textSecondary} />
             </Pressable>
           </>
         ) : null}
