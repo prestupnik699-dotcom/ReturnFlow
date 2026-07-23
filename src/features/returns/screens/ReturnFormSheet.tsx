@@ -4,7 +4,7 @@ import { Text } from '@/components/AppText';
 import { useForm, useWatch, Controller } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useTranslation } from 'react-i18next';
-import { Ionicons } from '@expo/vector-icons';
+import { Feather, Ionicons } from '@expo/vector-icons';
 import { useTheme } from '@/theme/ThemeProvider';
 import { Button } from '@/components/Button';
 import { Chip } from '@/components/Chip';
@@ -218,7 +218,7 @@ export function ReturnFormSheet({
                     setTitleFocused(false);
                   }}
                 >
-                  <Ionicons name="time-outline" size={14} color={theme.colors.textSecondary} />
+                  <Feather name="clock" size={14} color={theme.colors.textSecondary} />
                   <Text style={styles.suggestionText} numberOfLines={1}>
                     {s.title}
                   </Text>
@@ -330,8 +330,8 @@ export function ReturnFormSheet({
           style={styles.exchangeToggle}
           onPress={() => setValue('isExchange', !isExchange)}
         >
-          <Ionicons
-            name={isExchange ? 'checkbox' : 'square-outline'}
+          <Feather
+            name={isExchange ? 'check-square' : 'square'}
             size={22}
             color={isExchange ? theme.colors.primary : theme.colors.textSecondary}
           />

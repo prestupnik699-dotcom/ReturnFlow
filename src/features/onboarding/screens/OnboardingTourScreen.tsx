@@ -8,7 +8,7 @@ import {
   type NativeScrollEvent,
 } from 'react-native';
 import { Text } from '@/components/AppText';
-import { Ionicons } from '@expo/vector-icons';
+import { Feather } from '@expo/vector-icons';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useTranslation } from 'react-i18next';
 import { useTheme } from '@/theme/ThemeProvider';
@@ -17,17 +17,17 @@ import { Logo } from '@/components/Logo';
 
 const { width } = Dimensions.get('window');
 
-type Slide = { icon: keyof typeof Ionicons.glyphMap; titleKey: string; bodyKey: string };
+type Slide = { icon: keyof typeof Feather.glyphMap; titleKey: string; bodyKey: string };
 
 const SLIDES: Slide[] = [
   {
-    icon: 'sparkles-outline',
+    icon: 'star',
     titleKey: 'onboarding.slide1Title',
     bodyKey: 'onboarding.slide1Body',
   },
-  { icon: 'repeat-outline', titleKey: 'onboarding.slide2Title', bodyKey: 'onboarding.slide2Body' },
-  { icon: 'scan-outline', titleKey: 'onboarding.slide3Title', bodyKey: 'onboarding.slide3Body' },
-  { icon: 'people-outline', titleKey: 'onboarding.slide4Title', bodyKey: 'onboarding.slide4Body' },
+  { icon: 'repeat', titleKey: 'onboarding.slide2Title', bodyKey: 'onboarding.slide2Body' },
+  { icon: 'maximize', titleKey: 'onboarding.slide3Title', bodyKey: 'onboarding.slide3Body' },
+  { icon: 'users', titleKey: 'onboarding.slide4Title', bodyKey: 'onboarding.slide4Body' },
 ];
 
 type Props = { onFinish: () => void };
@@ -66,11 +66,11 @@ export function OnboardingTourScreen({ onFinish }: Props) {
         onMomentumScrollEnd={handleScroll}
         renderItem={({ item }) => (
           <View style={styles.slide}>
-            {item.icon === 'sparkles-outline' ? (
+            {item.icon === 'star' ? (
               <Logo size={72} />
             ) : (
               <View style={styles.iconWrap}>
-                <Ionicons name={item.icon} size={48} color={theme.colors.primary} />
+                <Feather name={item.icon} size={48} color={theme.colors.primary} />
               </View>
             )}
             <Text style={styles.title}>{t(item.titleKey)}</Text>
