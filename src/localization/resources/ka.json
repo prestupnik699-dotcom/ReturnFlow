@@ -206,7 +206,18 @@
     "attentionBadge": "{{count}} სასწრაფო",
     "deleteAction": "წაშლა",
     "deliveriesCount": "{{count}} მიწოდება",
-    "defectRate": "{{percent}}% ბრაკი"
+    "defectRate": "{{percent}}% ბრაკი",
+    "report": {
+      "sectionTitle": "წუნის ანგარიში",
+      "share": "ანგარიშის გაზიარება",
+      "generating": "ანგარიშის მომზადება...",
+      "title": "მომწოდებლის ანგარიში",
+      "delivered": "მიწოდებული",
+      "returned": "დაბრუნებული",
+      "defectRate": "წუნის %",
+      "noData": "მონაცემები არ არის",
+      "empty": "ამ მომწოდებელთან დაბრუნებები არ არის"
+    }
   },
   "returns": {
     "title": "დაბრუნებები",

@@ -70,6 +70,46 @@ export async function fetchReturnsForExport(
   };
 }
 
+// Same shape, but scoped to a single supplier across the whole
+// organization (all stores) rather than one store — a supplier's defect
+// history is a property of the supplier relationship, not any one store.
+export async function fetchReturnsForSupplierExport(
+  organizationId: string,
+  supplierId: string,
+): Promise<ServiceResult<ExportRow[]>> {
+  const { data, error } = await supabase
+    .from('return_items')
+    .select(
+      'title, quantity, unit_price, status, priority, barcode, is_exchange, reason, created_at, suppliers(name)',
+    )
+    .eq('organization_id', organizationId)
+    .eq('supplier_id', supplierId)
+    .is('deleted_at', null)
+    .order('created_at', { ascending: false });
+
+  if (error) {
+    return fromCaughtError(error, 'FETCH_SUPPLIER_EXPORT_DATA_FAILED');
+  }
+
+  const rows = data as unknown as ExportRowRaw[];
+
+  return {
+    success: true,
+    data: rows.map((row) => ({
+      title: row.title,
+      supplierName: row.suppliers?.name ?? '',
+      quantity: row.quantity,
+      unitPrice: row.unit_price,
+      status: row.status,
+      priority: row.priority,
+      barcode: row.barcode,
+      isExchange: row.is_exchange,
+      reason: row.reason,
+      createdAt: row.created_at,
+    })),
+  };
+}
+
 function csvEscape(value: string): string {
   if (value.includes(',') || value.includes('"') || value.includes('\n')) {
     return `"${value.replace(/"/g, '""')}"`;
@@ -242,6 +282,102 @@ export function generateReturnsHtml(rows: ExportRow[], labels: ExportLabels): st
               <td colspan="6"></td>
             </tr>
           </tfoot>
+        </table>
+      </body>
+    </html>
+  `;
+}
+
+export type SupplierReportLabels = ExportLabels & {
+  supplierReportTitle: string;
+  deliveredLabel: string;
+  returnedLabel: string;
+  defectRateLabel: string;
+  defectRateNoData: string;
+};
+
+type SupplierReportSummary = {
+  deliveredQuantity: number;
+  returnedQuantity: number;
+  defectRatePercent: number | null;
+};
+
+// A one-page summary meant to be sent to the supplier directly (via the
+// system share sheet) as leverage in a quality conversation: the defect
+// rate up top, in large type, before the itemized list — the number that
+// matters for the conversation should not require scrolling to find.
+export function generateSupplierDefectReportHtml(
+  supplierName: string,
+  summary: SupplierReportSummary,
+  rows: ExportRow[],
+  labels: SupplierReportLabels,
+): string {
+  const tableRows = rows
+    .map(
+      (row) => `
+      <tr>
+        <td>${row.title}</td>
+        <td style="text-align:center">${row.quantity}</td>
+        <td>${labels.statusLabels[row.status]}</td>
+        <td>${row.reason ?? ''}</td>
+        <td>${formatDate(row.createdAt)}</td>
+      </tr>`,
+    )
+    .join('');
+
+  const defectRateText =
+    summary.defectRatePercent != null
+      ? `${summary.defectRatePercent.toFixed(1)}%`
+      : labels.defectRateNoData;
+
+  return `
+    <html>
+      <head>
+        <meta charset="utf-8" />
+        <style>
+          body { font-family: -apple-system, sans-serif; padding: 24px; color: #111; }
+          h1 { font-size: 20px; margin-bottom: 2px; }
+          .meta { color: #666; font-size: 12px; margin-bottom: 20px; }
+          .stats { display: flex; gap: 16px; margin-bottom: 24px; }
+          .stat { flex: 1; border: 1px solid #ddd; border-radius: 8px; padding: 14px; text-align: center; }
+          .stat .value { font-size: 26px; font-weight: 700; }
+          .stat .label { font-size: 11px; color: #666; margin-top: 4px; }
+          .stat.defect .value { color: #c0392b; }
+          table { width: 100%; border-collapse: collapse; font-size: 11px; }
+          th, td { border: 1px solid #ccc; padding: 6px 8px; text-align: left; }
+          th { background: #f2f2f2; font-weight: 600; }
+        </style>
+      </head>
+      <body>
+        <h1>${labels.supplierReportTitle}: ${supplierName}</h1>
+        <div class="meta">${formatDate(new Date().toISOString())}</div>
+
+        <div class="stats">
+          <div class="stat">
+            <div class="value">${summary.deliveredQuantity}</div>
+            <div class="label">${labels.deliveredLabel}</div>
+          </div>
+          <div class="stat">
+            <div class="value">${summary.returnedQuantity}</div>
+            <div class="label">${labels.returnedLabel}</div>
+          </div>
+          <div class="stat defect">
+            <div class="value">${defectRateText}</div>
+            <div class="label">${labels.defectRateLabel}</div>
+          </div>
+        </div>
+
+        <table>
+          <thead>
+            <tr>
+              <th>${labels.columns.title}</th>
+              <th>${labels.columns.quantity}</th>
+              <th>${labels.columns.status}</th>
+              <th>${labels.columns.reason}</th>
+              <th>${labels.columns.date}</th>
+            </tr>
+          </thead>
+          <tbody>${tableRows}</tbody>
         </table>
       </body>
     </html>

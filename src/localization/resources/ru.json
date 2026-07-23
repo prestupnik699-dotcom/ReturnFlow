@@ -206,7 +206,18 @@
     "attentionBadge": "{{count}} срочных",
     "deleteAction": "Удалить",
     "deliveriesCount": "{{count}} поставок",
-    "defectRate": "{{percent}}% брака"
+    "defectRate": "{{percent}}% брака",
+    "report": {
+      "sectionTitle": "Отчёт по браку",
+      "share": "Поделиться отчётом",
+      "generating": "Готовим отчёт...",
+      "title": "Отчёт по поставщику",
+      "delivered": "Доставлено",
+      "returned": "Возвращено",
+      "defectRate": "% брака",
+      "noData": "Нет данных",
+      "empty": "Нет возвратов по этому поставщику"
+    }
   },
   "returns": {
     "title": "Возвраты",

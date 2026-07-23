@@ -206,7 +206,18 @@
     "attentionBadge": "{{count}} urgent",
     "deleteAction": "Delete",
     "deliveriesCount": "{{count}} deliveries",
-    "defectRate": "{{percent}}% defect rate"
+    "defectRate": "{{percent}}% defect rate",
+    "report": {
+      "sectionTitle": "Defect report",
+      "share": "Share report",
+      "generating": "Preparing report...",
+      "title": "Supplier report",
+      "delivered": "Delivered",
+      "returned": "Returned",
+      "defectRate": "Defect rate",
+      "noData": "No data",
+      "empty": "No returns for this supplier"
+    }
   },
   "returns": {
     "title": "Returns",

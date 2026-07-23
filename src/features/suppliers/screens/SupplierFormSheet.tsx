@@ -1,10 +1,11 @@
 import { useEffect } from 'react';
-import { Modal, View, TextInput, StyleSheet } from 'react-native';
+import { Modal, View, TextInput, StyleSheet, ScrollView } from 'react-native';
 import { Text } from '@/components/AppText';
 import { useForm, Controller } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useTranslation } from 'react-i18next';
 import { useTheme } from '@/theme/ThemeProvider';
+import { Feather } from '@expo/vector-icons';
 import { Button } from '@/components/Button';
 import {
   createSupplierSchema,
@@ -15,19 +16,76 @@ import {
   useUpdateSupplier,
 } from '@/features/suppliers/hooks/useSupplierMutations';
 import { useSupplier } from '@/features/suppliers/hooks/useSupplier';
+import { useSupplierReliability } from '@/features/suppliers/hooks/useSupplierReliability';
+import { useExportSupplierReport } from '@/features/statistics/hooks/useExportSupplierReport';
+import { useMembershipStore } from '@/stores/membership.store';
 import { hapticSuccess } from '@/lib/haptics';
+import type { ReturnStatus, ReturnPriority } from '@/features/returns/services/returns.service';
 
 type Props = { visible: boolean; onClose: () => void; supplierId: string | null };
 
 export function SupplierFormSheet({ visible, onClose, supplierId }: Props) {
   const theme = useTheme();
   const { t } = useTranslation();
+  const activeOrganizationId = useMembershipStore((state) => state.activeOrganizationId);
   const { data: supplier } = useSupplier(supplierId);
+  const { data: reliability } = useSupplierReliability();
   const createMutation = useCreateSupplier();
   const updateMutation = useUpdateSupplier();
   const isEditing = !!supplierId;
   const mutation = isEditing ? updateMutation : createMutation;
   const styles = createStyles(theme);
+
+  const statusLabels: Record<ReturnStatus, string> = {
+    pending: t('returns.statusPending'),
+    urgent: t('returns.statusUrgent'),
+    returned: t('returns.statusReturned'),
+    archived: t('returns.statusArchived'),
+  };
+
+  const priorityLabels: Record<ReturnPriority, string> = {
+    low: t('returns.priorityLow'),
+    normal: t('returns.priorityNormal'),
+    high: t('returns.priorityHigh'),
+    critical: t('returns.priorityCritical'),
+  };
+
+  const {
+    runExport,
+    isExporting,
+    error: exportError,
+  } = useExportSupplierReport(
+    activeOrganizationId,
+    supplierId,
+    supplier?.name ?? '',
+    supplierId ? (reliability?.[supplierId] ?? null) : null,
+    {
+      columns: {
+        title: t('returns.create.titleLabel'),
+        supplier: t('returns.create.supplierLabel'),
+        quantity: t('returns.create.quantityLabel'),
+        unitPrice: t('returns.create.priceLabel'),
+        total: t('statistics.export.totalColumn'),
+        status: t('statistics.byStatus'),
+        priority: t('returns.create.priorityLabel'),
+        barcode: t('returns.create.barcodeLabel'),
+        exchange: t('returns.create.exchangeLabel'),
+        reason: t('returns.create.reasonLabel'),
+        date: t('statistics.export.dateColumn'),
+      },
+      statusLabels,
+      priorityLabels,
+      yes: t('statistics.export.yes'),
+      no: t('statistics.export.no'),
+      reportTitle: t('statistics.export.reportTitle'),
+      grandTotalLabel: t('statistics.export.grandTotalLabel'),
+      supplierReportTitle: t('suppliers.report.title'),
+      deliveredLabel: t('suppliers.report.delivered'),
+      returnedLabel: t('suppliers.report.returned'),
+      defectRateLabel: t('suppliers.report.defectRate'),
+      defectRateNoData: t('suppliers.report.noData'),
+    },
+  );
 
   const {
     control,
@@ -83,7 +141,7 @@ export function SupplierFormSheet({ visible, onClose, supplierId }: Props) {
       presentationStyle="pageSheet"
       onRequestClose={onClose}
     >
-      <View style={styles.container}>
+      <ScrollView contentContainerStyle={styles.container} keyboardShouldPersistTaps="handled">
         <Text style={styles.title}>{isEditing ? supplier?.name : t('suppliers.create.title')}</Text>
 
         {fields.map((field) => (
@@ -115,6 +173,26 @@ export function SupplierFormSheet({ visible, onClose, supplierId }: Props) {
           </View>
         ) : null}
 
+        {isEditing ? (
+          <View style={styles.reportSection}>
+            <Text style={styles.reportSectionTitle}>{t('suppliers.report.sectionTitle')}</Text>
+            <Button
+              label={isExporting ? t('suppliers.report.generating') : t('suppliers.report.share')}
+              variant="outline"
+              icon="share-2"
+              onPress={runExport}
+              loading={isExporting}
+            />
+            {exportError === 'EMPTY' ? (
+              <Text style={styles.reportErrorText}>{t('suppliers.report.empty')}</Text>
+            ) : exportError === 'PERMISSION_DENIED' ? (
+              <Text style={styles.reportErrorText}>{t('statistics.export.permissionDenied')}</Text>
+            ) : exportError ? (
+              <Text style={styles.reportErrorText}>{exportError}</Text>
+            ) : null}
+          </View>
+        ) : null}
+
         <View style={styles.actions}>
           <Button
             label={t('organizations.settings.cancelButton')}
@@ -129,7 +207,7 @@ export function SupplierFormSheet({ visible, onClose, supplierId }: Props) {
             style={styles.flexButton}
           />
         </View>
-      </View>
+      </ScrollView>
     </Modal>
   );
 }
@@ -137,7 +215,7 @@ export function SupplierFormSheet({ visible, onClose, supplierId }: Props) {
 function createStyles(theme: ReturnType<typeof useTheme>) {
   return StyleSheet.create({
     container: {
-      flex: 1,
+      flexGrow: 1,
       backgroundColor: theme.colors.background,
       padding: theme.spacing.xl,
       gap: theme.spacing.lg,
@@ -174,6 +252,22 @@ function createStyles(theme: ReturnType<typeof useTheme>) {
     errorBannerText: {
       color: theme.colors.danger,
       fontSize: theme.fontSizes.sm,
+      textAlign: 'center',
+    },
+    reportSection: {
+      gap: theme.spacing.sm,
+      backgroundColor: theme.colors.surfaceVariant,
+      borderRadius: theme.radius.md,
+      padding: theme.spacing.md,
+    },
+    reportSectionTitle: {
+      fontSize: theme.fontSizes.sm,
+      fontWeight: theme.fontWeights.semiBold,
+      color: theme.colors.textSecondary,
+    },
+    reportErrorText: {
+      fontSize: theme.fontSizes.xs,
+      color: theme.colors.danger,
       textAlign: 'center',
     },
     actions: { flexDirection: 'row', gap: theme.spacing.md, marginTop: theme.spacing.md },
