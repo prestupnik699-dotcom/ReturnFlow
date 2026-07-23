@@ -1,11 +1,10 @@
 import { useEffect, useState } from 'react';
-import { View, StyleSheet, Switch, Linking, Platform, Pressable } from 'react-native';
+import { View, StyleSheet, Switch, Linking, Platform, Pressable, Image } from 'react-native';
 import { Text } from '@/components/AppText';
 import { useTranslation } from 'react-i18next';
 import Constants from 'expo-constants';
 import * as LocalAuthentication from 'expo-local-authentication';
 import * as ImagePicker from 'expo-image-picker';
-import { Image } from 'react-native';
 import { Feather } from '@expo/vector-icons';
 import { useTheme } from '@/theme/ThemeProvider';
 import { Screen } from '@/components/Screen';
