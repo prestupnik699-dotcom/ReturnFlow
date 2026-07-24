@@ -469,6 +469,10 @@
     "dueTodayNotification": "დღეს",
     "filterActive": "აქტიური",
     "filterDone": "შესრულებული",
-    "emptyDone": "შესრულებული შენიშვნები არ არის"
+    "emptyDone": "შესრულებული შენიშვნები არ არის",
+    "edit": {
+      "title": "შენიშვნის რედაქტირება",
+      "submit": "შენახვა"
+    }
   }
 }

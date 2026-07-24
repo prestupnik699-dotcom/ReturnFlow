@@ -469,6 +469,10 @@
     "dueTodayNotification": "Today",
     "filterActive": "Active",
     "filterDone": "Done",
-    "emptyDone": "No completed reminders"
+    "emptyDone": "No completed reminders",
+    "edit": {
+      "title": "Edit reminder",
+      "submit": "Save"
+    }
   }
 }

@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { View, FlatList, Pressable, ActivityIndicator, StyleSheet } from 'react-native';
+import { PressableScale } from '@/components/PressableScale';
 import { Text } from '@/components/AppText';
 import { useTranslation } from 'react-i18next';
 import { useRouter } from 'expo-router';
@@ -20,7 +21,7 @@ import {
   useDeleteReminder,
 } from '@/features/reminders/hooks/useReminderMutations';
 import { ReminderFormSheet } from '@/features/reminders/screens/ReminderFormSheet';
-import { hapticSelection } from '@/lib/haptics';
+import { hapticSelection, hapticImpactLight } from '@/lib/haptics';
 import type { Reminder } from '@/features/reminders/services/reminders.service';
 
 type ViewMode = 'active' | 'done';
@@ -53,6 +54,7 @@ export function RemindersScreen() {
   const statusMutation = useUpdateReminderStatus();
   const deleteMutation = useDeleteReminder();
   const [formVisible, setFormVisible] = useState(false);
+  const [editingReminder, setEditingReminder] = useState<Reminder | null>(null);
   const [pendingDelete, setPendingDelete] = useState<Reminder | null>(null);
   const [viewMode, setViewMode] = useState<ViewMode>('active');
   const styles = createStyles(theme);
@@ -71,57 +73,62 @@ export function RemindersScreen() {
     deleteMutation.mutate(pendingDelete.id, { onSuccess: () => setPendingDelete(null) });
   };
 
-  const markDone = (reminder: Reminder) => {
+  const toggleStatus = (reminder: Reminder) => {
     hapticSelection();
-    statusMutation.mutate({ reminderId: reminder.id, status: 'done' });
+    statusMutation.mutate({
+      reminderId: reminder.id,
+      status: reminder.status === 'active' ? 'done' : 'active',
+    });
   };
 
-  const markActive = (reminder: Reminder) => {
-    hapticSelection();
-    statusMutation.mutate({ reminderId: reminder.id, status: 'active' });
+  const openEdit = (reminder: Reminder) => {
+    setEditingReminder(reminder);
+    setFormVisible(true);
+  };
+
+  const openCreate = () => {
+    setEditingReminder(null);
+    setFormVisible(true);
   };
 
   const renderReminder = (reminder: Reminder, index: number, overdueStyle: boolean) => (
     <Animated.View key={reminder.id} entering={FadeInDown.delay(index * 40).duration(220)}>
-      <Pressable onLongPress={() => setPendingDelete(reminder)} hitSlop={4}>
-        <Card>
-          <View style={styles.row}>
-            <Pressable
-              onPress={() =>
-                reminder.status === 'active' ? markDone(reminder) : markActive(reminder)
+      <Card>
+        <View style={styles.row}>
+          <Pressable onPress={() => toggleStatus(reminder)} hitSlop={8}>
+            <Feather
+              name={reminder.status === 'active' ? 'circle' : 'check-circle'}
+              size={22}
+              color={
+                reminder.status === 'active' ? theme.colors.textSecondary : theme.colors.success
               }
-              hitSlop={8}
+            />
+          </Pressable>
+          <PressableScale
+            style={styles.info}
+            onPress={() => openEdit(reminder)}
+            onLongPress={() => {
+              hapticImpactLight();
+              setPendingDelete(reminder);
+            }}
+          >
+            <Text
+              style={[styles.reminderTitle, reminder.status === 'done' && styles.reminderTitleDone]}
+              numberOfLines={2}
             >
-              <Feather
-                name={reminder.status === 'active' ? 'circle' : 'check-circle'}
-                size={22}
-                color={
-                  reminder.status === 'active' ? theme.colors.textSecondary : theme.colors.success
-                }
-              />
-            </Pressable>
-            <View style={styles.info}>
-              <Text
-                style={[
-                  styles.reminderTitle,
-                  reminder.status === 'done' && styles.reminderTitleDone,
-                ]}
-                numberOfLines={2}
-              >
-                {reminder.title}
-              </Text>
-              {reminder.relatedSupplierName ? (
-                <Text style={styles.reminderMeta} numberOfLines={1}>
-                  {reminder.relatedSupplierName}
-                </Text>
-              ) : null}
-            </View>
-            <Text style={[styles.dateText, overdueStyle && styles.dateTextOverdue]}>
-              {formatDate(reminder.dueDate)}
+              {reminder.title}
             </Text>
-          </View>
-        </Card>
-      </Pressable>
+            {reminder.relatedSupplierName ? (
+              <Text style={styles.reminderMeta} numberOfLines={1}>
+                {reminder.relatedSupplierName}
+              </Text>
+            ) : null}
+          </PressableScale>
+          <Text style={[styles.dateText, overdueStyle && styles.dateTextOverdue]}>
+            {formatDate(reminder.dueDate)}
+          </Text>
+        </View>
+      </Card>
     </Animated.View>
   );
 
@@ -198,12 +205,19 @@ export function RemindersScreen() {
         )}
 
         <FAB
-          onPress={() => setFormVisible(true)}
+          onPress={openCreate}
           style={[styles.fab, { bottom: tabBarClearance + theme.spacing.md }]}
         />
       </View>
 
-      <ReminderFormSheet visible={formVisible} onClose={() => setFormVisible(false)} />
+      <ReminderFormSheet
+        visible={formVisible}
+        reminder={editingReminder}
+        onClose={() => {
+          setFormVisible(false);
+          setEditingReminder(null);
+        }}
+      />
 
       <ConfirmDialog
         visible={!!pendingDelete}

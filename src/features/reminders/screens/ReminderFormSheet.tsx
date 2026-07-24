@@ -7,17 +7,27 @@ import { Feather } from '@expo/vector-icons';
 import { useTheme } from '@/theme/ThemeProvider';
 import { Button } from '@/components/Button';
 import { Chip } from '@/components/Chip';
-import { useCreateReminder } from '@/features/reminders/hooks/useReminderMutations';
+import {
+  useCreateReminder,
+  useUpdateReminder,
+} from '@/features/reminders/hooks/useReminderMutations';
 import { useSuppliers } from '@/features/suppliers/hooks/useSuppliers';
 import { useTeamMembers } from '@/features/users/hooks/useTeamMembers';
 import { useAuthStore } from '@/stores/auth.store';
 import { hapticSuccess } from '@/lib/haptics';
+import type { Reminder } from '@/features/reminders/services/reminders.service';
 
-type Props = { visible: boolean; onClose: () => void };
+type Props = { visible: boolean; onClose: () => void; reminder?: Reminder | null };
 
 function toIsoDate(d: Date): string {
   const pad = (n: number) => String(n).padStart(2, '0');
   return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}`;
+}
+
+function isoDateToDate(iso: string): Date {
+  const parts = iso.split('-').map(Number);
+  const [y, m, d] = [parts[0] ?? 1970, parts[1] ?? 1, parts[2] ?? 1];
+  return new Date(y, m - 1, d);
 }
 
 function formatDisplayDate(d: Date): string {
@@ -25,13 +35,16 @@ function formatDisplayDate(d: Date): string {
   return `${pad(d.getDate())}.${pad(d.getMonth() + 1)}.${d.getFullYear()}`;
 }
 
-export function ReminderFormSheet({ visible, onClose }: Props) {
+export function ReminderFormSheet({ visible, onClose, reminder }: Props) {
   const theme = useTheme();
   const { t } = useTranslation();
   const currentProfile = useAuthStore((state) => state.profile);
   const { data: suppliers } = useSuppliers(false, 'name');
   const { data: teamMembers } = useTeamMembers();
-  const mutation = useCreateReminder();
+  const isEditing = !!reminder;
+  const createMutation = useCreateReminder();
+  const updateMutation = useUpdateReminder(reminder?.id ?? '');
+  const mutation = isEditing ? updateMutation : createMutation;
   const styles = createStyles(theme);
 
   const [title, setTitle] = useState('');
@@ -44,15 +57,18 @@ export function ReminderFormSheet({ visible, onClose }: Props) {
   useEffect(() => {
     if (visible) {
       // eslint-disable-next-line react-hooks/set-state-in-effect -- intentional: resetting the form fresh each time the sheet opens
-      setTitle('');
-      setDueDate(new Date());
-      setSupplierId(null);
-      setRecipientIds([]);
+      setTitle(reminder?.title ?? '');
+      setDueDate(reminder ? isoDateToDate(reminder.dueDate) : new Date());
+      setSupplierId(reminder?.relatedSupplierId ?? null);
+      setRecipientIds(
+        reminder ? reminder.recipientProfileIds.filter((id) => id !== currentProfile?.id) : [],
+      );
       setTitleError(false);
-      mutation.reset();
+      createMutation.reset();
+      updateMutation.reset();
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [visible]);
+  }, [visible, reminder]);
 
   const handleClose = () => {
     onClose();
@@ -71,20 +87,19 @@ export function ReminderFormSheet({ visible, onClose }: Props) {
       return;
     }
 
-    mutation.mutate(
-      {
-        title: trimmed,
-        dueDate: toIsoDate(dueDate),
-        relatedSupplierId: supplierId,
-        recipientProfileIds: recipientIds,
+    const values = {
+      title: trimmed,
+      dueDate: toIsoDate(dueDate),
+      relatedSupplierId: supplierId,
+      recipientProfileIds: recipientIds,
+    };
+
+    mutation.mutate(values, {
+      onSuccess: () => {
+        hapticSuccess();
+        handleClose();
       },
-      {
-        onSuccess: () => {
-          hapticSuccess();
-          handleClose();
-        },
-      },
-    );
+    });
   };
 
   // Teammates other than the creator — the creator is always a recipient
@@ -103,7 +118,9 @@ export function ReminderFormSheet({ visible, onClose }: Props) {
         contentContainerStyle={styles.container}
         keyboardShouldPersistTaps="handled"
       >
-        <Text style={styles.title}>{t('reminders.create.title')}</Text>
+        <Text style={styles.title}>
+          {isEditing ? t('reminders.edit.title') : t('reminders.create.title')}
+        </Text>
 
         <View style={styles.field}>
           <Text style={styles.label}>{t('reminders.create.textLabel')}</Text>
@@ -190,7 +207,7 @@ export function ReminderFormSheet({ visible, onClose }: Props) {
             style={styles.flexButton}
           />
           <Button
-            label={t('reminders.create.submit')}
+            label={isEditing ? t('reminders.edit.submit') : t('reminders.create.submit')}
             onPress={handleSubmit}
             loading={mutation.isPending}
             style={styles.flexButton}

@@ -469,6 +469,10 @@
     "dueTodayNotification": "Сегодня",
     "filterActive": "Активные",
     "filterDone": "Выполненные",
-    "emptyDone": "Нет выполненных заметок"
+    "emptyDone": "Нет выполненных заметок",
+    "edit": {
+      "title": "Изменить заметку",
+      "submit": "Сохранить"
+    }
   }
 }

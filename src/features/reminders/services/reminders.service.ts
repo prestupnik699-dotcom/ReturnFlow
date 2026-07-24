@@ -113,6 +113,59 @@ export async function createReminder(input: CreateReminderInput): Promise<Servic
   };
 }
 
+type UpdateReminderInput = {
+  title: string;
+  dueDate: string;
+  relatedSupplierId: string | null;
+  createdBy: string;
+  recipientProfileIds: string[];
+};
+
+export async function updateReminder(
+  reminderId: string,
+  input: UpdateReminderInput,
+): Promise<ServiceResult<null>> {
+  // Resetting both notified_*_at flags whenever a reminder is edited —
+  // not just when the date changes — is the safe default: if the person
+  // is editing it at all, the dispatcher should re-evaluate it fresh on
+  // the next hourly pass rather than silently honoring a stale "already
+  // sent" flag from before the edit.
+  const { error: updateError } = await supabase
+    .from('reminders')
+    .update({
+      title: input.title,
+      due_date: input.dueDate,
+      related_supplier_id: input.relatedSupplierId,
+      notified_before_at: null,
+      notified_due_at: null,
+    })
+    .eq('id', reminderId);
+
+  if (updateError) {
+    return fromCaughtError(updateError, 'UPDATE_REMINDER_FAILED');
+  }
+
+  const { error: deleteRecipientsError } = await supabase
+    .from('reminder_recipients')
+    .delete()
+    .eq('reminder_id', reminderId);
+
+  if (deleteRecipientsError) {
+    return fromCaughtError(deleteRecipientsError, 'UPDATE_REMINDER_RECIPIENTS_FAILED');
+  }
+
+  const recipientIds = Array.from(new Set([input.createdBy, ...input.recipientProfileIds]));
+  const { error: insertRecipientsError } = await supabase
+    .from('reminder_recipients')
+    .insert(recipientIds.map((profileId) => ({ reminder_id: reminderId, profile_id: profileId })));
+
+  if (insertRecipientsError) {
+    return fromCaughtError(insertRecipientsError, 'UPDATE_REMINDER_RECIPIENTS_FAILED');
+  }
+
+  return { success: true, data: null };
+}
+
 export async function updateReminderStatus(
   reminderId: string,
   status: ReminderStatus,

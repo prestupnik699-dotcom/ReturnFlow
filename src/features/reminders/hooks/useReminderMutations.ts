@@ -1,6 +1,7 @@
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import {
   createReminder,
+  updateReminder,
   updateReminderStatus,
   deleteReminder,
   type ReminderStatus,
@@ -14,7 +15,7 @@ function useInvalidateReminders() {
   return () => queryClient.invalidateQueries({ queryKey: ['reminders', activeOrganizationId] });
 }
 
-type CreateReminderValues = {
+type ReminderFormValues = {
   title: string;
   dueDate: string;
   relatedSupplierId: string | null;
@@ -28,7 +29,7 @@ export function useCreateReminder() {
   const invalidate = useInvalidateReminders();
 
   return useMutation({
-    mutationFn: async (values: CreateReminderValues) => {
+    mutationFn: async (values: ReminderFormValues) => {
       if (!activeOrganizationId || !profile) throw new Error('No active organization');
       const result = await createReminder({
         organizationId: activeOrganizationId,
@@ -41,6 +42,26 @@ export function useCreateReminder() {
       });
       if (!result.success) throw new Error(result.error.message);
       return result.data;
+    },
+    onSuccess: invalidate,
+  });
+}
+
+export function useUpdateReminder(reminderId: string) {
+  const profile = useAuthStore((state) => state.profile);
+  const invalidate = useInvalidateReminders();
+
+  return useMutation({
+    mutationFn: async (values: ReminderFormValues) => {
+      if (!profile) throw new Error('No profile');
+      const result = await updateReminder(reminderId, {
+        title: values.title,
+        dueDate: values.dueDate,
+        relatedSupplierId: values.relatedSupplierId,
+        createdBy: profile.id,
+        recipientProfileIds: values.recipientProfileIds,
+      });
+      if (!result.success) throw new Error(result.error.message);
     },
     onSuccess: invalidate,
   });
