@@ -8,6 +8,7 @@ import { Feather, Ionicons } from '@expo/vector-icons';
 import { LinearGradient } from 'expo-linear-gradient';
 import Animated, {
   FadeInDown,
+  FadeIn,
   useAnimatedStyle,
   useSharedValue,
   withRepeat,
@@ -199,7 +200,7 @@ export function DashboardScreen() {
           </View>
         </View>
 
-        <Animated.View key={`greeting-${greetingReplayKey}`} entering={FadeInDown.duration(450)}>
+        <Animated.View key={`greeting-${greetingReplayKey}`} entering={FadeIn.duration(450)}>
           <Text
             style={styles.greeting}
             numberOfLines={language === 'ka' ? 1 : undefined}
@@ -212,7 +213,7 @@ export function DashboardScreen() {
         </Animated.View>
         <Animated.Text
           key={`subtitle-${greetingReplayKey}`}
-          entering={FadeInDown.delay(150).duration(450)}
+          entering={FadeIn.delay(150).duration(450)}
           style={styles.subtitle}
         >
           {t('dashboard.subtitle')}

@@ -135,6 +135,7 @@ function createStyles(theme: ReturnType<typeof useTheme>, variant: ButtonVariant
       fontWeight: theme.fontWeights.semiBold,
       fontSize: theme.fontSizes.md,
       letterSpacing: 0.3,
+      textAlign: 'center',
     },
   });
 }

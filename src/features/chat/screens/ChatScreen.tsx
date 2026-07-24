@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from 'react';
-import { View, TextInput, Pressable, ActivityIndicator, StyleSheet, Keyboard } from 'react-native';
+import { View, Pressable, ActivityIndicator, StyleSheet, Keyboard } from 'react-native';
 import { Text } from '@/components/AppText';
 import { KeyboardStickyView, KeyboardChatScrollView } from 'react-native-keyboard-controller';
 import { SafeAreaView } from 'react-native-safe-area-context';
@@ -10,6 +10,7 @@ import { useTheme } from '@/theme/ThemeProvider';
 import { Screen } from '@/components/Screen';
 import { EmptyState } from '@/components/EmptyState';
 import { ConfirmDialog } from '@/components/ConfirmDialog';
+import { ChatInputBar } from '@/features/chat/components/ChatInputBar';
 import { useChatRoom } from '@/features/chat/hooks/useChatRoom';
 import { useChatMessages } from '@/features/chat/hooks/useChatMessages';
 import { useSendChatMessage } from '@/features/chat/hooks/useSendChatMessage';
@@ -52,7 +53,6 @@ export function ChatScreen() {
   const sendMutation = useSendChatMessage(roomId ?? '');
   const deleteMutation = useDeleteChatMessage(roomId ?? null);
   const clearMutation = useClearChat(roomId ?? null);
-  const [text, setText] = useState('');
   const [pendingDelete, setPendingDelete] = useState<ChatMessage | null>(null);
   const [clearConfirmVisible, setClearConfirmVisible] = useState(false);
   const listRef = useRef<React.ComponentRef<typeof KeyboardChatScrollView>>(null);
@@ -88,14 +88,11 @@ export function ChatScreen() {
     );
   }
 
-  const handleSend = () => {
-    const trimmed = text.trim();
-    if (!trimmed) return;
+  const handleSend = (trimmed: string) => {
     if (!roomId) {
       if (__DEV__) console.error('Chat room not found for active store');
       return;
     }
-    setText('');
     sendMutation.mutate(trimmed);
   };
 
@@ -236,27 +233,7 @@ export function ChatScreen() {
         ) : null}
 
         <KeyboardStickyView offset={{ closed: 0, opened: 0 }}>
-          <View style={[styles.inputRow, { paddingBottom: theme.spacing.sm }]}>
-            <TextInput
-              style={styles.input}
-              placeholder={t('chat.placeholder')}
-              placeholderTextColor={theme.colors.textSecondary}
-              value={text}
-              onChangeText={setText}
-              multiline
-            />
-            <Pressable
-              style={styles.sendButton}
-              onPress={handleSend}
-              disabled={sendMutation.isPending}
-            >
-              {sendMutation.isPending ? (
-                <ActivityIndicator size="small" color={theme.colors.onPrimary} />
-              ) : (
-                <Feather name="arrow-up" size={20} color={theme.colors.onPrimary} />
-              )}
-            </Pressable>
-          </View>
+          <ChatInputBar onSend={handleSend} sending={sendMutation.isPending} />
         </KeyboardStickyView>
       </View>
 
@@ -377,32 +354,6 @@ function createStyles(theme: ReturnType<typeof useTheme>) {
       color: theme.colors.danger,
       textAlign: 'center',
       marginBottom: 4,
-    },
-    inputRow: {
-      flexDirection: 'row',
-      alignItems: 'flex-end',
-      gap: theme.spacing.sm,
-      backgroundColor: theme.colors.background,
-    },
-    input: {
-      flex: 1,
-      borderWidth: 1,
-      borderColor: theme.colors.border,
-      backgroundColor: theme.colors.surface,
-      borderRadius: theme.radius.lg,
-      paddingHorizontal: theme.spacing.md,
-      paddingVertical: theme.spacing.sm,
-      fontSize: theme.fontSizes.md,
-      color: theme.colors.textPrimary,
-      maxHeight: 100,
-    },
-    sendButton: {
-      width: 44,
-      height: 44,
-      borderRadius: 22,
-      backgroundColor: theme.colors.primary,
-      alignItems: 'center',
-      justifyContent: 'center',
     },
   });
 }
