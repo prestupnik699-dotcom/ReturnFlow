@@ -9,6 +9,7 @@ import { useTheme } from '@/theme/ThemeProvider';
 import { Screen } from '@/components/Screen';
 import { ScreenHeader } from '@/components/ScreenHeader';
 import { Card } from '@/components/Card';
+import { Chip } from '@/components/Chip';
 import { FAB } from '@/components/FAB';
 import { EmptyState } from '@/components/EmptyState';
 import { ConfirmDialog } from '@/components/ConfirmDialog';
@@ -21,6 +22,8 @@ import {
 import { ReminderFormSheet } from '@/features/reminders/screens/ReminderFormSheet';
 import { hapticSelection } from '@/lib/haptics';
 import type { Reminder } from '@/features/reminders/services/reminders.service';
+
+type ViewMode = 'active' | 'done';
 
 function dateOnly(iso: string): Date {
   const parts = iso.split('-').map(Number);
@@ -51,9 +54,13 @@ export function RemindersScreen() {
   const deleteMutation = useDeleteReminder();
   const [formVisible, setFormVisible] = useState(false);
   const [pendingDelete, setPendingDelete] = useState<Reminder | null>(null);
+  const [viewMode, setViewMode] = useState<ViewMode>('active');
   const styles = createStyles(theme);
 
   const active = (reminders ?? []).filter((r) => r.status === 'active');
+  const done = (reminders ?? [])
+    .filter((r) => r.status === 'done')
+    .sort((a, b) => b.dueDate.localeCompare(a.dueDate));
   const overdue = active.filter(isOverdue);
   const upcoming = active
     .filter((r) => !isOverdue(r))
@@ -69,16 +76,38 @@ export function RemindersScreen() {
     statusMutation.mutate({ reminderId: reminder.id, status: 'done' });
   };
 
+  const markActive = (reminder: Reminder) => {
+    hapticSelection();
+    statusMutation.mutate({ reminderId: reminder.id, status: 'active' });
+  };
+
   const renderReminder = (reminder: Reminder, index: number, overdueStyle: boolean) => (
     <Animated.View key={reminder.id} entering={FadeInDown.delay(index * 40).duration(220)}>
       <Pressable onLongPress={() => setPendingDelete(reminder)} hitSlop={4}>
         <Card>
           <View style={styles.row}>
-            <Pressable onPress={() => markDone(reminder)} hitSlop={8}>
-              <Feather name="circle" size={22} color={theme.colors.textSecondary} />
+            <Pressable
+              onPress={() =>
+                reminder.status === 'active' ? markDone(reminder) : markActive(reminder)
+              }
+              hitSlop={8}
+            >
+              <Feather
+                name={reminder.status === 'active' ? 'circle' : 'check-circle'}
+                size={22}
+                color={
+                  reminder.status === 'active' ? theme.colors.textSecondary : theme.colors.success
+                }
+              />
             </Pressable>
             <View style={styles.info}>
-              <Text style={styles.reminderTitle} numberOfLines={2}>
+              <Text
+                style={[
+                  styles.reminderTitle,
+                  reminder.status === 'done' && styles.reminderTitleDone,
+                ]}
+                numberOfLines={2}
+              >
                 {reminder.title}
               </Text>
               {reminder.relatedSupplierName ? (
@@ -96,10 +125,25 @@ export function RemindersScreen() {
     </Animated.View>
   );
 
+  const isEmpty = viewMode === 'active' ? active.length === 0 : done.length === 0;
+
   return (
     <Screen>
       <View style={styles.container}>
         <ScreenHeader title={t('reminders.title')} onBack={() => router.back()} />
+
+        <View style={styles.chipRow}>
+          <Chip
+            label={t('reminders.filterActive')}
+            selected={viewMode === 'active'}
+            onPress={() => setViewMode('active')}
+          />
+          <Chip
+            label={t('reminders.filterDone')}
+            selected={viewMode === 'done'}
+            onPress={() => setViewMode('done')}
+          />
+        </View>
 
         {isLoading ? (
           <View style={styles.center}>
@@ -107,12 +151,12 @@ export function RemindersScreen() {
           </View>
         ) : isError ? (
           <Text style={styles.errorText}>{t('organizations.settings.loadError')}</Text>
-        ) : active.length === 0 ? (
+        ) : isEmpty ? (
           <View style={styles.emptyWrap}>
             <EmptyState
               icon="edit-3"
-              title={t('reminders.empty')}
-              message={t('reminders.emptyMessage')}
+              title={viewMode === 'active' ? t('reminders.empty') : t('reminders.emptyDone')}
+              message={viewMode === 'active' ? t('reminders.emptyMessage') : undefined}
             />
           </View>
         ) : (
@@ -121,29 +165,35 @@ export function RemindersScreen() {
             keyExtractor={(item) => item.key}
             contentContainerStyle={[styles.list, { paddingBottom: tabBarClearance + 80 }]}
             showsVerticalScrollIndicator={false}
-            renderItem={() => (
-              <View style={styles.sections}>
-                {overdue.length > 0 ? (
-                  <View style={styles.section}>
-                    <Text style={styles.sectionTitleOverdue}>
-                      {t('reminders.overdueTitle', { count: overdue.length })}
-                    </Text>
-                    <View style={styles.sectionList}>
-                      {overdue.map((r, i) => renderReminder(r, i, true))}
+            renderItem={() =>
+              viewMode === 'active' ? (
+                <View style={styles.sections}>
+                  {overdue.length > 0 ? (
+                    <View style={styles.section}>
+                      <Text style={styles.sectionTitleOverdue}>
+                        {t('reminders.overdueTitle', { count: overdue.length })}
+                      </Text>
+                      <View style={styles.sectionList}>
+                        {overdue.map((r, i) => renderReminder(r, i, true))}
+                      </View>
                     </View>
-                  </View>
-                ) : null}
+                  ) : null}
 
-                {upcoming.length > 0 ? (
-                  <View style={styles.section}>
-                    <Text style={styles.sectionTitle}>{t('reminders.upcomingTitle')}</Text>
-                    <View style={styles.sectionList}>
-                      {upcoming.map((r, i) => renderReminder(r, i, false))}
+                  {upcoming.length > 0 ? (
+                    <View style={styles.section}>
+                      <Text style={styles.sectionTitle}>{t('reminders.upcomingTitle')}</Text>
+                      <View style={styles.sectionList}>
+                        {upcoming.map((r, i) => renderReminder(r, i, false))}
+                      </View>
                     </View>
-                  </View>
-                ) : null}
-              </View>
-            )}
+                  ) : null}
+                </View>
+              ) : (
+                <View style={styles.sectionList}>
+                  {done.map((r, i) => renderReminder(r, i, false))}
+                </View>
+              )
+            }
           />
         )}
 
@@ -176,6 +226,7 @@ function createStyles(theme: ReturnType<typeof useTheme>) {
     center: { flex: 1, justifyContent: 'center', alignItems: 'center' },
     errorText: { color: theme.colors.danger, textAlign: 'center' },
     emptyWrap: { flex: 1, alignItems: 'center', justifyContent: 'center' },
+    chipRow: { flexDirection: 'row', gap: theme.spacing.sm, marginBottom: theme.spacing.md },
     list: { flexGrow: 1 },
     sections: { gap: theme.spacing.lg },
     section: { gap: theme.spacing.sm },
@@ -201,6 +252,10 @@ function createStyles(theme: ReturnType<typeof useTheme>) {
       fontSize: theme.fontSizes.md,
       fontWeight: theme.fontWeights.medium,
       color: theme.colors.textPrimary,
+    },
+    reminderTitleDone: {
+      color: theme.colors.textSecondary,
+      textDecorationLine: 'line-through',
     },
     reminderMeta: { fontSize: theme.fontSizes.xs, color: theme.colors.textSecondary },
     dateText: { fontSize: theme.fontSizes.xs, color: theme.colors.textSecondary },

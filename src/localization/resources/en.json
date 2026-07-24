@@ -466,6 +466,9 @@
       "submit": "Create"
     },
     "dueTomorrowNotification": "Tomorrow",
-    "dueTodayNotification": "Today"
+    "dueTodayNotification": "Today",
+    "filterActive": "Active",
+    "filterDone": "Done",
+    "emptyDone": "No completed reminders"
   }
 }

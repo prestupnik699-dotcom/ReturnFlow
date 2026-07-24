@@ -466,6 +466,9 @@
       "submit": "Создать"
     },
     "dueTomorrowNotification": "Завтра",
-    "dueTodayNotification": "Сегодня"
+    "dueTodayNotification": "Сегодня",
+    "filterActive": "Активные",
+    "filterDone": "Выполненные",
+    "emptyDone": "Нет выполненных заметок"
   }
 }

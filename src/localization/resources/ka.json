@@ -466,6 +466,9 @@
       "submit": "შექმნა"
     },
     "dueTomorrowNotification": "ხვალ",
-    "dueTodayNotification": "დღეს"
+    "dueTodayNotification": "დღეს",
+    "filterActive": "აქტიური",
+    "filterDone": "შესრულებული",
+    "emptyDone": "შესრულებული შენიშვნები არ არის"
   }
 }
