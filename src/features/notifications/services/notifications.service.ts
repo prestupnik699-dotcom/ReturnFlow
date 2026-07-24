@@ -95,3 +95,23 @@ export async function markChatNotificationsRead(profileId: string): Promise<Serv
 
   return { success: true, data: null };
 }
+
+export async function deleteNotification(id: string): Promise<ServiceResult<null>> {
+  const { error } = await supabase.from('notifications').delete().eq('id', id);
+
+  if (error) {
+    return fromCaughtError(error, 'DELETE_NOTIFICATION_FAILED');
+  }
+
+  return { success: true, data: null };
+}
+
+export async function deleteNotifications(ids: string[]): Promise<ServiceResult<null>> {
+  const { error } = await supabase.from('notifications').delete().in('id', ids);
+
+  if (error) {
+    return fromCaughtError(error, 'DELETE_NOTIFICATIONS_FAILED');
+  }
+
+  return { success: true, data: null };
+}

@@ -332,7 +332,10 @@
   },
   "notifications": {
     "emptyTitle": "All quiet",
-    "emptyMessage": "New returns, deliveries, and urgent items will show up here"
+    "emptyMessage": "New returns, deliveries, and urgent items will show up here",
+    "deleteSelected": "Delete selected",
+    "deleteConfirmTitle": "Delete notifications?",
+    "deleteConfirmMessage": "This can't be undone"
   },
   "statistics": {
     "title": "Statistics",

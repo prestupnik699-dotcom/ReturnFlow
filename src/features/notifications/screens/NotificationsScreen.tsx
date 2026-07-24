@@ -1,3 +1,4 @@
+import { useState } from 'react';
 import { View, FlatList, Pressable, ActivityIndicator, StyleSheet } from 'react-native';
 import { PressableScale } from '@/components/PressableScale';
 import { Text } from '@/components/AppText';
@@ -8,13 +9,17 @@ import Animated, { FadeInDown } from 'react-native-reanimated';
 import { useTheme } from '@/theme/ThemeProvider';
 import { Screen } from '@/components/Screen';
 import { Card } from '@/components/Card';
+import { Button } from '@/components/Button';
 import { EmptyState } from '@/components/EmptyState';
+import { ConfirmDialog } from '@/components/ConfirmDialog';
 import { useTabBarClearance } from '@/hooks/useTabBarClearance';
 import { useNotifications } from '@/features/notifications/hooks/useNotifications';
 import {
   useMarkNotificationRead,
   useMarkAllNotificationsRead,
+  useDeleteNotifications,
 } from '@/features/notifications/hooks/useNotificationActions';
+import { hapticImpactLight } from '@/lib/haptics';
 import type { AppNotification } from '@/features/notifications/services/notifications.service';
 
 type Theme = ReturnType<typeof useTheme>;
@@ -36,6 +41,8 @@ const TYPE_VISUALS: Record<string, TypeVisual> = {
   urgent_return_created: { icon: 'alert-circle', color: (t) => t.colors.danger },
   return_created: { icon: 'repeat', color: (t) => t.colors.primary },
   delivery_created: { icon: 'download', color: (t) => t.colors.accent },
+  reminder_due_tomorrow: { icon: 'edit-3', color: (t) => t.colors.accent },
+  reminder_due_today: { icon: 'edit-3', color: (t) => t.colors.danger },
 };
 
 const DEFAULT_VISUAL: TypeVisual = {
@@ -57,10 +64,14 @@ export function NotificationsScreen() {
   const { data: allNotifications, isLoading, isError, error } = useNotifications();
   const markReadMutation = useMarkNotificationRead();
   const markAllMutation = useMarkAllNotificationsRead();
+  const deleteMutation = useDeleteNotifications();
+  const [selectedIds, setSelectedIds] = useState<string[]>([]);
+  const [deleteConfirmVisible, setDeleteConfirmVisible] = useState(false);
   const styles = createStyles(theme);
 
   const notifications = (allNotifications ?? []).filter((n) => n.type !== 'chat_message');
   const unreadCount = notifications.filter((n) => !n.isRead).length;
+  const selectionMode = selectedIds.length > 0;
 
   const dayLabel = (iso: string): string => {
     const d = new Date(iso);
@@ -88,8 +99,31 @@ export function NotificationsScreen() {
     listItems.push({ kind: 'notification', id: notification.id, notification });
   }
 
+  const toggleSelect = (id: string) => {
+    setSelectedIds((prev) => (prev.includes(id) ? prev.filter((x) => x !== id) : [...prev, id]));
+  };
+
+  const handleLongPress = (item: AppNotification) => {
+    hapticImpactLight();
+    toggleSelect(item.id);
+  };
+
   const handlePress = (item: AppNotification) => {
+    if (selectionMode) {
+      toggleSelect(item.id);
+      return;
+    }
     if (!item.isRead) markReadMutation.mutate(item.id);
+  };
+
+  const confirmBulkDelete = () => {
+    const ids = [...selectedIds];
+    deleteMutation.mutate(ids, {
+      onSuccess: () => {
+        setSelectedIds([]);
+        setDeleteConfirmVisible(false);
+      },
+    });
   };
 
   const renderItem = ({ item }: { item: ListItem }) => {
@@ -106,15 +140,27 @@ export function NotificationsScreen() {
     const notification = item.notification;
     const visual = TYPE_VISUALS[notification.type] ?? DEFAULT_VISUAL;
     const color = visual.color(theme);
+    const selected = selectedIds.includes(notification.id);
 
     return (
       <Animated.View entering={FadeInDown.duration(200)}>
-        <PressableScale onPress={() => handlePress(notification)}>
+        <PressableScale
+          onPress={() => handlePress(notification)}
+          onLongPress={() => handleLongPress(notification)}
+        >
           <Card>
             <View style={styles.row}>
-              <View style={[styles.iconWrap, { backgroundColor: color + '1F' }]}>
-                <Feather name={visual.icon} size={18} color={color} />
-              </View>
+              {selectionMode ? (
+                <Feather
+                  name={selected ? 'check-circle' : 'circle'}
+                  size={20}
+                  color={selected ? theme.colors.primary : theme.colors.textSecondary}
+                />
+              ) : (
+                <View style={[styles.iconWrap, { backgroundColor: color + '1F' }]}>
+                  <Feather name={visual.icon} size={18} color={color} />
+                </View>
+              )}
               <View style={styles.info}>
                 <Text
                   style={[styles.notifTitle, !notification.isRead && styles.notifTitleUnread]}
@@ -149,7 +195,7 @@ export function NotificationsScreen() {
               {t('common.notifications')}
             </Text>
           </View>
-          {unreadCount > 0 ? (
+          {!selectionMode && unreadCount > 0 ? (
             <Pressable onPress={() => markAllMutation.mutate()} style={styles.markAllPill}>
               <Feather name="check" size={14} color={theme.colors.primary} />
               <Text style={styles.markAllText}>{t('chat.markAllRead')}</Text>
@@ -169,7 +215,10 @@ export function NotificationsScreen() {
           <FlatList
             data={listItems}
             keyExtractor={(item) => item.id}
-            contentContainerStyle={[styles.list, { paddingBottom: tabBarClearance }]}
+            contentContainerStyle={[
+              styles.list,
+              { paddingBottom: selectionMode ? tabBarClearance : tabBarClearance },
+            ]}
             ListEmptyComponent={
               <EmptyState
                 icon="bell"
@@ -180,7 +229,54 @@ export function NotificationsScreen() {
             renderItem={renderItem}
           />
         )}
+
+        {selectionMode ? (
+          <View style={[styles.footer, { paddingBottom: tabBarClearance }]}>
+            <View style={styles.bulkBarTop}>
+              <Pressable style={styles.cancelButton} onPress={() => setSelectedIds([])}>
+                <Text style={styles.cancelText}>{t('returns.cancelSelection')}</Text>
+              </Pressable>
+              <Pressable
+                style={styles.selectAllButton}
+                onPress={() =>
+                  setSelectedIds(
+                    selectedIds.length === notifications.length
+                      ? []
+                      : notifications.map((n) => n.id),
+                  )
+                }
+              >
+                <Text style={styles.selectAllText}>
+                  {selectedIds.length === notifications.length
+                    ? t('returns.deselectAll')
+                    : t('returns.selectAll')}
+                </Text>
+              </Pressable>
+              <Text style={styles.countText}>
+                {t('returns.selectedCount', { count: selectedIds.length })}
+              </Text>
+            </View>
+            <Button
+              label={t('notifications.deleteSelected')}
+              variant="danger"
+              onPress={() => setDeleteConfirmVisible(true)}
+              loading={deleteMutation.isPending}
+            />
+          </View>
+        ) : null}
       </View>
+
+      <ConfirmDialog
+        visible={deleteConfirmVisible}
+        title={t('notifications.deleteConfirmTitle')}
+        message={t('notifications.deleteConfirmMessage')}
+        confirmLabel={t('organizations.settings.deleteConfirmButton')}
+        cancelLabel={t('organizations.settings.cancelButton')}
+        destructive
+        loading={deleteMutation.isPending}
+        onConfirm={confirmBulkDelete}
+        onCancel={() => setDeleteConfirmVisible(false)}
+      />
     </Screen>
   );
 }
@@ -263,5 +359,41 @@ function createStyles(theme: Theme) {
       backgroundColor: theme.colors.primary,
     },
     notifTime: { fontSize: theme.fontSizes.xs, color: theme.colors.textSecondary },
+    footer: {
+      gap: theme.spacing.md,
+      paddingTop: theme.spacing.md,
+      borderTopWidth: StyleSheet.hairlineWidth,
+      borderTopColor: theme.colors.border,
+    },
+    bulkBarTop: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' },
+    cancelButton: {
+      borderWidth: 1,
+      borderColor: theme.colors.border,
+      borderRadius: theme.radius.full,
+      paddingHorizontal: theme.spacing.md,
+      paddingVertical: 8,
+    },
+    cancelText: {
+      color: theme.colors.textPrimary,
+      fontSize: theme.fontSizes.sm,
+      fontWeight: theme.fontWeights.medium,
+    },
+    selectAllButton: {
+      borderWidth: 1,
+      borderColor: theme.colors.primary,
+      borderRadius: theme.radius.full,
+      paddingHorizontal: theme.spacing.md,
+      paddingVertical: 8,
+    },
+    selectAllText: {
+      color: theme.colors.primary,
+      fontSize: theme.fontSizes.sm,
+      fontWeight: theme.fontWeights.medium,
+    },
+    countText: {
+      color: theme.colors.textSecondary,
+      fontSize: theme.fontSizes.sm,
+      fontWeight: theme.fontWeights.semiBold,
+    },
   });
 }
