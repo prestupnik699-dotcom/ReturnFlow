@@ -444,5 +444,27 @@
       "empty": "პოზიცია ჯერ არ არის დამატებული",
       "saveAll": "მიწოდების შენახვა ({{count}})"
     }
+  },
+  "reminders": {
+    "title": "შენიშვნები",
+    "empty": "შენიშვნები ჯერ არ არის",
+    "emptyMessage": "დაამატეთ შენიშვნა თარიღით, რომ არ დაგავიწყდეთ მნიშვნელოვანი საკითხი",
+    "overdueTitle": "ვადაგადაცილებული ({{count}})",
+    "upcomingTitle": "მოახლოებული",
+    "deleteConfirmTitle": "წავშალოთ შენიშვნა?",
+    "deleteConfirmMessage": "ამის გაუქმება შეუძლებელია",
+    "create": {
+      "title": "ახალი შენიშვნა",
+      "textLabel": "შენიშვნის ტექსტი",
+      "textPlaceholder": "მაგ: ალფას მომწოდებელს ნივთის დაბრუნება",
+      "textRequired": "შეიყვანეთ შენიშვნის ტექსტი",
+      "dateLabel": "თარიღი",
+      "supplierLabel": "მომწოდებელი (არასავალდებულო)",
+      "recipientsLabel": "გაეგზავნოს ასევე",
+      "recipientsHint": "თქვენ მიიღებთ შეტყობინებას ნებისმიერ შემთხვევაში",
+      "submit": "შექმნა"
+    },
+    "dueTomorrowNotification": "ხვალ",
+    "dueTodayNotification": "დღეს"
   }
 }

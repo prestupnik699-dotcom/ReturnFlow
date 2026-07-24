@@ -3,6 +3,8 @@ import { createClient } from 'jsr:@supabase/supabase-js@2';
 const PUSH_TITLES: Record<string, string> = {
   chat_message: 'Новое сообщение в чате',
   return_created: 'Добавлен новый возврат',
+  reminder_due_tomorrow: 'Напоминание: завтра',
+  reminder_due_today: 'Напоминание: сегодня',
 };
 
 Deno.serve(async (req) => {

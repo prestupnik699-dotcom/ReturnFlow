@@ -444,5 +444,27 @@
       "empty": "No items added yet",
       "saveAll": "Save delivery ({{count}})"
     }
+  },
+  "reminders": {
+    "title": "Reminders",
+    "empty": "No reminders yet",
+    "emptyMessage": "Add a dated note so you don't forget something important",
+    "overdueTitle": "Overdue ({{count}})",
+    "upcomingTitle": "Upcoming",
+    "deleteConfirmTitle": "Delete reminder?",
+    "deleteConfirmMessage": "This can't be undone",
+    "create": {
+      "title": "New reminder",
+      "textLabel": "Reminder text",
+      "textPlaceholder": "E.g.: return item to Alpha supplier",
+      "textRequired": "Enter reminder text",
+      "dateLabel": "Date",
+      "supplierLabel": "Supplier (optional)",
+      "recipientsLabel": "Also notify",
+      "recipientsHint": "You'll be notified either way",
+      "submit": "Create"
+    },
+    "dueTomorrowNotification": "Tomorrow",
+    "dueTodayNotification": "Today"
   }
 }

@@ -444,5 +444,27 @@
       "empty": "Пока нет ни одной позиции",
       "saveAll": "Сохранить поставку ({{count}})"
     }
+  },
+  "reminders": {
+    "title": "Заметки",
+    "empty": "Пока нет заметок",
+    "emptyMessage": "Добавьте заметку с датой, чтобы не забыть о важном",
+    "overdueTitle": "Просрочено ({{count}})",
+    "upcomingTitle": "Предстоящие",
+    "deleteConfirmTitle": "Удалить заметку?",
+    "deleteConfirmMessage": "Это действие нельзя отменить",
+    "create": {
+      "title": "Новая заметка",
+      "textLabel": "Текст заметки",
+      "textPlaceholder": "Например: вернуть товар компании Альфа",
+      "textRequired": "Введите текст заметки",
+      "dateLabel": "Дата",
+      "supplierLabel": "Поставщик (опционально)",
+      "recipientsLabel": "Кому ещё отправить",
+      "recipientsHint": "Вам придёт уведомление в любом случае",
+      "submit": "Создать"
+    },
+    "dueTomorrowNotification": "Завтра",
+    "dueTodayNotification": "Сегодня"
   }
 }
