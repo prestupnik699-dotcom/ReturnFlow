@@ -428,7 +428,8 @@
     "emptyTitle": "დაბრუნებები ჯერ არ არის",
     "noStoreTitle": "ჯერ აირჩიეთ მაღაზია",
     "noStoreMessage": "აირჩიეთ მაღაზია „მაღაზიები“-ში",
-    "noStoreButton": "მაღაზიებზე გადასვლა"
+    "noStoreButton": "მაღაზიებზე გადასვლა",
+    "actionReminders": "შენიშვნები"
   },
   "deliveries": {
     "title": "მიწოდებები",

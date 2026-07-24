@@ -428,7 +428,8 @@
     "emptyTitle": "No returns yet",
     "noStoreTitle": "Pick a store first",
     "noStoreMessage": "Select a store in Stores",
-    "noStoreButton": "Go to stores"
+    "noStoreButton": "Go to stores",
+    "actionReminders": "Reminders"
   },
   "deliveries": {
     "title": "Deliveries",

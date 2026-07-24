@@ -428,7 +428,8 @@
     "emptyTitle": "Пока нет ни одного возврата",
     "noStoreTitle": "Сначала выберите магазин",
     "noStoreMessage": "Выберите магазин в разделе «Магазины»",
-    "noStoreButton": "Перейти к магазинам"
+    "noStoreButton": "Перейти к магазинам",
+    "actionReminders": "Заметки"
   },
   "deliveries": {
     "title": "Приёмки",

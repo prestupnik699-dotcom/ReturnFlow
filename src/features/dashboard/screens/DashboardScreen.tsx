@@ -266,6 +266,12 @@ export function DashboardScreen() {
                 onPress={() => router.push('/statistics')}
                 theme={theme}
               />
+              <QuickAction
+                icon="bell"
+                label={t('dashboard.actionReminders')}
+                onPress={() => router.push('/reminders')}
+                theme={theme}
+              />
             </View>
 
             {urgentCount > 0 || todayCount > 0 || (pendingSyncCount ?? 0) > 0 ? (
