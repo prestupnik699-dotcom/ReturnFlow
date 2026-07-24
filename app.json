@@ -6,7 +6,7 @@
     "orientation": "portrait",
     "scheme": "returnflow",
     "userInterfaceStyle": "automatic",
-    "newArchEnabled": true,
+    "newArchEnabled": false,
     "icon": "./assets/images/icon.png",
     "android": {
       "package": "com.returnflow.app",
