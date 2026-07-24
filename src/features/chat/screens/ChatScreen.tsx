@@ -1,7 +1,11 @@
 import { useEffect, useRef, useState } from 'react';
 import { View, Pressable, ActivityIndicator, StyleSheet, Keyboard } from 'react-native';
 import { Text } from '@/components/AppText';
-import { KeyboardStickyView, KeyboardChatScrollView } from 'react-native-keyboard-controller';
+import {
+  KeyboardStickyView,
+  KeyboardChatScrollView,
+  KeyboardGestureArea,
+} from 'react-native-keyboard-controller';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useTranslation } from 'react-i18next';
 import { useRouter } from 'expo-router';
@@ -209,33 +213,39 @@ export function ChatScreen() {
             <ActivityIndicator color={theme.colors.primary} />
           </View>
         ) : (
-          <KeyboardChatScrollView
-            ref={listRef}
-            keyboardLiftBehavior="always"
-            contentContainerStyle={styles.list}
-            showsVerticalScrollIndicator={false}
-            keyboardDismissMode="on-drag"
-            onContentSizeChange={() => listRef.current?.scrollToEnd({ animated: false })}
+          <KeyboardGestureArea
+            interpolator="ios"
+            style={styles.gestureArea}
+            textInputNativeID="chat-input"
           >
-            {listItems.length === 0 ? (
-              <EmptyState
-                icon="message-circle"
-                title={t('chat.empty')}
-                message={t('chat.emptyMessage')}
-              />
-            ) : (
-              listItems.map((item) => <View key={item.id}>{renderItem({ item })}</View>)
-            )}
-          </KeyboardChatScrollView>
+            <KeyboardChatScrollView
+              ref={listRef}
+              keyboardLiftBehavior="always"
+              contentContainerStyle={styles.list}
+              showsVerticalScrollIndicator={false}
+              keyboardDismissMode="on-drag"
+              onContentSizeChange={() => listRef.current?.scrollToEnd({ animated: false })}
+            >
+              {listItems.length === 0 ? (
+                <EmptyState
+                  icon="message-circle"
+                  title={t('chat.empty')}
+                  message={t('chat.emptyMessage')}
+                />
+              ) : (
+                listItems.map((item) => <View key={item.id}>{renderItem({ item })}</View>)
+              )}
+            </KeyboardChatScrollView>
+
+            {sendMutation.isError ? (
+              <Text style={styles.errorText}>{sendMutation.error.message}</Text>
+            ) : null}
+
+            <KeyboardStickyView offset={{ closed: 0, opened: 0 }}>
+              <ChatInputBar onSend={handleSend} sending={sendMutation.isPending} />
+            </KeyboardStickyView>
+          </KeyboardGestureArea>
         )}
-
-        {sendMutation.isError ? (
-          <Text style={styles.errorText}>{sendMutation.error.message}</Text>
-        ) : null}
-
-        <KeyboardStickyView offset={{ closed: 0, opened: 0 }}>
-          <ChatInputBar onSend={handleSend} sending={sendMutation.isPending} />
-        </KeyboardStickyView>
       </View>
 
       <ConfirmDialog
@@ -308,6 +318,7 @@ function createStyles(theme: ReturnType<typeof useTheme>) {
       alignItems: 'center',
       justifyContent: 'center',
     },
+    gestureArea: { flex: 1 },
     list: { flexGrow: 1, gap: theme.spacing.xs, paddingVertical: theme.spacing.sm },
     dividerRow: { alignItems: 'center', marginVertical: theme.spacing.sm },
     dividerPill: {

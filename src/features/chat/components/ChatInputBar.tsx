@@ -32,6 +32,7 @@ function ChatInputBarInner({ onSend, sending }: Props) {
   return (
     <View style={[styles.inputRow, { paddingBottom: theme.spacing.sm }]}>
       <TextInput
+        nativeID="chat-input"
         style={styles.input}
         placeholder={t('chat.placeholder')}
         placeholderTextColor={theme.colors.textSecondary}
