@@ -267,7 +267,7 @@ export function DashboardScreen() {
                 theme={theme}
               />
               <QuickAction
-                icon="bell"
+                icon="edit-3"
                 label={t('dashboard.actionReminders')}
                 onPress={() => router.push('/reminders')}
                 theme={theme}

@@ -1,6 +1,5 @@
 import { useState } from 'react';
 import { View, FlatList, Pressable, ActivityIndicator, StyleSheet } from 'react-native';
-import { PressableScale } from '@/components/PressableScale';
 import { Text } from '@/components/AppText';
 import { useTranslation } from 'react-i18next';
 import { useRouter } from 'expo-router';
@@ -20,6 +19,7 @@ import {
   useDeleteReminder,
 } from '@/features/reminders/hooks/useReminderMutations';
 import { ReminderFormSheet } from '@/features/reminders/screens/ReminderFormSheet';
+import { hapticSelection } from '@/lib/haptics';
 import type { Reminder } from '@/features/reminders/services/reminders.service';
 
 function dateOnly(iso: string): Date {
@@ -64,18 +64,17 @@ export function RemindersScreen() {
     deleteMutation.mutate(pendingDelete.id, { onSuccess: () => setPendingDelete(null) });
   };
 
+  const markDone = (reminder: Reminder) => {
+    hapticSelection();
+    statusMutation.mutate({ reminderId: reminder.id, status: 'done' });
+  };
+
   const renderReminder = (reminder: Reminder, index: number, overdueStyle: boolean) => (
     <Animated.View key={reminder.id} entering={FadeInDown.delay(index * 40).duration(220)}>
-      <PressableScale
-        onLongPress={() => setPendingDelete(reminder)}
-        onPress={() => statusMutation.mutate({ reminderId: reminder.id, status: 'done' })}
-      >
+      <Pressable onLongPress={() => setPendingDelete(reminder)} hitSlop={4}>
         <Card>
           <View style={styles.row}>
-            <Pressable
-              onPress={() => statusMutation.mutate({ reminderId: reminder.id, status: 'done' })}
-              hitSlop={8}
-            >
+            <Pressable onPress={() => markDone(reminder)} hitSlop={8}>
               <Feather name="circle" size={22} color={theme.colors.textSecondary} />
             </Pressable>
             <View style={styles.info}>
@@ -93,7 +92,7 @@ export function RemindersScreen() {
             </Text>
           </View>
         </Card>
-      </PressableScale>
+      </Pressable>
     </Animated.View>
   );
 
@@ -111,7 +110,7 @@ export function RemindersScreen() {
         ) : active.length === 0 ? (
           <View style={styles.emptyWrap}>
             <EmptyState
-              icon="bell"
+              icon="edit-3"
               title={t('reminders.empty')}
               message={t('reminders.emptyMessage')}
             />
