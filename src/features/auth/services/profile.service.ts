@@ -86,12 +86,15 @@ export async function uploadProfilePhoto(
   const path = `${authUserId}/avatar-${Date.now()}.${ext}`;
   const contentType = ext === 'png' ? 'image/png' : 'image/jpeg';
 
+  if (__DEV__) console.log('Uploading avatar to path:', path, 'authUserId:', authUserId);
+
   const { error: uploadError } = await supabase.storage.from('avatars').upload(path, arrayBuffer, {
     contentType,
     upsert: true,
   });
 
   if (uploadError) {
+    if (__DEV__) console.error('Avatar upload error:', JSON.stringify(uploadError));
     throw uploadError;
   }
 

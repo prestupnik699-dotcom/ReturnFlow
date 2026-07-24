@@ -1,5 +1,14 @@
 import { useEffect, useState } from 'react';
-import { View, StyleSheet, Switch, Linking, Platform, Pressable, Image } from 'react-native';
+import {
+  View,
+  ScrollView,
+  StyleSheet,
+  Switch,
+  Linking,
+  Platform,
+  Pressable,
+  Image,
+} from 'react-native';
 import { Text } from '@/components/AppText';
 import { useTranslation } from 'react-i18next';
 import Constants from 'expo-constants';
@@ -160,7 +169,7 @@ export function ProfileSettingsScreen() {
 
   return (
     <Screen>
-      <View style={styles.container}>
+      <ScrollView contentContainerStyle={styles.container} showsVerticalScrollIndicator={false}>
         <ScreenHeader title={t('profile.title')} />
 
         <View style={styles.avatarSection}>
@@ -277,7 +286,7 @@ export function ProfileSettingsScreen() {
             {blockedInfo ? <Text style={styles.blockedText}>{blockedInfo}</Text> : null}
           </View>
         </Card>
-      </View>
+      </ScrollView>
 
       <ConfirmDialog
         visible={deleteConfirmVisible}
@@ -296,7 +305,7 @@ export function ProfileSettingsScreen() {
 
 function createStyles(theme: ReturnType<typeof useTheme>) {
   return StyleSheet.create({
-    container: { flex: 1, gap: theme.spacing.md },
+    container: { gap: theme.spacing.md, paddingBottom: theme.spacing['2xl'] },
     avatarSection: { alignItems: 'center', gap: 4, paddingVertical: theme.spacing.md },
     avatarWrap: { position: 'relative' },
     avatarImage: {
