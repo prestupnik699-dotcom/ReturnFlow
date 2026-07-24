@@ -59,11 +59,41 @@ export function ChatScreen() {
   const styles = createStyles(theme);
 
   const messageCount = messages?.length ?? 0;
+  // Snapshot of message ids present the first time this room's history
+  // finished loading — captured once (guarded by the `=== null` check
+  // below) via state, not a ref, so reading it during render is
+  // perfectly normal React. Anything NOT in this snapshot is a
+  // genuinely new arrival and gets the FadeInUp entrance animation;
+  // anything in it is old history and never animates, even on later
+  // re-renders — without this distinction, every message (including
+  // history) replayed its entrance animation on every mount, which
+  // looked like the whole chat "descending" into place top-to-bottom
+  // each time the screen opened.
+  const [historyBaselineIds, setHistoryBaselineIds] = useState<Set<string> | null>(null);
+  // Whether we've done the initial "jump straight to the bottom" scroll
+  // yet for this room's history — that first scroll must be instant
+  // (animated: false), otherwise a long history visibly scrolls down
+  // from the top before settling, which is the other half of the same
+  // "descending" symptom. Only scrolls after this point animate.
+  const hasScrolledInitiallyRef = useRef(false);
 
   useEffect(() => {
-    if (messageCount > 0) {
-      setTimeout(() => listRef.current?.scrollToEnd({ animated: true }), 50);
+    if (historyBaselineIds === null && messages) {
+      // eslint-disable-next-line react-hooks/set-state-in-effect -- intentional: one-time capture of the initial history snapshot, guarded by the null check above so it never re-fires
+      setHistoryBaselineIds(new Set(messages.map((m) => m.id)));
     }
+  }, [messages, historyBaselineIds]);
+
+  useEffect(() => {
+    if (messageCount === 0) return;
+
+    if (!hasScrolledInitiallyRef.current) {
+      hasScrolledInitiallyRef.current = true;
+      listRef.current?.scrollToEnd({ animated: false });
+      return;
+    }
+
+    setTimeout(() => listRef.current?.scrollToEnd({ animated: true }), 50);
   }, [messageCount]);
   // Keeping the last message visible when the keyboard opens is now
   // handled natively by KeyboardChatScrollView's keyboardLiftBehavior
@@ -149,13 +179,17 @@ export function ChatScreen() {
 
     const message = item.message;
     const isOwn = message.authorId === profile?.id;
+    const isNewMessage = historyBaselineIds !== null && !historyBaselineIds.has(message.id);
+    const Wrapper = isNewMessage ? Animated.View : View;
+    const wrapperProps = isNewMessage ? { entering: FadeInUp.duration(220) } : {};
+
     return (
       <Pressable
         onPress={() => Keyboard.dismiss()}
         onLongPress={() => handleLongPressMessage(message)}
       >
-        <Animated.View
-          entering={FadeInUp.duration(220)}
+        <Wrapper
+          {...wrapperProps}
           style={[styles.bubbleRow, isOwn ? styles.bubbleRowOwn : styles.bubbleRowOther]}
         >
           <View style={[styles.bubble, isOwn ? styles.bubbleOwn : styles.bubbleOther]}>
@@ -167,7 +201,7 @@ export function ChatScreen() {
               {formatTime(message.createdAt)}
             </Text>
           </View>
-        </Animated.View>
+        </Wrapper>
       </Pressable>
     );
   };
