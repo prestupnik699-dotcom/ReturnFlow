@@ -37,6 +37,7 @@ import { useBiometricLockStore } from '@/stores/biometricLock.store';
 import { useAppLock } from '@/features/auth/hooks/useAppLock';
 import { LockScreen } from '@/features/auth/screens/LockScreen';
 import { ErrorBoundary } from '@/components/ErrorBoundary';
+import { SuccessCheckmark } from '@/components/SuccessCheckmark';
 
 getDatabase();
 useBiometricLockStore.getState().init();
@@ -97,6 +98,7 @@ export default Sentry.wrap(function RootLayout() {
             <ErrorBoundary>
               <RootNavigator />
             </ErrorBoundary>
+            <SuccessCheckmark />
           </ThemeProvider>
         </QueryClientProvider>
       </SafeAreaProvider>

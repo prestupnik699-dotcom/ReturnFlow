@@ -20,6 +20,7 @@ import { useTitleSuggestions } from '@/features/returns/hooks/useTitleSuggestion
 import { useReasonSuggestions } from '@/features/returns/hooks/useReasonSuggestions';
 import { useMembershipStore } from '@/stores/membership.store';
 import { hapticSuccess, hapticSelection, hapticError } from '@/lib/haptics';
+import { useSuccessOverlayStore } from '@/stores/successOverlay.store';
 import type { ReturnItem, ReturnPriority } from '@/features/returns/services/returns.service';
 
 const PRIORITIES: ReturnPriority[] = ['low', 'normal', 'high', 'critical'];
@@ -49,6 +50,7 @@ export function ReturnFormSheet({
   const theme = useTheme();
   const { t } = useTranslation();
   const activeStoreId = useMembershipStore((state) => state.activeStoreId);
+  const showSuccessOverlay = useSuccessOverlayStore((state) => state.show);
   const { data: suppliers } = useSuppliers(false, 'name');
   const isEditing = !!returnItem;
   const createMutation = useCreateReturn(suppliers ?? []);
@@ -139,6 +141,7 @@ export function ReturnFormSheet({
         hapticSuccess();
         if (!isEditing) {
           onCreated?.({ supplierId: values.supplierId, title: values.title });
+          showSuccessOverlay();
         }
         handleClose();
       },

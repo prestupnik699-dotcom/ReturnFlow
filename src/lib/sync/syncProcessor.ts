@@ -14,8 +14,9 @@ export function registerSyncHandler(operation: string, handler: SyncHandler): vo
   handlers.set(operation, handler);
 }
 
-export async function processSyncQueue(): Promise<void> {
+export async function processSyncQueue(): Promise<number> {
   const pending = await getPendingOperations();
+  let succeeded = 0;
 
   for (const item of pending) {
     const handler = handlers.get(item.operation);
@@ -29,10 +30,13 @@ export async function processSyncQueue(): Promise<void> {
     try {
       await handler(item.payload);
       await removeOperation(item.id);
+      succeeded += 1;
     } catch (error) {
       const message = error instanceof Error ? error.message : 'Unknown sync error';
       await incrementRetryCount(item.id);
       await markOperationStatus(item.id, 'failed', message);
     }
   }
+
+  return succeeded;
 }
