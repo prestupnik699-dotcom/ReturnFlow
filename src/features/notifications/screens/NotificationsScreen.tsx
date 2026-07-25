@@ -6,6 +6,7 @@ import { useTranslation } from 'react-i18next';
 import { useRouter } from 'expo-router';
 import { Feather } from '@expo/vector-icons';
 import { AnimatedListItem } from '@/components/AnimatedListItem';
+import { BrandedRefreshControl } from '@/components/BrandedRefreshControl';
 import { useTheme } from '@/theme/ThemeProvider';
 import { Screen } from '@/components/Screen';
 import { Card } from '@/components/Card';
@@ -61,7 +62,14 @@ export function NotificationsScreen() {
   const tabBarClearance = useTabBarClearance();
   // Chat messages get their own badge on the Chat entry point (Ещё) instead
   // of showing up here — this list only ever fetches/renders non-chat rows.
-  const { data: allNotifications, isLoading, isError, error } = useNotifications();
+  const {
+    data: allNotifications,
+    isLoading,
+    isError,
+    error,
+    isRefetching,
+    refetch,
+  } = useNotifications();
   const markReadMutation = useMarkNotificationRead();
   const markAllMutation = useMarkAllNotificationsRead();
   const deleteMutation = useDeleteNotifications();
@@ -219,6 +227,7 @@ export function NotificationsScreen() {
               styles.list,
               { paddingBottom: selectionMode ? tabBarClearance : tabBarClearance },
             ]}
+            refreshControl={<BrandedRefreshControl refreshing={isRefetching} onRefresh={refetch} />}
             ListEmptyComponent={
               <EmptyState
                 icon="bell"

@@ -5,6 +5,7 @@ import { useTranslation } from 'react-i18next';
 import { Feather } from '@expo/vector-icons';
 import { LinearGradient } from 'expo-linear-gradient';
 import { AnimatedListItem } from '@/components/AnimatedListItem';
+import { BrandedRefreshControl } from '@/components/BrandedRefreshControl';
 import { useTabBarClearance } from '@/hooks/useTabBarClearance';
 import { useTheme } from '@/theme/ThemeProvider';
 import { Screen } from '@/components/Screen';
@@ -36,7 +37,13 @@ export function SuppliersScreen() {
   const [searchInput, setSearchInput] = useState('');
   const [filterMode, setFilterMode] = useState<FilterMode>('all');
   const [sort, setSort] = useState<SupplierSort>('name');
-  const { data: allSuppliers, isLoading, isError } = useSuppliers(filterMode === 'favorites', sort);
+  const {
+    data: allSuppliers,
+    isLoading,
+    isError,
+    isRefetching,
+    refetch,
+  } = useSuppliers(filterMode === 'favorites', sort);
   const { data: returnCounts } = useSupplierReturnCounts();
   const { data: deliveryCounts } = useSupplierDeliveryCounts();
   const { data: reliability } = useSupplierReliability();
@@ -162,6 +169,7 @@ export function SuppliersScreen() {
               filtered.length === 0 && styles.listEmptyGrow,
             ]}
             showsVerticalScrollIndicator={false}
+            refreshControl={<BrandedRefreshControl refreshing={isRefetching} onRefresh={refetch} />}
             ListEmptyComponent={
               <View style={styles.emptyWrap}>
                 <EmptyState

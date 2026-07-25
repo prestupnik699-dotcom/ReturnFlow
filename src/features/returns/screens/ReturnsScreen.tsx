@@ -6,6 +6,7 @@ import { useRouter, useLocalSearchParams } from 'expo-router';
 import { Feather } from '@expo/vector-icons';
 import { LinearGradient } from 'expo-linear-gradient';
 import { AnimatedListItem } from '@/components/AnimatedListItem';
+import { BrandedRefreshControl } from '@/components/BrandedRefreshControl';
 import { useTheme } from '@/theme/ThemeProvider';
 import { Screen } from '@/components/Screen';
 import { Button } from '@/components/Button';
@@ -72,6 +73,8 @@ export function ReturnsScreen() {
     data: allReturns,
     isLoading,
     isError,
+    isRefetching,
+    refetch,
   } = useReturns(statusFilter ? [statusFilter] : undefined);
   // Unfiltered fetch so filter-chip counts always reflect the whole store
   // regardless of which chip is currently active. Same query the default
@@ -329,6 +332,7 @@ export function ReturnsScreen() {
               sorted.length === 0 && styles.listEmptyGrow,
             ]}
             showsVerticalScrollIndicator={false}
+            refreshControl={<BrandedRefreshControl refreshing={isRefetching} onRefresh={refetch} />}
             ListEmptyComponent={
               <View style={styles.emptyWrap}>
                 <EmptyState

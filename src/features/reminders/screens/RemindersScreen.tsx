@@ -6,6 +6,7 @@ import { useTranslation } from 'react-i18next';
 import { useRouter } from 'expo-router';
 import { Feather } from '@expo/vector-icons';
 import { AnimatedListItem } from '@/components/AnimatedListItem';
+import { BrandedRefreshControl } from '@/components/BrandedRefreshControl';
 import { useTheme } from '@/theme/ThemeProvider';
 import { Screen } from '@/components/Screen';
 import { ScreenHeader } from '@/components/ScreenHeader';
@@ -50,7 +51,7 @@ export function RemindersScreen() {
   const { t } = useTranslation();
   const router = useRouter();
   const tabBarClearance = useTabBarClearance();
-  const { data: reminders, isLoading, isError } = useReminders();
+  const { data: reminders, isLoading, isError, isRefetching, refetch } = useReminders();
   const statusMutation = useUpdateReminderStatus();
   const deleteMutation = useDeleteReminder();
   const [formVisible, setFormVisible] = useState(false);
@@ -172,6 +173,7 @@ export function RemindersScreen() {
             keyExtractor={(item) => item.key}
             contentContainerStyle={[styles.list, { paddingBottom: tabBarClearance + 80 }]}
             showsVerticalScrollIndicator={false}
+            refreshControl={<BrandedRefreshControl refreshing={isRefetching} onRefresh={refetch} />}
             renderItem={() =>
               viewMode === 'active' ? (
                 <View style={styles.sections}>

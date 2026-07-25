@@ -2,6 +2,7 @@ import { useState, useEffect, useRef } from 'react';
 import { View, FlatList, StyleSheet, Pressable, TextInput, ScrollView } from 'react-native';
 import { Text } from '@/components/AppText';
 import { AnimatedListItem } from '@/components/AnimatedListItem';
+import { BrandedRefreshControl } from '@/components/BrandedRefreshControl';
 import { useTranslation } from 'react-i18next';
 import { useRouter, useLocalSearchParams } from 'expo-router';
 import { Feather } from '@expo/vector-icons';
@@ -38,7 +39,7 @@ export function StoresScreen() {
   const autoOpenedRef = useRef(false);
   const tabBarClearance = useTabBarClearance();
   const canAdd = useHasRole(['Owner']);
-  const { data: stores, isLoading, isError } = useStores();
+  const { data: stores, isLoading, isError, isRefetching, refetch } = useStores();
   const { data: returnCounts } = useStoreReturnCounts();
   const { data: deliveryCounts } = useStoreDeliveryCounts();
   const deleteMutation = useDeleteStore();
@@ -179,6 +180,7 @@ export function StoresScreen() {
               filtered.length === 0 && styles.listEmptyGrow,
             ]}
             showsVerticalScrollIndicator={false}
+            refreshControl={<BrandedRefreshControl refreshing={isRefetching} onRefresh={refetch} />}
             ListEmptyComponent={
               <View style={styles.emptyWrap}>
                 <EmptyState
