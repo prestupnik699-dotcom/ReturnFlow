@@ -192,7 +192,7 @@ export function ChatScreen() {
     <SafeAreaView style={styles.safeArea} edges={['top', 'left', 'right', 'bottom']}>
       <KeyboardAvoidingView
         style={styles.flex}
-        behavior={Platform.OS === 'ios' ? 'padding' : undefined}
+        behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
         keyboardVerticalOffset={0}
       >
         <View style={styles.header}>
@@ -329,7 +329,7 @@ function createStyles(theme: ReturnType<typeof useTheme>) {
     // FlatList itself is upside down (`inverted`) to get automatic
     // bottom-anchoring — without this, the whole row (including text)
     // would render upside down too.
-    invertedItem: { transform: [{ scaleY: -1 }] },
+    invertedItem: {},
     dividerRow: { alignItems: 'center', marginVertical: theme.spacing.sm },
     dividerPill: {
       backgroundColor: theme.colors.card,

@@ -1,5 +1,6 @@
 import { useEffect } from 'react';
 import { Modal, View, TextInput, StyleSheet, ScrollView } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
 import { Text } from '@/components/AppText';
 import { useForm, Controller } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -151,73 +152,79 @@ export function SupplierFormSheet({ visible, onClose, supplierId }: Props) {
       presentationStyle="pageSheet"
       onRequestClose={onClose}
     >
-      <ScrollView contentContainerStyle={styles.container} keyboardShouldPersistTaps="handled">
-        <Text style={styles.title}>{isEditing ? supplier?.name : t('suppliers.create.title')}</Text>
+      <SafeAreaView style={{ flex: 1 }} edges={['top', 'bottom']}>
+        <ScrollView contentContainerStyle={styles.container} keyboardShouldPersistTaps="handled">
+          <Text style={styles.title}>
+            {isEditing ? supplier?.name : t('suppliers.create.title')}
+          </Text>
 
-        {fields.map((field) => (
-          <View style={styles.field} key={field.name}>
-            <Text style={styles.label}>{t(field.labelKey)}</Text>
-            <Controller
-              control={control}
-              name={field.name}
-              render={({ field: { value, onChange, onBlur } }) => (
-                <TextInput
-                  style={[styles.input, errors[field.name] && styles.inputError]}
-                  value={value}
-                  onChangeText={onChange}
-                  onBlur={onBlur}
-                  keyboardType={field.keyboardType ?? 'default'}
-                  autoCapitalize={field.name === 'email' ? 'none' : 'words'}
-                />
-              )}
-            />
-            {errors[field.name] ? (
-              <Text style={styles.errorText}>{t(errors[field.name]?.message ?? '')}</Text>
-            ) : null}
-          </View>
-        ))}
+          {fields.map((field) => (
+            <View style={styles.field} key={field.name}>
+              <Text style={styles.label}>{t(field.labelKey)}</Text>
+              <Controller
+                control={control}
+                name={field.name}
+                render={({ field: { value, onChange, onBlur } }) => (
+                  <TextInput
+                    style={[styles.input, errors[field.name] && styles.inputError]}
+                    value={value}
+                    onChangeText={onChange}
+                    onBlur={onBlur}
+                    keyboardType={field.keyboardType ?? 'default'}
+                    autoCapitalize={field.name === 'email' ? 'none' : 'words'}
+                  />
+                )}
+              />
+              {errors[field.name] ? (
+                <Text style={styles.errorText}>{t(errors[field.name]?.message ?? '')}</Text>
+              ) : null}
+            </View>
+          ))}
 
-        {mutation.isError ? (
-          <View style={styles.errorBanner}>
-            <Text style={styles.errorBannerText}>{mutation.error.message}</Text>
-          </View>
-        ) : null}
+          {mutation.isError ? (
+            <View style={styles.errorBanner}>
+              <Text style={styles.errorBannerText}>{mutation.error.message}</Text>
+            </View>
+          ) : null}
 
-        {isEditing ? (
-          <View style={styles.reportSection}>
-            <Text style={styles.reportSectionTitle}>{t('suppliers.report.sectionTitle')}</Text>
+          {isEditing ? (
+            <View style={styles.reportSection}>
+              <Text style={styles.reportSectionTitle}>{t('suppliers.report.sectionTitle')}</Text>
+              <Button
+                label={isExporting ? t('suppliers.report.generating') : t('suppliers.report.share')}
+                variant="outline"
+                icon="share-2"
+                onPress={runExport}
+                loading={isExporting}
+              />
+              {exportError === 'EMPTY' ? (
+                <Text style={styles.reportErrorText}>{t('suppliers.report.empty')}</Text>
+              ) : exportError === 'PERMISSION_DENIED' ? (
+                <Text style={styles.reportErrorText}>
+                  {t('statistics.export.permissionDenied')}
+                </Text>
+              ) : exportError ? (
+                <Text style={styles.reportErrorText}>{exportError}</Text>
+              ) : null}
+            </View>
+          ) : null}
+
+          <View style={styles.actions}>
             <Button
-              label={isExporting ? t('suppliers.report.generating') : t('suppliers.report.share')}
+              label={t('organizations.settings.cancelButton')}
               variant="outline"
-              icon="share-2"
-              onPress={runExport}
-              loading={isExporting}
+              onPress={onClose}
+              style={styles.flexButton}
             />
-            {exportError === 'EMPTY' ? (
-              <Text style={styles.reportErrorText}>{t('suppliers.report.empty')}</Text>
-            ) : exportError === 'PERMISSION_DENIED' ? (
-              <Text style={styles.reportErrorText}>{t('statistics.export.permissionDenied')}</Text>
-            ) : exportError ? (
-              <Text style={styles.reportErrorText}>{exportError}</Text>
-            ) : null}
+            <Button
+              label={t('suppliers.create.submit')}
+              onPress={handleSubmit(onSubmit)}
+              loading={mutation.isPending}
+              style={styles.flexButton}
+            />
           </View>
-        ) : null}
-
-        <View style={styles.actions}>
-          <Button
-            label={t('organizations.settings.cancelButton')}
-            variant="outline"
-            onPress={onClose}
-            style={styles.flexButton}
-          />
-          <Button
-            label={t('suppliers.create.submit')}
-            onPress={handleSubmit(onSubmit)}
-            loading={mutation.isPending}
-            style={styles.flexButton}
-          />
-        </View>
-      </ScrollView>
+        </ScrollView>
+      </SafeAreaView>
     </Modal>
   );
 }

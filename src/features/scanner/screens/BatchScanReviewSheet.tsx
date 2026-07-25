@@ -1,4 +1,5 @@
 import { Modal, View, Pressable, StyleSheet } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
 import { Text } from '@/components/AppText';
 import { useTranslation } from 'react-i18next';
 import { Feather } from '@expo/vector-icons';
@@ -45,69 +46,71 @@ export function BatchScanReviewSheet({
       presentationStyle="pageSheet"
       onRequestClose={onCancel}
     >
-      <View style={styles.container}>
-        <Text style={styles.title}>{t('scanner.batchReviewTitle')}</Text>
-        <Text style={styles.subtitle}>
-          {t('scanner.batchReviewSubtitle', { count: items.length })}
-        </Text>
+      <SafeAreaView style={{ flex: 1 }} edges={['top', 'bottom']}>
+        <View style={styles.container}>
+          <Text style={styles.title}>{t('scanner.batchReviewTitle')}</Text>
+          <Text style={styles.subtitle}>
+            {t('scanner.batchReviewSubtitle', { count: items.length })}
+          </Text>
 
-        <View style={styles.list}>
-          {items.map((item) => (
-            <Card key={item.id}>
-              <View style={styles.row}>
-                <View style={styles.info}>
-                  <Text style={styles.itemTitle} numberOfLines={1}>
-                    {item.title}
-                  </Text>
-                  <Text style={styles.itemMeta} numberOfLines={1}>
-                    {item.supplierName}
-                  </Text>
-                </View>
-                <View style={styles.stepper}>
+          <View style={styles.list}>
+            {items.map((item) => (
+              <Card key={item.id}>
+                <View style={styles.row}>
+                  <View style={styles.info}>
+                    <Text style={styles.itemTitle} numberOfLines={1}>
+                      {item.title}
+                    </Text>
+                    <Text style={styles.itemMeta} numberOfLines={1}>
+                      {item.supplierName}
+                    </Text>
+                  </View>
+                  <View style={styles.stepper}>
+                    <Pressable
+                      style={styles.stepperButton}
+                      onPress={() => onChangeQuantity(item.id, Math.max(1, item.quantity - 1))}
+                      hitSlop={8}
+                    >
+                      <Feather name="minus" size={16} color={theme.colors.primary} />
+                    </Pressable>
+                    <Text style={styles.stepperValue}>{item.quantity}</Text>
+                    <Pressable
+                      style={styles.stepperButton}
+                      onPress={() => onChangeQuantity(item.id, item.quantity + 1)}
+                      hitSlop={8}
+                    >
+                      <Feather name="plus" size={16} color={theme.colors.primary} />
+                    </Pressable>
+                  </View>
                   <Pressable
-                    style={styles.stepperButton}
-                    onPress={() => onChangeQuantity(item.id, Math.max(1, item.quantity - 1))}
+                    style={styles.removeButton}
+                    onPress={() => onRemove(item.id)}
                     hitSlop={8}
                   >
-                    <Feather name="minus" size={16} color={theme.colors.primary} />
-                  </Pressable>
-                  <Text style={styles.stepperValue}>{item.quantity}</Text>
-                  <Pressable
-                    style={styles.stepperButton}
-                    onPress={() => onChangeQuantity(item.id, item.quantity + 1)}
-                    hitSlop={8}
-                  >
-                    <Feather name="plus" size={16} color={theme.colors.primary} />
+                    <Feather name="x" size={18} color={theme.colors.danger} />
                   </Pressable>
                 </View>
-                <Pressable
-                  style={styles.removeButton}
-                  onPress={() => onRemove(item.id)}
-                  hitSlop={8}
-                >
-                  <Feather name="x" size={18} color={theme.colors.danger} />
-                </Pressable>
-              </View>
-            </Card>
-          ))}
-        </View>
+              </Card>
+            ))}
+          </View>
 
-        <View style={styles.actions}>
-          <Button
-            label={t('organizations.settings.cancelButton')}
-            variant="outline"
-            onPress={onCancel}
-            style={styles.flexButton}
-          />
-          <Button
-            label={isSubmitting ? t('scanner.batchSubmitting') : t('scanner.batchConfirmAll')}
-            onPress={onConfirm}
-            loading={isSubmitting}
-            disabled={items.length === 0}
-            style={styles.flexButton}
-          />
+          <View style={styles.actions}>
+            <Button
+              label={t('organizations.settings.cancelButton')}
+              variant="outline"
+              onPress={onCancel}
+              style={styles.flexButton}
+            />
+            <Button
+              label={isSubmitting ? t('scanner.batchSubmitting') : t('scanner.batchConfirmAll')}
+              onPress={onConfirm}
+              loading={isSubmitting}
+              disabled={items.length === 0}
+              style={styles.flexButton}
+            />
+          </View>
         </View>
-      </View>
+      </SafeAreaView>
     </Modal>
   );
 }

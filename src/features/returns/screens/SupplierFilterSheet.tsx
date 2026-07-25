@@ -1,4 +1,5 @@
 import { Modal, View, ScrollView, Pressable, StyleSheet } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
 import { Text } from '@/components/AppText';
 import { useTranslation } from 'react-i18next';
 import { Feather } from '@expo/vector-icons';
@@ -26,36 +27,38 @@ export function SupplierFilterSheet({ visible, onClose, selectedSupplierId, onSe
       presentationStyle="pageSheet"
       onRequestClose={onClose}
     >
-      <View style={styles.container}>
-        <View style={styles.header}>
-          <Text style={styles.title}>{t('returns.filterBySupplier')}</Text>
-          <Pressable onPress={onClose} hitSlop={12}>
-            <Feather name="x" size={22} color={theme.colors.textPrimary} />
-          </Pressable>
-        </View>
+      <SafeAreaView style={{ flex: 1 }} edges={['top', 'bottom']}>
+        <View style={styles.container}>
+          <View style={styles.header}>
+            <Text style={styles.title}>{t('returns.filterBySupplier')}</Text>
+            <Pressable onPress={onClose} hitSlop={12}>
+              <Feather name="x" size={22} color={theme.colors.textPrimary} />
+            </Pressable>
+          </View>
 
-        <ScrollView contentContainerStyle={styles.list}>
-          <Chip
-            label={t('returns.statusAll')}
-            selected={selectedSupplierId === null}
-            onPress={() => {
-              onSelect(null);
-              onClose();
-            }}
-          />
-          {(suppliers ?? []).map((s) => (
+          <ScrollView contentContainerStyle={styles.list}>
             <Chip
-              key={s.id}
-              label={s.name}
-              selected={selectedSupplierId === s.id}
+              label={t('returns.statusAll')}
+              selected={selectedSupplierId === null}
               onPress={() => {
-                onSelect(s.id);
+                onSelect(null);
                 onClose();
               }}
             />
-          ))}
-        </ScrollView>
-      </View>
+            {(suppliers ?? []).map((s) => (
+              <Chip
+                key={s.id}
+                label={s.name}
+                selected={selectedSupplierId === s.id}
+                onPress={() => {
+                  onSelect(s.id);
+                  onClose();
+                }}
+              />
+            ))}
+          </ScrollView>
+        </View>
+      </SafeAreaView>
     </Modal>
   );
 }

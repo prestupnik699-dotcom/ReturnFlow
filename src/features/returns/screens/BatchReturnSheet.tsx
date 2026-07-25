@@ -10,6 +10,7 @@ import {
   Platform,
   ActivityIndicator,
 } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
 import { Text } from '@/components/AppText';
 import { CameraView, useCameraPermissions } from 'expo-camera';
 import { useTranslation } from 'react-i18next';
@@ -158,194 +159,196 @@ export function BatchReturnSheet({ visible, onClose }: Props) {
       presentationStyle="pageSheet"
       onRequestClose={handleClose}
     >
-      <KeyboardAvoidingView
-        style={styles.flex}
-        behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
-      >
-        <ScrollView
-          style={styles.scrollView}
-          contentContainerStyle={styles.container}
-          keyboardShouldPersistTaps="handled"
-          showsVerticalScrollIndicator={false}
+      <SafeAreaView style={{ flex: 1 }} edges={['top', 'bottom']}>
+        <KeyboardAvoidingView
+          style={styles.flex}
+          behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
         >
-          <Text style={styles.title}>
-            {mode === 'return' ? t('returns.batch.title') : t('deliveries.batch.title')}
-          </Text>
-          <Text style={styles.subtitle}>
-            {mode === 'return' ? t('returns.batch.subtitle') : t('deliveries.batch.subtitle')}
-          </Text>
+          <ScrollView
+            style={styles.scrollView}
+            contentContainerStyle={styles.container}
+            keyboardShouldPersistTaps="handled"
+            showsVerticalScrollIndicator={false}
+          >
+            <Text style={styles.title}>
+              {mode === 'return' ? t('returns.batch.title') : t('deliveries.batch.title')}
+            </Text>
+            <Text style={styles.subtitle}>
+              {mode === 'return' ? t('returns.batch.subtitle') : t('deliveries.batch.subtitle')}
+            </Text>
 
-          <View style={styles.modeToggle}>
-            <Pressable
-              style={[styles.modeButton, mode === 'return' && styles.modeButtonActive]}
-              onPress={() => handleModeChange('return')}
-            >
-              <Text style={[styles.modeText, mode === 'return' && styles.modeTextActive]}>
-                {t('returns.batch.modeReturn')}
-              </Text>
-            </Pressable>
-            <Pressable
-              style={[styles.modeButton, mode === 'delivery' && styles.modeButtonActive]}
-              onPress={() => handleModeChange('delivery')}
-            >
-              <Text style={[styles.modeText, mode === 'delivery' && styles.modeTextActive]}>
-                {t('returns.batch.modeDelivery')}
-              </Text>
-            </Pressable>
-          </View>
-
-          <View style={styles.field}>
-            <Text style={styles.label}>{t('returns.create.supplierLabel')}</Text>
-            <View style={styles.chipRow}>
-              {(suppliers ?? []).map((s) => (
-                <Chip
-                  key={s.id}
-                  label={s.name}
-                  selected={supplierId === s.id}
-                  onPress={() => setSupplierId(s.id)}
-                />
-              ))}
-            </View>
-          </View>
-
-          {mode === 'return' ? (
-            <Pressable style={styles.exchangeToggle} onPress={() => setIsExchange((v) => !v)}>
-              <Feather
-                name={isExchange ? 'check-square' : 'square'}
-                size={22}
-                color={isExchange ? theme.colors.primary : theme.colors.textSecondary}
-              />
-              <Text style={styles.exchangeLabel}>{t('returns.create.exchangeLabel')}</Text>
-            </Pressable>
-          ) : null}
-
-          {supplierId ? (
-            <View style={styles.field}>
-              {!scanningActive ? (
-                <Pressable style={styles.startScanButton} onPress={() => setScanningActive(true)}>
-                  <Feather name="maximize" size={20} color={theme.colors.onPrimary} />
-                  <Text style={styles.startScanText}>{t('deliveries.batch.startScan')}</Text>
-                </Pressable>
-              ) : !permission?.granted ? (
-                <View style={styles.permissionBox}>
-                  <Text style={styles.permissionText}>{t('scanner.noPermission')}</Text>
-                  <Button label={t('scanner.openSettings')} onPress={requestPermission} />
-                </View>
-              ) : (
-                <View style={styles.cameraWrap}>
-                  <CameraView
-                    style={styles.camera}
-                    barcodeScannerSettings={{
-                      barcodeTypes: ['ean13', 'ean8', 'upc_a', 'upc_e', 'code128', 'code39'],
-                    }}
-                    onBarcodeScanned={handleBarcodeScanned}
-                  />
-                  <View style={styles.cameraOverlay} pointerEvents="box-none">
-                    <View style={styles.frame} />
-                    <Pressable
-                      style={styles.stopScanButton}
-                      onPress={() => setScanningActive(false)}
-                      hitSlop={8}
-                    >
-                      <Feather name="x" size={18} color="#fff" />
-                    </Pressable>
-                  </View>
-                  {isLookingUp ? (
-                    <View style={styles.cameraStatusOverlay}>
-                      <ActivityIndicator color="#fff" />
-                    </View>
-                  ) : null}
-                  {toastMessage ? (
-                    <View style={styles.toast}>
-                      <Feather name="check-circle" size={16} color={theme.colors.success} />
-                      <Text style={styles.toastText} numberOfLines={1}>
-                        {toastMessage}
-                      </Text>
-                    </View>
-                  ) : null}
-                </View>
-              )}
-            </View>
-          ) : null}
-
-          <View style={styles.field}>
-            <Text style={styles.label}>{t('returns.batch.addLineLabel')}</Text>
-            <View style={styles.quickRow}>
-              <TextInput
-                style={[styles.quickInput, styles.quickTitle]}
-                placeholder={t('returns.create.titleLabel')}
-                placeholderTextColor={theme.colors.textSecondary}
-                value={titleInput}
-                onChangeText={setTitleInput}
-                onSubmitEditing={addManualLine}
-              />
-              <TextInput
-                style={[styles.quickInput, styles.quickBarcode]}
-                placeholder={t('returns.batch.barcodeShort')}
-                placeholderTextColor={theme.colors.textSecondary}
-                value={barcodeInput}
-                onChangeText={setBarcodeInput}
-                keyboardType="number-pad"
-              />
-              <TextInput
-                style={[styles.quickInput, styles.quickQty]}
-                value={quantityInput}
-                onChangeText={setQuantityInput}
-                keyboardType="number-pad"
-              />
-              <Pressable style={styles.addLineButton} onPress={addManualLine}>
-                <Feather name="plus" size={22} color={theme.colors.onPrimary} />
+            <View style={styles.modeToggle}>
+              <Pressable
+                style={[styles.modeButton, mode === 'return' && styles.modeButtonActive]}
+                onPress={() => handleModeChange('return')}
+              >
+                <Text style={[styles.modeText, mode === 'return' && styles.modeTextActive]}>
+                  {t('returns.batch.modeReturn')}
+                </Text>
+              </Pressable>
+              <Pressable
+                style={[styles.modeButton, mode === 'delivery' && styles.modeButtonActive]}
+                onPress={() => handleModeChange('delivery')}
+              >
+                <Text style={[styles.modeText, mode === 'delivery' && styles.modeTextActive]}>
+                  {t('returns.batch.modeDelivery')}
+                </Text>
               </Pressable>
             </View>
-          </View>
 
-          {lines.length > 0 ? (
-            <View style={styles.linesList}>
-              {lines.map((line) => (
-                <View key={line.id} style={styles.lineRow}>
-                  <View style={styles.lineInfo}>
-                    <Text style={styles.lineTitle}>{line.title}</Text>
-                    <Text style={styles.lineMeta}>
-                      {line.barcode ? `${line.barcode} · ` : ''}×{line.quantity}
-                    </Text>
-                  </View>
-                  <Pressable onPress={() => removeLine(line.id)} hitSlop={8}>
-                    <Feather name="x-circle" size={20} color={theme.colors.danger} />
+            <View style={styles.field}>
+              <Text style={styles.label}>{t('returns.create.supplierLabel')}</Text>
+              <View style={styles.chipRow}>
+                {(suppliers ?? []).map((s) => (
+                  <Chip
+                    key={s.id}
+                    label={s.name}
+                    selected={supplierId === s.id}
+                    onPress={() => setSupplierId(s.id)}
+                  />
+                ))}
+              </View>
+            </View>
+
+            {mode === 'return' ? (
+              <Pressable style={styles.exchangeToggle} onPress={() => setIsExchange((v) => !v)}>
+                <Feather
+                  name={isExchange ? 'check-square' : 'square'}
+                  size={22}
+                  color={isExchange ? theme.colors.primary : theme.colors.textSecondary}
+                />
+                <Text style={styles.exchangeLabel}>{t('returns.create.exchangeLabel')}</Text>
+              </Pressable>
+            ) : null}
+
+            {supplierId ? (
+              <View style={styles.field}>
+                {!scanningActive ? (
+                  <Pressable style={styles.startScanButton} onPress={() => setScanningActive(true)}>
+                    <Feather name="maximize" size={20} color={theme.colors.onPrimary} />
+                    <Text style={styles.startScanText}>{t('deliveries.batch.startScan')}</Text>
                   </Pressable>
-                </View>
-              ))}
-            </View>
-          ) : (
-            <Text style={styles.emptyHint}>{t('returns.batch.empty')}</Text>
-          )}
+                ) : !permission?.granted ? (
+                  <View style={styles.permissionBox}>
+                    <Text style={styles.permissionText}>{t('scanner.noPermission')}</Text>
+                    <Button label={t('scanner.openSettings')} onPress={requestPermission} />
+                  </View>
+                ) : (
+                  <View style={styles.cameraWrap}>
+                    <CameraView
+                      style={styles.camera}
+                      barcodeScannerSettings={{
+                        barcodeTypes: ['ean13', 'ean8', 'upc_a', 'upc_e', 'code128', 'code39'],
+                      }}
+                      onBarcodeScanned={handleBarcodeScanned}
+                    />
+                    <View style={styles.cameraOverlay} pointerEvents="box-none">
+                      <View style={styles.frame} />
+                      <Pressable
+                        style={styles.stopScanButton}
+                        onPress={() => setScanningActive(false)}
+                        hitSlop={8}
+                      >
+                        <Feather name="x" size={18} color="#fff" />
+                      </Pressable>
+                    </View>
+                    {isLookingUp ? (
+                      <View style={styles.cameraStatusOverlay}>
+                        <ActivityIndicator color="#fff" />
+                      </View>
+                    ) : null}
+                    {toastMessage ? (
+                      <View style={styles.toast}>
+                        <Feather name="check-circle" size={16} color={theme.colors.success} />
+                        <Text style={styles.toastText} numberOfLines={1}>
+                          {toastMessage}
+                        </Text>
+                      </View>
+                    ) : null}
+                  </View>
+                )}
+              </View>
+            ) : null}
 
-          {batchMutation.isError ? (
-            <View style={styles.errorBanner}>
-              <Text style={styles.errorBannerText}>{batchMutation.error.message}</Text>
+            <View style={styles.field}>
+              <Text style={styles.label}>{t('returns.batch.addLineLabel')}</Text>
+              <View style={styles.quickRow}>
+                <TextInput
+                  style={[styles.quickInput, styles.quickTitle]}
+                  placeholder={t('returns.create.titleLabel')}
+                  placeholderTextColor={theme.colors.textSecondary}
+                  value={titleInput}
+                  onChangeText={setTitleInput}
+                  onSubmitEditing={addManualLine}
+                />
+                <TextInput
+                  style={[styles.quickInput, styles.quickBarcode]}
+                  placeholder={t('returns.batch.barcodeShort')}
+                  placeholderTextColor={theme.colors.textSecondary}
+                  value={barcodeInput}
+                  onChangeText={setBarcodeInput}
+                  keyboardType="number-pad"
+                />
+                <TextInput
+                  style={[styles.quickInput, styles.quickQty]}
+                  value={quantityInput}
+                  onChangeText={setQuantityInput}
+                  keyboardType="number-pad"
+                />
+                <Pressable style={styles.addLineButton} onPress={addManualLine}>
+                  <Feather name="plus" size={22} color={theme.colors.onPrimary} />
+                </Pressable>
+              </View>
             </View>
-          ) : null}
 
-          <View style={styles.actions}>
-            <Button
-              label={t('organizations.settings.cancelButton')}
-              variant="outline"
-              onPress={handleClose}
-              style={styles.flexButton}
-            />
-            <Button
-              label={
-                mode === 'return'
-                  ? t('returns.batch.saveAll', { count: lines.length })
-                  : t('deliveries.batch.saveAll', { count: lines.length })
-              }
-              onPress={handleSaveAll}
-              loading={batchMutation.isPending}
-              disabled={!supplierId || lines.length === 0}
-              style={styles.flexButton}
-            />
-          </View>
-        </ScrollView>
-      </KeyboardAvoidingView>
+            {lines.length > 0 ? (
+              <View style={styles.linesList}>
+                {lines.map((line) => (
+                  <View key={line.id} style={styles.lineRow}>
+                    <View style={styles.lineInfo}>
+                      <Text style={styles.lineTitle}>{line.title}</Text>
+                      <Text style={styles.lineMeta}>
+                        {line.barcode ? `${line.barcode} · ` : ''}×{line.quantity}
+                      </Text>
+                    </View>
+                    <Pressable onPress={() => removeLine(line.id)} hitSlop={8}>
+                      <Feather name="x-circle" size={20} color={theme.colors.danger} />
+                    </Pressable>
+                  </View>
+                ))}
+              </View>
+            ) : (
+              <Text style={styles.emptyHint}>{t('returns.batch.empty')}</Text>
+            )}
+
+            {batchMutation.isError ? (
+              <View style={styles.errorBanner}>
+                <Text style={styles.errorBannerText}>{batchMutation.error.message}</Text>
+              </View>
+            ) : null}
+
+            <View style={styles.actions}>
+              <Button
+                label={t('organizations.settings.cancelButton')}
+                variant="outline"
+                onPress={handleClose}
+                style={styles.flexButton}
+              />
+              <Button
+                label={
+                  mode === 'return'
+                    ? t('returns.batch.saveAll', { count: lines.length })
+                    : t('deliveries.batch.saveAll', { count: lines.length })
+                }
+                onPress={handleSaveAll}
+                loading={batchMutation.isPending}
+                disabled={!supplierId || lines.length === 0}
+                style={styles.flexButton}
+              />
+            </View>
+          </ScrollView>
+        </KeyboardAvoidingView>
+      </SafeAreaView>
     </Modal>
   );
 }

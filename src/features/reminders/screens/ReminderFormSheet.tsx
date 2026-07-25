@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
 import { Modal, View, TextInput, Pressable, ScrollView, StyleSheet } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
 import { Text } from '@/components/AppText';
 import DateTimePicker from '@react-native-community/datetimepicker';
 import { useTranslation } from 'react-i18next';
@@ -113,107 +114,105 @@ export function ReminderFormSheet({ visible, onClose, reminder }: Props) {
       presentationStyle="pageSheet"
       onRequestClose={handleClose}
     >
-      <ScrollView
-        style={styles.scrollView}
-        contentContainerStyle={styles.container}
-        keyboardShouldPersistTaps="handled"
-      >
-        <Text style={styles.title}>
-          {isEditing ? t('reminders.edit.title') : t('reminders.create.title')}
-        </Text>
+      <SafeAreaView style={{ flex: 1 }} edges={['top', 'bottom']}>
+        <ScrollView contentContainerStyle={styles.container} keyboardShouldPersistTaps="handled">
+          <Text style={styles.title}>
+            {isEditing ? t('reminders.edit.title') : t('reminders.create.title')}
+          </Text>
 
-        <View style={styles.field}>
-          <Text style={styles.label}>{t('reminders.create.textLabel')}</Text>
-          <TextInput
-            style={[styles.input, titleError && styles.inputError]}
-            value={title}
-            onChangeText={(v) => {
-              setTitle(v);
-              setTitleError(false);
-            }}
-            placeholder={t('reminders.create.textPlaceholder')}
-            placeholderTextColor={theme.colors.textSecondary}
-            multiline
-          />
-          {titleError ? (
-            <Text style={styles.errorText}>{t('reminders.create.textRequired')}</Text>
-          ) : null}
-        </View>
-
-        <View style={styles.field}>
-          <Text style={styles.label}>{t('reminders.create.dateLabel')}</Text>
-          <Pressable style={styles.dateRow} onPress={() => setPickerVisible(true)}>
-            <Feather name="calendar" size={18} color={theme.colors.textSecondary} />
-            <Text style={styles.dateText}>{formatDisplayDate(dueDate)}</Text>
-          </Pressable>
-          {pickerVisible ? (
-            <DateTimePicker
-              value={dueDate}
-              mode="date"
-              display="default"
-              minimumDate={new Date()}
-              onChange={(_, selected) => {
-                setPickerVisible(false);
-                if (selected) setDueDate(selected);
+          <View style={styles.field}>
+            <Text style={styles.label}>{t('reminders.create.textLabel')}</Text>
+            <TextInput
+              style={[styles.input, titleError && styles.inputError]}
+              value={title}
+              onChangeText={(v) => {
+                setTitle(v);
+                setTitleError(false);
               }}
+              placeholder={t('reminders.create.textPlaceholder')}
+              placeholderTextColor={theme.colors.textSecondary}
+              multiline
             />
+            {titleError ? (
+              <Text style={styles.errorText}>{t('reminders.create.textRequired')}</Text>
+            ) : null}
+          </View>
+
+          <View style={styles.field}>
+            <Text style={styles.label}>{t('reminders.create.dateLabel')}</Text>
+            <Pressable style={styles.dateRow} onPress={() => setPickerVisible(true)}>
+              <Feather name="calendar" size={18} color={theme.colors.textSecondary} />
+              <Text style={styles.dateText}>{formatDisplayDate(dueDate)}</Text>
+            </Pressable>
+            {pickerVisible ? (
+              <DateTimePicker
+                value={dueDate}
+                mode="date"
+                display="default"
+                minimumDate={new Date()}
+                onChange={(_, selected) => {
+                  setPickerVisible(false);
+                  if (selected) setDueDate(selected);
+                }}
+              />
+            ) : null}
+          </View>
+
+          {suppliers && suppliers.length > 0 ? (
+            <View style={styles.field}>
+              <Text style={styles.label}>{t('reminders.create.supplierLabel')}</Text>
+              <View style={styles.chipRow}>
+                {suppliers.map((s) => (
+                  <Chip
+                    key={s.id}
+                    label={s.name}
+                    selected={supplierId === s.id}
+                    onPress={() => setSupplierId(supplierId === s.id ? null : s.id)}
+                  />
+                ))}
+              </View>
+            </View>
           ) : null}
-        </View>
 
-        {suppliers && suppliers.length > 0 ? (
-          <View style={styles.field}>
-            <Text style={styles.label}>{t('reminders.create.supplierLabel')}</Text>
-            <View style={styles.chipRow}>
-              {suppliers.map((s) => (
-                <Chip
-                  key={s.id}
-                  label={s.name}
-                  selected={supplierId === s.id}
-                  onPress={() => setSupplierId(supplierId === s.id ? null : s.id)}
-                />
-              ))}
+          {otherMembers.length > 0 ? (
+            <View style={styles.field}>
+              <Text style={styles.label}>{t('reminders.create.recipientsLabel')}</Text>
+              <Text style={styles.recipientsHint}>{t('reminders.create.recipientsHint')}</Text>
+              <View style={styles.chipRow}>
+                {otherMembers.map((m) => (
+                  <Chip
+                    key={m.profileId}
+                    label={`${m.firstName} ${m.lastName}`}
+                    selected={recipientIds.includes(m.profileId)}
+                    onPress={() => toggleRecipient(m.profileId)}
+                  />
+                ))}
+              </View>
             </View>
-          </View>
-        ) : null}
+          ) : null}
 
-        {otherMembers.length > 0 ? (
-          <View style={styles.field}>
-            <Text style={styles.label}>{t('reminders.create.recipientsLabel')}</Text>
-            <Text style={styles.recipientsHint}>{t('reminders.create.recipientsHint')}</Text>
-            <View style={styles.chipRow}>
-              {otherMembers.map((m) => (
-                <Chip
-                  key={m.profileId}
-                  label={`${m.firstName} ${m.lastName}`}
-                  selected={recipientIds.includes(m.profileId)}
-                  onPress={() => toggleRecipient(m.profileId)}
-                />
-              ))}
+          {mutation.isError ? (
+            <View style={styles.errorBanner}>
+              <Text style={styles.errorBannerText}>{mutation.error.message}</Text>
             </View>
-          </View>
-        ) : null}
+          ) : null}
 
-        {mutation.isError ? (
-          <View style={styles.errorBanner}>
-            <Text style={styles.errorBannerText}>{mutation.error.message}</Text>
+          <View style={styles.actions}>
+            <Button
+              label={t('organizations.settings.cancelButton')}
+              variant="outline"
+              onPress={handleClose}
+              style={styles.flexButton}
+            />
+            <Button
+              label={isEditing ? t('reminders.edit.submit') : t('reminders.create.submit')}
+              onPress={handleSubmit}
+              loading={mutation.isPending}
+              style={styles.flexButton}
+            />
           </View>
-        ) : null}
-
-        <View style={styles.actions}>
-          <Button
-            label={t('organizations.settings.cancelButton')}
-            variant="outline"
-            onPress={handleClose}
-            style={styles.flexButton}
-          />
-          <Button
-            label={isEditing ? t('reminders.edit.submit') : t('reminders.create.submit')}
-            onPress={handleSubmit}
-            loading={mutation.isPending}
-            style={styles.flexButton}
-          />
-        </View>
-      </ScrollView>
+        </ScrollView>
+      </SafeAreaView>
     </Modal>
   );
 }

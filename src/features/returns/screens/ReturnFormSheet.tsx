@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
 import { Modal, View, TextInput, Pressable, ScrollView, StyleSheet } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
 import { Text } from '@/components/AppText';
 import { useForm, useWatch, Controller } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -158,266 +159,264 @@ export function ReturnFormSheet({
       presentationStyle="pageSheet"
       onRequestClose={handleClose}
     >
-      <ScrollView
-        style={styles.scrollView}
-        contentContainerStyle={styles.container}
-        keyboardShouldPersistTaps="handled"
-      >
-        <Text style={styles.title}>
-          {isEditing ? t('returns.edit.title') : t('returns.create.title')}
-        </Text>
+      <SafeAreaView style={styles.scrollView} edges={['top', 'bottom']}>
+        <ScrollView contentContainerStyle={styles.container} keyboardShouldPersistTaps="handled">
+          <Text style={styles.title}>
+            {isEditing ? t('returns.edit.title') : t('returns.create.title')}
+          </Text>
 
-        <View style={styles.field}>
-          <Text style={styles.label}>{t('returns.create.supplierLabel')}</Text>
-          <View style={styles.chipRow}>
-            {(suppliers ?? []).map((s) => (
-              <Chip
-                key={s.id}
-                label={s.name}
-                selected={supplierId === s.id}
-                onPress={() => setValue('supplierId', s.id)}
-              />
-            ))}
-          </View>
-          {errors.supplierId ? (
-            <Text style={styles.errorText}>{t(errors.supplierId.message ?? '')}</Text>
-          ) : null}
-        </View>
-
-        {frequentChips.length > 0 ? (
           <View style={styles.field}>
-            <Text style={styles.label}>{t('returns.create.frequentLabel')}</Text>
-            <ScrollView
-              horizontal
-              showsHorizontalScrollIndicator={false}
-              contentContainerStyle={styles.frequentChipRow}
-            >
-              {frequentChips.map((s) => (
+            <Text style={styles.label}>{t('returns.create.supplierLabel')}</Text>
+            <View style={styles.chipRow}>
+              {(suppliers ?? []).map((s) => (
                 <Chip
-                  key={s.title}
-                  label={s.title}
-                  selected={titleValue === s.title}
-                  onPress={() => applyTitleSuggestion(s.title, s.lastUnitPrice)}
+                  key={s.id}
+                  label={s.name}
+                  selected={supplierId === s.id}
+                  onPress={() => setValue('supplierId', s.id)}
                 />
               ))}
-            </ScrollView>
+            </View>
+            {errors.supplierId ? (
+              <Text style={styles.errorText}>{t(errors.supplierId.message ?? '')}</Text>
+            ) : null}
           </View>
-        ) : null}
 
-        <View style={styles.field}>
-          <Text style={styles.label}>{t('returns.create.titleLabel')}</Text>
-          <Controller
-            control={control}
-            name="title"
-            render={({ field: { value, onChange, onBlur } }) => (
-              <TextInput
-                style={[styles.input, errors.title && styles.inputError]}
-                value={value}
-                onChangeText={onChange}
-                onFocus={() => setTitleFocused(true)}
-                onBlur={() => {
-                  onBlur();
-                  // Small delay so a tap on a suggestion row registers
-                  // before the list disappears from the blur.
-                  setTimeout(() => setTitleFocused(false), 150);
-                }}
-              />
-            )}
-          />
-          {autocompleteMatches.length > 0 ? (
-            <View style={styles.suggestionsBox}>
-              {autocompleteMatches.map((s) => (
-                <Pressable
-                  key={s.title}
-                  style={styles.suggestionRow}
-                  onPress={() => applyTitleSuggestion(s.title, s.lastUnitPrice)}
-                >
-                  <Feather name="clock" size={14} color={theme.colors.textSecondary} />
-                  <Text style={styles.suggestionText} numberOfLines={1}>
-                    {s.title}
-                  </Text>
-                </Pressable>
-              ))}
+          {frequentChips.length > 0 ? (
+            <View style={styles.field}>
+              <Text style={styles.label}>{t('returns.create.frequentLabel')}</Text>
+              <ScrollView
+                horizontal
+                showsHorizontalScrollIndicator={false}
+                contentContainerStyle={styles.frequentChipRow}
+              >
+                {frequentChips.map((s) => (
+                  <Chip
+                    key={s.title}
+                    label={s.title}
+                    selected={titleValue === s.title}
+                    onPress={() => applyTitleSuggestion(s.title, s.lastUnitPrice)}
+                  />
+                ))}
+              </ScrollView>
             </View>
           ) : null}
-          {errors.title ? (
-            <Text style={styles.errorText}>{t(errors.title.message ?? '')}</Text>
-          ) : null}
-        </View>
 
-        <View style={styles.field}>
-          <Text style={styles.label}>{t('returns.create.quantityLabel')}</Text>
-          <Controller
-            control={control}
-            name="quantity"
-            render={({ field: { value, onChange, onBlur } }) => {
-              const numeric = Math.max(0, parseInt(value, 10) || 0);
-              return (
-                <View style={[styles.stepperRow, errors.quantity && styles.inputError]}>
-                  <Pressable
-                    style={styles.stepperButton}
-                    onPress={() => {
-                      hapticSelection();
-                      onChange(String(Math.max(1, numeric - 1)));
-                    }}
-                    hitSlop={8}
-                  >
-                    <Feather name="minus" size={18} color={theme.colors.primary} />
-                  </Pressable>
-                  <TextInput
-                    style={styles.stepperInput}
-                    value={value}
-                    onChangeText={onChange}
-                    onBlur={onBlur}
-                    keyboardType="number-pad"
-                    textAlign="center"
-                  />
-                  <Pressable
-                    style={styles.stepperButton}
-                    onPress={() => {
-                      hapticSelection();
-                      onChange(String(numeric + 1));
-                    }}
-                    hitSlop={8}
-                  >
-                    <Feather name="plus" size={18} color={theme.colors.primary} />
-                  </Pressable>
-                </View>
-              );
-            }}
-          />
-          {errors.quantity ? (
-            <Text style={styles.errorText}>{t(errors.quantity.message ?? '')}</Text>
-          ) : null}
-        </View>
-
-        <View style={styles.field}>
-          <Text style={styles.label}>{t('returns.create.priceLabel')}</Text>
-          <Controller
-            control={control}
-            name="unitPrice"
-            render={({ field: { value, onChange, onBlur } }) => (
-              <TextInput
-                style={[styles.input, errors.unitPrice && styles.inputError]}
-                value={value}
-                onChangeText={onChange}
-                onBlur={onBlur}
-                keyboardType="decimal-pad"
-                placeholder={t('returns.create.pricePlaceholder')}
-                placeholderTextColor={theme.colors.textSecondary}
-              />
-            )}
-          />
-          {errors.unitPrice ? (
-            <Text style={styles.errorText}>{t(errors.unitPrice.message ?? '')}</Text>
-          ) : null}
-        </View>
-
-        <View style={styles.field}>
-          <Text style={styles.label}>{t('returns.create.barcodeLabel')}</Text>
-          <Controller
-            control={control}
-            name="barcode"
-            render={({ field: { value, onChange, onBlur } }) => (
-              <View style={styles.barcodeRow}>
-                <Ionicons name="barcode-outline" size={18} color={theme.colors.textSecondary} />
+          <View style={styles.field}>
+            <Text style={styles.label}>{t('returns.create.titleLabel')}</Text>
+            <Controller
+              control={control}
+              name="title"
+              render={({ field: { value, onChange, onBlur } }) => (
                 <TextInput
-                  style={styles.barcodeInput}
+                  style={[styles.input, errors.title && styles.inputError]}
+                  value={value}
+                  onChangeText={onChange}
+                  onFocus={() => setTitleFocused(true)}
+                  onBlur={() => {
+                    onBlur();
+                    // Small delay so a tap on a suggestion row registers
+                    // before the list disappears from the blur.
+                    setTimeout(() => setTitleFocused(false), 150);
+                  }}
+                />
+              )}
+            />
+            {autocompleteMatches.length > 0 ? (
+              <View style={styles.suggestionsBox}>
+                {autocompleteMatches.map((s) => (
+                  <Pressable
+                    key={s.title}
+                    style={styles.suggestionRow}
+                    onPress={() => applyTitleSuggestion(s.title, s.lastUnitPrice)}
+                  >
+                    <Feather name="clock" size={14} color={theme.colors.textSecondary} />
+                    <Text style={styles.suggestionText} numberOfLines={1}>
+                      {s.title}
+                    </Text>
+                  </Pressable>
+                ))}
+              </View>
+            ) : null}
+            {errors.title ? (
+              <Text style={styles.errorText}>{t(errors.title.message ?? '')}</Text>
+            ) : null}
+          </View>
+
+          <View style={styles.field}>
+            <Text style={styles.label}>{t('returns.create.quantityLabel')}</Text>
+            <Controller
+              control={control}
+              name="quantity"
+              render={({ field: { value, onChange, onBlur } }) => {
+                const numeric = Math.max(0, parseInt(value, 10) || 0);
+                return (
+                  <View style={[styles.stepperRow, errors.quantity && styles.inputError]}>
+                    <Pressable
+                      style={styles.stepperButton}
+                      onPress={() => {
+                        hapticSelection();
+                        onChange(String(Math.max(1, numeric - 1)));
+                      }}
+                      hitSlop={8}
+                    >
+                      <Feather name="minus" size={18} color={theme.colors.primary} />
+                    </Pressable>
+                    <TextInput
+                      style={styles.stepperInput}
+                      value={value}
+                      onChangeText={onChange}
+                      onBlur={onBlur}
+                      keyboardType="number-pad"
+                      textAlign="center"
+                    />
+                    <Pressable
+                      style={styles.stepperButton}
+                      onPress={() => {
+                        hapticSelection();
+                        onChange(String(numeric + 1));
+                      }}
+                      hitSlop={8}
+                    >
+                      <Feather name="plus" size={18} color={theme.colors.primary} />
+                    </Pressable>
+                  </View>
+                );
+              }}
+            />
+            {errors.quantity ? (
+              <Text style={styles.errorText}>{t(errors.quantity.message ?? '')}</Text>
+            ) : null}
+          </View>
+
+          <View style={styles.field}>
+            <Text style={styles.label}>{t('returns.create.priceLabel')}</Text>
+            <Controller
+              control={control}
+              name="unitPrice"
+              render={({ field: { value, onChange, onBlur } }) => (
+                <TextInput
+                  style={[styles.input, errors.unitPrice && styles.inputError]}
                   value={value}
                   onChangeText={onChange}
                   onBlur={onBlur}
-                  placeholder={t('returns.create.barcodePlaceholder')}
+                  keyboardType="decimal-pad"
+                  placeholder={t('returns.create.pricePlaceholder')}
                   placeholderTextColor={theme.colors.textSecondary}
-                  keyboardType="number-pad"
                 />
-              </View>
-            )}
-          />
-        </View>
+              )}
+            />
+            {errors.unitPrice ? (
+              <Text style={styles.errorText}>{t(errors.unitPrice.message ?? '')}</Text>
+            ) : null}
+          </View>
 
-        <View style={styles.field}>
-          <Text style={styles.label}>{t('returns.create.reasonLabel')}</Text>
-          {frequentReasons.length > 0 ? (
-            <ScrollView
-              horizontal
-              showsHorizontalScrollIndicator={false}
-              contentContainerStyle={styles.frequentChipRow}
-            >
-              {frequentReasons.map((r) => (
+          <View style={styles.field}>
+            <Text style={styles.label}>{t('returns.create.barcodeLabel')}</Text>
+            <Controller
+              control={control}
+              name="barcode"
+              render={({ field: { value, onChange, onBlur } }) => (
+                <View style={styles.barcodeRow}>
+                  <Ionicons name="barcode-outline" size={18} color={theme.colors.textSecondary} />
+                  <TextInput
+                    style={styles.barcodeInput}
+                    value={value}
+                    onChangeText={onChange}
+                    onBlur={onBlur}
+                    placeholder={t('returns.create.barcodePlaceholder')}
+                    placeholderTextColor={theme.colors.textSecondary}
+                    keyboardType="number-pad"
+                  />
+                </View>
+              )}
+            />
+          </View>
+
+          <View style={styles.field}>
+            <Text style={styles.label}>{t('returns.create.reasonLabel')}</Text>
+            {frequentReasons.length > 0 ? (
+              <ScrollView
+                horizontal
+                showsHorizontalScrollIndicator={false}
+                contentContainerStyle={styles.frequentChipRow}
+              >
+                {frequentReasons.map((r) => (
+                  <Chip
+                    key={r.reason}
+                    label={r.reason}
+                    selected={reasonValue === r.reason}
+                    onPress={() => setValue('reason', r.reason)}
+                  />
+                ))}
+              </ScrollView>
+            ) : null}
+            <Controller
+              control={control}
+              name="reason"
+              render={({ field: { value, onChange, onBlur } }) => (
+                <TextInput
+                  style={styles.input}
+                  value={value}
+                  onChangeText={onChange}
+                  onBlur={onBlur}
+                  multiline
+                />
+              )}
+            />
+          </View>
+
+          <View style={styles.field}>
+            <Text style={styles.label}>{t('returns.create.priorityLabel')}</Text>
+            <View style={styles.chipRow}>
+              {PRIORITIES.map((p) => (
                 <Chip
-                  key={r.reason}
-                  label={r.reason}
-                  selected={reasonValue === r.reason}
-                  onPress={() => setValue('reason', r.reason)}
+                  key={p}
+                  label={priorityLabels[p]}
+                  selected={priority === p}
+                  onPress={() => setValue('priority', p)}
                 />
               ))}
-            </ScrollView>
+            </View>
+          </View>
+
+          <Pressable
+            style={styles.exchangeToggle}
+            onPress={() => setValue('isExchange', !isExchange)}
+          >
+            <Feather
+              name={isExchange ? 'check-square' : 'square'}
+              size={22}
+              color={isExchange ? theme.colors.primary : theme.colors.textSecondary}
+            />
+            <View style={styles.exchangeTextWrap}>
+              <Text style={styles.exchangeLabel}>{t('returns.create.exchangeLabel')}</Text>
+              <Text style={styles.exchangeHint}>{t('returns.create.exchangeHint')}</Text>
+            </View>
+          </Pressable>
+
+          {mutation.isError ? (
+            <View style={styles.errorBanner}>
+              <Text style={styles.errorBannerText}>{mutation.error.message}</Text>
+            </View>
           ) : null}
-          <Controller
-            control={control}
-            name="reason"
-            render={({ field: { value, onChange, onBlur } }) => (
-              <TextInput
-                style={styles.input}
-                value={value}
-                onChangeText={onChange}
-                onBlur={onBlur}
-                multiline
-              />
-            )}
-          />
-        </View>
 
-        <View style={styles.field}>
-          <Text style={styles.label}>{t('returns.create.priorityLabel')}</Text>
-          <View style={styles.chipRow}>
-            {PRIORITIES.map((p) => (
-              <Chip
-                key={p}
-                label={priorityLabels[p]}
-                selected={priority === p}
-                onPress={() => setValue('priority', p)}
-              />
-            ))}
+          <View style={styles.actions}>
+            <Button
+              label={t('organizations.settings.cancelButton')}
+              variant="outline"
+              onPress={handleClose}
+              style={styles.flexButton}
+            />
+            <Button
+              label={isEditing ? t('returns.edit.submit') : t('returns.create.submit')}
+              onPress={handleSubmit(onSubmit)}
+              loading={mutation.isPending}
+              style={styles.flexButton}
+            />
           </View>
-        </View>
-
-        <Pressable
-          style={styles.exchangeToggle}
-          onPress={() => setValue('isExchange', !isExchange)}
-        >
-          <Feather
-            name={isExchange ? 'check-square' : 'square'}
-            size={22}
-            color={isExchange ? theme.colors.primary : theme.colors.textSecondary}
-          />
-          <View style={styles.exchangeTextWrap}>
-            <Text style={styles.exchangeLabel}>{t('returns.create.exchangeLabel')}</Text>
-            <Text style={styles.exchangeHint}>{t('returns.create.exchangeHint')}</Text>
-          </View>
-        </Pressable>
-
-        {mutation.isError ? (
-          <View style={styles.errorBanner}>
-            <Text style={styles.errorBannerText}>{mutation.error.message}</Text>
-          </View>
-        ) : null}
-
-        <View style={styles.actions}>
-          <Button
-            label={t('organizations.settings.cancelButton')}
-            variant="outline"
-            onPress={handleClose}
-            style={styles.flexButton}
-          />
-          <Button
-            label={isEditing ? t('returns.edit.submit') : t('returns.create.submit')}
-            onPress={handleSubmit(onSubmit)}
-            loading={mutation.isPending}
-            style={styles.flexButton}
-          />
-        </View>
-      </ScrollView>
+        </ScrollView>
+      </SafeAreaView>
     </Modal>
   );
 }

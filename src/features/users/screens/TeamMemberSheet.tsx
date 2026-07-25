@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { Modal, View, StyleSheet } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
 import { Text } from '@/components/AppText';
 import { useTranslation } from 'react-i18next';
 import { useTheme } from '@/theme/ThemeProvider';
@@ -59,74 +60,78 @@ export function TeamMemberSheet({ visible, onClose, membershipId }: Props) {
       presentationStyle="pageSheet"
       onRequestClose={onClose}
     >
-      <View style={styles.container}>
-        <Text style={styles.title}>
-          {member.firstName} {member.lastName} {isSelf ? t('users.team.you') : ''}
-        </Text>
+      <SafeAreaView style={{ flex: 1 }} edges={['top', 'bottom']}>
+        <View style={styles.container}>
+          <Text style={styles.title}>
+            {member.firstName} {member.lastName} {isSelf ? t('users.team.you') : ''}
+          </Text>
 
-        <View style={styles.field}>
-          <Text style={styles.label}>{t('users.team.roleLabel')}</Text>
-          <View style={styles.chipRow}>
-            {ROLES.map((role) => (
-              <Chip
-                key={role}
-                label={role}
-                selected={member.role === role}
-                disabled={isSelf}
-                onPress={() => roleMutation.mutate({ membershipId: member.membershipId, role })}
-              />
-            ))}
+          <View style={styles.field}>
+            <Text style={styles.label}>{t('users.team.roleLabel')}</Text>
+            <View style={styles.chipRow}>
+              {ROLES.map((role) => (
+                <Chip
+                  key={role}
+                  label={role}
+                  selected={member.role === role}
+                  disabled={isSelf}
+                  onPress={() => roleMutation.mutate({ membershipId: member.membershipId, role })}
+                />
+              ))}
+            </View>
+            {roleMutation.isError ? (
+              <Text style={styles.errorText}>{roleMutation.error.message}</Text>
+            ) : null}
           </View>
-          {roleMutation.isError ? (
-            <Text style={styles.errorText}>{roleMutation.error.message}</Text>
+
+          <View style={styles.field}>
+            <Text style={styles.label}>{t('users.team.statusLabel')}</Text>
+            <View style={styles.chipRow}>
+              {STATUSES.map((status) => (
+                <Chip
+                  key={status}
+                  label={statusLabels[status]}
+                  selected={member.status === status}
+                  disabled={isSelf}
+                  onPress={() =>
+                    statusMutation.mutate({ membershipId: member.membershipId, status })
+                  }
+                />
+              ))}
+            </View>
+            {statusMutation.isError ? (
+              <Text style={styles.errorText}>{statusMutation.error.message}</Text>
+            ) : null}
+          </View>
+
+          {!isSelf ? (
+            <Button
+              label={t('users.team.removeAccess')}
+              variant="danger"
+              onPress={() => setRemoveConfirmVisible(true)}
+              loading={removeMutation.isPending}
+            />
           ) : null}
+
+          {removeMutation.isError ? (
+            <Text style={styles.errorText}>{removeMutation.error.message}</Text>
+          ) : null}
+
+          <Button label={t('common.back')} variant="outline" onPress={onClose} />
         </View>
 
-        <View style={styles.field}>
-          <Text style={styles.label}>{t('users.team.statusLabel')}</Text>
-          <View style={styles.chipRow}>
-            {STATUSES.map((status) => (
-              <Chip
-                key={status}
-                label={statusLabels[status]}
-                selected={member.status === status}
-                disabled={isSelf}
-                onPress={() => statusMutation.mutate({ membershipId: member.membershipId, status })}
-              />
-            ))}
-          </View>
-          {statusMutation.isError ? (
-            <Text style={styles.errorText}>{statusMutation.error.message}</Text>
-          ) : null}
-        </View>
-
-        {!isSelf ? (
-          <Button
-            label={t('users.team.removeAccess')}
-            variant="danger"
-            onPress={() => setRemoveConfirmVisible(true)}
-            loading={removeMutation.isPending}
-          />
-        ) : null}
-
-        {removeMutation.isError ? (
-          <Text style={styles.errorText}>{removeMutation.error.message}</Text>
-        ) : null}
-
-        <Button label={t('common.back')} variant="outline" onPress={onClose} />
-      </View>
-
-      <ConfirmDialog
-        visible={removeConfirmVisible}
-        title={t('users.team.removeConfirmTitle')}
-        message={t('users.team.removeConfirmMessage')}
-        confirmLabel={t('users.team.removeAccess')}
-        cancelLabel={t('organizations.settings.cancelButton')}
-        destructive
-        loading={removeMutation.isPending}
-        onConfirm={confirmRemove}
-        onCancel={() => setRemoveConfirmVisible(false)}
-      />
+        <ConfirmDialog
+          visible={removeConfirmVisible}
+          title={t('users.team.removeConfirmTitle')}
+          message={t('users.team.removeConfirmMessage')}
+          confirmLabel={t('users.team.removeAccess')}
+          cancelLabel={t('organizations.settings.cancelButton')}
+          destructive
+          loading={removeMutation.isPending}
+          onConfirm={confirmRemove}
+          onCancel={() => setRemoveConfirmVisible(false)}
+        />
+      </SafeAreaView>
     </Modal>
   );
 }

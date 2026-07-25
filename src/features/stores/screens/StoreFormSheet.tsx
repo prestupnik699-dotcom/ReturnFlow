@@ -1,5 +1,6 @@
 import { useEffect } from 'react';
 import { Modal, View, TextInput, StyleSheet } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
 import { Text } from '@/components/AppText';
 import { useForm, Controller } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -69,100 +70,102 @@ export function StoreFormSheet({ visible, onClose, store }: Props) {
       presentationStyle="pageSheet"
       onRequestClose={onClose}
     >
-      <View style={styles.container}>
-        <Text style={styles.title}>{isEditing ? store?.name : t('stores.create.title')}</Text>
+      <SafeAreaView style={{ flex: 1 }} edges={['top', 'bottom']}>
+        <View style={styles.container}>
+          <Text style={styles.title}>{isEditing ? store?.name : t('stores.create.title')}</Text>
 
-        <View style={styles.field}>
-          <Text style={styles.label}>{t('stores.create.nameLabel')}</Text>
-          <Controller
-            control={control}
-            name="name"
-            render={({ field: { value, onChange, onBlur } }) => (
-              <TextInput
-                style={[styles.input, errors.name && styles.inputError]}
-                value={value}
-                onChangeText={onChange}
-                onBlur={onBlur}
-                autoCapitalize="words"
-              />
-            )}
-          />
-          {errors.name ? (
-            <Text style={styles.errorText}>{t(errors.name.message ?? '')}</Text>
-          ) : null}
-        </View>
-
-        <View style={styles.field}>
-          <Text style={styles.label}>{t('stores.create.cityLabel')}</Text>
-          <Controller
-            control={control}
-            name="city"
-            render={({ field: { value, onChange, onBlur } }) => (
-              <TextInput
-                style={styles.input}
-                value={value}
-                onChangeText={onChange}
-                onBlur={onBlur}
-                autoCapitalize="words"
-              />
-            )}
-          />
-        </View>
-
-        <View style={styles.field}>
-          <Text style={styles.label}>{t('stores.create.addressLabel')}</Text>
-          <Controller
-            control={control}
-            name="address"
-            render={({ field: { value, onChange, onBlur } }) => (
-              <TextInput
-                style={styles.input}
-                value={value}
-                onChangeText={onChange}
-                onBlur={onBlur}
-              />
-            )}
-          />
-        </View>
-
-        <View style={styles.field}>
-          <Text style={styles.label}>{t('stores.create.phoneLabel')}</Text>
-          <Controller
-            control={control}
-            name="phone"
-            render={({ field: { value, onChange, onBlur } }) => (
-              <TextInput
-                style={styles.input}
-                value={value}
-                onChangeText={onChange}
-                onBlur={onBlur}
-                keyboardType="phone-pad"
-              />
-            )}
-          />
-        </View>
-
-        {mutation.isError ? (
-          <View style={styles.errorBanner}>
-            <Text style={styles.errorBannerText}>{mutation.error.message}</Text>
+          <View style={styles.field}>
+            <Text style={styles.label}>{t('stores.create.nameLabel')}</Text>
+            <Controller
+              control={control}
+              name="name"
+              render={({ field: { value, onChange, onBlur } }) => (
+                <TextInput
+                  style={[styles.input, errors.name && styles.inputError]}
+                  value={value}
+                  onChangeText={onChange}
+                  onBlur={onBlur}
+                  autoCapitalize="words"
+                />
+              )}
+            />
+            {errors.name ? (
+              <Text style={styles.errorText}>{t(errors.name.message ?? '')}</Text>
+            ) : null}
           </View>
-        ) : null}
 
-        <View style={styles.actions}>
-          <Button
-            label={t('organizations.settings.cancelButton')}
-            variant="outline"
-            onPress={onClose}
-            style={styles.flexButton}
-          />
-          <Button
-            label={t('stores.create.submit')}
-            onPress={handleSubmit(onSubmit)}
-            loading={mutation.isPending}
-            style={styles.flexButton}
-          />
+          <View style={styles.field}>
+            <Text style={styles.label}>{t('stores.create.cityLabel')}</Text>
+            <Controller
+              control={control}
+              name="city"
+              render={({ field: { value, onChange, onBlur } }) => (
+                <TextInput
+                  style={styles.input}
+                  value={value}
+                  onChangeText={onChange}
+                  onBlur={onBlur}
+                  autoCapitalize="words"
+                />
+              )}
+            />
+          </View>
+
+          <View style={styles.field}>
+            <Text style={styles.label}>{t('stores.create.addressLabel')}</Text>
+            <Controller
+              control={control}
+              name="address"
+              render={({ field: { value, onChange, onBlur } }) => (
+                <TextInput
+                  style={styles.input}
+                  value={value}
+                  onChangeText={onChange}
+                  onBlur={onBlur}
+                />
+              )}
+            />
+          </View>
+
+          <View style={styles.field}>
+            <Text style={styles.label}>{t('stores.create.phoneLabel')}</Text>
+            <Controller
+              control={control}
+              name="phone"
+              render={({ field: { value, onChange, onBlur } }) => (
+                <TextInput
+                  style={styles.input}
+                  value={value}
+                  onChangeText={onChange}
+                  onBlur={onBlur}
+                  keyboardType="phone-pad"
+                />
+              )}
+            />
+          </View>
+
+          {mutation.isError ? (
+            <View style={styles.errorBanner}>
+              <Text style={styles.errorBannerText}>{mutation.error.message}</Text>
+            </View>
+          ) : null}
+
+          <View style={styles.actions}>
+            <Button
+              label={t('organizations.settings.cancelButton')}
+              variant="outline"
+              onPress={onClose}
+              style={styles.flexButton}
+            />
+            <Button
+              label={t('stores.create.submit')}
+              onPress={handleSubmit(onSubmit)}
+              loading={mutation.isPending}
+              style={styles.flexButton}
+            />
+          </View>
         </View>
-      </View>
+      </SafeAreaView>
     </Modal>
   );
 }
