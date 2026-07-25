@@ -1,11 +1,15 @@
-import { useEffect, useRef, useState } from 'react';
-import { View, Pressable, ActivityIndicator, StyleSheet, Keyboard } from 'react-native';
-import { Text } from '@/components/AppText';
+import { useRef, useState, useEffect } from 'react';
 import {
-  KeyboardStickyView,
-  KeyboardChatScrollView,
-  KeyboardGestureArea,
-} from 'react-native-keyboard-controller';
+  View,
+  Pressable,
+  ActivityIndicator,
+  StyleSheet,
+  Keyboard,
+  FlatList,
+  KeyboardAvoidingView,
+  Platform,
+} from 'react-native';
+import { Text } from '@/components/AppText';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useTranslation } from 'react-i18next';
 import { useRouter } from 'expo-router';
@@ -59,20 +63,13 @@ export function ChatScreen() {
   const clearMutation = useClearChat(roomId ?? null);
   const [pendingDelete, setPendingDelete] = useState<ChatMessage | null>(null);
   const [clearConfirmVisible, setClearConfirmVisible] = useState(false);
-  const listRef = useRef<React.ComponentRef<typeof KeyboardChatScrollView>>(null);
   const styles = createStyles(theme);
 
   const messageCount = messages?.length ?? 0;
-
-  useEffect(() => {
-    if (messageCount > 0) {
-      setTimeout(() => listRef.current?.scrollToEnd({ animated: true }), 50);
-    }
-  }, [messageCount]);
-  // Keeping the last message visible when the keyboard opens is now
-  // handled natively by KeyboardChatScrollView's keyboardLiftBehavior
-  // below, instead of a manual setTimeout guess that could fire before
-  // the keyboard's real height was known.
+  // Ref, not state — writing it never triggers a re-render of this
+  // screen, which is what keeps this purely a "have we shown this
+  // message before" check without interfering with anything else.
+  const seenMessageIdsRef = useRef<Set<string>>(new Set());
 
   // Opening the chat is what "reading" a chat notification means here —
   // clears the badge on the Chat entry point the same way opening the
@@ -116,8 +113,14 @@ export function ChatScreen() {
   };
 
   // Insert a date-divider pill whenever a message falls on a different
-  // calendar day than the one before it — the list is asc-ordered by
-  // createdAt already, so a single forward pass is enough.
+  // calendar day than the one before it — the source list is
+  // asc-ordered by createdAt (oldest first), so a single forward pass is
+  // enough. The whole result is reversed afterward to feed an inverted
+  // FlatList, which is what gives us "always anchored at the bottom,
+  // newest message visible immediately" behavior for free, without ever
+  // calling scrollToEnd manually — that manual scrolling was the root of
+  // every timing-related bug we chased (clipped content, delayed
+  // appearance, cascading animations).
   const dayLabel = (iso: string): string => {
     const d = new Date(iso);
     const now = new Date();
@@ -129,21 +132,26 @@ export function ChatScreen() {
     return `${pad(d.getDate())}.${pad(d.getMonth() + 1)}.${d.getFullYear()}`;
   };
 
-  const listItems: ListItem[] = [];
+  const chronological: ListItem[] = [];
   let lastDay: string | null = null;
   for (const message of messages ?? []) {
     const day = dayKey(message.createdAt);
     if (day !== lastDay) {
-      listItems.push({ kind: 'divider', id: `divider-${day}`, label: dayLabel(message.createdAt) });
+      chronological.push({
+        kind: 'divider',
+        id: `divider-${day}`,
+        label: dayLabel(message.createdAt),
+      });
       lastDay = day;
     }
-    listItems.push({ kind: 'message', id: message.id, message });
+    chronological.push({ kind: 'message', id: message.id, message });
   }
+  const invertedListItems = [...chronological].reverse();
 
   const renderItem = ({ item }: { item: ListItem }) => {
     if (item.kind === 'divider') {
       return (
-        <View style={styles.dividerRow}>
+        <View style={[styles.dividerRow, styles.invertedItem]}>
           <View style={styles.dividerPill}>
             <Text style={styles.dividerText}>{item.label}</Text>
           </View>
@@ -153,14 +161,17 @@ export function ChatScreen() {
 
     const message = item.message;
     const isOwn = message.authorId === profile?.id;
+    const isNewMessage = !seenMessageIdsRef.current.has(message.id);
+    seenMessageIdsRef.current.add(message.id);
 
     return (
       <Pressable
+        style={styles.invertedItem}
         onPress={() => Keyboard.dismiss()}
         onLongPress={() => handleLongPressMessage(message)}
       >
         <Animated.View
-          entering={FadeInUp.duration(220)}
+          entering={isNewMessage ? FadeInUp.duration(220) : undefined}
           style={[styles.bubbleRow, isOwn ? styles.bubbleRowOwn : styles.bubbleRowOther]}
         >
           <View style={[styles.bubble, isOwn ? styles.bubbleOwn : styles.bubbleOther]}>
@@ -179,7 +190,11 @@ export function ChatScreen() {
 
   return (
     <SafeAreaView style={styles.safeArea} edges={['top', 'left', 'right', 'bottom']}>
-      <View style={styles.flex}>
+      <KeyboardAvoidingView
+        style={styles.flex}
+        behavior={Platform.OS === 'ios' ? 'padding' : undefined}
+        keyboardVerticalOffset={0}
+      >
         <View style={styles.header}>
           <Pressable onPress={() => router.back()} hitSlop={12} style={styles.backButton}>
             <Feather name="chevron-left" size={22} color={theme.colors.textPrimary} />
@@ -212,41 +227,32 @@ export function ChatScreen() {
           <View style={styles.center}>
             <ActivityIndicator color={theme.colors.primary} />
           </View>
+        ) : invertedListItems.length === 0 ? (
+          <View style={styles.center}>
+            <EmptyState
+              icon="message-circle"
+              title={t('chat.empty')}
+              message={t('chat.emptyMessage')}
+            />
+          </View>
         ) : (
-          <KeyboardGestureArea
-            interpolator="ios"
-            style={styles.gestureArea}
-            textInputNativeID="chat-input"
-          >
-            <KeyboardChatScrollView
-              ref={listRef}
-              keyboardLiftBehavior="always"
-              contentContainerStyle={styles.list}
-              showsVerticalScrollIndicator={false}
-              keyboardDismissMode="on-drag"
-              onContentSizeChange={() => listRef.current?.scrollToEnd({ animated: false })}
-            >
-              {listItems.length === 0 ? (
-                <EmptyState
-                  icon="message-circle"
-                  title={t('chat.empty')}
-                  message={t('chat.emptyMessage')}
-                />
-              ) : (
-                listItems.map((item) => <View key={item.id}>{renderItem({ item })}</View>)
-              )}
-            </KeyboardChatScrollView>
-
-            {sendMutation.isError ? (
-              <Text style={styles.errorText}>{sendMutation.error.message}</Text>
-            ) : null}
-
-            <KeyboardStickyView offset={{ closed: 0, opened: 0 }}>
-              <ChatInputBar onSend={handleSend} sending={sendMutation.isPending} />
-            </KeyboardStickyView>
-          </KeyboardGestureArea>
+          <FlatList
+            data={invertedListItems}
+            keyExtractor={(item) => item.id}
+            renderItem={renderItem}
+            inverted
+            contentContainerStyle={styles.list}
+            showsVerticalScrollIndicator={false}
+            keyboardDismissMode="on-drag"
+          />
         )}
-      </View>
+
+        {sendMutation.isError ? (
+          <Text style={styles.errorText}>{sendMutation.error.message}</Text>
+        ) : null}
+
+        <ChatInputBar onSend={handleSend} sending={sendMutation.isPending} />
+      </KeyboardAvoidingView>
 
       <ConfirmDialog
         visible={!!pendingDelete}
@@ -318,8 +324,12 @@ function createStyles(theme: ReturnType<typeof useTheme>) {
       alignItems: 'center',
       justifyContent: 'center',
     },
-    gestureArea: { flex: 1 },
     list: { flexGrow: 1, gap: theme.spacing.xs, paddingVertical: theme.spacing.sm },
+    // Every row is individually flipped back to right-side-up, since the
+    // FlatList itself is upside down (`inverted`) to get automatic
+    // bottom-anchoring — without this, the whole row (including text)
+    // would render upside down too.
+    invertedItem: { transform: [{ scaleY: -1 }] },
     dividerRow: { alignItems: 'center', marginVertical: theme.spacing.sm },
     dividerPill: {
       backgroundColor: theme.colors.card,
