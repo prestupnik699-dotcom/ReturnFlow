@@ -24,6 +24,7 @@ import {
   useArchiveReturn,
   useRestoreReturn,
 } from '@/features/returns/hooks/useReturnStatusActions';
+import { hapticImpactLight } from '@/lib/haptics';
 import type { ReturnItem, ReturnStatus } from '@/features/returns/services/returns.service';
 
 type ActionSpec = {
@@ -66,6 +67,7 @@ function SwipeActionPanel({
     (value) => {
       if (value >= 1 && !firedRef.current) {
         firedRef.current = true;
+        runOnJS(hapticImpactLight)();
         runOnJS(onTriggered)();
       } else if (value < 0.9) {
         firedRef.current = false;

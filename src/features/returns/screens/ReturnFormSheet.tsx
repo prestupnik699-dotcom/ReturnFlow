@@ -19,7 +19,7 @@ import { useSuppliers } from '@/features/suppliers/hooks/useSuppliers';
 import { useTitleSuggestions } from '@/features/returns/hooks/useTitleSuggestions';
 import { useReasonSuggestions } from '@/features/returns/hooks/useReasonSuggestions';
 import { useMembershipStore } from '@/stores/membership.store';
-import { hapticSuccess, hapticSelection } from '@/lib/haptics';
+import { hapticSuccess, hapticSelection, hapticError } from '@/lib/haptics';
 import type { ReturnItem, ReturnPriority } from '@/features/returns/services/returns.service';
 
 const PRIORITIES: ReturnPriority[] = ['low', 'normal', 'high', 'critical'];
@@ -142,6 +142,7 @@ export function ReturnFormSheet({
         }
         handleClose();
       },
+      onError: () => hapticError(),
     });
   };
 

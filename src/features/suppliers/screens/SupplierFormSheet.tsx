@@ -19,7 +19,7 @@ import { useSupplier } from '@/features/suppliers/hooks/useSupplier';
 import { useSupplierReliability } from '@/features/suppliers/hooks/useSupplierReliability';
 import { useExportSupplierReport } from '@/features/statistics/hooks/useExportSupplierReport';
 import { useMembershipStore } from '@/stores/membership.store';
-import { hapticSuccess } from '@/lib/haptics';
+import { hapticSuccess, hapticError } from '@/lib/haptics';
 import type { ReturnStatus, ReturnPriority } from '@/features/returns/services/returns.service';
 
 type Props = { visible: boolean; onClose: () => void; supplierId: string | null };
@@ -128,9 +128,12 @@ export function SupplierFormSheet({ visible, onClose, supplierId }: Props) {
       onClose();
     };
     if (isEditing && supplierId) {
-      updateMutation.mutate({ supplierId, input: values }, { onSuccess: onSaveSuccess });
+      updateMutation.mutate(
+        { supplierId, input: values },
+        { onSuccess: onSaveSuccess, onError: () => hapticError() },
+      );
     } else {
-      createMutation.mutate(values, { onSuccess: onSaveSuccess });
+      createMutation.mutate(values, { onSuccess: onSaveSuccess, onError: () => hapticError() });
     }
   };
 

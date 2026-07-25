@@ -22,7 +22,7 @@ import { useSuppliers } from '@/features/suppliers/hooks/useSuppliers';
 import { useCreateReturnsBatch } from '@/features/returns/hooks/useCreateReturnsBatch';
 import { useCreateDeliveriesBatch } from '@/features/deliveries/hooks/useCreateDeliveriesBatch';
 import { lookupProductNameByBarcode } from '@/features/scanner/services/productLookup.service';
-import { hapticSuccess } from '@/lib/haptics';
+import { hapticSuccess, hapticError } from '@/lib/haptics';
 
 type Mode = 'return' | 'delivery';
 type Line = { id: string; title: string; quantity: number; barcode: string };
@@ -141,13 +141,13 @@ export function BatchReturnSheet({ visible, onClose }: Props) {
     if (mode === 'return') {
       returnsBatchMutation.mutate(
         { supplierId, isExchange, lines: lineInputs },
-        { onSuccess: onSaveSuccess },
+        { onSuccess: onSaveSuccess, onError: () => hapticError() },
       );
     } else {
       const supplierName = suppliers?.find((s) => s.id === supplierId)?.name ?? '';
       deliveriesBatchMutation.mutate(
         { supplierId, supplierName, lines: lineInputs },
-        { onSuccess: onSaveSuccess },
+        { onSuccess: onSaveSuccess, onError: () => hapticError() },
       );
     }
   };

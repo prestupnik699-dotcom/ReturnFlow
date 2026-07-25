@@ -15,7 +15,7 @@ import {
 import { useSuppliers } from '@/features/suppliers/hooks/useSuppliers';
 import { useTeamMembers } from '@/features/users/hooks/useTeamMembers';
 import { useAuthStore } from '@/stores/auth.store';
-import { hapticSuccess } from '@/lib/haptics';
+import { hapticSuccess, hapticError } from '@/lib/haptics';
 import type { Reminder } from '@/features/reminders/services/reminders.service';
 
 type Props = { visible: boolean; onClose: () => void; reminder?: Reminder | null };
@@ -100,6 +100,7 @@ export function ReminderFormSheet({ visible, onClose, reminder }: Props) {
         hapticSuccess();
         handleClose();
       },
+      onError: () => hapticError(),
     });
   };
 
