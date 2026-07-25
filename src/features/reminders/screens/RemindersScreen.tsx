@@ -5,7 +5,7 @@ import { Text } from '@/components/AppText';
 import { useTranslation } from 'react-i18next';
 import { useRouter } from 'expo-router';
 import { Feather } from '@expo/vector-icons';
-import Animated, { FadeInDown } from 'react-native-reanimated';
+import { AnimatedListItem } from '@/components/AnimatedListItem';
 import { useTheme } from '@/theme/ThemeProvider';
 import { Screen } from '@/components/Screen';
 import { ScreenHeader } from '@/components/ScreenHeader';
@@ -92,7 +92,7 @@ export function RemindersScreen() {
   };
 
   const renderReminder = (reminder: Reminder, index: number, overdueStyle: boolean) => (
-    <Animated.View key={reminder.id} entering={FadeInDown.delay(index * 40).duration(220)}>
+    <AnimatedListItem key={reminder.id} index={index} step={40} duration={220}>
       <Card>
         <View style={styles.row}>
           <Pressable onPress={() => toggleStatus(reminder)} hitSlop={8}>
@@ -129,7 +129,7 @@ export function RemindersScreen() {
           </Text>
         </View>
       </Card>
-    </Animated.View>
+    </AnimatedListItem>
   );
 
   const isEmpty = viewMode === 'active' ? active.length === 0 : done.length === 0;

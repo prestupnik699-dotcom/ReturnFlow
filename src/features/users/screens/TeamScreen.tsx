@@ -3,7 +3,7 @@ import { View, FlatList, ActivityIndicator, StyleSheet } from 'react-native';
 import { PressableScale } from '@/components/PressableScale';
 import { Text } from '@/components/AppText';
 import { useTranslation } from 'react-i18next';
-import Animated, { FadeInDown } from 'react-native-reanimated';
+import { AnimatedListItem } from '@/components/AnimatedListItem';
 import { useTheme } from '@/theme/ThemeProvider';
 import { Screen } from '@/components/Screen';
 import { ScreenHeader } from '@/components/ScreenHeader';
@@ -55,7 +55,7 @@ export function TeamScreen() {
             contentContainerStyle={styles.list}
             ListEmptyComponent={<Text style={styles.empty}>{t('users.team.empty')}</Text>}
             renderItem={({ item, index }) => (
-              <Animated.View entering={FadeInDown.delay(index * 60).duration(300)}>
+              <AnimatedListItem index={index} step={60} duration={300}>
                 <PressableScale onPress={() => setSelectedId(item.membershipId)}>
                   <Card>
                     <View style={styles.row}>
@@ -74,7 +74,7 @@ export function TeamScreen() {
                     </View>
                   </Card>
                 </PressableScale>
-              </Animated.View>
+              </AnimatedListItem>
             )}
           />
         )}

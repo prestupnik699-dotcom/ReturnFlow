@@ -5,7 +5,7 @@ import { Text } from '@/components/AppText';
 import { useTranslation } from 'react-i18next';
 import { useRouter } from 'expo-router';
 import { Feather } from '@expo/vector-icons';
-import Animated, { FadeInDown } from 'react-native-reanimated';
+import { AnimatedListItem } from '@/components/AnimatedListItem';
 import { useTheme } from '@/theme/ThemeProvider';
 import { Screen } from '@/components/Screen';
 import { Card } from '@/components/Card';
@@ -126,7 +126,7 @@ export function NotificationsScreen() {
     });
   };
 
-  const renderItem = ({ item }: { item: ListItem }) => {
+  const renderItem = ({ item, index }: { item: ListItem; index: number }) => {
     if (item.kind === 'divider') {
       return (
         <View style={styles.dividerRow}>
@@ -143,7 +143,7 @@ export function NotificationsScreen() {
     const selected = selectedIds.includes(notification.id);
 
     return (
-      <Animated.View entering={FadeInDown.duration(200)}>
+      <AnimatedListItem index={index} step={0} duration={200}>
         <PressableScale
           onPress={() => handlePress(notification)}
           onLongPress={() => handleLongPress(notification)}
@@ -179,7 +179,7 @@ export function NotificationsScreen() {
             </View>
           </Card>
         </PressableScale>
-      </Animated.View>
+      </AnimatedListItem>
     );
   };
 

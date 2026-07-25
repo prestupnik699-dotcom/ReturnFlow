@@ -5,7 +5,7 @@ import { useTranslation } from 'react-i18next';
 import { useRouter, useLocalSearchParams } from 'expo-router';
 import { Feather } from '@expo/vector-icons';
 import { LinearGradient } from 'expo-linear-gradient';
-import Animated, { FadeInDown } from 'react-native-reanimated';
+import { AnimatedListItem } from '@/components/AnimatedListItem';
 import { useTheme } from '@/theme/ThemeProvider';
 import { Screen } from '@/components/Screen';
 import { Button } from '@/components/Button';
@@ -339,7 +339,7 @@ export function ReturnsScreen() {
               </View>
             }
             renderItem={({ item, index }) => (
-              <Animated.View entering={FadeInDown.delay(index * 50).duration(250)}>
+              <AnimatedListItem index={index}>
                 <ReturnListRow
                   item={item}
                   statusLabels={statusLabels}
@@ -350,7 +350,7 @@ export function ReturnsScreen() {
                   selectionMode={selectionMode}
                   selected={selectedIds.includes(item.id)}
                 />
-              </Animated.View>
+              </AnimatedListItem>
             )}
           />
         )}

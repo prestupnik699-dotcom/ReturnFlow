@@ -6,8 +6,8 @@ import { useTranslation } from 'react-i18next';
 import { useRouter, useFocusEffect } from 'expo-router';
 import { Feather, Ionicons } from '@expo/vector-icons';
 import { LinearGradient } from 'expo-linear-gradient';
+import { AnimatedListItem } from '@/components/AnimatedListItem';
 import Animated, {
-  FadeInDown,
   FadeIn,
   useAnimatedStyle,
   useSharedValue,
@@ -324,10 +324,7 @@ export function DashboardScreen() {
                 <Text style={styles.emptyRecentText}>{t('dashboard.recentEmpty')}</Text>
               ) : (
                 recentReturns.map((item: ReturnItem, index: number) => (
-                  <Animated.View
-                    key={item.id}
-                    entering={FadeInDown.delay(index * 40).duration(200)}
-                  >
+                  <AnimatedListItem key={item.id} index={index} step={40} duration={200}>
                     <PressableScale onPress={() => router.push(`/return/${item.id}`)}>
                       <Card>
                         <View style={styles.recentRow}>
@@ -346,7 +343,7 @@ export function DashboardScreen() {
                         </View>
                       </Card>
                     </PressableScale>
-                  </Animated.View>
+                  </AnimatedListItem>
                 ))
               )}
             </View>

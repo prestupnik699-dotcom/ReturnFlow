@@ -1,7 +1,7 @@
 import { useState, useEffect, useRef } from 'react';
 import { View, FlatList, StyleSheet, Pressable, TextInput, ScrollView } from 'react-native';
 import { Text } from '@/components/AppText';
-import Animated, { FadeInDown } from 'react-native-reanimated';
+import { AnimatedListItem } from '@/components/AnimatedListItem';
 import { useTranslation } from 'react-i18next';
 import { useRouter, useLocalSearchParams } from 'expo-router';
 import { Feather } from '@expo/vector-icons';
@@ -191,7 +191,7 @@ export function StoresScreen() {
             renderItem={({ item, index }) => {
               const counts = returnCounts?.[item.id] ?? { total: 0, urgent: 0 };
               return (
-                <Animated.View entering={FadeInDown.delay(index * 50).duration(250)}>
+                <AnimatedListItem index={index}>
                   <StoreListRow
                     store={item}
                     isCurrent={activeStoreId === item.id}
@@ -204,7 +204,7 @@ export function StoresScreen() {
                     onOpenChat={() => handleOpenChat(item)}
                     onRequestDelete={() => setPendingDelete(item)}
                   />
-                </Animated.View>
+                </AnimatedListItem>
               );
             }}
           />

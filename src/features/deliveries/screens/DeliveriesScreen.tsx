@@ -4,7 +4,7 @@ import { Text } from '@/components/AppText';
 import { useTranslation } from 'react-i18next';
 import { useRouter } from 'expo-router';
 import { Feather, Ionicons } from '@expo/vector-icons';
-import Animated, { FadeInDown } from 'react-native-reanimated';
+import { AnimatedListItem } from '@/components/AnimatedListItem';
 import { useTheme } from '@/theme/ThemeProvider';
 import { Screen } from '@/components/Screen';
 import { ScreenHeader } from '@/components/ScreenHeader';
@@ -80,7 +80,7 @@ export function DeliveriesScreen() {
               </View>
             }
             renderItem={({ item, index }: { item: DeliveryItem; index: number }) => (
-              <Animated.View entering={FadeInDown.delay(index * 40).duration(220)}>
+              <AnimatedListItem index={index} step={40} duration={220}>
                 <Card>
                   <View style={styles.row}>
                     <View style={styles.iconWrap}>
@@ -114,7 +114,7 @@ export function DeliveriesScreen() {
                     </View>
                   </View>
                 </Card>
-              </Animated.View>
+              </AnimatedListItem>
             )}
           />
         )}

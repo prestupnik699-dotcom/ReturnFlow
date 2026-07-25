@@ -4,7 +4,7 @@ import { Text } from '@/components/AppText';
 import { useTranslation } from 'react-i18next';
 import { Feather } from '@expo/vector-icons';
 import { LinearGradient } from 'expo-linear-gradient';
-import Animated, { FadeInDown } from 'react-native-reanimated';
+import { AnimatedListItem } from '@/components/AnimatedListItem';
 import { useTabBarClearance } from '@/hooks/useTabBarClearance';
 import { useTheme } from '@/theme/ThemeProvider';
 import { Screen } from '@/components/Screen';
@@ -174,7 +174,7 @@ export function SuppliersScreen() {
             renderItem={({ item, index }) => {
               const counts = returnCounts?.[item.id] ?? { total: 0, urgent: 0 };
               return (
-                <Animated.View entering={FadeInDown.delay(index * 50).duration(250)}>
+                <AnimatedListItem index={index}>
                   <SupplierListRow
                     supplier={item}
                     returnsTotal={counts.total}
@@ -187,7 +187,7 @@ export function SuppliersScreen() {
                     }
                     onRequestDelete={() => setPendingDelete(item)}
                   />
-                </Animated.View>
+                </AnimatedListItem>
               );
             }}
           />
