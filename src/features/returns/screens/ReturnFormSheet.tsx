@@ -378,7 +378,10 @@ export function ReturnFormSheet({
                   key={p}
                   label={priorityLabels[p]}
                   selected={priority === p}
-                  onPress={() => setValue('priority', p)}
+                  onPress={() => {
+                    hapticSelection();
+                    setValue('priority', p);
+                  }}
                 />
               ))}
             </View>

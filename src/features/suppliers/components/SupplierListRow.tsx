@@ -210,9 +210,6 @@ export function SupplierListRow({
                 {t('suppliers.returnsCount', { count: returnsTotal })}
               </Text>
             </View>
-          </View>
-
-          <View style={styles.statsRow}>
             <View style={styles.statBadge}>
               <Feather name="download" size={13} color={theme.colors.textSecondary} />
               <Text style={styles.statText}>
@@ -301,7 +298,7 @@ export function SupplierListRow({
 
 function createStyles(theme: Theme) {
   return StyleSheet.create({
-    container: { padding: theme.spacing.lg, gap: theme.spacing.sm },
+    container: { padding: theme.spacing.lg, gap: theme.spacing.xs },
     topRow: { flexDirection: 'row', alignItems: 'center', gap: theme.spacing.md },
     avatar: {
       width: 40,
@@ -341,10 +338,11 @@ function createStyles(theme: Theme) {
       backgroundColor: theme.colors.card,
       borderRadius: theme.radius.full,
       paddingHorizontal: theme.spacing.sm,
-      paddingVertical: 4,
+      paddingVertical: theme.spacing.xsPlus,
     },
     statText: {
       fontSize: theme.fontSizes.xs,
+      lineHeight: 18,
       color: theme.colors.textSecondary,
       fontWeight: theme.fontWeights.medium,
     },

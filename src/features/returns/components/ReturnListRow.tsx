@@ -268,13 +268,19 @@ export const ReturnListRow = memo(function ReturnListRow({
               </View>
             ) : null}
           </View>
-          <View style={styles.bottomRow}>
-            {item.pendingSync ? (
+          {item.pendingSync ? (
+            <View style={styles.bottomColumn}>
               <View style={styles.pendingBadge}>
                 <Feather name="upload-cloud" size={12} color={theme.colors.warning} />
                 <Text style={styles.pendingBadgeText}>{pendingLabel}</Text>
               </View>
-            ) : (
+              <View style={[styles.dateRow, styles.dateRowEnd]}>
+                <Feather name="calendar" size={12} color={theme.colors.textSecondary} />
+                <Text style={styles.dateText}>{formatDateTime(item.createdAt)}</Text>
+              </View>
+            </View>
+          ) : (
+            <View style={styles.bottomRow}>
               <View
                 style={[styles.statusBadge, { backgroundColor: statusColors[item.status] + '1F' }]}
               >
@@ -283,12 +289,12 @@ export const ReturnListRow = memo(function ReturnListRow({
                   {statusLabels[item.status]}
                 </Text>
               </View>
-            )}
-            <View style={styles.dateRow}>
-              <Feather name="calendar" size={12} color={theme.colors.textSecondary} />
-              <Text style={styles.dateText}>{formatDateTime(item.createdAt)}</Text>
+              <View style={styles.dateRow}>
+                <Feather name="calendar" size={12} color={theme.colors.textSecondary} />
+                <Text style={styles.dateText}>{formatDateTime(item.createdAt)}</Text>
+              </View>
             </View>
-          </View>
+          )}
         </View>
       </Card>
     </PressableScale>
@@ -347,6 +353,10 @@ function createStyles(theme: Theme) {
       flexDirection: 'row',
       alignItems: 'center',
       justifyContent: 'space-between',
+      gap: theme.spacing.sm,
+    },
+    bottomColumn: {
+      gap: theme.spacing.xsPlus,
     },
     statusBadge: {
       flexDirection: 'row',
@@ -354,23 +364,31 @@ function createStyles(theme: Theme) {
       gap: theme.spacing.xsPlus,
       borderRadius: theme.radius.full,
       paddingHorizontal: theme.spacing.sm,
-      paddingVertical: 4,
+      paddingVertical: theme.spacing.xsPlus,
     },
     statusDot: { width: 6, height: 6, borderRadius: 3 },
-    statusBadgeText: { fontSize: theme.fontSizes.xs, fontWeight: theme.fontWeights.semiBold },
-    dateRow: { flexDirection: 'row', alignItems: 'center', gap: 4 },
-    dateText: { fontSize: theme.fontSizes.xs, color: theme.colors.textSecondary },
+    statusBadgeText: {
+      fontSize: theme.fontSizes.xs,
+      lineHeight: 18,
+      fontWeight: theme.fontWeights.semiBold,
+    },
+    dateRow: { flexDirection: 'row', alignItems: 'center', gap: 4, flexShrink: 0 },
+    dateText: { fontSize: theme.fontSizes.xs, lineHeight: 18, color: theme.colors.textSecondary },
     pendingBadge: {
       flexDirection: 'row',
       alignItems: 'center',
+      alignSelf: 'flex-start',
       gap: 4,
       backgroundColor: theme.colors.warning + '22',
       borderRadius: theme.radius.full,
       paddingHorizontal: theme.spacing.sm,
-      paddingVertical: 4,
+      paddingVertical: theme.spacing.xsPlus,
     },
+    dateRowEnd: { alignSelf: 'flex-end' },
     pendingBadgeText: {
+      flexShrink: 1,
       fontSize: theme.fontSizes.xs,
+      lineHeight: 18,
       fontWeight: theme.fontWeights.semiBold,
       color: theme.colors.warning,
     },
