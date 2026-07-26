@@ -203,18 +203,20 @@ export function StoresScreen() {
               const counts = returnCounts?.[item.id] ?? { total: 0, urgent: 0 };
               return (
                 <AnimatedListItem index={index}>
-                  <StoreListRow
-                    store={item}
-                    isCurrent={activeStoreId === item.id}
-                    returnsTotal={counts.total}
-                    returnsUrgent={counts.urgent}
-                    deliveriesTotal={deliveryCounts?.[item.id] ?? 0}
-                    subtitle={storeSubtitle(item, t('stores.noAddress'))}
-                    onSelectCurrent={() => handleSelectCurrent(item)}
-                    onEdit={() => handleEdit(item)}
-                    onOpenChat={() => handleOpenChat(item)}
-                    onRequestDelete={() => setPendingDelete(item)}
-                  />
+                  <View style={styles.rowSpacing}>
+                    <StoreListRow
+                      store={item}
+                      isCurrent={activeStoreId === item.id}
+                      returnsTotal={counts.total}
+                      returnsUrgent={counts.urgent}
+                      deliveriesTotal={deliveryCounts?.[item.id] ?? 0}
+                      subtitle={storeSubtitle(item, t('stores.noAddress'))}
+                      onSelectCurrent={() => handleSelectCurrent(item)}
+                      onEdit={() => handleEdit(item)}
+                      onOpenChat={() => handleOpenChat(item)}
+                      onRequestDelete={() => setPendingDelete(item)}
+                    />
+                  </View>
                 </AnimatedListItem>
               );
             }}
@@ -358,6 +360,7 @@ function createStyles(theme: Theme) {
     filterScroll: { height: 44, flexGrow: 0, flexShrink: 0, marginBottom: theme.spacing.sm },
     filterRow: { alignItems: 'center' },
     list: { gap: theme.spacing.sm },
+    rowSpacing: { marginBottom: theme.spacing.sm },
     flatList: { flex: 1 },
     listEmptyGrow: { flexGrow: 1 },
     emptyWrap: { flex: 1, alignItems: 'center', justifyContent: 'center' },

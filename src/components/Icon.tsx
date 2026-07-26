@@ -2,9 +2,7 @@ import {
   WarningCircle,
   Archive,
   ArrowUp,
-  StatsUpSquare,
   Bell,
-  Box,
   Suitcase,
   Calendar,
   Camera,
@@ -55,9 +53,9 @@ import {
   Xmark,
   XmarkCircle,
   Flash,
-  Barcode,
 } from 'iconoir-react-native';
 import type { ComponentProps } from 'react';
+import { Ionicons } from '@expo/vector-icons';
 
 // The name union this component accepts — deliberately mirrors the
 // Feather/Ionicons name strings already used across the app (e.g.
@@ -70,9 +68,9 @@ const ICONS = {
   'alert-circle': WarningCircle,
   archive: Archive,
   'arrow-up': ArrowUp,
-  'bar-chart-2': StatsUpSquare,
+  'bar-chart-2': StatUp,
   bell: Bell,
-  box: Box,
+  box: Suitcase,
   briefcase: Suitcase,
   calendar: Calendar,
   camera: Camera,
@@ -125,10 +123,9 @@ const ICONS = {
   x: Xmark,
   'x-circle': XmarkCircle,
   zap: Flash,
-  'barcode-outline': Barcode,
 } as const;
 
-export type IconName = keyof typeof ICONS;
+export type IconName = keyof typeof ICONS | 'barcode-outline';
 
 type IconoirProps = ComponentProps<typeof Check>;
 
@@ -137,7 +134,14 @@ type Props = Omit<IconoirProps, 'width' | 'height'> & {
   size?: number;
 };
 
-export function Icon({ name, size = 24, ...rest }: Props) {
+export function Icon({ name, size = 24, color, ...rest }: Props) {
+  // Kept on Ionicons deliberately — the person specifically preferred
+  // this classic barcode-bars glyph over Iconoir's equivalent, so this
+  // one name is special-cased rather than following the rest of the map.
+  if (name === 'barcode-outline') {
+    return <Ionicons name="barcode-outline" size={size} color={color as string} />;
+  }
+
   const Component = ICONS[name];
 
   if (!Component) {
@@ -147,5 +151,5 @@ export function Icon({ name, size = 24, ...rest }: Props) {
     return null;
   }
 
-  return <Component width={size} height={size} {...rest} />;
+  return <Component width={size} height={size} color={color} {...rest} />;
 }
