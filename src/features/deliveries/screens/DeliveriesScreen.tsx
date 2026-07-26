@@ -10,7 +10,7 @@ import {
 import { Text } from '@/components/AppText';
 import { useTranslation } from 'react-i18next';
 import { useRouter } from 'expo-router';
-import { Feather, Ionicons } from '@expo/vector-icons';
+import { Icon } from '@/components/Icon';
 import { AnimatedListItem } from '@/components/AnimatedListItem';
 import { useBrandedRefreshProps } from '@/components/BrandedRefreshControl';
 import { useTheme } from '@/theme/ThemeProvider';
@@ -52,7 +52,7 @@ export function DeliveriesScreen() {
         <ScreenHeader title={t('deliveries.title')} onBack={() => router.back()} />
 
         <View style={styles.searchRow}>
-          <Feather name="search" size={18} color={theme.colors.textSecondary} />
+          <Icon name="search" size={18} color={theme.colors.textSecondary} />
           <TextInput
             style={styles.searchInput}
             placeholder={t('suppliers.searchPlaceholder')}
@@ -94,7 +94,7 @@ export function DeliveriesScreen() {
                 <Card>
                   <View style={styles.row}>
                     <View style={styles.iconWrap}>
-                      <Feather name="download" size={18} color={theme.colors.primary} />
+                      <Icon name="download" size={18} color={theme.colors.primary} />
                     </View>
                     <View style={styles.info}>
                       <Text style={styles.title} numberOfLines={1}>
@@ -105,7 +105,7 @@ export function DeliveriesScreen() {
                       </Text>
                       {item.barcode ? (
                         <View style={styles.barcodeRow}>
-                          <Ionicons
+                          <Icon
                             name="barcode-outline"
                             size={12}
                             color={theme.colors.textSecondary}

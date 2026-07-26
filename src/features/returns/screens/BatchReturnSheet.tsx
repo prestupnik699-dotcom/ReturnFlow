@@ -14,7 +14,7 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { Text } from '@/components/AppText';
 import { CameraView, useCameraPermissions } from 'expo-camera';
 import { useTranslation } from 'react-i18next';
-import { Feather } from '@expo/vector-icons';
+import { Icon } from '@/components/Icon';
 import { useTheme } from '@/theme/ThemeProvider';
 import { Button } from '@/components/Button';
 import { Chip } from '@/components/Chip';
@@ -212,7 +212,7 @@ export function BatchReturnSheet({ visible, onClose }: Props) {
 
             {mode === 'return' ? (
               <Pressable style={styles.exchangeToggle} onPress={() => setIsExchange((v) => !v)}>
-                <Feather
+                <Icon
                   name={isExchange ? 'check-square' : 'square'}
                   size={22}
                   color={isExchange ? theme.colors.primary : theme.colors.textSecondary}
@@ -225,7 +225,7 @@ export function BatchReturnSheet({ visible, onClose }: Props) {
               <View style={styles.field}>
                 {!scanningActive ? (
                   <Pressable style={styles.startScanButton} onPress={() => setScanningActive(true)}>
-                    <Feather name="maximize" size={20} color={theme.colors.onPrimary} />
+                    <Icon name="maximize" size={20} color={theme.colors.onPrimary} />
                     <Text style={styles.startScanText}>{t('deliveries.batch.startScan')}</Text>
                   </Pressable>
                 ) : !permission?.granted ? (
@@ -249,7 +249,7 @@ export function BatchReturnSheet({ visible, onClose }: Props) {
                         onPress={() => setScanningActive(false)}
                         hitSlop={8}
                       >
-                        <Feather name="x" size={18} color="#fff" />
+                        <Icon name="x" size={18} color="#fff" />
                       </Pressable>
                     </View>
                     {isLookingUp ? (
@@ -259,7 +259,7 @@ export function BatchReturnSheet({ visible, onClose }: Props) {
                     ) : null}
                     {toastMessage ? (
                       <View style={styles.toast}>
-                        <Feather name="check-circle" size={16} color={theme.colors.success} />
+                        <Icon name="check-circle" size={16} color={theme.colors.success} />
                         <Text style={styles.toastText} numberOfLines={1}>
                           {toastMessage}
                         </Text>
@@ -296,7 +296,7 @@ export function BatchReturnSheet({ visible, onClose }: Props) {
                   keyboardType="number-pad"
                 />
                 <Pressable style={styles.addLineButton} onPress={addManualLine}>
-                  <Feather name="plus" size={22} color={theme.colors.onPrimary} />
+                  <Icon name="plus" size={22} color={theme.colors.onPrimary} />
                 </Pressable>
               </View>
             </View>
@@ -312,7 +312,7 @@ export function BatchReturnSheet({ visible, onClose }: Props) {
                       </Text>
                     </View>
                     <Pressable onPress={() => removeLine(line.id)} hitSlop={8}>
-                      <Feather name="x-circle" size={20} color={theme.colors.danger} />
+                      <Icon name="x-circle" size={20} color={theme.colors.danger} />
                     </Pressable>
                   </View>
                 ))}

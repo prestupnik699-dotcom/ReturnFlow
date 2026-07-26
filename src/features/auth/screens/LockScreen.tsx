@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react';
 import { View, StyleSheet } from 'react-native';
 import { Text } from '@/components/AppText';
 import { useTranslation } from 'react-i18next';
-import { Feather } from '@expo/vector-icons';
+import { Icon } from '@/components/Icon';
 import { useTheme } from '@/theme/ThemeProvider';
 import { Screen } from '@/components/Screen';
 import { Button } from '@/components/Button';
@@ -50,7 +50,7 @@ export function LockScreen({ onUnlock }: Props) {
     <Screen>
       <View style={styles.container}>
         <View style={styles.iconWrap}>
-          <Feather name="lock" size={40} color={theme.colors.primary} />
+          <Icon name="lock" size={40} color={theme.colors.primary} />
         </View>
         <Text style={styles.title}>{t('profile.security.unlockTitle')}</Text>
         {failed ? (

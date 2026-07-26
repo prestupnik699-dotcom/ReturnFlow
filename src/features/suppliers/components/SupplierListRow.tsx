@@ -13,7 +13,7 @@ import Animated, {
   withTiming,
   type SharedValue,
 } from 'react-native-reanimated';
-import { Feather } from '@expo/vector-icons';
+import { Icon } from '@/components/Icon';
 import { useTranslation } from 'react-i18next';
 import { useTheme } from '@/theme/ThemeProvider';
 import { Card } from '@/components/Card';
@@ -56,7 +56,7 @@ function DeleteActionPanel({
   return (
     <View style={styles.actionContainer}>
       <Pressable style={styles.actionButton} onPress={onTriggered}>
-        <Feather name="trash-2" size={20} color="#fff" />
+        <Icon name="trash-2" size={20} color="#fff" />
         <Text style={styles.actionLabel} numberOfLines={2}>
           {label}
         </Text>
@@ -109,7 +109,7 @@ function FavoriteStar({ favorite, theme }: { favorite: boolean; theme: Theme }) 
 
   return (
     <Animated.View style={[styles.wrap, favorite && styles.wrapActive, animatedStyle]}>
-      <Feather
+      <Icon
         name="star"
         size={16}
         color={favorite ? theme.colors.onPrimary : theme.colors.textSecondary}
@@ -205,13 +205,13 @@ export function SupplierListRow({
 
           <View style={styles.statsRow}>
             <View style={styles.statBadge}>
-              <Feather name="repeat" size={13} color={theme.colors.textSecondary} />
+              <Icon name="repeat" size={13} color={theme.colors.textSecondary} />
               <Text style={styles.statText}>
                 {t('suppliers.returnsCount', { count: returnsTotal })}
               </Text>
             </View>
             <View style={styles.statBadge}>
-              <Feather name="download" size={13} color={theme.colors.textSecondary} />
+              <Icon name="download" size={13} color={theme.colors.textSecondary} />
               <Text style={styles.statText}>
                 {t('suppliers.deliveriesCount', { count: deliveriesTotal })}
               </Text>
@@ -227,7 +227,7 @@ export function SupplierListRow({
                       : styles.reliabilityBadgeGood,
                 ]}
               >
-                <Feather
+                <Icon
                   name="trending-up"
                   size={12}
                   color={

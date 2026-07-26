@@ -10,7 +10,7 @@ import {
 import { useRouter } from 'expo-router';
 import { Text } from '@/components/AppText';
 import { useTranslation } from 'react-i18next';
-import { Feather, Ionicons } from '@expo/vector-icons';
+import { Icon } from '@/components/Icon';
 import { useTheme } from '@/theme/ThemeProvider';
 import { Screen } from '@/components/Screen';
 import { ScreenHeader } from '@/components/ScreenHeader';
@@ -179,7 +179,7 @@ export function ReturnDetailScreen({ returnId }: Props) {
           </View>
           {item.barcode ? (
             <View style={styles.barcodeRow}>
-              <Ionicons name="barcode-outline" size={14} color={theme.colors.textSecondary} />
+              <Icon name="barcode-outline" size={14} color={theme.colors.textSecondary} />
               <Text style={styles.barcodeText}>{item.barcode}</Text>
             </View>
           ) : null}
@@ -252,7 +252,7 @@ export function ReturnDetailScreen({ returnId }: Props) {
             <Text style={styles.sectionTitle}>
               {t('returns.detail.historyTitle')} ({history?.length ?? 0})
             </Text>
-            <Feather
+            <Icon
               name={historyOpen ? 'chevron-up' : 'chevron-down'}
               size={18}
               color={theme.colors.textSecondary}

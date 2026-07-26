@@ -13,7 +13,7 @@ import { Text } from '@/components/AppText';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useTranslation } from 'react-i18next';
 import { useRouter } from 'expo-router';
-import { Feather } from '@expo/vector-icons';
+import { Icon } from '@/components/Icon';
 import { useTheme } from '@/theme/ThemeProvider';
 import { Screen } from '@/components/Screen';
 import { EmptyState } from '@/components/EmptyState';
@@ -197,10 +197,10 @@ export function ChatScreen() {
       >
         <View style={styles.header}>
           <Pressable onPress={() => router.back()} hitSlop={12} style={styles.backButton}>
-            <Feather name="chevron-left" size={22} color={theme.colors.textPrimary} />
+            <Icon name="chevron-left" size={22} color={theme.colors.textPrimary} />
           </Pressable>
           <View style={styles.headerAvatar}>
-            <Feather name="message-circle" size={18} color={theme.colors.primary} />
+            <Icon name="message-circle" size={18} color={theme.colors.primary} />
           </View>
           <View style={styles.headerText}>
             <Text style={styles.title} numberOfLines={1}>
@@ -218,7 +218,7 @@ export function ChatScreen() {
               onPress={() => setClearConfirmVisible(true)}
               hitSlop={8}
             >
-              <Feather name="trash-2" size={18} color={theme.colors.danger} />
+              <Icon name="trash-2" size={18} color={theme.colors.danger} />
             </Pressable>
           ) : null}
         </View>

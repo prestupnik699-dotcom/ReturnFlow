@@ -13,7 +13,7 @@ import { AnimatedListItem } from '@/components/AnimatedListItem';
 import { useBrandedRefreshProps } from '@/components/BrandedRefreshControl';
 import { useTranslation } from 'react-i18next';
 import { useRouter, useLocalSearchParams } from 'expo-router';
-import { Feather } from '@expo/vector-icons';
+import { Icon } from '@/components/Icon';
 import { LinearGradient } from 'expo-linear-gradient';
 import { useTabBarClearance } from '@/hooks/useTabBarClearance';
 import { useTheme } from '@/theme/ThemeProvider';
@@ -133,20 +133,20 @@ export function StoresScreen() {
           style={styles.summaryCard}
         >
           <View style={styles.summaryStat}>
-            <Feather name="shopping-bag" size={18} color={theme.colors.accent} />
+            <Icon name="shopping-bag" size={18} color={theme.colors.accent} />
             <Text style={styles.summaryValue}>{stores?.length ?? 0}</Text>
             <Text style={styles.summaryLabel}>{t('stores.summaryStores')}</Text>
           </View>
           <View style={styles.summaryDivider} />
           <View style={styles.summaryStat}>
-            <Feather name="repeat" size={18} color={theme.colors.accent} />
+            <Icon name="repeat" size={18} color={theme.colors.accent} />
             <Text style={styles.summaryValue}>{totalReturns}</Text>
             <Text style={styles.summaryLabel}>{t('stores.summaryReturns')}</Text>
           </View>
         </LinearGradient>
 
         <View style={styles.searchRow}>
-          <Feather name="search" size={18} color={theme.colors.textSecondary} />
+          <Icon name="search" size={18} color={theme.colors.textSecondary} />
           <TextInput
             style={styles.searchInput}
             placeholder={t('suppliers.searchPlaceholder')}

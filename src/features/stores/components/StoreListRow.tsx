@@ -5,7 +5,7 @@ import ReanimatedSwipeable, {
   type SwipeableMethods,
 } from 'react-native-gesture-handler/ReanimatedSwipeable';
 import { useAnimatedReaction, runOnJS, type SharedValue } from 'react-native-reanimated';
-import { Feather } from '@expo/vector-icons';
+import { Icon } from '@/components/Icon';
 import { useTranslation } from 'react-i18next';
 import { useTheme } from '@/theme/ThemeProvider';
 import { Card } from '@/components/Card';
@@ -48,7 +48,7 @@ function DeleteActionPanel({
   return (
     <View style={styles.actionContainer}>
       <Pressable style={styles.actionButton} onPress={onTriggered}>
-        <Feather name="trash-2" size={20} color="#fff" />
+        <Icon name="trash-2" size={20} color="#fff" />
         <Text style={styles.actionLabel} numberOfLines={2}>
           {label}
         </Text>
@@ -124,7 +124,7 @@ export function StoreListRow({
       <View style={styles.container}>
         <View style={styles.topRow}>
           <Pressable onPress={onSelectCurrent} hitSlop={8}>
-            <Feather
+            <Icon
               name={isCurrent ? 'check-circle' : 'circle'}
               size={22}
               color={isCurrent ? theme.colors.primary : theme.colors.textSecondary}
@@ -132,7 +132,7 @@ export function StoreListRow({
           </Pressable>
 
           <View style={styles.avatar}>
-            <Feather name="shopping-bag" size={20} color={theme.colors.primary} />
+            <Icon name="shopping-bag" size={20} color={theme.colors.primary} />
           </View>
 
           <PressableScale style={styles.info} onPress={onEdit}>
@@ -142,7 +142,7 @@ export function StoreListRow({
           </PressableScale>
 
           <Pressable style={styles.chatButton} onPress={onOpenChat} hitSlop={8}>
-            <Feather name="message-circle" size={18} color={theme.colors.primary} />
+            <Icon name="message-circle" size={18} color={theme.colors.primary} />
           </Pressable>
         </View>
 
@@ -158,13 +158,13 @@ export function StoreListRow({
 
           <View style={styles.statsRow}>
             <View style={styles.statBadge}>
-              <Feather name="repeat" size={13} color={theme.colors.textSecondary} />
+              <Icon name="repeat" size={13} color={theme.colors.textSecondary} />
               <Text style={styles.statText}>
                 {t('stores.returnsCount', { count: returnsTotal })}
               </Text>
             </View>
             <View style={styles.statBadge}>
-              <Feather name="download" size={13} color={theme.colors.textSecondary} />
+              <Icon name="download" size={13} color={theme.colors.textSecondary} />
               <Text style={styles.statText}>
                 {t('stores.deliveriesCount', { count: deliveriesTotal })}
               </Text>

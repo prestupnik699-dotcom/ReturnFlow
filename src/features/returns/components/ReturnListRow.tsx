@@ -15,7 +15,7 @@ import {
   type SharedValue,
 } from 'react-native-reanimated';
 import Animated from 'react-native-reanimated';
-import { Feather, Ionicons } from '@expo/vector-icons';
+import { Icon, type IconName } from '@/components/Icon';
 import { useTranslation } from 'react-i18next';
 import { useTheme } from '@/theme/ThemeProvider';
 import { Card } from '@/components/Card';
@@ -29,7 +29,7 @@ import type { ReturnItem, ReturnStatus } from '@/features/returns/services/retur
 
 type ActionSpec = {
   label: string;
-  icon: keyof typeof Feather.glyphMap;
+  icon: IconName;
   color: string;
   run: () => void;
 };
@@ -78,7 +78,7 @@ function SwipeActionPanel({
   return (
     <View style={[styles.actionContainer, { backgroundColor: action.color }]}>
       <Pressable style={styles.actionButton} onPress={onTriggered}>
-        <Feather name={action.icon} size={20} color="#fff" />
+        <Icon name={action.icon} size={20} color="#fff" />
         <Text style={styles.actionLabel} numberOfLines={2}>
           {action.label}
         </Text>
@@ -135,7 +135,7 @@ function SelectionCheckbox({
 
   return (
     <Animated.View style={animatedStyle}>
-      <Feather
+      <Icon
         name={selected ? 'check-circle' : 'circle'}
         size={22}
         color={selected ? color : inactiveColor}
@@ -253,7 +253,7 @@ export const ReturnListRow = memo(function ReturnListRow({
               </Text>
               {item.barcode ? (
                 <View style={styles.barcodeRow}>
-                  <Ionicons name="barcode-outline" size={12} color={theme.colors.textSecondary} />
+                  <Icon name="barcode-outline" size={12} color={theme.colors.textSecondary} />
                   <Text style={styles.barcodeText} numberOfLines={1}>
                     {item.barcode}
                   </Text>
@@ -271,11 +271,11 @@ export const ReturnListRow = memo(function ReturnListRow({
           {item.pendingSync ? (
             <View style={styles.bottomColumn}>
               <View style={styles.pendingBadge}>
-                <Feather name="upload-cloud" size={12} color={theme.colors.warning} />
+                <Icon name="upload-cloud" size={12} color={theme.colors.warning} />
                 <Text style={styles.pendingBadgeText}>{pendingLabel}</Text>
               </View>
               <View style={[styles.dateRow, styles.dateRowEnd]}>
-                <Feather name="calendar" size={12} color={theme.colors.textSecondary} />
+                <Icon name="calendar" size={12} color={theme.colors.textSecondary} />
                 <Text style={styles.dateText}>{formatDateTime(item.createdAt)}</Text>
               </View>
             </View>
@@ -290,7 +290,7 @@ export const ReturnListRow = memo(function ReturnListRow({
                 </Text>
               </View>
               <View style={styles.dateRow}>
-                <Feather name="calendar" size={12} color={theme.colors.textSecondary} />
+                <Icon name="calendar" size={12} color={theme.colors.textSecondary} />
                 <Text style={styles.dateText}>{formatDateTime(item.createdAt)}</Text>
               </View>
             </View>

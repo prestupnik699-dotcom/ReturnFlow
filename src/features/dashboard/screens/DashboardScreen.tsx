@@ -12,7 +12,8 @@ import { PressableScale } from '@/components/PressableScale';
 import { Text } from '@/components/AppText';
 import { useTranslation } from 'react-i18next';
 import { useRouter, useFocusEffect } from 'expo-router';
-import { Feather, Ionicons } from '@expo/vector-icons';
+import { Ionicons } from '@expo/vector-icons';
+import { Icon, type IconName } from '@/components/Icon';
 import { LinearGradient } from 'expo-linear-gradient';
 import { AnimatedListItem } from '@/components/AnimatedListItem';
 import { useBrandedRefreshProps } from '@/components/BrandedRefreshControl';
@@ -198,7 +199,7 @@ export function DashboardScreen() {
               onPress={() => router.push('/notifications')}
               hitSlop={8}
             >
-              <Feather name="bell" size={20} color={theme.colors.primary} />
+              <Icon name="bell" size={20} color={theme.colors.primary} />
               {unreadCount > 0 ? <View style={styles.headerBadge} /> : null}
             </Pressable>
             <Pressable
@@ -206,7 +207,7 @@ export function DashboardScreen() {
               onPress={() => router.push('/profile-settings')}
               hitSlop={8}
             >
-              <Feather name="settings" size={20} color={theme.colors.primary} />
+              <Icon name="settings" size={20} color={theme.colors.primary} />
             </Pressable>
           </View>
         </View>
@@ -248,12 +249,12 @@ export function DashboardScreen() {
                 end={{ x: 1, y: 1 }}
                 style={styles.bentoHero}
               >
-                <Feather name="repeat" size={22} color={theme.colors.onPrimary} />
+                <Icon name="repeat" size={22} color={theme.colors.onPrimary} />
                 <AnimatedNumber value={totalCount} style={styles.bentoHeroValue} />
                 <Text style={styles.bentoHeroLabel}>{t('dashboard.overviewTotal')}</Text>
               </LinearGradient>
               <View style={styles.bentoSide}>
-                <Feather name="calendar" size={18} color={theme.colors.accent} />
+                <Icon name="calendar" size={18} color={theme.colors.accent} />
                 <AnimatedNumber value={todayCount} style={styles.bentoSideValue} />
                 <Text style={styles.bentoSideLabel}>{t('dashboard.overviewToday')}</Text>
               </View>
@@ -340,7 +341,7 @@ export function DashboardScreen() {
                       <Card>
                         <View style={styles.recentRow}>
                           <View style={styles.recentIconWrap}>
-                            <Feather name="repeat" size={16} color={theme.colors.primary} />
+                            <Icon name="repeat" size={16} color={theme.colors.primary} />
                           </View>
                           <View style={styles.recentInfo}>
                             <Text style={styles.recentTitle}>{t('dashboard.returnCreated')}</Text>
@@ -375,7 +376,7 @@ function QuickAction({
   onPress,
   theme,
 }: {
-  icon: keyof typeof Feather.glyphMap;
+  icon: IconName;
   label: string;
   onPress: () => void;
   theme: Theme;
@@ -384,7 +385,7 @@ function QuickAction({
   return (
     <Pressable style={styles.tile} onPress={onPress}>
       <View style={styles.tileIconWrap}>
-        <Feather name={icon} size={22} color={theme.colors.primary} />
+        <Icon name={icon} size={22} color={theme.colors.primary} />
       </View>
       <Text style={styles.tileLabel} numberOfLines={2}>
         {label}
@@ -439,7 +440,7 @@ function AttentionCard({
   theme,
   pulse,
 }: {
-  icon: keyof typeof Feather.glyphMap;
+  icon: IconName;
   color: string;
   text: string;
   onPress: () => void;
@@ -467,10 +468,10 @@ function AttentionCard({
       <Card>
         <View style={styles.row}>
           <Animated.View style={[styles.iconWrap, { backgroundColor: color + '1F' }, pulseStyle]}>
-            <Feather name={icon} size={18} color={color} />
+            <Icon name={icon} size={18} color={color} />
           </Animated.View>
           <Text style={styles.text}>{text}</Text>
-          <Feather name="chevron-right" size={18} color={theme.colors.textSecondary} />
+          <Icon name="chevron-right" size={18} color={theme.colors.textSecondary} />
         </View>
       </Card>
     </PressableScale>

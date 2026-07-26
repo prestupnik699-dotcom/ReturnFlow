@@ -14,7 +14,7 @@ import { useTranslation } from 'react-i18next';
 import Constants from 'expo-constants';
 import * as LocalAuthentication from 'expo-local-authentication';
 import * as ImagePicker from 'expo-image-picker';
-import { Feather } from '@expo/vector-icons';
+import { Icon } from '@/components/Icon';
 import { useTheme } from '@/theme/ThemeProvider';
 import { Screen } from '@/components/Screen';
 import { ScreenHeader } from '@/components/ScreenHeader';
@@ -189,7 +189,7 @@ export function ProfileSettingsScreen() {
               </View>
             )}
             <View style={styles.avatarEditBadge}>
-              <Feather name="camera" size={14} color={theme.colors.onPrimary} />
+              <Icon name="camera" size={14} color={theme.colors.onPrimary} />
             </View>
           </Pressable>
           <Text style={styles.avatarName}>

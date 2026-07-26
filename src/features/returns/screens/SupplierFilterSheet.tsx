@@ -2,7 +2,7 @@ import { Modal, View, ScrollView, Pressable, StyleSheet } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Text } from '@/components/AppText';
 import { useTranslation } from 'react-i18next';
-import { Feather } from '@expo/vector-icons';
+import { Icon } from '@/components/Icon';
 import { useTheme } from '@/theme/ThemeProvider';
 import { Chip } from '@/components/Chip';
 import { useSuppliers } from '@/features/suppliers/hooks/useSuppliers';
@@ -32,7 +32,7 @@ export function SupplierFilterSheet({ visible, onClose, selectedSupplierId, onSe
           <View style={styles.header}>
             <Text style={styles.title}>{t('returns.filterBySupplier')}</Text>
             <Pressable onPress={onClose} hitSlop={12}>
-              <Feather name="x" size={22} color={theme.colors.textPrimary} />
+              <Icon name="x" size={22} color={theme.colors.textPrimary} />
             </Pressable>
           </View>
 

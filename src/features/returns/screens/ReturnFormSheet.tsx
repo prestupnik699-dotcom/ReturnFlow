@@ -5,7 +5,7 @@ import { Text } from '@/components/AppText';
 import { useForm, useWatch, Controller } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useTranslation } from 'react-i18next';
-import { Feather, Ionicons } from '@expo/vector-icons';
+import { Icon } from '@/components/Icon';
 import { useTheme } from '@/theme/ThemeProvider';
 import { Button } from '@/components/Button';
 import { Chip } from '@/components/Chip';
@@ -234,7 +234,7 @@ export function ReturnFormSheet({
                     style={styles.suggestionRow}
                     onPress={() => applyTitleSuggestion(s.title, s.lastUnitPrice)}
                   >
-                    <Feather name="clock" size={14} color={theme.colors.textSecondary} />
+                    <Icon name="clock" size={14} color={theme.colors.textSecondary} />
                     <Text style={styles.suggestionText} numberOfLines={1}>
                       {s.title}
                     </Text>
@@ -264,7 +264,7 @@ export function ReturnFormSheet({
                       }}
                       hitSlop={8}
                     >
-                      <Feather name="minus" size={18} color={theme.colors.primary} />
+                      <Icon name="minus" size={18} color={theme.colors.primary} />
                     </Pressable>
                     <TextInput
                       style={styles.stepperInput}
@@ -282,7 +282,7 @@ export function ReturnFormSheet({
                       }}
                       hitSlop={8}
                     >
-                      <Feather name="plus" size={18} color={theme.colors.primary} />
+                      <Icon name="plus" size={18} color={theme.colors.primary} />
                     </Pressable>
                   </View>
                 );
@@ -322,7 +322,7 @@ export function ReturnFormSheet({
               name="barcode"
               render={({ field: { value, onChange, onBlur } }) => (
                 <View style={styles.barcodeRow}>
-                  <Ionicons name="barcode-outline" size={18} color={theme.colors.textSecondary} />
+                  <Icon name="barcode-outline" size={18} color={theme.colors.textSecondary} />
                   <TextInput
                     style={styles.barcodeInput}
                     value={value}
@@ -391,7 +391,7 @@ export function ReturnFormSheet({
             style={styles.exchangeToggle}
             onPress={() => setValue('isExchange', !isExchange)}
           >
-            <Feather
+            <Icon
               name={isExchange ? 'check-square' : 'square'}
               size={22}
               color={isExchange ? theme.colors.primary : theme.colors.textSecondary}

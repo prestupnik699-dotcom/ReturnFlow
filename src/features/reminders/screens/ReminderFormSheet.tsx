@@ -4,7 +4,7 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { Text } from '@/components/AppText';
 import DateTimePicker from '@react-native-community/datetimepicker';
 import { useTranslation } from 'react-i18next';
-import { Feather } from '@expo/vector-icons';
+import { Icon } from '@/components/Icon';
 import { useTheme } from '@/theme/ThemeProvider';
 import { Button } from '@/components/Button';
 import { Chip } from '@/components/Chip';
@@ -142,7 +142,7 @@ export function ReminderFormSheet({ visible, onClose, reminder }: Props) {
           <View style={styles.field}>
             <Text style={styles.label}>{t('reminders.create.dateLabel')}</Text>
             <Pressable style={styles.dateRow} onPress={() => setPickerVisible(true)}>
-              <Feather name="calendar" size={18} color={theme.colors.textSecondary} />
+              <Icon name="calendar" size={18} color={theme.colors.textSecondary} />
               <Text style={styles.dateText}>{formatDisplayDate(dueDate)}</Text>
             </Pressable>
             {pickerVisible ? (

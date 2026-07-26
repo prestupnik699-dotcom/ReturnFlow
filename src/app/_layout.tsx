@@ -26,6 +26,7 @@ import { SafeAreaProvider } from 'react-native-safe-area-context';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import { queryClient } from '@/lib/query-client';
 import { ThemeProvider, useTheme } from '@/theme/ThemeProvider';
+import { IconoirProvider } from 'iconoir-react-native';
 import { useSessionBootstrap } from '@/features/auth/hooks/useSessionBootstrap';
 import { useSyncOnReconnect } from '@/hooks/useSyncOnReconnect';
 import { useHandleAuthDeepLink } from '@/features/auth/hooks/useHandleAuthDeepLink';
@@ -96,12 +97,14 @@ export default Sentry.wrap(function RootLayout() {
     <GestureHandlerRootView style={{ flex: 1 }}>
       <SafeAreaProvider>
         <QueryClientProvider client={queryClient}>
-          <ThemeProvider>
-            <ErrorBoundary>
-              <RootNavigator />
-            </ErrorBoundary>
-            <SuccessCheckmark />
-          </ThemeProvider>
+          <IconoirProvider iconProps={{ strokeWidth: 1.75 }}>
+            <ThemeProvider>
+              <ErrorBoundary>
+                <RootNavigator />
+              </ErrorBoundary>
+              <SuccessCheckmark />
+            </ThemeProvider>
+          </IconoirProvider>
         </QueryClientProvider>
       </SafeAreaProvider>
     </GestureHandlerRootView>

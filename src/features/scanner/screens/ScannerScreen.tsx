@@ -5,7 +5,7 @@ import { Text } from '@/components/AppText';
 import { CameraView, useCameraPermissions } from 'expo-camera';
 import { useRouter } from 'expo-router';
 import { useTranslation } from 'react-i18next';
-import { Feather } from '@expo/vector-icons';
+import { Icon } from '@/components/Icon';
 import { useTheme } from '@/theme/ThemeProvider';
 import { Screen } from '@/components/Screen';
 import { ScreenHeader } from '@/components/ScreenHeader';
@@ -248,7 +248,7 @@ export function ScannerScreen() {
             onPress={() => setBatchMode((v) => !v)}
             hitSlop={8}
           >
-            <Feather
+            <Icon
               name="layers"
               size={16}
               color={batchMode ? theme.colors.onPrimary : theme.colors.primary}
@@ -286,7 +286,7 @@ export function ScannerScreen() {
 
           {instantMessage ? (
             <View style={styles.instantOverlay}>
-              <Feather name="check-circle" size={32} color={theme.colors.success} />
+              <Icon name="check-circle" size={32} color={theme.colors.success} />
               <Text style={styles.instantText}>{instantMessage}</Text>
             </View>
           ) : null}
@@ -297,11 +297,11 @@ export function ScannerScreen() {
             style={[styles.batchBar, { marginBottom: insets.bottom || theme.spacing.md }]}
             onPress={() => setBatchReviewVisible(true)}
           >
-            <Feather name="list" size={18} color={theme.colors.onPrimary} />
+            <Icon name="list" size={18} color={theme.colors.onPrimary} />
             <Text style={styles.batchBarText}>
               {t('scanner.batchQueueCount', { count: batchQueue.length })}
             </Text>
-            <Feather name="chevron-right" size={18} color={theme.colors.onPrimary} />
+            <Icon name="chevron-right" size={18} color={theme.colors.onPrimary} />
           </Pressable>
         ) : null}
       </View>

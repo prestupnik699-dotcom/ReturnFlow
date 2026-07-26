@@ -10,7 +10,7 @@ import {
 import { Text } from '@/components/AppText';
 import { LinearGradient } from 'expo-linear-gradient';
 import Animated, { useAnimatedStyle, useSharedValue, withTiming } from 'react-native-reanimated';
-import { Feather } from '@expo/vector-icons';
+import { Icon, type IconName } from '@/components/Icon';
 import { useTheme } from '@/theme/ThemeProvider';
 
 type ButtonVariant = 'primary' | 'outline' | 'danger';
@@ -21,7 +21,7 @@ type Props = {
   variant?: ButtonVariant;
   loading?: boolean;
   disabled?: boolean;
-  icon?: keyof typeof Feather.glyphMap;
+  icon?: IconName;
   style?: StyleProp<ViewStyle>;
 };
 
@@ -55,7 +55,7 @@ export function Button({
     <ActivityIndicator color={contentColor} />
   ) : (
     <>
-      {icon ? <Feather name={icon} size={19} color={contentColor} style={styles.icon} /> : null}
+      {icon ? <Icon name={icon} size={19} color={contentColor} style={styles.icon} /> : null}
       <Text style={[styles.label, { color: contentColor }]}>{label}</Text>
     </>
   );

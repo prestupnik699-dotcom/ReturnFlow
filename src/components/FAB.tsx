@@ -1,12 +1,12 @@
 import { Pressable, StyleSheet, Platform, type StyleProp, type ViewStyle } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import Animated, { useAnimatedStyle, useSharedValue, withTiming } from 'react-native-reanimated';
-import { Feather } from '@expo/vector-icons';
+import { Icon, type IconName } from '@/components/Icon';
 import { useTheme } from '@/theme/ThemeProvider';
 
 type Props = {
   onPress: () => void;
-  icon?: keyof typeof Feather.glyphMap;
+  icon?: IconName;
   style?: StyleProp<ViewStyle>;
 };
 
@@ -48,7 +48,7 @@ export function FAB({ onPress, icon = 'plus', style }: Props) {
           end={{ x: 1, y: 1 }}
           style={styles.circle}
         >
-          <Feather name={icon} size={26} color={theme.colors.onPrimary} />
+          <Icon name={icon} size={26} color={theme.colors.onPrimary} />
         </LinearGradient>
       </Animated.View>
     </Pressable>

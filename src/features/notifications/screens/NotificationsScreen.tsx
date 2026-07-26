@@ -11,7 +11,7 @@ import { PressableScale } from '@/components/PressableScale';
 import { Text } from '@/components/AppText';
 import { useTranslation } from 'react-i18next';
 import { useRouter } from 'expo-router';
-import { Feather } from '@expo/vector-icons';
+import { Icon, type IconName } from '@/components/Icon';
 import { AnimatedListItem } from '@/components/AnimatedListItem';
 import { useBrandedRefreshProps } from '@/components/BrandedRefreshControl';
 import { useTheme } from '@/theme/ThemeProvider';
@@ -43,7 +43,7 @@ function dayKey(iso: string): string {
   return `${d.getFullYear()}-${d.getMonth()}-${d.getDate()}`;
 }
 
-type TypeVisual = { icon: keyof typeof Feather.glyphMap; color: (theme: Theme) => string };
+type TypeVisual = { icon: IconName; color: (theme: Theme) => string };
 
 const TYPE_VISUALS: Record<string, TypeVisual> = {
   urgent_return_created: { icon: 'alert-circle', color: (t) => t.colors.danger },
@@ -167,14 +167,14 @@ export function NotificationsScreen() {
           <Card>
             <View style={styles.row}>
               {selectionMode ? (
-                <Feather
+                <Icon
                   name={selected ? 'check-circle' : 'circle'}
                   size={20}
                   color={selected ? theme.colors.primary : theme.colors.textSecondary}
                 />
               ) : (
                 <View style={[styles.iconWrap, { backgroundColor: color + '1F' }]}>
-                  <Feather name={visual.icon} size={18} color={color} />
+                  <Icon name={visual.icon} size={18} color={color} />
                 </View>
               )}
               <View style={styles.info}>
@@ -205,7 +205,7 @@ export function NotificationsScreen() {
         <View style={styles.headerGroup}>
           <View style={styles.header}>
             <Pressable onPress={() => router.back()} hitSlop={12} style={styles.backButton}>
-              <Feather name="chevron-left" size={22} color={theme.colors.textPrimary} />
+              <Icon name="chevron-left" size={22} color={theme.colors.textPrimary} />
             </Pressable>
             <Text style={styles.title} numberOfLines={1}>
               {t('common.notifications')}
@@ -213,7 +213,7 @@ export function NotificationsScreen() {
           </View>
           {!selectionMode && unreadCount > 0 ? (
             <Pressable onPress={() => markAllMutation.mutate()} style={styles.markAllPill}>
-              <Feather name="check" size={14} color={theme.colors.primary} />
+              <Icon name="check" size={14} color={theme.colors.primary} />
               <Text style={styles.markAllText}>{t('chat.markAllRead')}</Text>
             </Pressable>
           ) : null}

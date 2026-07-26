@@ -8,7 +8,7 @@ import Animated, {
   withTiming,
   withSequence,
 } from 'react-native-reanimated';
-import { Feather } from '@expo/vector-icons';
+import { Icon, type IconName } from '@/components/Icon';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useTheme } from '@/theme/ThemeProvider';
 import { useUnreadCount } from '@/features/notifications/hooks/useUnreadCount';
@@ -34,7 +34,7 @@ function PulsingBadge({ style }: { style: object }) {
   return <Animated.View style={[style, animatedStyle]} />;
 }
 
-const ICONS: Record<string, keyof typeof Feather.glyphMap> = {
+const ICONS: Record<string, IconName> = {
   index: 'home',
   stores: 'shopping-bag',
   suppliers: 'box',
@@ -103,11 +103,11 @@ export function FloatingTabBar({ state, navigation }: TabBarProps) {
                     end={{ x: 1, y: 1 }}
                     style={styles.iconWrap}
                   >
-                    <Feather name={icon} size={22} color={theme.colors.onPrimary} />
+                    <Icon name={icon} size={22} color={theme.colors.onPrimary} />
                   </LinearGradient>
                 ) : (
                   <View style={styles.iconWrap}>
-                    <Feather name={icon} size={22} color={theme.colors.textSecondary} />
+                    <Icon name={icon} size={22} color={theme.colors.textSecondary} />
                   </View>
                 )}
               </Pressable>

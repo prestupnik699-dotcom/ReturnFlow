@@ -8,7 +8,7 @@ import {
   type NativeScrollEvent,
 } from 'react-native';
 import { Text } from '@/components/AppText';
-import { Feather } from '@expo/vector-icons';
+import { Icon, type IconName } from '@/components/Icon';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useTranslation } from 'react-i18next';
 import { useTheme } from '@/theme/ThemeProvider';
@@ -17,7 +17,7 @@ import { Logo } from '@/components/Logo';
 
 const { width } = Dimensions.get('window');
 
-type Slide = { icon: keyof typeof Feather.glyphMap; titleKey: string; bodyKey: string };
+type Slide = { icon: IconName; titleKey: string; bodyKey: string };
 
 const SLIDES: Slide[] = [
   {
@@ -70,7 +70,7 @@ export function OnboardingTourScreen({ onFinish }: Props) {
               <Logo size={72} />
             ) : (
               <View style={styles.iconWrap}>
-                <Feather name={item.icon} size={48} color={theme.colors.primary} />
+                <Icon name={item.icon} size={48} color={theme.colors.primary} />
               </View>
             )}
             <Text style={styles.title}>{t(item.titleKey)}</Text>

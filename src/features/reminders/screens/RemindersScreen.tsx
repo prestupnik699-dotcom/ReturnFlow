@@ -11,7 +11,7 @@ import { PressableScale } from '@/components/PressableScale';
 import { Text } from '@/components/AppText';
 import { useTranslation } from 'react-i18next';
 import { useRouter } from 'expo-router';
-import { Feather } from '@expo/vector-icons';
+import { Icon } from '@/components/Icon';
 import { AnimatedListItem } from '@/components/AnimatedListItem';
 import { useBrandedRefreshProps } from '@/components/BrandedRefreshControl';
 import { useTheme } from '@/theme/ThemeProvider';
@@ -105,7 +105,7 @@ export function RemindersScreen() {
       <Card>
         <View style={styles.row}>
           <Pressable onPress={() => toggleStatus(reminder)} hitSlop={8}>
-            <Feather
+            <Icon
               name={reminder.status === 'active' ? 'circle' : 'check-circle'}
               size={22}
               color={

@@ -1,11 +1,11 @@
 import { View, Text, StyleSheet } from 'react-native';
-import { Feather } from '@expo/vector-icons';
+import { Icon, type IconName } from '@/components/Icon';
 import Animated, { FadeInDown, ZoomIn } from 'react-native-reanimated';
 import { useTheme } from '@/theme/ThemeProvider';
 import { Button } from '@/components/Button';
 
 type Props = {
-  icon: keyof typeof Feather.glyphMap;
+  icon: IconName;
   title: string;
   message?: string;
   actionLabel?: string;
@@ -19,7 +19,7 @@ export function EmptyState({ icon, title, message, actionLabel, onAction }: Prop
   return (
     <View style={styles.container}>
       <Animated.View entering={ZoomIn.duration(400).springify()} style={styles.iconWrap}>
-        <Feather name={icon} size={28} color={theme.colors.primary} />
+        <Icon name={icon} size={28} color={theme.colors.primary} />
       </Animated.View>
       <Animated.View entering={FadeInDown.delay(100).duration(350)} style={styles.textWrap}>
         <Text style={styles.title}>{title}</Text>

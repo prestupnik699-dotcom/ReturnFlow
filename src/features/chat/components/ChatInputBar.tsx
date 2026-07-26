@@ -1,6 +1,6 @@
 import { memo, useState } from 'react';
 import { View, TextInput, Pressable, ActivityIndicator, StyleSheet } from 'react-native';
-import { Feather } from '@expo/vector-icons';
+import { Icon } from '@/components/Icon';
 import { useTranslation } from 'react-i18next';
 import { useTheme } from '@/theme/ThemeProvider';
 
@@ -44,7 +44,7 @@ function ChatInputBarInner({ onSend, sending }: Props) {
         {sending ? (
           <ActivityIndicator size="small" color={theme.colors.onPrimary} />
         ) : (
-          <Feather name="arrow-up" size={20} color={theme.colors.onPrimary} />
+          <Icon name="arrow-up" size={20} color={theme.colors.onPrimary} />
         )}
       </Pressable>
     </View>

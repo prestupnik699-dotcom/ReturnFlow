@@ -2,7 +2,7 @@ import { Modal, View, Pressable, StyleSheet } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Text } from '@/components/AppText';
 import { useTranslation } from 'react-i18next';
-import { Feather } from '@expo/vector-icons';
+import { Icon } from '@/components/Icon';
 import { useTheme } from '@/theme/ThemeProvider';
 import { Button } from '@/components/Button';
 import { Card } from '@/components/Card';
@@ -71,7 +71,7 @@ export function BatchScanReviewSheet({
                       onPress={() => onChangeQuantity(item.id, Math.max(1, item.quantity - 1))}
                       hitSlop={8}
                     >
-                      <Feather name="minus" size={16} color={theme.colors.primary} />
+                      <Icon name="minus" size={16} color={theme.colors.primary} />
                     </Pressable>
                     <Text style={styles.stepperValue}>{item.quantity}</Text>
                     <Pressable
@@ -79,7 +79,7 @@ export function BatchScanReviewSheet({
                       onPress={() => onChangeQuantity(item.id, item.quantity + 1)}
                       hitSlop={8}
                     >
-                      <Feather name="plus" size={16} color={theme.colors.primary} />
+                      <Icon name="plus" size={16} color={theme.colors.primary} />
                     </Pressable>
                   </View>
                   <Pressable
@@ -87,7 +87,7 @@ export function BatchScanReviewSheet({
                     onPress={() => onRemove(item.id)}
                     hitSlop={8}
                   >
-                    <Feather name="x" size={18} color={theme.colors.danger} />
+                    <Icon name="x" size={18} color={theme.colors.danger} />
                   </Pressable>
                 </View>
               </Card>

@@ -1,5 +1,5 @@
 import { Modal, View, Image, Pressable, StyleSheet } from 'react-native';
-import { Feather } from '@expo/vector-icons';
+import { Icon } from '@/components/Icon';
 
 type Props = { visible: boolean; uri: string | null; onClose: () => void };
 
@@ -10,7 +10,7 @@ export function ImageViewerModal({ visible, uri, onClose }: Props) {
     <Modal visible={visible} transparent animationType="fade" onRequestClose={onClose}>
       <View style={styles.backdrop}>
         <Pressable style={styles.closeButton} onPress={onClose} hitSlop={12}>
-          <Feather name="x" size={28} color="#fff" />
+          <Icon name="x" size={28} color="#fff" />
         </Pressable>
         <Image source={{ uri }} style={styles.image} resizeMode="contain" />
       </View>

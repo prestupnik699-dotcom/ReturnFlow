@@ -1,13 +1,13 @@
 import { View, Pressable, StyleSheet } from 'react-native';
 import { Text } from '@/components/AppText';
 import { useRouter } from 'expo-router';
-import { Feather } from '@expo/vector-icons';
+import { Icon, type IconName } from '@/components/Icon';
 import { useTheme } from '@/theme/ThemeProvider';
 
 type Props = {
   title: string;
   onBack?: () => void;
-  rightIcon?: keyof typeof Feather.glyphMap;
+  rightIcon?: IconName;
   onRightPress?: () => void;
 };
 
@@ -21,14 +21,14 @@ export function ScreenHeader({ title, onBack, rightIcon, onRightPress }: Props) 
   return (
     <View style={styles.header}>
       <Pressable onPress={handleBack} hitSlop={12} style={styles.iconButton}>
-        <Feather name="chevron-left" size={22} color={theme.colors.textPrimary} />
+        <Icon name="chevron-left" size={22} color={theme.colors.textPrimary} />
       </Pressable>
       <Text style={styles.title} numberOfLines={1}>
         {title}
       </Text>
       {rightIcon && onRightPress ? (
         <Pressable onPress={onRightPress} hitSlop={12} style={styles.iconButton}>
-          <Feather name={rightIcon} size={20} color={theme.colors.primary} />
+          <Icon name={rightIcon} size={20} color={theme.colors.primary} />
         </Pressable>
       ) : (
         <View style={styles.spacer} />
