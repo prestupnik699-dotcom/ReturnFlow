@@ -1,12 +1,18 @@
 import { useState } from 'react';
-import { View, FlatList, Pressable, ActivityIndicator, StyleSheet } from 'react-native';
+import {
+  View,
+  FlatList,
+  Pressable,
+  ActivityIndicator,
+  StyleSheet,
+  RefreshControl,
+} from 'react-native';
 import { PressableScale } from '@/components/PressableScale';
 import { Text } from '@/components/AppText';
 import { useTranslation } from 'react-i18next';
 import { useRouter } from 'expo-router';
 import { Feather } from '@expo/vector-icons';
 import { AnimatedListItem } from '@/components/AnimatedListItem';
-import { BrandedRefreshControl } from '@/components/BrandedRefreshControl';
 import { useTheme } from '@/theme/ThemeProvider';
 import { Screen } from '@/components/Screen';
 import { Card } from '@/components/Card';
@@ -227,7 +233,14 @@ export function NotificationsScreen() {
               styles.list,
               { paddingBottom: selectionMode ? tabBarClearance : tabBarClearance },
             ]}
-            refreshControl={<BrandedRefreshControl refreshing={isRefetching} onRefresh={refetch} />}
+            refreshControl={
+              <RefreshControl
+                refreshing={isRefetching}
+                onRefresh={refetch}
+                tintColor={theme.colors.primary}
+                colors={[theme.colors.primary]}
+              />
+            }
             ListEmptyComponent={
               <EmptyState
                 icon="bell"

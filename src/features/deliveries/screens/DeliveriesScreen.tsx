@@ -1,11 +1,17 @@
 import { useState } from 'react';
-import { View, FlatList, TextInput, ActivityIndicator, StyleSheet } from 'react-native';
+import {
+  View,
+  FlatList,
+  TextInput,
+  ActivityIndicator,
+  StyleSheet,
+  RefreshControl,
+} from 'react-native';
 import { Text } from '@/components/AppText';
 import { useTranslation } from 'react-i18next';
 import { useRouter } from 'expo-router';
 import { Feather, Ionicons } from '@expo/vector-icons';
 import { AnimatedListItem } from '@/components/AnimatedListItem';
-import { BrandedRefreshControl } from '@/components/BrandedRefreshControl';
 import { useTheme } from '@/theme/ThemeProvider';
 import { Screen } from '@/components/Screen';
 import { ScreenHeader } from '@/components/ScreenHeader';
@@ -71,7 +77,14 @@ export function DeliveriesScreen() {
               filtered.length === 0 && styles.listEmptyGrow,
             ]}
             showsVerticalScrollIndicator={false}
-            refreshControl={<BrandedRefreshControl refreshing={isRefetching} onRefresh={refetch} />}
+            refreshControl={
+              <RefreshControl
+                refreshing={isRefetching}
+                onRefresh={refetch}
+                tintColor={theme.colors.primary}
+                colors={[theme.colors.primary]}
+              />
+            }
             ListEmptyComponent={
               <View style={styles.emptyWrap}>
                 <EmptyState

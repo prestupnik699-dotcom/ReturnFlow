@@ -1,12 +1,19 @@
 import { useState, useEffect, useMemo } from 'react';
-import { View, FlatList, StyleSheet, Pressable, TextInput, ScrollView } from 'react-native';
+import {
+  View,
+  FlatList,
+  StyleSheet,
+  Pressable,
+  TextInput,
+  ScrollView,
+  RefreshControl,
+} from 'react-native';
 import { Text } from '@/components/AppText';
 import { useTranslation } from 'react-i18next';
 import { useRouter, useLocalSearchParams } from 'expo-router';
 import { Feather } from '@expo/vector-icons';
 import { LinearGradient } from 'expo-linear-gradient';
 import { AnimatedListItem } from '@/components/AnimatedListItem';
-import { BrandedRefreshControl } from '@/components/BrandedRefreshControl';
 import { useTheme } from '@/theme/ThemeProvider';
 import { Screen } from '@/components/Screen';
 import { Button } from '@/components/Button';
@@ -332,7 +339,14 @@ export function ReturnsScreen() {
               sorted.length === 0 && styles.listEmptyGrow,
             ]}
             showsVerticalScrollIndicator={false}
-            refreshControl={<BrandedRefreshControl refreshing={isRefetching} onRefresh={refetch} />}
+            refreshControl={
+              <RefreshControl
+                refreshing={isRefetching}
+                onRefresh={refetch}
+                tintColor={theme.colors.primary}
+                colors={[theme.colors.primary]}
+              />
+            }
             ListEmptyComponent={
               <View style={styles.emptyWrap}>
                 <EmptyState

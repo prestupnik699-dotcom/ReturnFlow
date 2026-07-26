@@ -1,8 +1,15 @@
 import { useState, useEffect, useRef } from 'react';
-import { View, FlatList, StyleSheet, Pressable, TextInput, ScrollView } from 'react-native';
+import {
+  View,
+  FlatList,
+  StyleSheet,
+  Pressable,
+  TextInput,
+  ScrollView,
+  RefreshControl,
+} from 'react-native';
 import { Text } from '@/components/AppText';
 import { AnimatedListItem } from '@/components/AnimatedListItem';
-import { BrandedRefreshControl } from '@/components/BrandedRefreshControl';
 import { useTranslation } from 'react-i18next';
 import { useRouter, useLocalSearchParams } from 'expo-router';
 import { Feather } from '@expo/vector-icons';
@@ -180,7 +187,14 @@ export function StoresScreen() {
               filtered.length === 0 && styles.listEmptyGrow,
             ]}
             showsVerticalScrollIndicator={false}
-            refreshControl={<BrandedRefreshControl refreshing={isRefetching} onRefresh={refetch} />}
+            refreshControl={
+              <RefreshControl
+                refreshing={isRefetching}
+                onRefresh={refetch}
+                tintColor={theme.colors.primary}
+                colors={[theme.colors.primary]}
+              />
+            }
             ListEmptyComponent={
               <View style={styles.emptyWrap}>
                 <EmptyState

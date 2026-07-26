@@ -1,10 +1,9 @@
 import { useState } from 'react';
-import { View, FlatList, ActivityIndicator, StyleSheet } from 'react-native';
+import { View, FlatList, ActivityIndicator, StyleSheet, RefreshControl } from 'react-native';
 import { PressableScale } from '@/components/PressableScale';
 import { Text } from '@/components/AppText';
 import { useTranslation } from 'react-i18next';
 import { AnimatedListItem } from '@/components/AnimatedListItem';
-import { BrandedRefreshControl } from '@/components/BrandedRefreshControl';
 import { useTheme } from '@/theme/ThemeProvider';
 import { Screen } from '@/components/Screen';
 import { ScreenHeader } from '@/components/ScreenHeader';
@@ -54,7 +53,14 @@ export function TeamScreen() {
             data={members}
             keyExtractor={(item) => item.membershipId}
             contentContainerStyle={styles.list}
-            refreshControl={<BrandedRefreshControl refreshing={isRefetching} onRefresh={refetch} />}
+            refreshControl={
+              <RefreshControl
+                refreshing={isRefetching}
+                onRefresh={refetch}
+                tintColor={theme.colors.primary}
+                colors={[theme.colors.primary]}
+              />
+            }
             ListEmptyComponent={<Text style={styles.empty}>{t('users.team.empty')}</Text>}
             renderItem={({ item, index }) => (
               <AnimatedListItem index={index} step={60} duration={300}>

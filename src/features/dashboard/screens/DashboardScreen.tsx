@@ -1,5 +1,13 @@
 import { useState, useEffect, useCallback } from 'react';
-import { View, ScrollView, ActivityIndicator, Pressable, Image, StyleSheet } from 'react-native';
+import {
+  View,
+  ScrollView,
+  ActivityIndicator,
+  Pressable,
+  Image,
+  StyleSheet,
+  RefreshControl,
+} from 'react-native';
 import { PressableScale } from '@/components/PressableScale';
 import { Text } from '@/components/AppText';
 import { useTranslation } from 'react-i18next';
@@ -7,7 +15,6 @@ import { useRouter, useFocusEffect } from 'expo-router';
 import { Feather, Ionicons } from '@expo/vector-icons';
 import { LinearGradient } from 'expo-linear-gradient';
 import { AnimatedListItem } from '@/components/AnimatedListItem';
-import { BrandedRefreshControl } from '@/components/BrandedRefreshControl';
 import Animated, {
   FadeIn,
   useAnimatedStyle,
@@ -173,7 +180,14 @@ export function DashboardScreen() {
       <ScrollView
         contentContainerStyle={[styles.container, { paddingBottom: tabBarClearance + 24 }]}
         showsVerticalScrollIndicator={false}
-        refreshControl={<BrandedRefreshControl refreshing={isRefetching} onRefresh={refetch} />}
+        refreshControl={
+          <RefreshControl
+            refreshing={isRefetching}
+            onRefresh={refetch}
+            tintColor={theme.colors.primary}
+            colors={[theme.colors.primary]}
+          />
+        }
       >
         <View style={styles.headerRow}>
           <Pressable style={styles.avatar} onPress={() => router.push('/profile-settings')}>
