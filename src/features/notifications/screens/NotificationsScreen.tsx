@@ -13,6 +13,7 @@ import { useTranslation } from 'react-i18next';
 import { useRouter } from 'expo-router';
 import { Feather } from '@expo/vector-icons';
 import { AnimatedListItem } from '@/components/AnimatedListItem';
+import { useBrandedRefreshProps } from '@/components/BrandedRefreshControl';
 import { useTheme } from '@/theme/ThemeProvider';
 import { Screen } from '@/components/Screen';
 import { Card } from '@/components/Card';
@@ -76,6 +77,7 @@ export function NotificationsScreen() {
     isRefetching,
     refetch,
   } = useNotifications();
+  const refreshProps = useBrandedRefreshProps(isRefetching, refetch);
   const markReadMutation = useMarkNotificationRead();
   const markAllMutation = useMarkAllNotificationsRead();
   const deleteMutation = useDeleteNotifications();
@@ -233,14 +235,7 @@ export function NotificationsScreen() {
               styles.list,
               { paddingBottom: selectionMode ? tabBarClearance : tabBarClearance },
             ]}
-            refreshControl={
-              <RefreshControl
-                refreshing={isRefetching}
-                onRefresh={refetch}
-                tintColor={theme.colors.primary}
-                colors={[theme.colors.primary]}
-              />
-            }
+            refreshControl={<RefreshControl {...refreshProps} />}
             ListEmptyComponent={
               <EmptyState
                 icon="bell"

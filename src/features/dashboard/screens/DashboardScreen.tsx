@@ -15,6 +15,7 @@ import { useRouter, useFocusEffect } from 'expo-router';
 import { Feather, Ionicons } from '@expo/vector-icons';
 import { LinearGradient } from 'expo-linear-gradient';
 import { AnimatedListItem } from '@/components/AnimatedListItem';
+import { useBrandedRefreshProps } from '@/components/BrandedRefreshControl';
 import Animated, {
   FadeIn,
   useAnimatedStyle,
@@ -112,6 +113,7 @@ export function DashboardScreen() {
   );
 
   const { data: allReturns, isLoading, isRefetching, refetch } = useReturns();
+  const refreshProps = useBrandedRefreshProps(isRefetching, refetch);
   const { data: pendingSyncCount } = usePendingSyncCount();
 
   const today = new Date();
@@ -180,14 +182,7 @@ export function DashboardScreen() {
       <ScrollView
         contentContainerStyle={[styles.container, { paddingBottom: tabBarClearance + 24 }]}
         showsVerticalScrollIndicator={false}
-        refreshControl={
-          <RefreshControl
-            refreshing={isRefetching}
-            onRefresh={refetch}
-            tintColor={theme.colors.primary}
-            colors={[theme.colors.primary]}
-          />
-        }
+        refreshControl={<RefreshControl {...refreshProps} />}
       >
         <View style={styles.headerRow}>
           <Pressable style={styles.avatar} onPress={() => router.push('/profile-settings')}>

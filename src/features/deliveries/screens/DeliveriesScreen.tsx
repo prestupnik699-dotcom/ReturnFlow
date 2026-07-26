@@ -12,6 +12,7 @@ import { useTranslation } from 'react-i18next';
 import { useRouter } from 'expo-router';
 import { Feather, Ionicons } from '@expo/vector-icons';
 import { AnimatedListItem } from '@/components/AnimatedListItem';
+import { useBrandedRefreshProps } from '@/components/BrandedRefreshControl';
 import { useTheme } from '@/theme/ThemeProvider';
 import { Screen } from '@/components/Screen';
 import { ScreenHeader } from '@/components/ScreenHeader';
@@ -33,6 +34,7 @@ export function DeliveriesScreen() {
   const router = useRouter();
   const tabBarClearance = useTabBarClearance();
   const { data: deliveries, isLoading, isError, isRefetching, refetch } = useDeliveryItems();
+  const refreshProps = useBrandedRefreshProps(isRefetching, refetch);
   const [searchInput, setSearchInput] = useState('');
   const styles = createStyles(theme);
 
@@ -77,14 +79,7 @@ export function DeliveriesScreen() {
               filtered.length === 0 && styles.listEmptyGrow,
             ]}
             showsVerticalScrollIndicator={false}
-            refreshControl={
-              <RefreshControl
-                refreshing={isRefetching}
-                onRefresh={refetch}
-                tintColor={theme.colors.primary}
-                colors={[theme.colors.primary]}
-              />
-            }
+            refreshControl={<RefreshControl {...refreshProps} />}
             ListEmptyComponent={
               <View style={styles.emptyWrap}>
                 <EmptyState

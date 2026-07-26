@@ -14,6 +14,7 @@ import { useRouter, useLocalSearchParams } from 'expo-router';
 import { Feather } from '@expo/vector-icons';
 import { LinearGradient } from 'expo-linear-gradient';
 import { AnimatedListItem } from '@/components/AnimatedListItem';
+import { useBrandedRefreshProps } from '@/components/BrandedRefreshControl';
 import { useTheme } from '@/theme/ThemeProvider';
 import { Screen } from '@/components/Screen';
 import { Button } from '@/components/Button';
@@ -83,6 +84,7 @@ export function ReturnsScreen() {
     isRefetching,
     refetch,
   } = useReturns(statusFilter ? [statusFilter] : undefined);
+  const refreshProps = useBrandedRefreshProps(isRefetching, refetch);
   // Unfiltered fetch so filter-chip counts always reflect the whole store
   // regardless of which chip is currently active. Same query the default
   // (no-filter) view already uses, so when no chip is active this is
@@ -339,14 +341,7 @@ export function ReturnsScreen() {
               sorted.length === 0 && styles.listEmptyGrow,
             ]}
             showsVerticalScrollIndicator={false}
-            refreshControl={
-              <RefreshControl
-                refreshing={isRefetching}
-                onRefresh={refetch}
-                tintColor={theme.colors.primary}
-                colors={[theme.colors.primary]}
-              />
-            }
+            refreshControl={<RefreshControl {...refreshProps} />}
             ListEmptyComponent={
               <View style={styles.emptyWrap}>
                 <EmptyState

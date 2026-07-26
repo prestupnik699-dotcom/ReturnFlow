@@ -13,6 +13,7 @@ import { useTranslation } from 'react-i18next';
 import { Feather } from '@expo/vector-icons';
 import { LinearGradient } from 'expo-linear-gradient';
 import { AnimatedListItem } from '@/components/AnimatedListItem';
+import { useBrandedRefreshProps } from '@/components/BrandedRefreshControl';
 import { useTabBarClearance } from '@/hooks/useTabBarClearance';
 import { useTheme } from '@/theme/ThemeProvider';
 import { Screen } from '@/components/Screen';
@@ -51,6 +52,7 @@ export function SuppliersScreen() {
     isRefetching,
     refetch,
   } = useSuppliers(filterMode === 'favorites', sort);
+  const refreshProps = useBrandedRefreshProps(isRefetching, refetch);
   const { data: returnCounts } = useSupplierReturnCounts();
   const { data: deliveryCounts } = useSupplierDeliveryCounts();
   const { data: reliability } = useSupplierReliability();
@@ -176,14 +178,7 @@ export function SuppliersScreen() {
               filtered.length === 0 && styles.listEmptyGrow,
             ]}
             showsVerticalScrollIndicator={false}
-            refreshControl={
-              <RefreshControl
-                refreshing={isRefetching}
-                onRefresh={refetch}
-                tintColor={theme.colors.primary}
-                colors={[theme.colors.primary]}
-              />
-            }
+            refreshControl={<RefreshControl {...refreshProps} />}
             ListEmptyComponent={
               <View style={styles.emptyWrap}>
                 <EmptyState

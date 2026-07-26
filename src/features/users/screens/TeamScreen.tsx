@@ -4,6 +4,7 @@ import { PressableScale } from '@/components/PressableScale';
 import { Text } from '@/components/AppText';
 import { useTranslation } from 'react-i18next';
 import { AnimatedListItem } from '@/components/AnimatedListItem';
+import { useBrandedRefreshProps } from '@/components/BrandedRefreshControl';
 import { useTheme } from '@/theme/ThemeProvider';
 import { Screen } from '@/components/Screen';
 import { ScreenHeader } from '@/components/ScreenHeader';
@@ -16,6 +17,7 @@ export function TeamScreen() {
   const theme = useTheme();
   const { t } = useTranslation();
   const { data: members, isLoading, isError, isRefetching, refetch } = useTeamMembers();
+  const refreshProps = useBrandedRefreshProps(isRefetching, refetch);
   const [selectedId, setSelectedId] = useState<string | null>(null);
   const styles = createStyles(theme);
 
@@ -53,14 +55,7 @@ export function TeamScreen() {
             data={members}
             keyExtractor={(item) => item.membershipId}
             contentContainerStyle={styles.list}
-            refreshControl={
-              <RefreshControl
-                refreshing={isRefetching}
-                onRefresh={refetch}
-                tintColor={theme.colors.primary}
-                colors={[theme.colors.primary]}
-              />
-            }
+            refreshControl={<RefreshControl {...refreshProps} />}
             ListEmptyComponent={<Text style={styles.empty}>{t('users.team.empty')}</Text>}
             renderItem={({ item, index }) => (
               <AnimatedListItem index={index} step={60} duration={300}>
