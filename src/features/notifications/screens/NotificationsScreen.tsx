@@ -160,41 +160,43 @@ export function NotificationsScreen() {
 
     return (
       <AnimatedListItem index={index} step={0} duration={200}>
-        <PressableScale
-          onPress={() => handlePress(notification)}
-          onLongPress={() => handleLongPress(notification)}
-        >
-          <Card>
-            <View style={styles.row}>
-              {selectionMode ? (
-                <Icon
-                  name={selected ? 'check-circle' : 'circle'}
-                  size={20}
-                  color={selected ? theme.colors.primary : theme.colors.textSecondary}
-                />
-              ) : (
-                <View style={[styles.iconWrap, { backgroundColor: color + '1F' }]}>
-                  <Icon name={visual.icon} size={18} color={color} />
+        <View style={styles.rowSpacing}>
+          <PressableScale
+            onPress={() => handlePress(notification)}
+            onLongPress={() => handleLongPress(notification)}
+          >
+            <Card>
+              <View style={styles.row}>
+                {selectionMode ? (
+                  <Icon
+                    name={selected ? 'check-circle' : 'circle'}
+                    size={20}
+                    color={selected ? theme.colors.primary : theme.colors.textSecondary}
+                  />
+                ) : (
+                  <View style={[styles.iconWrap, { backgroundColor: color + '1F' }]}>
+                    <Icon name={visual.icon} size={18} color={color} />
+                  </View>
+                )}
+                <View style={styles.info}>
+                  <Text
+                    style={[styles.notifTitle, !notification.isRead && styles.notifTitleUnread]}
+                    numberOfLines={1}
+                  >
+                    {t(notification.title)}
+                  </Text>
+                  <Text style={styles.notifBody} numberOfLines={2}>
+                    {notification.body}
+                  </Text>
                 </View>
-              )}
-              <View style={styles.info}>
-                <Text
-                  style={[styles.notifTitle, !notification.isRead && styles.notifTitleUnread]}
-                  numberOfLines={1}
-                >
-                  {t(notification.title)}
-                </Text>
-                <Text style={styles.notifBody} numberOfLines={2}>
-                  {notification.body}
-                </Text>
+                <View style={styles.metaCol}>
+                  {!notification.isRead ? <View style={styles.unreadDot} /> : null}
+                  <Text style={styles.notifTime}>{formatTime(notification.createdAt)}</Text>
+                </View>
               </View>
-              <View style={styles.metaCol}>
-                {!notification.isRead ? <View style={styles.unreadDot} /> : null}
-                <Text style={styles.notifTime}>{formatTime(notification.createdAt)}</Text>
-              </View>
-            </View>
-          </Card>
-        </PressableScale>
+            </Card>
+          </PressableScale>
+        </View>
       </AnimatedListItem>
     );
   };
@@ -338,7 +340,8 @@ function createStyles(theme: Theme) {
       fontWeight: theme.fontWeights.medium,
     },
     errorText: { color: theme.colors.danger, textAlign: 'center' },
-    list: { gap: theme.spacing.sm },
+    list: {},
+    rowSpacing: { marginBottom: theme.spacing.sm },
     dividerRow: { alignItems: 'center', marginVertical: theme.spacing.sm },
     dividerPill: {
       backgroundColor: theme.colors.card,

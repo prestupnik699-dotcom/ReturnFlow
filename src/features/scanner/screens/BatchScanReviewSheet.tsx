@@ -55,42 +55,44 @@ export function BatchScanReviewSheet({
 
           <View style={styles.list}>
             {items.map((item) => (
-              <Card key={item.id}>
-                <View style={styles.row}>
-                  <View style={styles.info}>
-                    <Text style={styles.itemTitle} numberOfLines={1}>
-                      {item.title}
-                    </Text>
-                    <Text style={styles.itemMeta} numberOfLines={1}>
-                      {item.supplierName}
-                    </Text>
-                  </View>
-                  <View style={styles.stepper}>
+              <View key={item.id} style={styles.rowSpacing}>
+                <Card>
+                  <View style={styles.row}>
+                    <View style={styles.info}>
+                      <Text style={styles.itemTitle} numberOfLines={1}>
+                        {item.title}
+                      </Text>
+                      <Text style={styles.itemMeta} numberOfLines={1}>
+                        {item.supplierName}
+                      </Text>
+                    </View>
+                    <View style={styles.stepper}>
+                      <Pressable
+                        style={styles.stepperButton}
+                        onPress={() => onChangeQuantity(item.id, Math.max(1, item.quantity - 1))}
+                        hitSlop={8}
+                      >
+                        <Icon name="minus" size={16} color={theme.colors.primary} />
+                      </Pressable>
+                      <Text style={styles.stepperValue}>{item.quantity}</Text>
+                      <Pressable
+                        style={styles.stepperButton}
+                        onPress={() => onChangeQuantity(item.id, item.quantity + 1)}
+                        hitSlop={8}
+                      >
+                        <Icon name="plus" size={16} color={theme.colors.primary} />
+                      </Pressable>
+                    </View>
                     <Pressable
-                      style={styles.stepperButton}
-                      onPress={() => onChangeQuantity(item.id, Math.max(1, item.quantity - 1))}
+                      style={styles.removeButton}
+                      onPress={() => onRemove(item.id)}
                       hitSlop={8}
                     >
-                      <Icon name="minus" size={16} color={theme.colors.primary} />
-                    </Pressable>
-                    <Text style={styles.stepperValue}>{item.quantity}</Text>
-                    <Pressable
-                      style={styles.stepperButton}
-                      onPress={() => onChangeQuantity(item.id, item.quantity + 1)}
-                      hitSlop={8}
-                    >
-                      <Icon name="plus" size={16} color={theme.colors.primary} />
+                      <Icon name="x" size={18} color={theme.colors.danger} />
                     </Pressable>
                   </View>
-                  <Pressable
-                    style={styles.removeButton}
-                    onPress={() => onRemove(item.id)}
-                    hitSlop={8}
-                  >
-                    <Icon name="x" size={18} color={theme.colors.danger} />
-                  </Pressable>
-                </View>
-              </Card>
+                </Card>
+              </View>
             ))}
           </View>
 
@@ -129,7 +131,8 @@ function createStyles(theme: ReturnType<typeof useTheme>) {
       color: theme.colors.textPrimary,
     },
     subtitle: { fontSize: theme.fontSizes.sm, color: theme.colors.textSecondary },
-    list: { gap: theme.spacing.sm, flex: 1 },
+    list: { flex: 1 },
+    rowSpacing: { marginBottom: theme.spacing.sm },
     row: {
       flexDirection: 'row',
       alignItems: 'center',

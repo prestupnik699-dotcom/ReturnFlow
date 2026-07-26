@@ -59,24 +59,26 @@ export function TeamScreen() {
             ListEmptyComponent={<Text style={styles.empty}>{t('users.team.empty')}</Text>}
             renderItem={({ item, index }) => (
               <AnimatedListItem index={index} step={60} duration={300}>
-                <PressableScale onPress={() => setSelectedId(item.membershipId)}>
-                  <Card>
-                    <View style={styles.row}>
-                      <View style={styles.info}>
-                        <Text style={styles.name}>
-                          {item.firstName} {item.lastName}
+                <View style={styles.rowSpacing}>
+                  <PressableScale onPress={() => setSelectedId(item.membershipId)}>
+                    <Card>
+                      <View style={styles.row}>
+                        <View style={styles.info}>
+                          <Text style={styles.name}>
+                            {item.firstName} {item.lastName}
+                          </Text>
+                          <Text style={styles.role}>{item.role}</Text>
+                        </View>
+                        <View
+                          style={[styles.statusDot, { backgroundColor: statusColors[item.status] }]}
+                        />
+                        <Text style={[styles.statusText, { color: statusColors[item.status] }]}>
+                          {statusLabels[item.status]}
                         </Text>
-                        <Text style={styles.role}>{item.role}</Text>
                       </View>
-                      <View
-                        style={[styles.statusDot, { backgroundColor: statusColors[item.status] }]}
-                      />
-                      <Text style={[styles.statusText, { color: statusColors[item.status] }]}>
-                        {statusLabels[item.status]}
-                      </Text>
-                    </View>
-                  </Card>
-                </PressableScale>
+                    </Card>
+                  </PressableScale>
+                </View>
               </AnimatedListItem>
             )}
           />
@@ -101,7 +103,8 @@ function createStyles(theme: ReturnType<typeof useTheme>) {
       fontWeight: theme.fontWeights.bold,
       color: theme.colors.textPrimary,
     },
-    list: { gap: theme.spacing.sm, paddingBottom: theme.spacing.md },
+    list: { paddingBottom: theme.spacing.md },
+    rowSpacing: { marginBottom: theme.spacing.sm },
     empty: { color: theme.colors.textSecondary, textAlign: 'center', marginTop: theme.spacing.xl },
     errorText: { color: theme.colors.danger, textAlign: 'center' },
     row: {

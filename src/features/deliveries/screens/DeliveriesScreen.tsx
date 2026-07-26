@@ -91,39 +91,41 @@ export function DeliveriesScreen() {
             }
             renderItem={({ item, index }: { item: DeliveryItem; index: number }) => (
               <AnimatedListItem index={index} step={40} duration={220}>
-                <Card>
-                  <View style={styles.row}>
-                    <View style={styles.iconWrap}>
-                      <Icon name="download" size={18} color={theme.colors.primary} />
+                <View style={styles.rowSpacing}>
+                  <Card>
+                    <View style={styles.row}>
+                      <View style={styles.iconWrap}>
+                        <Icon name="download" size={18} color={theme.colors.primary} />
+                      </View>
+                      <View style={styles.info}>
+                        <Text style={styles.title} numberOfLines={1}>
+                          {item.title}
+                        </Text>
+                        <Text style={styles.meta} numberOfLines={1}>
+                          {item.supplierName} · ×{item.quantity}
+                        </Text>
+                        {item.barcode ? (
+                          <View style={styles.barcodeRow}>
+                            <Icon
+                              name="barcode-outline"
+                              size={12}
+                              color={theme.colors.textSecondary}
+                            />
+                            <Text style={styles.barcodeText} numberOfLines={1}>
+                              {item.barcode}
+                            </Text>
+                          </View>
+                        ) : null}
+                      </View>
+                      <View style={styles.dateColumn}>
+                        {item.pendingSync ? (
+                          <Text style={styles.pendingText}>{t('returns.pendingSync')}</Text>
+                        ) : null}
+                        <Text style={styles.date}>{formatDateTime(item.createdAt)}</Text>
+                      </View>
                     </View>
-                    <View style={styles.info}>
-                      <Text style={styles.title} numberOfLines={1}>
-                        {item.title}
-                      </Text>
-                      <Text style={styles.meta} numberOfLines={1}>
-                        {item.supplierName} · ×{item.quantity}
-                      </Text>
-                      {item.barcode ? (
-                        <View style={styles.barcodeRow}>
-                          <Icon
-                            name="barcode-outline"
-                            size={12}
-                            color={theme.colors.textSecondary}
-                          />
-                          <Text style={styles.barcodeText} numberOfLines={1}>
-                            {item.barcode}
-                          </Text>
-                        </View>
-                      ) : null}
-                    </View>
-                    <View style={styles.dateColumn}>
-                      {item.pendingSync ? (
-                        <Text style={styles.pendingText}>{t('returns.pendingSync')}</Text>
-                      ) : null}
-                      <Text style={styles.date}>{formatDateTime(item.createdAt)}</Text>
-                    </View>
-                  </View>
-                </Card>
+                  </Card>
+                </View>
               </AnimatedListItem>
             )}
           />
@@ -156,7 +158,8 @@ function createStyles(theme: ReturnType<typeof useTheme>) {
     },
     errorText: { color: theme.colors.danger, textAlign: 'center' },
     flatList: { flex: 1 },
-    list: { gap: theme.spacing.sm },
+    list: {},
+    rowSpacing: { marginBottom: theme.spacing.sm },
     listEmptyGrow: { flexGrow: 1 },
     emptyWrap: { flex: 1, alignItems: 'center', justifyContent: 'center' },
     row: {

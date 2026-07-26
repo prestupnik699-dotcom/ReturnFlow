@@ -173,103 +173,105 @@ export function SupplierListRow({
   const metaParts = [supplier.contactName].filter(Boolean);
 
   const content = (
-    <Card>
-      <View style={styles.container}>
-        <View style={styles.topRow}>
-          <View style={styles.avatar}>
-            <Text style={styles.avatarText}>{initials}</Text>
+    <View style={styles.rowSpacing}>
+      <Card>
+        <View style={styles.container}>
+          <View style={styles.topRow}>
+            <View style={styles.avatar}>
+              <Text style={styles.avatarText}>{initials}</Text>
+            </View>
+
+            <PressableScale style={styles.info} onPress={onEdit}>
+              <Text style={styles.name} numberOfLines={1}>
+                {supplier.name}
+              </Text>
+            </PressableScale>
+
+            <Pressable onPress={handleToggleFavorite} hitSlop={8}>
+              <FavoriteStar favorite={supplier.favorite} theme={theme} />
+            </Pressable>
           </View>
 
-          <PressableScale style={styles.info} onPress={onEdit}>
-            <Text style={styles.name} numberOfLines={1}>
-              {supplier.name}
-            </Text>
-          </PressableScale>
-
-          <Pressable onPress={handleToggleFavorite} hitSlop={8}>
-            <FavoriteStar favorite={supplier.favorite} theme={theme} />
-          </Pressable>
-        </View>
-
-        <View style={styles.detailsList}>
-          {metaParts.length > 0 ? (
-            <Text style={styles.detailLine} numberOfLines={1}>
-              {metaParts.join(' · ')}
-            </Text>
-          ) : null}
-          {supplier.phone ? (
-            <Pressable onPress={() => Linking.openURL(`tel:${supplier.phone}`)} hitSlop={8}>
-              <Text style={styles.detailLine}>{supplier.phone}</Text>
-            </Pressable>
-          ) : null}
-
-          <View style={styles.statsRow}>
-            <View style={styles.statBadge}>
-              <Icon name="repeat" size={13} color={theme.colors.textSecondary} />
-              <Text style={styles.statText}>
-                {t('suppliers.returnsCount', { count: returnsTotal })}
+          <View style={styles.detailsList}>
+            {metaParts.length > 0 ? (
+              <Text style={styles.detailLine} numberOfLines={1}>
+                {metaParts.join(' · ')}
               </Text>
-            </View>
-            <View style={styles.statBadge}>
-              <Icon name="download" size={13} color={theme.colors.textSecondary} />
-              <Text style={styles.statText}>
-                {t('suppliers.deliveriesCount', { count: deliveriesTotal })}
-              </Text>
-            </View>
-            {reliability?.defectRatePercent != null ? (
-              <View
-                style={[
-                  styles.statBadge,
-                  reliability.defectRatePercent > 15
-                    ? styles.reliabilityBadgeBad
-                    : reliability.defectRatePercent > 5
-                      ? styles.reliabilityBadgeWarn
-                      : styles.reliabilityBadgeGood,
-                ]}
-              >
-                <Icon
-                  name="trending-up"
-                  size={12}
-                  color={
-                    reliability.defectRatePercent > 15
-                      ? theme.colors.danger
-                      : reliability.defectRatePercent > 5
-                        ? theme.colors.warning
-                        : theme.colors.success
-                  }
-                />
-                <Text
+            ) : null}
+            {supplier.phone ? (
+              <Pressable onPress={() => Linking.openURL(`tel:${supplier.phone}`)} hitSlop={8}>
+                <Text style={styles.detailLine}>{supplier.phone}</Text>
+              </Pressable>
+            ) : null}
+
+            <View style={styles.statsRow}>
+              <View style={styles.statBadge}>
+                <Icon name="repeat" size={13} color={theme.colors.textSecondary} />
+                <Text style={styles.statText}>
+                  {t('suppliers.returnsCount', { count: returnsTotal })}
+                </Text>
+              </View>
+              <View style={styles.statBadge}>
+                <Icon name="download" size={13} color={theme.colors.textSecondary} />
+                <Text style={styles.statText}>
+                  {t('suppliers.deliveriesCount', { count: deliveriesTotal })}
+                </Text>
+              </View>
+              {reliability?.defectRatePercent != null ? (
+                <View
                   style={[
-                    styles.statText,
-                    {
-                      color:
-                        reliability.defectRatePercent > 15
-                          ? theme.colors.danger
-                          : reliability.defectRatePercent > 5
-                            ? theme.colors.warning
-                            : theme.colors.success,
-                      fontWeight: theme.fontWeights.semiBold,
-                    },
+                    styles.statBadge,
+                    reliability.defectRatePercent > 15
+                      ? styles.reliabilityBadgeBad
+                      : reliability.defectRatePercent > 5
+                        ? styles.reliabilityBadgeWarn
+                        : styles.reliabilityBadgeGood,
                   ]}
                 >
-                  {t('suppliers.defectRate', {
-                    percent: reliability.defectRatePercent.toFixed(1),
-                  })}
-                </Text>
-              </View>
-            ) : null}
-            {returnsUrgent > 0 ? (
-              <View style={[styles.statBadge, styles.urgentBadge]}>
-                <View style={styles.urgentDot} />
-                <Text style={[styles.statText, styles.urgentText]}>
-                  {t('suppliers.attentionBadge', { count: returnsUrgent })}
-                </Text>
-              </View>
-            ) : null}
+                  <Icon
+                    name="trending-up"
+                    size={12}
+                    color={
+                      reliability.defectRatePercent > 15
+                        ? theme.colors.danger
+                        : reliability.defectRatePercent > 5
+                          ? theme.colors.warning
+                          : theme.colors.success
+                    }
+                  />
+                  <Text
+                    style={[
+                      styles.statText,
+                      {
+                        color:
+                          reliability.defectRatePercent > 15
+                            ? theme.colors.danger
+                            : reliability.defectRatePercent > 5
+                              ? theme.colors.warning
+                              : theme.colors.success,
+                        fontWeight: theme.fontWeights.semiBold,
+                      },
+                    ]}
+                  >
+                    {t('suppliers.defectRate', {
+                      percent: reliability.defectRatePercent.toFixed(1),
+                    })}
+                  </Text>
+                </View>
+              ) : null}
+              {returnsUrgent > 0 ? (
+                <View style={[styles.statBadge, styles.urgentBadge]}>
+                  <View style={styles.urgentDot} />
+                  <Text style={[styles.statText, styles.urgentText]}>
+                    {t('suppliers.attentionBadge', { count: returnsUrgent })}
+                  </Text>
+                </View>
+              ) : null}
+            </View>
           </View>
         </View>
-      </View>
-    </Card>
+      </Card>
+    </View>
   );
 
   if (!canDelete) {
@@ -299,6 +301,7 @@ export function SupplierListRow({
 function createStyles(theme: Theme) {
   return StyleSheet.create({
     container: { padding: theme.spacing.lg, gap: theme.spacing.xs },
+    rowSpacing: { marginBottom: theme.spacing.sm },
     topRow: { flexDirection: 'row', alignItems: 'center', gap: theme.spacing.md },
     avatar: {
       width: 40,
