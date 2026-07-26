@@ -1,5 +1,5 @@
 import { supabase } from '@/lib/supabase';
-import { fromCaughtError, type ServiceResult } from '@/lib/result';
+import { fromCaughtError, serviceError, type ServiceResult } from '@/lib/result';
 
 export type ReturnStatus = 'pending' | 'urgent' | 'returned' | 'archived';
 export type ReturnPriority = 'low' | 'normal' | 'high' | 'critical';
@@ -288,40 +288,77 @@ export async function updateReturn(
 export async function markReturnAsReturned(
   returnId: string,
   profileId: string,
+  expectedPreviousStatus?: ReturnStatus,
 ): Promise<ServiceResult<null>> {
-  const { error } = await supabase
+  let query = supabase
     .from('return_items')
     .update({ status: 'returned', returned_by: profileId, returned_at: new Date().toISOString() })
     .eq('id', returnId);
+
+  // Conditional on the caller's last-known status when provided — this is
+  // what lets a stale offline action (queued against a status that
+  // someone else has since changed) fail to match any row instead of
+  // silently overwriting whatever the other person did. Callers that
+  // don't have a known prior status (e.g. legacy call sites) skip the
+  // check entirely and behave as before.
+  if (expectedPreviousStatus) {
+    query = query.eq('status', expectedPreviousStatus);
+  }
+
+  const { data, error } = await query.select('id');
 
   if (error) {
     return fromCaughtError(error, 'MARK_RETURNED_FAILED');
   }
 
-  return { success: true, data: null };
-}
-
-export async function archiveReturn(returnId: string): Promise<ServiceResult<null>> {
-  const { error } = await supabase
-    .from('return_items')
-    .update({ status: 'archived' })
-    .eq('id', returnId);
-
-  if (error) {
-    return fromCaughtError(error, 'ARCHIVE_RETURN_FAILED');
+  if (expectedPreviousStatus && (!data || data.length === 0)) {
+    return serviceError('STATUS_CONFLICT', 'Return status was changed by someone else');
   }
 
   return { success: true, data: null };
 }
 
-export async function restoreReturn(returnId: string): Promise<ServiceResult<null>> {
-  const { error } = await supabase
-    .from('return_items')
-    .update({ status: 'pending' })
-    .eq('id', returnId);
+export async function archiveReturn(
+  returnId: string,
+  expectedPreviousStatus?: ReturnStatus,
+): Promise<ServiceResult<null>> {
+  let query = supabase.from('return_items').update({ status: 'archived' }).eq('id', returnId);
+
+  if (expectedPreviousStatus) {
+    query = query.eq('status', expectedPreviousStatus);
+  }
+
+  const { data, error } = await query.select('id');
+
+  if (error) {
+    return fromCaughtError(error, 'ARCHIVE_RETURN_FAILED');
+  }
+
+  if (expectedPreviousStatus && (!data || data.length === 0)) {
+    return serviceError('STATUS_CONFLICT', 'Return status was changed by someone else');
+  }
+
+  return { success: true, data: null };
+}
+
+export async function restoreReturn(
+  returnId: string,
+  expectedPreviousStatus?: ReturnStatus,
+): Promise<ServiceResult<null>> {
+  let query = supabase.from('return_items').update({ status: 'pending' }).eq('id', returnId);
+
+  if (expectedPreviousStatus) {
+    query = query.eq('status', expectedPreviousStatus);
+  }
+
+  const { data, error } = await query.select('id');
 
   if (error) {
     return fromCaughtError(error, 'RESTORE_RETURN_FAILED');
+  }
+
+  if (expectedPreviousStatus && (!data || data.length === 0)) {
+    return serviceError('STATUS_CONFLICT', 'Return status was changed by someone else');
   }
 
   return { success: true, data: null };

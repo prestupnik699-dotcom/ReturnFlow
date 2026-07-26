@@ -55,9 +55,9 @@ export function ReturnDetailScreen({ returnId }: Props) {
   const { data: history } = useReturnHistory(returnId);
   const { data: comments } = useReturnComments(returnId);
   const commentMutation = useCreateReturnComment(returnId);
-  const markReturnedMutation = useMarkReturned(returnId);
-  const archiveMutation = useArchiveReturn(returnId);
-  const restoreMutation = useRestoreReturn(returnId);
+  const markReturnedMutation = useMarkReturned(returnId, item?.status ?? 'pending');
+  const archiveMutation = useArchiveReturn(returnId, item?.status ?? 'pending');
+  const restoreMutation = useRestoreReturn(returnId, item?.status ?? 'pending');
   const hardDeleteMutation = useHardDeleteReturn(returnId);
   const hasEditRole = useHasRole([...EDIT_ROLES]);
   const hasDeleteRole = useHasRole([...DELETE_ROLES]);

@@ -1,3 +1,4 @@
+import * as Sentry from '@sentry/react-native';
 import { registerSyncHandler } from '@/lib/sync/syncProcessor';
 import {
   createReturn,
@@ -38,12 +39,34 @@ registerSyncHandler('update_return_status', async (rawPayload) => {
 
   const result =
     payload.action === 'mark_returned'
-      ? await markReturnAsReturned(payload.returnId, payload.profileId)
+      ? await markReturnAsReturned(
+          payload.returnId,
+          payload.profileId,
+          payload.expectedPreviousStatus,
+        )
       : payload.action === 'archive'
-        ? await archiveReturn(payload.returnId)
-        : await restoreReturn(payload.returnId);
+        ? await archiveReturn(payload.returnId, payload.expectedPreviousStatus)
+        : await restoreReturn(payload.returnId, payload.expectedPreviousStatus);
 
   if (!result.success) {
+    // A status conflict means someone else already changed this return
+    // while we were offline — the queued action is now stale and
+    // re-applying it would silently overwrite their change. Don't retry
+    // (retrying can't resolve a conflict that's already happened) and
+    // don't surface it to the user as a failure either; just record it
+    // so it's visible in Sentry rather than disappearing unnoticed.
+    if (result.error.code === 'STATUS_CONFLICT') {
+      Sentry.captureMessage('Return status sync conflict — action skipped', {
+        level: 'info',
+        extra: {
+          returnId: payload.returnId,
+          action: payload.action,
+          expectedPreviousStatus: payload.expectedPreviousStatus,
+        },
+      });
+      return;
+    }
+
     throw new Error(result.error.message);
   }
 });

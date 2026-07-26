@@ -7,6 +7,8 @@ import { useTheme } from '@/theme/ThemeProvider';
 import { Screen } from '@/components/Screen';
 import { Button } from '@/components/Button';
 import { hapticSuccess, hapticError } from '@/lib/haptics';
+import { logout } from '@/features/auth/services/auth.service';
+import { useBiometricLockStore } from '@/stores/biometricLock.store';
 
 type Props = { onUnlock: () => Promise<boolean> };
 
@@ -15,6 +17,15 @@ export function LockScreen({ onUnlock }: Props) {
   const { t } = useTranslation();
   const [failed, setFailed] = useState(false);
   const styles = createStyles(theme);
+
+  const handleLogOutInstead = async () => {
+    // The lock screen is device-local (biometric hardware), separate from
+    // the account session — turning the lock off here too means the next
+    // login on this same phone won't immediately hit the same broken
+    // sensor again; the person can re-enable it later once it's working.
+    await useBiometricLockStore.getState().setEnabled(false);
+    await logout();
+  };
 
   const attempt = async () => {
     setFailed(false);
@@ -50,6 +61,14 @@ export function LockScreen({ onUnlock }: Props) {
           onPress={attempt}
           style={styles.button}
         />
+        {failed ? (
+          <Button
+            label={t('profile.security.logOutInstead')}
+            variant="outline"
+            onPress={handleLogOutInstead}
+            style={styles.button}
+          />
+        ) : null}
       </View>
     </Screen>
   );

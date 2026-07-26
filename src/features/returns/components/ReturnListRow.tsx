@@ -168,9 +168,9 @@ export const ReturnListRow = memo(function ReturnListRow({
   const theme = useTheme();
   const { t } = useTranslation();
   const swipeableRef = useRef<SwipeableMethods>(null);
-  const markReturnedMutation = useMarkReturned(item.id);
-  const archiveMutation = useArchiveReturn(item.id);
-  const restoreMutation = useRestoreReturn(item.id);
+  const markReturnedMutation = useMarkReturned(item.id, item.status);
+  const archiveMutation = useArchiveReturn(item.id, item.status);
+  const restoreMutation = useRestoreReturn(item.id, item.status);
   const styles = createStyles(theme);
 
   const rightAction: ActionSpec =

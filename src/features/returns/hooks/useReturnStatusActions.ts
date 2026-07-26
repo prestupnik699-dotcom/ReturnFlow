@@ -45,7 +45,7 @@ function useApplyOptimisticStatus(returnId: string, newStatus: ReturnStatus) {
   };
 }
 
-export function useMarkReturned(returnId: string) {
+export function useMarkReturned(returnId: string, currentStatus: ReturnStatus) {
   const profile = useAuthStore((state) => state.profile);
   const isOnline = useNetworkStatus();
   const invalidate = useInvalidateReturn(returnId);
@@ -60,11 +60,12 @@ export function useMarkReturned(returnId: string) {
           returnId,
           action: 'mark_returned',
           profileId: profile.id,
+          expectedPreviousStatus: currentStatus,
         });
         return { synced: false };
       }
 
-      const result = await markReturnAsReturned(returnId, profile.id);
+      const result = await markReturnAsReturned(returnId, profile.id, currentStatus);
       if (!result.success) throw new Error(result.error.message);
       return { synced: true };
     },
@@ -72,7 +73,7 @@ export function useMarkReturned(returnId: string) {
   });
 }
 
-export function useArchiveReturn(returnId: string) {
+export function useArchiveReturn(returnId: string, currentStatus: ReturnStatus) {
   const isOnline = useNetworkStatus();
   const invalidate = useInvalidateReturn(returnId);
   const applyOptimistic = useApplyOptimisticStatus(returnId, 'archived');
@@ -85,11 +86,12 @@ export function useArchiveReturn(returnId: string) {
           returnId,
           action: 'archive',
           profileId: profile?.id ?? '',
+          expectedPreviousStatus: currentStatus,
         });
         return { synced: false };
       }
 
-      const result = await archiveReturn(returnId);
+      const result = await archiveReturn(returnId, currentStatus);
       if (!result.success) throw new Error(result.error.message);
       return { synced: true };
     },
@@ -97,7 +99,7 @@ export function useArchiveReturn(returnId: string) {
   });
 }
 
-export function useRestoreReturn(returnId: string) {
+export function useRestoreReturn(returnId: string, currentStatus: ReturnStatus) {
   const isOnline = useNetworkStatus();
   const invalidate = useInvalidateReturn(returnId);
   const applyOptimistic = useApplyOptimisticStatus(returnId, 'pending');
@@ -110,11 +112,12 @@ export function useRestoreReturn(returnId: string) {
           returnId,
           action: 'restore',
           profileId: profile?.id ?? '',
+          expectedPreviousStatus: currentStatus,
         });
         return { synced: false };
       }
 
-      const result = await restoreReturn(returnId);
+      const result = await restoreReturn(returnId, currentStatus);
       if (!result.success) throw new Error(result.error.message);
       return { synced: true };
     },

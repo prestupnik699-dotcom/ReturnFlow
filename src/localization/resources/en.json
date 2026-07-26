@@ -126,7 +126,12 @@
       "unlockPrompt": "Unlock ReturnFlow",
       "unlockTitle": "App is locked",
       "unlockButton": "Unlock",
-      "unlockFailed": "Couldn't verify your identity. Try again."
+      "unlockFailed": "Couldn't verify your identity. Try again.",
+      "logOutInstead": "Log out and sign in differently"
+    },
+    "sound": {
+      "title": "Scanner Sound",
+      "hint": "Short beep on a successful barcode scan"
     },
     "about": {
       "title": "About",

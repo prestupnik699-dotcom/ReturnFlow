@@ -25,6 +25,7 @@ import { useAuthStore } from '@/stores/auth.store';
 import { useMembershipStore } from '@/stores/membership.store';
 import { useQueryClient } from '@tanstack/react-query';
 import { hapticSelection, hapticSuccess } from '@/lib/haptics';
+import { useScanBeep } from '@/hooks/useScanBeep';
 
 const BATCH_RESCAN_COOLDOWN_MS = 1500;
 
@@ -60,6 +61,7 @@ export function ScannerScreen() {
   // re-fires for the same code are blocked regardless of async timing.
   const lastScanRef = useRef<{ barcode: string; time: number } | null>(null);
   const styles = createStyles(theme);
+  const playScanBeep = useScanBeep();
 
   const resumeScanning = () => {
     setCurrentBarcode(null);
@@ -90,6 +92,7 @@ export function ScannerScreen() {
       // duplicate row, mirroring how a person would tally a stack of the
       // same product.
       hapticSelection();
+      playScanBeep();
       setBatchQueue((prev) => {
         const existing = prev.find((q) => q.barcode === data);
         if (existing) {
@@ -130,6 +133,7 @@ export function ScannerScreen() {
       if (result.success) {
         queryClient.invalidateQueries({ queryKey: ['returns', activeStoreId] });
         setInstantMessage(`${shortcut.title} — ${t('scanner.instantAdded')}`);
+        playScanBeep();
         setTimeout(resumeScanning, 1400);
         return;
       }
@@ -189,6 +193,7 @@ export function ScannerScreen() {
     setBatchSubmitting(false);
     queryClient.invalidateQueries({ queryKey: ['returns', activeStoreId] });
     hapticSuccess();
+    playScanBeep();
     setBatchQueue([]);
     setBatchReviewVisible(false);
   };

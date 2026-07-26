@@ -26,6 +26,7 @@ import { useAuthStore } from '@/stores/auth.store';
 import { useLanguageStore, type AppLanguage } from '@/stores/language.store';
 import { useThemeStore, type ThemeMode } from '@/stores/theme.store';
 import { useBiometricLockStore } from '@/stores/biometricLock.store';
+import { useSoundSettingsStore } from '@/stores/soundSettings.store';
 import { updateProfileSettings } from '@/features/auth/services/profile.service';
 import { useDeleteAccount } from '@/features/profile/hooks/useDeleteAccount';
 import { useUpdateProfilePhoto } from '@/features/profile/hooks/useUpdateProfilePhoto';
@@ -43,6 +44,8 @@ export function ProfileSettingsScreen() {
   const setLanguage = useLanguageStore((state) => state.setLanguage);
   const mode = useThemeStore((state) => state.mode);
   const setMode = useThemeStore((state) => state.setMode);
+  const soundEnabled = useSoundSettingsStore((state) => state.enabled);
+  const setSoundEnabled = useSoundSettingsStore((state) => state.setEnabled);
   const biometricEnabled = useBiometricLockStore((state) => state.enabled);
   const setBiometricEnabled = useBiometricLockStore((state) => state.setEnabled);
   const photoMutation = useUpdateProfilePhoto();
@@ -227,6 +230,21 @@ export function ProfileSettingsScreen() {
                 />
               ))}
             </View>
+          </View>
+        </Card>
+
+        <Card>
+          <View style={styles.switchRow}>
+            <View style={styles.switchTextWrap}>
+              <Text style={styles.label}>{t('profile.sound.title')}</Text>
+              <Text style={styles.switchHint}>{t('profile.sound.hint')}</Text>
+            </View>
+            <Switch
+              value={soundEnabled}
+              onValueChange={setSoundEnabled}
+              trackColor={{ true: theme.colors.primary, false: theme.colors.border }}
+              thumbColor={Platform.OS === 'android' ? theme.colors.onPrimary : undefined}
+            />
           </View>
         </Card>
 

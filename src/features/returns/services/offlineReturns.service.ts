@@ -3,6 +3,7 @@ import {
   initialStatusForPriority,
   type ReturnItem,
   type ReturnPriority,
+  type ReturnStatus,
 } from '@/features/returns/services/returns.service';
 
 export type CreateReturnQueuePayload = {
@@ -24,6 +25,11 @@ export type UpdateReturnStatusQueuePayload = {
   returnId: string;
   action: 'mark_returned' | 'archive' | 'restore';
   profileId: string;
+  // The status this device last knew the return to be in, captured at
+  // the moment the action was queued — lets the sync handler detect if
+  // someone else changed the status in the meantime and skip re-applying
+  // a now-stale action instead of silently overwriting their change.
+  expectedPreviousStatus: ReturnStatus;
 };
 
 export type CreateCommentQueuePayload = {
