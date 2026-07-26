@@ -120,67 +120,69 @@ export function StoreListRow({
   };
 
   const content = (
-    <Card>
-      <View style={styles.container}>
-        <View style={styles.topRow}>
-          <Pressable onPress={onSelectCurrent} hitSlop={8}>
-            <Icon
-              name={isCurrent ? 'check-circle' : 'circle'}
-              size={22}
-              color={isCurrent ? theme.colors.primary : theme.colors.textSecondary}
-            />
-          </Pressable>
+    <View style={styles.rowSpacing}>
+      <Card>
+        <View style={styles.container}>
+          <View style={styles.topRow}>
+            <Pressable onPress={onSelectCurrent} hitSlop={8}>
+              <Icon
+                name={isCurrent ? 'check-circle' : 'circle'}
+                size={22}
+                color={isCurrent ? theme.colors.primary : theme.colors.textSecondary}
+              />
+            </Pressable>
 
-          <View style={styles.avatar}>
-            <Icon name="shopping-bag" size={20} color={theme.colors.primary} />
+            <View style={styles.avatar}>
+              <Icon name="shopping-bag" size={20} color={theme.colors.primary} />
+            </View>
+
+            <PressableScale style={styles.info} onPress={onEdit}>
+              <Text style={styles.name} numberOfLines={1}>
+                {store.name}
+              </Text>
+            </PressableScale>
+
+            <Pressable style={styles.chatButton} onPress={onOpenChat} hitSlop={8}>
+              <Icon name="message-circle" size={18} color={theme.colors.primary} />
+            </Pressable>
           </View>
 
-          <PressableScale style={styles.info} onPress={onEdit}>
-            <Text style={styles.name} numberOfLines={1}>
-              {store.name}
+          <View style={styles.detailsList}>
+            <Text style={styles.detailLine} numberOfLines={1}>
+              {subtitle}
             </Text>
-          </PressableScale>
+            {store.phone ? (
+              <Pressable onPress={() => Linking.openURL(`tel:${store.phone}`)}>
+                <Text style={styles.detailLine}>{store.phone}</Text>
+              </Pressable>
+            ) : null}
 
-          <Pressable style={styles.chatButton} onPress={onOpenChat} hitSlop={8}>
-            <Icon name="message-circle" size={18} color={theme.colors.primary} />
-          </Pressable>
-        </View>
-
-        <View style={styles.detailsList}>
-          <Text style={styles.detailLine} numberOfLines={1}>
-            {subtitle}
-          </Text>
-          {store.phone ? (
-            <Pressable onPress={() => Linking.openURL(`tel:${store.phone}`)}>
-              <Text style={styles.detailLine}>{store.phone}</Text>
-            </Pressable>
-          ) : null}
-
-          <View style={styles.statsRow}>
-            <View style={styles.statBadge}>
-              <Icon name="repeat" size={13} color={theme.colors.textSecondary} />
-              <Text style={styles.statText}>
-                {t('stores.returnsCount', { count: returnsTotal })}
-              </Text>
-            </View>
-            <View style={styles.statBadge}>
-              <Icon name="download" size={13} color={theme.colors.textSecondary} />
-              <Text style={styles.statText}>
-                {t('stores.deliveriesCount', { count: deliveriesTotal })}
-              </Text>
-            </View>
-            {returnsUrgent > 0 ? (
-              <View style={[styles.statBadge, styles.urgentBadge]}>
-                <View style={styles.urgentDot} />
-                <Text style={[styles.statText, styles.urgentText]}>
-                  {t('stores.attentionBadge', { count: returnsUrgent })}
+            <View style={styles.statsRow}>
+              <View style={styles.statBadge}>
+                <Icon name="repeat" size={13} color={theme.colors.textSecondary} />
+                <Text style={styles.statText}>
+                  {t('stores.returnsCount', { count: returnsTotal })}
                 </Text>
               </View>
-            ) : null}
+              <View style={styles.statBadge}>
+                <Icon name="download" size={13} color={theme.colors.textSecondary} />
+                <Text style={styles.statText}>
+                  {t('stores.deliveriesCount', { count: deliveriesTotal })}
+                </Text>
+              </View>
+              {returnsUrgent > 0 ? (
+                <View style={[styles.statBadge, styles.urgentBadge]}>
+                  <View style={styles.urgentDot} />
+                  <Text style={[styles.statText, styles.urgentText]}>
+                    {t('stores.attentionBadge', { count: returnsUrgent })}
+                  </Text>
+                </View>
+              ) : null}
+            </View>
           </View>
         </View>
-      </View>
-    </Card>
+      </Card>
+    </View>
   );
 
   if (!canDelete) {
@@ -210,6 +212,7 @@ export function StoreListRow({
 function createStyles(theme: Theme) {
   return StyleSheet.create({
     container: { padding: theme.spacing.lg, gap: theme.spacing.xs },
+    rowSpacing: { marginBottom: theme.spacing.sm },
     topRow: { flexDirection: 'row', alignItems: 'center', gap: theme.spacing.md },
     avatar: {
       width: 40,
