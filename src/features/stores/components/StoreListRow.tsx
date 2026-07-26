@@ -11,7 +11,7 @@ import { useTheme } from '@/theme/ThemeProvider';
 import { Card } from '@/components/Card';
 import { PressableScale } from '@/components/PressableScale';
 import { useHasRole } from '@/features/auth/hooks/usePermissions';
-import { hapticImpactLight } from '@/lib/haptics';
+import { hapticImpactLight, hapticSelection } from '@/lib/haptics';
 import type { Store } from '@/features/stores/services/stores.service';
 
 type Theme = ReturnType<typeof useTheme>;
@@ -119,22 +119,26 @@ export function StoreListRow({
     swipeableRef.current?.close();
   };
 
+  const handleSelectCurrent = () => {
+    hapticSelection();
+    onSelectCurrent();
+  };
+
   const content = (
     <View style={styles.rowSpacing}>
       <Card>
         <View style={styles.container}>
           <View style={styles.topRow}>
-            <Pressable onPress={onSelectCurrent} hitSlop={8}>
-              <Icon
-                name={isCurrent ? 'check-circle' : 'circle'}
-                size={22}
-                color={isCurrent ? theme.colors.primary : theme.colors.textSecondary}
-              />
+            <Pressable onPress={handleSelectCurrent} hitSlop={8}>
+              <View style={styles.avatar}>
+                <Icon name="shopping-bag" size={20} color={theme.colors.primary} />
+                {isCurrent ? (
+                  <View style={styles.currentBadge}>
+                    <Icon name="check" size={10} color={theme.colors.onPrimary} />
+                  </View>
+                ) : null}
+              </View>
             </Pressable>
-
-            <View style={styles.avatar}>
-              <Icon name="shopping-bag" size={20} color={theme.colors.primary} />
-            </View>
 
             <PressableScale style={styles.info} onPress={onEdit}>
               <Text style={styles.name} numberOfLines={1}>
@@ -222,6 +226,19 @@ function createStyles(theme: Theme) {
       alignItems: 'center',
       justifyContent: 'center',
     },
+    currentBadge: {
+      position: 'absolute',
+      bottom: -2,
+      right: -2,
+      width: 16,
+      height: 16,
+      borderRadius: 8,
+      backgroundColor: theme.colors.primary,
+      alignItems: 'center',
+      justifyContent: 'center',
+      borderWidth: 2,
+      borderColor: theme.colors.card,
+    },
     info: { flex: 1, gap: 2 },
     name: {
       fontSize: theme.fontSizes.md,
@@ -236,7 +253,7 @@ function createStyles(theme: Theme) {
       alignItems: 'center',
       justifyContent: 'center',
     },
-    detailsList: { marginLeft: 86, gap: theme.spacing.xs },
+    detailsList: { marginLeft: 52, gap: theme.spacing.xs },
     detailLine: {
       fontSize: theme.fontSizes.sm,
       color: theme.colors.textSecondary,
