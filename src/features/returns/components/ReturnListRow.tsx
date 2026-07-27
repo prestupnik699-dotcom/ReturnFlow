@@ -232,99 +232,93 @@ export const ReturnListRow = memo(function ReturnListRow({
       )
     : undefined;
 
-  const content = (
-    <View style={styles.rowSpacing}>
-      <PressableScale onPress={onPress} onLongPress={onLongPress}>
-        <Card>
-          <View style={styles.container}>
-            <View style={styles.topRow}>
-              {selectionMode ? (
-                <SelectionCheckbox
-                  selected={selected}
-                  color={theme.colors.primary}
-                  inactiveColor={theme.colors.textSecondary}
-                />
-              ) : null}
-              <View style={styles.info}>
-                <Text style={styles.itemTitle} numberOfLines={1}>
-                  {item.title}
-                </Text>
-                <Text style={styles.meta} numberOfLines={1}>
-                  {item.supplierName} · ×{item.quantity}
-                </Text>
-                {item.barcode ? (
-                  <View style={styles.barcodeRow}>
-                    <Icon name="barcode-outline" size={12} color={theme.colors.textSecondary} />
-                    <Text style={styles.barcodeText} numberOfLines={1}>
-                      {item.barcode}
-                    </Text>
-                  </View>
-                ) : null}
-              </View>
-              {item.isExchange ? (
-                <View style={styles.exchangeBadge}>
-                  <Text style={styles.exchangeBadgeText} numberOfLines={1}>
-                    {t('returns.create.exchangeLabel')}
+  const cardBody = (
+    <PressableScale onPress={onPress} onLongPress={onLongPress}>
+      <Card>
+        <View style={styles.container}>
+          <View style={styles.topRow}>
+            {selectionMode ? (
+              <SelectionCheckbox
+                selected={selected}
+                color={theme.colors.primary}
+                inactiveColor={theme.colors.textSecondary}
+              />
+            ) : null}
+            <View style={styles.info}>
+              <Text style={styles.itemTitle} numberOfLines={1}>
+                {item.title}
+              </Text>
+              <Text style={styles.meta} numberOfLines={1}>
+                {item.supplierName} · ×{item.quantity}
+              </Text>
+              {item.barcode ? (
+                <View style={styles.barcodeRow}>
+                  <Icon name="barcode-outline" size={12} color={theme.colors.textSecondary} />
+                  <Text style={styles.barcodeText} numberOfLines={1}>
+                    {item.barcode}
                   </Text>
                 </View>
               ) : null}
             </View>
-            {item.pendingSync ? (
-              <View style={styles.bottomColumn}>
-                <View style={styles.pendingBadge}>
-                  <Icon name="upload-cloud" size={12} color={theme.colors.warning} />
-                  <Text style={styles.pendingBadgeText}>{pendingLabel}</Text>
-                </View>
-                <View style={[styles.dateRow, styles.dateRowEnd]}>
-                  <Icon name="calendar" size={12} color={theme.colors.textSecondary} />
-                  <Text style={styles.dateText}>{formatDateTime(item.createdAt)}</Text>
-                </View>
+            {item.isExchange ? (
+              <View style={styles.exchangeBadge}>
+                <Text style={styles.exchangeBadgeText} numberOfLines={1}>
+                  {t('returns.create.exchangeLabel')}
+                </Text>
               </View>
-            ) : (
-              <View style={styles.bottomRow}>
-                <View
-                  style={[
-                    styles.statusBadge,
-                    { backgroundColor: statusColors[item.status] + '1F' },
-                  ]}
-                >
-                  <View
-                    style={[styles.statusDot, { backgroundColor: statusColors[item.status] }]}
-                  />
-                  <Text style={[styles.statusBadgeText, { color: statusColors[item.status] }]}>
-                    {statusLabels[item.status]}
-                  </Text>
-                </View>
-                <View style={styles.dateRow}>
-                  <Icon name="calendar" size={12} color={theme.colors.textSecondary} />
-                  <Text style={styles.dateText}>{formatDateTime(item.createdAt)}</Text>
-                </View>
-              </View>
-            )}
+            ) : null}
           </View>
-        </Card>
-      </PressableScale>
-    </View>
+          {item.pendingSync ? (
+            <View style={styles.bottomColumn}>
+              <View style={styles.pendingBadge}>
+                <Icon name="upload-cloud" size={12} color={theme.colors.warning} />
+                <Text style={styles.pendingBadgeText}>{pendingLabel}</Text>
+              </View>
+              <View style={[styles.dateRow, styles.dateRowEnd]}>
+                <Icon name="calendar" size={12} color={theme.colors.textSecondary} />
+                <Text style={styles.dateText}>{formatDateTime(item.createdAt)}</Text>
+              </View>
+            </View>
+          ) : (
+            <View style={styles.bottomRow}>
+              <View
+                style={[styles.statusBadge, { backgroundColor: statusColors[item.status] + '1F' }]}
+              >
+                <View style={[styles.statusDot, { backgroundColor: statusColors[item.status] }]} />
+                <Text style={[styles.statusBadgeText, { color: statusColors[item.status] }]}>
+                  {statusLabels[item.status]}
+                </Text>
+              </View>
+              <View style={styles.dateRow}>
+                <Icon name="calendar" size={12} color={theme.colors.textSecondary} />
+                <Text style={styles.dateText}>{formatDateTime(item.createdAt)}</Text>
+              </View>
+            </View>
+          )}
+        </View>
+      </Card>
+    </PressableScale>
   );
 
-  if (item.pendingSync || selectionMode) {
-    return content;
-  }
+  const row =
+    item.pendingSync || selectionMode ? (
+      cardBody
+    ) : (
+      <ReanimatedSwipeable
+        ref={swipeableRef}
+        friction={2}
+        rightThreshold={40}
+        leftThreshold={40}
+        renderRightActions={renderRightActions}
+        renderLeftActions={renderLeftActions}
+        overshootRight={false}
+        overshootLeft={false}
+      >
+        {cardBody}
+      </ReanimatedSwipeable>
+    );
 
-  return (
-    <ReanimatedSwipeable
-      ref={swipeableRef}
-      friction={2}
-      rightThreshold={40}
-      leftThreshold={40}
-      renderRightActions={renderRightActions}
-      renderLeftActions={renderLeftActions}
-      overshootRight={false}
-      overshootLeft={false}
-    >
-      {content}
-    </ReanimatedSwipeable>
-  );
+  return <View style={styles.rowSpacing}>{row}</View>;
 });
 
 function createStyles(theme: Theme) {
