@@ -324,7 +324,7 @@ export const ReturnListRow = memo(function ReturnListRow({
 function createStyles(theme: Theme) {
   return StyleSheet.create({
     container: { padding: theme.spacing.lg, gap: theme.spacing.sm },
-    rowSpacing: {},
+    rowSpacing: { marginBottom: 12 },
     topRow: { flexDirection: 'row', alignItems: 'center', gap: theme.spacing.md },
     info: { flex: 1, gap: 4 },
     itemTitle: {
