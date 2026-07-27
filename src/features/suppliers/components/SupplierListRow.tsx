@@ -301,7 +301,7 @@ export function SupplierListRow({
 function createStyles(theme: Theme) {
   return StyleSheet.create({
     container: { padding: theme.spacing.lg, gap: theme.spacing.xs },
-    rowSpacing: { marginBottom: theme.spacing.sm },
+    rowSpacing: { marginBottom: 24 },
     topRow: { flexDirection: 'row', alignItems: 'center', gap: theme.spacing.md },
     avatar: {
       width: 40,
