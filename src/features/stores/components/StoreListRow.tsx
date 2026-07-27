@@ -216,7 +216,7 @@ export function StoreListRow({
 function createStyles(theme: Theme) {
   return StyleSheet.create({
     container: { padding: theme.spacing.lg, gap: theme.spacing.xs },
-    rowSpacing: { marginBottom: theme.spacing.sm },
+    rowSpacing: { marginBottom: theme.spacing.lg },
     topRow: { flexDirection: 'row', alignItems: 'center', gap: theme.spacing.md },
     avatar: {
       width: 40,
