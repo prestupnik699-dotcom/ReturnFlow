@@ -608,7 +608,7 @@ function createStyles(theme: Theme) {
     filterRow: {
       alignItems: 'center',
     },
-    list: {},
+    list: { gap: 12 },
     flatList: { flex: 1 },
     listEmptyGrow: { flexGrow: 1 },
     emptyWrap: { flex: 1, alignItems: 'center', justifyContent: 'center' },
