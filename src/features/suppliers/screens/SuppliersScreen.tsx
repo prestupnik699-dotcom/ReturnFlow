@@ -177,7 +177,6 @@ export function SuppliersScreen() {
               { paddingBottom: tabBarClearance + 80 },
               filtered.length === 0 && styles.listEmptyGrow,
             ]}
-            ItemSeparatorComponent={() => <View style={{ height: 12 }} />}
             showsVerticalScrollIndicator={false}
             refreshControl={<RefreshControl {...refreshProps} />}
             ListEmptyComponent={
@@ -355,7 +354,7 @@ function createStyles(theme: Theme) {
     },
     filterScroll: { height: 44, flexGrow: 0, flexShrink: 0, marginBottom: theme.spacing.sm },
     filterRow: { alignItems: 'center' },
-    list: {},
+    list: { gap: theme.spacing.sm },
     flatList: { flex: 1 },
     listEmptyGrow: { flexGrow: 1 },
     emptyWrap: { flex: 1, alignItems: 'center', justifyContent: 'center' },
