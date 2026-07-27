@@ -177,6 +177,7 @@ export function SuppliersScreen() {
               { paddingBottom: tabBarClearance + 80 },
               filtered.length === 0 && styles.listEmptyGrow,
             ]}
+            ItemSeparatorComponent={() => <View style={{ height: 12 }} />}
             showsVerticalScrollIndicator={false}
             refreshControl={<RefreshControl {...refreshProps} />}
             ListEmptyComponent={
