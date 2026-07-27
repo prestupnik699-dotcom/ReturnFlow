@@ -16,6 +16,9 @@ import type { Store } from '@/features/stores/services/stores.service';
 
 type Theme = ReturnType<typeof useTheme>;
 
+// Same single-panel-progress pattern as ReturnListRow — watches only this
+// row's own swipe progress, so there's no shared direction enum that could
+// get cross-wired between rows.
 function DeleteActionPanel({
   progress,
   theme,
@@ -116,7 +119,7 @@ export function StoreListRow({
     swipeableRef.current?.close();
   };
 
-  const cardBody = (
+  const content = (
     <Card>
       <View style={styles.container}>
         <View style={styles.topRow}>
@@ -180,7 +183,11 @@ export function StoreListRow({
     </Card>
   );
 
-  const row = canDelete ? (
+  if (!canDelete) {
+    return content;
+  }
+
+  return (
     <ReanimatedSwipeable
       ref={swipeableRef}
       friction={2}
@@ -195,19 +202,14 @@ export function StoreListRow({
       )}
       overshootRight={false}
     >
-      {cardBody}
+      {content}
     </ReanimatedSwipeable>
-  ) : (
-    cardBody
   );
-
-  return <View style={styles.rowSpacing}>{row}</View>;
 }
 
 function createStyles(theme: Theme) {
   return StyleSheet.create({
     container: { padding: theme.spacing.lg, gap: theme.spacing.xs },
-    rowSpacing: { marginBottom: 12 },
     topRow: { flexDirection: 'row', alignItems: 'center', gap: theme.spacing.md },
     avatar: {
       width: 40,

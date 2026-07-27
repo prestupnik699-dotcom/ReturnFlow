@@ -116,7 +116,11 @@ export function ReminderFormSheet({ visible, onClose, reminder }: Props) {
       onRequestClose={handleClose}
     >
       <SafeAreaView style={{ flex: 1 }} edges={['top', 'bottom']}>
-        <ScrollView contentContainerStyle={styles.container} keyboardShouldPersistTaps="handled">
+        <ScrollView
+          style={styles.scrollView}
+          contentContainerStyle={styles.container}
+          keyboardShouldPersistTaps="handled"
+        >
           <Text style={styles.title}>
             {isEditing ? t('reminders.edit.title') : t('reminders.create.title')}
           </Text>
