@@ -209,16 +209,7 @@ export function StoreListRow({
 function createStyles(theme: Theme) {
   return StyleSheet.create({
     container: { padding: theme.spacing.lg, gap: theme.spacing.xs },
-    // TEMP DEBUG MARKER — red border + big gap, remove once we confirm
-    // the device is actually picking up new code. If you don't see a red
-    // outline around each card after reload, the problem is the build
-    // pipeline, not this file.
-    rowSpacing: {
-      marginBottom: 24,
-      borderWidth: 2,
-      borderColor: 'red',
-      borderRadius: theme.radius.lg,
-    },
+    rowSpacing: { marginBottom: theme.spacing.sm },
     topRow: { flexDirection: 'row', alignItems: 'center', gap: theme.spacing.md },
     avatar: {
       width: 40,
