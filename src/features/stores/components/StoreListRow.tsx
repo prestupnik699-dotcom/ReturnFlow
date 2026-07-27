@@ -11,14 +11,11 @@ import { useTheme } from '@/theme/ThemeProvider';
 import { Card } from '@/components/Card';
 import { PressableScale } from '@/components/PressableScale';
 import { useHasRole } from '@/features/auth/hooks/usePermissions';
-import { hapticImpactLight, hapticSelection } from '@/lib/haptics';
+import { hapticImpactLight } from '@/lib/haptics';
 import type { Store } from '@/features/stores/services/stores.service';
 
 type Theme = ReturnType<typeof useTheme>;
 
-// Same single-panel-progress pattern as ReturnListRow — watches only this
-// row's own swipe progress, so there's no shared direction enum that could
-// get cross-wired between rows.
 function DeleteActionPanel({
   progress,
   theme,
@@ -119,26 +116,22 @@ export function StoreListRow({
     swipeableRef.current?.close();
   };
 
-  const handleSelectCurrent = () => {
-    hapticSelection();
-    onSelectCurrent();
-  };
-
   const content = (
     <View style={styles.rowSpacing}>
       <Card>
         <View style={styles.container}>
           <View style={styles.topRow}>
-            <Pressable onPress={handleSelectCurrent} hitSlop={8}>
-              <View style={styles.avatar}>
-                <Icon name="shopping-bag" size={20} color={theme.colors.primary} />
-                {isCurrent ? (
-                  <View style={styles.currentBadge}>
-                    <Icon name="check" size={10} color={theme.colors.onPrimary} />
-                  </View>
-                ) : null}
-              </View>
+            <Pressable onPress={onSelectCurrent} hitSlop={8}>
+              <Icon
+                name={isCurrent ? 'check-circle' : 'circle'}
+                size={22}
+                color={isCurrent ? theme.colors.primary : theme.colors.textSecondary}
+              />
             </Pressable>
+
+            <View style={styles.avatar}>
+              <Icon name="shopping-bag" size={20} color={theme.colors.primary} />
+            </View>
 
             <PressableScale style={styles.info} onPress={onEdit}>
               <Text style={styles.name} numberOfLines={1}>
@@ -216,7 +209,16 @@ export function StoreListRow({
 function createStyles(theme: Theme) {
   return StyleSheet.create({
     container: { padding: theme.spacing.lg, gap: theme.spacing.xs },
-    rowSpacing: { marginBottom: theme.spacing.lg },
+    // TEMP DEBUG MARKER — red border + big gap, remove once we confirm
+    // the device is actually picking up new code. If you don't see a red
+    // outline around each card after reload, the problem is the build
+    // pipeline, not this file.
+    rowSpacing: {
+      marginBottom: 24,
+      borderWidth: 2,
+      borderColor: 'red',
+      borderRadius: theme.radius.lg,
+    },
     topRow: { flexDirection: 'row', alignItems: 'center', gap: theme.spacing.md },
     avatar: {
       width: 40,
@@ -225,19 +227,6 @@ function createStyles(theme: Theme) {
       backgroundColor: theme.colors.primary + '15',
       alignItems: 'center',
       justifyContent: 'center',
-    },
-    currentBadge: {
-      position: 'absolute',
-      bottom: -2,
-      right: -2,
-      width: 16,
-      height: 16,
-      borderRadius: 8,
-      backgroundColor: theme.colors.primary,
-      alignItems: 'center',
-      justifyContent: 'center',
-      borderWidth: 2,
-      borderColor: theme.colors.card,
     },
     info: { flex: 1, gap: 2 },
     name: {
@@ -253,7 +242,7 @@ function createStyles(theme: Theme) {
       alignItems: 'center',
       justifyContent: 'center',
     },
-    detailsList: { marginLeft: 52, gap: theme.spacing.xs },
+    detailsList: { marginLeft: 86, gap: theme.spacing.xs },
     detailLine: {
       fontSize: theme.fontSizes.sm,
       color: theme.colors.textSecondary,
