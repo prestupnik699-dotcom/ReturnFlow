@@ -183,6 +183,7 @@ export function StoresScreen() {
             data={filtered}
             keyExtractor={(item) => item.id}
 
+            style={styles.flatList}
             contentContainerStyle={[
               styles.list,
               { paddingBottom: tabBarClearance + 80 },
