@@ -59,7 +59,12 @@
       "expo-sharing",
       "expo-font",
       "@react-native-community/datetimepicker",
-      "expo-audio"
+      "expo-audio",
+      "expo-image",
+      "expo-localization",
+      "expo-sqlite",
+      "expo-status-bar",
+      "expo-web-browser"
     ],
     "extra": {
       "router": {},

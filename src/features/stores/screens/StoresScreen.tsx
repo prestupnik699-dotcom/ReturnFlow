@@ -182,6 +182,7 @@ export function StoresScreen() {
           <FlatList
             data={filtered}
             keyExtractor={(item) => item.id}
+            ItemSeparatorComponent={() => <View style={{ height: 12 }} />}
             style={styles.flatList}
             contentContainerStyle={[
               styles.list,
@@ -359,7 +360,7 @@ function createStyles(theme: Theme) {
     },
     filterScroll: { height: 44, flexGrow: 0, flexShrink: 0, marginBottom: theme.spacing.sm },
     filterRow: { alignItems: 'center' },
-    list: { gap: theme.spacing.sm },
+    list: {},
     rowSpacing: { marginBottom: theme.spacing.sm },
     flatList: { flex: 1 },
     listEmptyGrow: { flexGrow: 1 },
