@@ -31,14 +31,11 @@ import { StoreListRow } from '@/features/stores/components/StoreListRow';
 import { useMembershipStore } from '@/stores/membership.store';
 import type { Store } from '@/features/stores/services/stores.service';
 import { SkeletonList } from '@/components/Skeleton';
-
 type FilterMode = 'all' | 'attention';
-
 function storeSubtitle(store: Store, fallback: string): string {
   const parts = [store.city, store.address].filter(Boolean);
   return parts.length > 0 ? parts.join(', ') : fallback;
 }
-
 export function StoresScreen() {
   const theme = useTheme();
   const { t } = useTranslation();
@@ -61,7 +58,6 @@ export function StoresScreen() {
   const [editingStore, setEditingStore] = useState<Store | null>(null);
   const [pendingDelete, setPendingDelete] = useState<Store | null>(null);
   const styles = createStyles(theme);
-
   const query = searchInput.trim().toLowerCase();
   const filtered = (stores ?? [])
     .filter(
@@ -72,14 +68,11 @@ export function StoresScreen() {
         (s.address ?? '').toLowerCase().includes(query),
     )
     .filter((s) => filterMode === 'all' || (returnCounts?.[s.id]?.urgent ?? 0) > 0);
-
   const totalReturns = Object.values(returnCounts ?? {}).reduce((sum, c) => sum + c.total, 0);
-
   const handleAdd = () => {
     setEditingStore(null);
     setFormVisible(true);
   };
-
   // Coming straight from creating a new organization (?new=1) — open the
   // add-store form immediately instead of making a first-time user find
   // and tap the button themselves.
@@ -89,26 +82,21 @@ export function StoresScreen() {
       handleAdd();
     }
   }, [params.new]);
-
   const handleEdit = (store: Store) => {
     setEditingStore(store);
     setFormVisible(true);
   };
-
   const handleSelectCurrent = (store: Store) => {
     setActiveContext(activeOrganizationId, store.id);
   };
-
   const handleOpenChat = (store: Store) => {
     setActiveContext(activeOrganizationId, store.id);
     router.push('/chat');
   };
-
   const confirmDelete = () => {
     if (!pendingDelete) return;
     deleteMutation.mutate(pendingDelete.id, { onSuccess: () => setPendingDelete(null) });
   };
-
   if (isLoading) {
     return (
       <Screen>
@@ -118,14 +106,12 @@ export function StoresScreen() {
       </Screen>
     );
   }
-
   return (
     <Screen>
       <View style={styles.container}>
         <View style={styles.headerRow}>
           <Text style={styles.title}>{t('stores.title')}</Text>
         </View>
-
         <LinearGradient
           colors={[theme.colors.card, theme.colors.surfaceVariant]}
           start={{ x: 0, y: 0 }}
@@ -144,7 +130,6 @@ export function StoresScreen() {
             <Text style={styles.summaryLabel}>{t('stores.summaryReturns')}</Text>
           </View>
         </LinearGradient>
-
         <View style={styles.searchRow}>
           <Icon name="search" size={18} color={theme.colors.textSecondary} />
           <TextInput
@@ -155,7 +140,6 @@ export function StoresScreen() {
             onChangeText={setSearchInput}
           />
         </View>
-
         <ScrollView
           horizontal
           showsHorizontalScrollIndicator={false}
@@ -175,14 +159,12 @@ export function StoresScreen() {
             theme={theme}
           />
         </ScrollView>
-
         {isError ? (
           <Text style={styles.errorText}>{t('organizations.settings.loadError')}</Text>
         ) : (
           <FlatList
             data={filtered}
             keyExtractor={(item) => item.id}
-            ItemSeparatorComponent={() => <View style={{ height: 28 }} />}
             style={styles.flatList}
             contentContainerStyle={[
               styles.list,
@@ -204,26 +186,23 @@ export function StoresScreen() {
               const counts = returnCounts?.[item.id] ?? { total: 0, urgent: 0 };
               return (
                 <AnimatedListItem index={index}>
-                  <View style={styles.rowSpacing}>
-                    <StoreListRow
-                      store={item}
-                      isCurrent={activeStoreId === item.id}
-                      returnsTotal={counts.total}
-                      returnsUrgent={counts.urgent}
-                      deliveriesTotal={deliveryCounts?.[item.id] ?? 0}
-                      subtitle={storeSubtitle(item, t('stores.noAddress'))}
-                      onSelectCurrent={() => handleSelectCurrent(item)}
-                      onEdit={() => handleEdit(item)}
-                      onOpenChat={() => handleOpenChat(item)}
-                      onRequestDelete={() => setPendingDelete(item)}
-                    />
-                  </View>
+                  <StoreListRow
+                    store={item}
+                    isCurrent={activeStoreId === item.id}
+                    returnsTotal={counts.total}
+                    returnsUrgent={counts.urgent}
+                    deliveriesTotal={deliveryCounts?.[item.id] ?? 0}
+                    subtitle={storeSubtitle(item, t('stores.noAddress'))}
+                    onSelectCurrent={() => handleSelectCurrent(item)}
+                    onEdit={() => handleEdit(item)}
+                    onOpenChat={() => handleOpenChat(item)}
+                    onRequestDelete={() => setPendingDelete(item)}
+                  />
                 </AnimatedListItem>
               );
             }}
           />
         )}
-
         {canAdd ? (
           <FAB
             onPress={handleAdd}
@@ -231,13 +210,11 @@ export function StoresScreen() {
           />
         ) : null}
       </View>
-
       <StoreFormSheet
         visible={formVisible}
         onClose={() => setFormVisible(false)}
         store={editingStore}
       />
-
       <ConfirmDialog
         visible={!!pendingDelete}
         title={t('stores.deleteConfirmTitle')}
@@ -252,9 +229,7 @@ export function StoresScreen() {
     </Screen>
   );
 }
-
 type Theme = ReturnType<typeof useTheme>;
-
 function FilterChip({
   label,
   active,
@@ -267,7 +242,6 @@ function FilterChip({
   theme: Theme;
 }) {
   const styles = createChipStyles(theme);
-
   return (
     <Pressable onPress={onPress} style={styles.chipWrap}>
       <View style={[styles.chip, !active && styles.chipInactive]}>
@@ -284,7 +258,6 @@ function FilterChip({
     </Pressable>
   );
 }
-
 function createChipStyles(theme: Theme) {
   return StyleSheet.create({
     chipWrap: { marginRight: theme.spacing.sm },
@@ -310,7 +283,6 @@ function createChipStyles(theme: Theme) {
     },
   });
 }
-
 function createStyles(theme: Theme) {
   return StyleSheet.create({
     container: { flex: 1 },
@@ -361,7 +333,6 @@ function createStyles(theme: Theme) {
     filterScroll: { height: 44, flexGrow: 0, flexShrink: 0, marginBottom: theme.spacing.sm },
     filterRow: { alignItems: 'center' },
     list: {},
-    rowSpacing: {},
     flatList: { flex: 1 },
     listEmptyGrow: { flexGrow: 1 },
     emptyWrap: { flex: 1, alignItems: 'center', justifyContent: 'center' },
