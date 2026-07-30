@@ -182,7 +182,7 @@ export function StoresScreen() {
           <FlatList
             data={filtered}
             keyExtractor={(item) => item.id}
-            ItemSeparatorComponent={() => <View style={{ height: 12 }} />}
+            ItemSeparatorComponent={() => <View style={{ height: 28 }} />}
             style={styles.flatList}
             contentContainerStyle={[
               styles.list,
