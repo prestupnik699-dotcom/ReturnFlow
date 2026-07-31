@@ -115,8 +115,12 @@ export function ReminderFormSheet({ visible, onClose, reminder }: Props) {
       presentationStyle="pageSheet"
       onRequestClose={handleClose}
     >
-      <SafeAreaView style={{ flex: 1 }} edges={['top', 'bottom']}>
-        <ScrollView contentContainerStyle={styles.container} keyboardShouldPersistTaps="handled">
+      <SafeAreaView style={styles.safeArea} edges={['top', 'bottom']}>
+        <ScrollView
+          style={styles.scrollView}
+          contentContainerStyle={styles.container}
+          keyboardShouldPersistTaps="handled"
+        >
           <Text style={styles.title}>
             {isEditing ? t('reminders.edit.title') : t('reminders.create.title')}
           </Text>
@@ -220,6 +224,7 @@ export function ReminderFormSheet({ visible, onClose, reminder }: Props) {
 
 function createStyles(theme: ReturnType<typeof useTheme>) {
   return StyleSheet.create({
+    safeArea: { flex: 1, backgroundColor: theme.colors.background },
     scrollView: { flex: 1, backgroundColor: theme.colors.background },
     container: { padding: theme.spacing.xl, gap: theme.spacing.lg },
     title: {

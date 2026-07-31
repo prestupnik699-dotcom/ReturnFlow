@@ -128,6 +128,10 @@
       "unlockButton": "Unlock",
       "unlockFailed": "Couldn't verify your identity. Try again."
     },
+    "sound": {
+      "title": "Scanner Sound",
+      "hint": "Short beep on a successful barcode scan"
+    },
     "about": {
       "title": "About",
       "version": "Version",

@@ -34,12 +34,14 @@ import { getDatabase } from '@/lib/database';
 import { useAuthStore } from '@/stores/auth.store';
 import { useMembershipStore } from '@/stores/membership.store';
 import { useBiometricLockStore } from '@/stores/biometricLock.store';
+import { useSoundSettingsStore } from '@/stores/soundSettings.store';
 import { useAppLock } from '@/features/auth/hooks/useAppLock';
 import { LockScreen } from '@/features/auth/screens/LockScreen';
 import { ErrorBoundary } from '@/components/ErrorBoundary';
 import { SuccessCheckmark } from '@/components/SuccessCheckmark';
 
 getDatabase();
+useSoundSettingsStore.getState().init();
 useBiometricLockStore.getState().init();
 
 SplashScreen.preventAutoHideAsync();
