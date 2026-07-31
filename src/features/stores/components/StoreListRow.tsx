@@ -169,15 +169,16 @@ export function StoreListRow({
                 {t('stores.deliveriesCount', { count: deliveriesTotal })}
               </Text>
             </View>
-            {returnsUrgent > 0 ? (
-              <View style={[styles.statBadge, styles.urgentBadge]}>
-                <View style={styles.urgentDot} />
-                <Text style={[styles.statText, styles.urgentText]}>
-                  {t('stores.attentionBadge', { count: returnsUrgent })}
-                </Text>
-              </View>
-            ) : null}
           </View>
+
+          {returnsUrgent > 0 ? (
+            <View style={[styles.statBadge, styles.urgentBadge, styles.urgentBadgeStandalone]}>
+              <View style={styles.urgentDot} />
+              <Text style={[styles.statText, styles.urgentText]} numberOfLines={1}>
+                {t('stores.attentionBadge', { count: returnsUrgent })}
+              </Text>
+            </View>
+          ) : null}
         </View>
       </View>
     </Card>
@@ -247,6 +248,7 @@ function createStyles(theme: Theme) {
     statBadge: {
       flexDirection: 'row',
       alignItems: 'center',
+      alignSelf: 'flex-start',
       gap: 4,
       backgroundColor: theme.colors.card,
       borderRadius: theme.radius.full,
@@ -260,6 +262,7 @@ function createStyles(theme: Theme) {
       fontWeight: theme.fontWeights.medium,
     },
     urgentBadge: { backgroundColor: theme.colors.danger + '1F' },
+    urgentBadgeStandalone: { marginLeft: -theme.spacing.sm, marginTop: theme.spacing.xs },
     urgentDot: { width: 6, height: 6, borderRadius: 3, backgroundColor: theme.colors.danger },
     urgentText: { color: theme.colors.danger, fontWeight: theme.fontWeights.semiBold },
   });
