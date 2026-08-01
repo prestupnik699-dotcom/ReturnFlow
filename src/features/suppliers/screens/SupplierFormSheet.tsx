@@ -155,7 +155,7 @@ export function SupplierFormSheet({ visible, onClose, supplierId }: Props) {
       presentationStyle="pageSheet"
       onRequestClose={onClose}
     >
-      <SafeAreaView style={{ flex: 1 }} edges={['top', 'bottom']}>
+      <SafeAreaView style={styles.safeArea} edges={['top', 'bottom']}>
         <ScrollView contentContainerStyle={styles.container} keyboardShouldPersistTaps="handled">
           <Text style={styles.title}>
             {isEditing ? supplier?.name : t('suppliers.create.title')}
@@ -234,6 +234,7 @@ export function SupplierFormSheet({ visible, onClose, supplierId }: Props) {
 
 function createStyles(theme: ReturnType<typeof useTheme>) {
   return StyleSheet.create({
+    safeArea: { flex: 1, backgroundColor: theme.colors.background },
     container: {
       flexGrow: 1,
       backgroundColor: theme.colors.background,

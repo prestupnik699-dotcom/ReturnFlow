@@ -73,7 +73,7 @@ export function StoreFormSheet({ visible, onClose, store }: Props) {
       presentationStyle="pageSheet"
       onRequestClose={onClose}
     >
-      <SafeAreaView style={{ flex: 1 }} edges={['top', 'bottom']}>
+      <SafeAreaView style={styles.safeArea} edges={['top', 'bottom']}>
         <View style={styles.container}>
           <Text style={styles.title}>{isEditing ? store?.name : t('stores.create.title')}</Text>
 
@@ -175,6 +175,7 @@ export function StoreFormSheet({ visible, onClose, store }: Props) {
 
 function createStyles(theme: ReturnType<typeof useTheme>) {
   return StyleSheet.create({
+    safeArea: { flex: 1, backgroundColor: theme.colors.background },
     container: {
       flex: 1,
       backgroundColor: theme.colors.background,

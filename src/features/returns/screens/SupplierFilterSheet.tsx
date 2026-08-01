@@ -27,7 +27,7 @@ export function SupplierFilterSheet({ visible, onClose, selectedSupplierId, onSe
       presentationStyle="pageSheet"
       onRequestClose={onClose}
     >
-      <SafeAreaView style={{ flex: 1 }} edges={['top', 'bottom']}>
+      <SafeAreaView style={styles.safeArea} edges={['top', 'bottom']}>
         <View style={styles.container}>
           <View style={styles.header}>
             <Text style={styles.title}>{t('returns.filterBySupplier')}</Text>
@@ -65,6 +65,7 @@ export function SupplierFilterSheet({ visible, onClose, selectedSupplierId, onSe
 
 function createStyles(theme: ReturnType<typeof useTheme>) {
   return StyleSheet.create({
+    safeArea: { flex: 1, backgroundColor: theme.colors.background },
     container: { flex: 1, backgroundColor: theme.colors.background, padding: theme.spacing.xl },
     header: {
       flexDirection: 'row',

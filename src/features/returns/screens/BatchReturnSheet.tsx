@@ -159,7 +159,7 @@ export function BatchReturnSheet({ visible, onClose }: Props) {
       presentationStyle="pageSheet"
       onRequestClose={handleClose}
     >
-      <SafeAreaView style={{ flex: 1 }} edges={['top', 'bottom']}>
+      <SafeAreaView style={styles.safeArea} edges={['top', 'bottom']}>
         <KeyboardAvoidingView
           style={styles.flex}
           behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
@@ -356,6 +356,7 @@ export function BatchReturnSheet({ visible, onClose }: Props) {
 function createStyles(theme: ReturnType<typeof useTheme>) {
   return StyleSheet.create({
     flex: { flex: 1 },
+    safeArea: { flex: 1, backgroundColor: theme.colors.background },
     scrollView: { flex: 1, backgroundColor: theme.colors.background },
     container: { padding: theme.spacing.xl, gap: theme.spacing.lg },
     title: {

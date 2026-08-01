@@ -46,7 +46,7 @@ export function BatchScanReviewSheet({
       presentationStyle="pageSheet"
       onRequestClose={onCancel}
     >
-      <SafeAreaView style={{ flex: 1 }} edges={['top', 'bottom']}>
+      <SafeAreaView style={styles.safeArea} edges={['top', 'bottom']}>
         <View style={styles.container}>
           <Text style={styles.title}>{t('scanner.batchReviewTitle')}</Text>
           <Text style={styles.subtitle}>
@@ -117,6 +117,7 @@ export function BatchScanReviewSheet({
 
 function createStyles(theme: ReturnType<typeof useTheme>) {
   return StyleSheet.create({
+    safeArea: { flex: 1, backgroundColor: theme.colors.background },
     container: {
       flex: 1,
       backgroundColor: theme.colors.background,

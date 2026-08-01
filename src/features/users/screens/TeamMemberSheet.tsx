@@ -60,7 +60,7 @@ export function TeamMemberSheet({ visible, onClose, membershipId }: Props) {
       presentationStyle="pageSheet"
       onRequestClose={onClose}
     >
-      <SafeAreaView style={{ flex: 1 }} edges={['top', 'bottom']}>
+      <SafeAreaView style={styles.safeArea} edges={['top', 'bottom']}>
         <View style={styles.container}>
           <Text style={styles.title}>
             {member.firstName} {member.lastName} {isSelf ? t('users.team.you') : ''}
@@ -138,6 +138,7 @@ export function TeamMemberSheet({ visible, onClose, membershipId }: Props) {
 
 function createStyles(theme: ReturnType<typeof useTheme>) {
   return StyleSheet.create({
+    safeArea: { flex: 1, backgroundColor: theme.colors.background },
     container: {
       flex: 1,
       backgroundColor: theme.colors.background,
