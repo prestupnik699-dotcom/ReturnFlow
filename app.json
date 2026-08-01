@@ -13,7 +13,7 @@
       "softwareKeyboardLayoutMode": "resize",
       "adaptiveIcon": {
         "foregroundImage": "./assets/images/adaptive-icon.png",
-        "backgroundColor": "#6C5CE7"
+        "backgroundColor": "#0C0A1A"
       },
       "permissions": ["android.permission.CAMERA", "android.permission.RECORD_AUDIO"]
     },
@@ -38,7 +38,7 @@
         {
           "backgroundColor": "#0F141B",
           "image": "./assets/images/splash-icon.png",
-          "imageWidth": 220
+          "imageWidth": 140
         }
       ],
       [
