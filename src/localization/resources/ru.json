@@ -311,7 +311,11 @@
       "saveAll": "Сохранить всё ({{count}})",
       "modeReturn": "Возврат",
       "modeDelivery": "Приёмка",
-      "scanAdded": "Добавлено: {{title}}"
+      "scanAdded": "Добавлено: {{title}}",
+      "unnamedItem": "Название не указано — нажмите для редактирования",
+      "editLineLabel": "Редактирование позиции",
+      "fillNamesHint": "Укажите название для каждой позиции перед сохранением",
+      "scanAddedNoName": "Отсканировано — нужно название"
     },
     "selectAll": "Выбрать всё",
     "deselectAll": "Снять всё"

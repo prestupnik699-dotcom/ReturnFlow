@@ -48,9 +48,14 @@ export function BatchReturnSheet({ visible, onClose }: Props) {
   const [titleInput, setTitleInput] = useState('');
   const [barcodeInput, setBarcodeInput] = useState('');
   const [quantityInput, setQuantityInput] = useState('1');
+  // Set when a tap on an existing line loads it into the fields above for
+  // editing — lets the same manual-entry row double as both "add" and
+  // "edit", instead of adding a second parallel form just for edits.
+  const [editingLineId, setEditingLineId] = useState<string | null>(null);
   const scanLockRef = useRef(false);
 
   const batchMutation = mode === 'return' ? returnsBatchMutation : deliveriesBatchMutation;
+  const hasUnnamedLines = lines.some((line) => !line.title.trim());
 
   const reset = () => {
     setMode('return');
@@ -62,6 +67,7 @@ export function BatchReturnSheet({ visible, onClose }: Props) {
     setTitleInput('');
     setBarcodeInput('');
     setQuantityInput('1');
+    setEditingLineId(null);
     returnsBatchMutation.reset();
     deliveriesBatchMutation.reset();
   };
@@ -77,6 +83,7 @@ export function BatchReturnSheet({ visible, onClose }: Props) {
     // just start the list over than risk that confusion.
     setMode(nextMode);
     setLines([]);
+    setEditingLineId(null);
   };
 
   const addOrIncrementLine = (title: string, barcode: string, quantity = 1) => {
@@ -99,9 +106,15 @@ export function BatchReturnSheet({ visible, onClose }: Props) {
     const productName = await lookupProductNameByBarcode(data);
     setIsLookingUp(false);
 
-    const title = productName ?? data;
+    // A failed lookup used to silently fall back to the barcode digits as
+    // the title, which looked like "no name" with no way to tell why or
+    // fix it. Leaving it blank instead, paired with the unnamed-line
+    // styling and tap-to-edit below, makes the gap visible and fixable.
+    const title = productName ?? '';
     addOrIncrementLine(title, data, 1);
-    setToastMessage(t('returns.batch.scanAdded', { title }));
+    setToastMessage(
+      title ? t('returns.batch.scanAdded', { title }) : t('returns.batch.scanAddedNoName'),
+    );
 
     setTimeout(() => {
       scanLockRef.current = false;
@@ -109,12 +122,38 @@ export function BatchReturnSheet({ visible, onClose }: Props) {
     }, 1200);
   };
 
+  const openLineForEdit = (line: Line) => {
+    setEditingLineId(line.id);
+    setTitleInput(line.title);
+    setBarcodeInput(line.barcode);
+    setQuantityInput(String(line.quantity));
+  };
+
+  const cancelEdit = () => {
+    setEditingLineId(null);
+    setTitleInput('');
+    setBarcodeInput('');
+    setQuantityInput('1');
+  };
+
   const addManualLine = () => {
     const title = titleInput.trim();
     if (!title) return;
 
     const quantity = Math.max(1, parseInt(quantityInput, 10) || 1);
-    addOrIncrementLine(title, barcodeInput.trim(), quantity);
+    const barcode = barcodeInput.trim();
+
+    if (editingLineId) {
+      setLines((prev) =>
+        prev.map((line) =>
+          line.id === editingLineId ? { ...line, title, barcode, quantity } : line,
+        ),
+      );
+      setEditingLineId(null);
+    } else {
+      addOrIncrementLine(title, barcode, quantity);
+    }
+
     setTitleInput('');
     setBarcodeInput('');
     setQuantityInput('1');
@@ -122,10 +161,11 @@ export function BatchReturnSheet({ visible, onClose }: Props) {
 
   const removeLine = (id: string) => {
     setLines((prev) => prev.filter((line) => line.id !== id));
+    if (editingLineId === id) cancelEdit();
   };
 
   const handleSaveAll = () => {
-    if (!supplierId || lines.length === 0) return;
+    if (!supplierId || lines.length === 0 || hasUnnamedLines) return;
 
     const lineInputs = lines.map((line) => ({
       title: line.title,
@@ -271,7 +311,20 @@ export function BatchReturnSheet({ visible, onClose }: Props) {
             ) : null}
 
             <View style={styles.field}>
-              <Text style={styles.label}>{t('returns.batch.addLineLabel')}</Text>
+              <View style={styles.addLineHeaderRow}>
+                <Text style={styles.label}>
+                  {editingLineId
+                    ? t('returns.batch.editLineLabel')
+                    : t('returns.batch.addLineLabel')}
+                </Text>
+                {editingLineId ? (
+                  <Pressable onPress={cancelEdit} hitSlop={8}>
+                    <Text style={styles.cancelEditText}>
+                      {t('organizations.settings.cancelButton')}
+                    </Text>
+                  </Pressable>
+                ) : null}
+              </View>
               <View style={styles.quickRow}>
                 <TextInput
                   style={[styles.quickInput, styles.quickTitle]}
@@ -296,30 +349,47 @@ export function BatchReturnSheet({ visible, onClose }: Props) {
                   keyboardType="number-pad"
                 />
                 <Pressable style={styles.addLineButton} onPress={addManualLine}>
-                  <Feather name="plus" size={22} color={theme.colors.onPrimary} />
+                  <Feather
+                    name={editingLineId ? 'check' : 'plus'}
+                    size={22}
+                    color={theme.colors.onPrimary}
+                  />
                 </Pressable>
               </View>
             </View>
 
             {lines.length > 0 ? (
               <View style={styles.linesList}>
-                {lines.map((line) => (
-                  <View key={line.id} style={styles.lineRow}>
-                    <View style={styles.lineInfo}>
-                      <Text style={styles.lineTitle}>{line.title}</Text>
-                      <Text style={styles.lineMeta}>
-                        {line.barcode ? `${line.barcode} · ` : ''}×{line.quantity}
-                      </Text>
-                    </View>
-                    <Pressable onPress={() => removeLine(line.id)} hitSlop={8}>
-                      <Feather name="x-circle" size={20} color={theme.colors.danger} />
+                {lines.map((line) => {
+                  const unnamed = !line.title.trim();
+                  return (
+                    <Pressable
+                      key={line.id}
+                      style={[styles.lineRow, editingLineId === line.id && styles.lineRowEditing]}
+                      onPress={() => openLineForEdit(line)}
+                    >
+                      <View style={styles.lineInfo}>
+                        <Text style={[styles.lineTitle, unnamed && styles.lineTitleUnnamed]}>
+                          {unnamed ? t('returns.batch.unnamedItem') : line.title}
+                        </Text>
+                        <Text style={styles.lineMeta}>
+                          {line.barcode ? `${line.barcode} · ` : ''}×{line.quantity}
+                        </Text>
+                      </View>
+                      <Pressable onPress={() => removeLine(line.id)} hitSlop={8}>
+                        <Feather name="x-circle" size={20} color={theme.colors.danger} />
+                      </Pressable>
                     </Pressable>
-                  </View>
-                ))}
+                  );
+                })}
               </View>
             ) : (
               <Text style={styles.emptyHint}>{t('returns.batch.empty')}</Text>
             )}
+
+            {hasUnnamedLines ? (
+              <Text style={styles.warningHint}>{t('returns.batch.fillNamesHint')}</Text>
+            ) : null}
 
             {batchMutation.isError ? (
               <View style={styles.errorBanner}>
@@ -342,7 +412,7 @@ export function BatchReturnSheet({ visible, onClose }: Props) {
                 }
                 onPress={handleSaveAll}
                 loading={batchMutation.isPending}
-                disabled={!supplierId || lines.length === 0}
+                disabled={!supplierId || lines.length === 0 || hasUnnamedLines}
                 style={styles.flexButton}
               />
             </View>
@@ -394,6 +464,16 @@ function createStyles(theme: ReturnType<typeof useTheme>) {
       fontSize: theme.fontSizes.sm,
       fontWeight: theme.fontWeights.medium,
       color: theme.colors.textSecondary,
+    },
+    addLineHeaderRow: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      justifyContent: 'space-between',
+    },
+    cancelEditText: {
+      fontSize: theme.fontSizes.sm,
+      fontWeight: theme.fontWeights.medium,
+      color: theme.colors.primary,
     },
     chipRow: { flexDirection: 'row', flexWrap: 'wrap', gap: theme.spacing.sm },
     exchangeToggle: {
@@ -512,16 +592,29 @@ function createStyles(theme: ReturnType<typeof useTheme>) {
       paddingHorizontal: theme.spacing.md,
       paddingVertical: theme.spacing.sm,
     },
+    lineRowEditing: {
+      borderWidth: 1,
+      borderColor: theme.colors.primary,
+    },
     lineInfo: { flex: 1, gap: 2 },
     lineTitle: {
       fontSize: theme.fontSizes.sm,
       fontWeight: theme.fontWeights.medium,
       color: theme.colors.textPrimary,
     },
+    lineTitleUnnamed: {
+      color: theme.colors.warning,
+      fontStyle: 'italic',
+    },
     lineMeta: { fontSize: theme.fontSizes.xs, color: theme.colors.textSecondary },
     emptyHint: {
       fontSize: theme.fontSizes.sm,
       color: theme.colors.textSecondary,
+      textAlign: 'center',
+    },
+    warningHint: {
+      fontSize: theme.fontSizes.xs,
+      color: theme.colors.warning,
       textAlign: 'center',
     },
     errorBanner: {

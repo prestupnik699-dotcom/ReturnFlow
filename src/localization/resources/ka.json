@@ -311,7 +311,11 @@
       "saveAll": "ყველას შენახვა ({{count}})",
       "modeReturn": "დაბრუნება",
       "modeDelivery": "მიღება",
-      "scanAdded": "დაემატა: {{title}}"
+      "scanAdded": "დაემატა: {{title}}",
+      "unnamedItem": "სახელი არ არის მითითებული — შეეხეთ რედაქტირებისთვის",
+      "editLineLabel": "პოზიციის რედაქტირება",
+      "fillNamesHint": "შენახვამდე მიუთითეთ სახელი ყველა პოზიციისთვის",
+      "scanAddedNoName": "დასკანერდა — საჭიროა სახელი"
     },
     "selectAll": "ყველას მონიშვნა",
     "deselectAll": "მონიშვნის მოხსნა"

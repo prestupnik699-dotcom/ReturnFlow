@@ -311,7 +311,11 @@
       "saveAll": "Save all ({{count}})",
       "modeReturn": "Return",
       "modeDelivery": "Receiving",
-      "scanAdded": "Added: {{title}}"
+      "scanAdded": "Added: {{title}}",
+      "unnamedItem": "No name yet — tap to edit",
+      "editLineLabel": "Edit item",
+      "fillNamesHint": "Add a name to every item before saving",
+      "scanAddedNoName": "Scanned — needs a name"
     },
     "selectAll": "Select all",
     "deselectAll": "Deselect all"
