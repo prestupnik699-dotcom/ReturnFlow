@@ -274,7 +274,11 @@ export function BatchReturnSheet({ visible, onClose }: Props) {
                     <Button label={t('scanner.openSettings')} onPress={requestPermission} />
                   </View>
                 ) : (
-                  <View style={styles.cameraWrap}>
+                  <View
+                    style={styles.cameraWrap}
+                    renderToHardwareTextureAndroid
+                    collapsable={false}
+                  >
                     <CameraView
                       style={styles.camera}
                       barcodeScannerSettings={{
