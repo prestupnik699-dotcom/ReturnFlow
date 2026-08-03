@@ -56,6 +56,7 @@ export function BatchReturnSheet({ visible, onClose }: Props) {
 
   const batchMutation = mode === 'return' ? returnsBatchMutation : deliveriesBatchMutation;
   const hasUnnamedLines = lines.some((line) => !line.title.trim());
+  const cameraVisible = scanningActive && !!permission?.granted;
 
   const reset = () => {
     setMode('return');
@@ -261,56 +262,21 @@ export function BatchReturnSheet({ visible, onClose }: Props) {
               </Pressable>
             ) : null}
 
-            {supplierId ? (
+            {supplierId && !scanningActive ? (
               <View style={styles.field}>
-                {!scanningActive ? (
-                  <Pressable style={styles.startScanButton} onPress={() => setScanningActive(true)}>
-                    <Feather name="maximize" size={20} color={theme.colors.onPrimary} />
-                    <Text style={styles.startScanText}>{t('deliveries.batch.startScan')}</Text>
-                  </Pressable>
-                ) : !permission?.granted ? (
-                  <View style={styles.permissionBox}>
-                    <Text style={styles.permissionText}>{t('scanner.noPermission')}</Text>
-                    <Button label={t('scanner.openSettings')} onPress={requestPermission} />
-                  </View>
-                ) : (
-                  <View
-                    style={styles.cameraWrap}
-                    renderToHardwareTextureAndroid
-                    collapsable={false}
-                  >
-                    <CameraView
-                      style={styles.camera}
-                      barcodeScannerSettings={{
-                        barcodeTypes: ['ean13', 'ean8', 'upc_a', 'upc_e', 'code128', 'code39'],
-                      }}
-                      onBarcodeScanned={handleBarcodeScanned}
-                    />
-                    <View style={styles.cameraOverlay} pointerEvents="box-none">
-                      <View style={styles.frame} />
-                      <Pressable
-                        style={styles.stopScanButton}
-                        onPress={() => setScanningActive(false)}
-                        hitSlop={8}
-                      >
-                        <Feather name="x" size={18} color="#fff" />
-                      </Pressable>
-                    </View>
-                    {isLookingUp ? (
-                      <View style={styles.cameraStatusOverlay}>
-                        <ActivityIndicator color="#fff" />
-                      </View>
-                    ) : null}
-                    {toastMessage ? (
-                      <View style={styles.toast}>
-                        <Feather name="check-circle" size={16} color={theme.colors.success} />
-                        <Text style={styles.toastText} numberOfLines={1}>
-                          {toastMessage}
-                        </Text>
-                      </View>
-                    ) : null}
-                  </View>
-                )}
+                <Pressable style={styles.startScanButton} onPress={() => setScanningActive(true)}>
+                  <Feather name="maximize" size={20} color={theme.colors.onPrimary} />
+                  <Text style={styles.startScanText}>{t('deliveries.batch.startScan')}</Text>
+                </Pressable>
+              </View>
+            ) : null}
+
+            {supplierId && scanningActive && !permission?.granted ? (
+              <View style={styles.field}>
+                <View style={styles.permissionBox}>
+                  <Text style={styles.permissionText}>{t('scanner.noPermission')}</Text>
+                  <Button label={t('scanner.openSettings')} onPress={requestPermission} />
+                </View>
               </View>
             ) : null}
 
@@ -421,6 +387,55 @@ export function BatchReturnSheet({ visible, onClose }: Props) {
               />
             </View>
           </ScrollView>
+
+          {/* Rendered as a sibling of ScrollView, not inside it — Android's
+              native camera preview is a hardware SurfaceView that doesn't
+              reliably clip/position itself when nested inside a scrolling
+              container, which showed up as a duplicated preview strip
+              floating outside its intended box. As a full-screen overlay
+              outside the scroll tree, it has a stable, non-scrolling
+              parent and renders correctly. */}
+          {cameraVisible ? (
+            <View
+              style={styles.cameraOverlayRoot}
+              renderToHardwareTextureAndroid
+              collapsable={false}
+            >
+              <Pressable style={styles.cameraBackdrop} onPress={() => setScanningActive(false)} />
+              <View style={styles.cameraWrap}>
+                <CameraView
+                  style={styles.camera}
+                  barcodeScannerSettings={{
+                    barcodeTypes: ['ean13', 'ean8', 'upc_a', 'upc_e', 'code128', 'code39'],
+                  }}
+                  onBarcodeScanned={handleBarcodeScanned}
+                />
+                <View style={styles.cameraOverlay} pointerEvents="box-none">
+                  <View style={styles.frame} />
+                  <Pressable
+                    style={styles.stopScanButton}
+                    onPress={() => setScanningActive(false)}
+                    hitSlop={8}
+                  >
+                    <Feather name="x" size={18} color="#fff" />
+                  </Pressable>
+                </View>
+                {isLookingUp ? (
+                  <View style={styles.cameraStatusOverlay}>
+                    <ActivityIndicator color="#fff" />
+                  </View>
+                ) : null}
+                {toastMessage ? (
+                  <View style={styles.toast}>
+                    <Feather name="check-circle" size={16} color={theme.colors.success} />
+                    <Text style={styles.toastText} numberOfLines={1}>
+                      {toastMessage}
+                    </Text>
+                  </View>
+                ) : null}
+              </View>
+            </View>
+          ) : null}
         </KeyboardAvoidingView>
       </SafeAreaView>
     </Modal>
@@ -515,8 +530,19 @@ function createStyles(theme: ReturnType<typeof useTheme>) {
       borderRadius: theme.radius.md,
     },
     permissionText: { color: theme.colors.textSecondary, textAlign: 'center' },
+    cameraOverlayRoot: {
+      ...StyleSheet.absoluteFill,
+      alignItems: 'center',
+      justifyContent: 'center',
+      padding: theme.spacing.xl,
+    },
+    cameraBackdrop: {
+      ...StyleSheet.absoluteFill,
+      backgroundColor: 'rgba(0,0,0,0.85)',
+    },
     cameraWrap: {
-      height: 240,
+      width: '100%',
+      height: 320,
       borderRadius: theme.radius.lg,
       overflow: 'hidden',
     },
