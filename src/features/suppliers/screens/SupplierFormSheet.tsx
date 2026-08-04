@@ -156,7 +156,11 @@ export function SupplierFormSheet({ visible, onClose, supplierId }: Props) {
       onRequestClose={onClose}
     >
       <SafeAreaView style={styles.safeArea} edges={['top', 'bottom']}>
-        <ScrollView contentContainerStyle={styles.container} keyboardShouldPersistTaps="handled">
+        <ScrollView
+          showsVerticalScrollIndicator={false}
+          contentContainerStyle={styles.container}
+          keyboardShouldPersistTaps="handled"
+        >
           <Text style={styles.title}>
             {isEditing ? supplier?.name : t('suppliers.create.title')}
           </Text>

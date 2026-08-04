@@ -164,7 +164,11 @@ export function ReturnFormSheet({
       onRequestClose={handleClose}
     >
       <SafeAreaView style={styles.scrollView} edges={['top', 'bottom']}>
-        <ScrollView contentContainerStyle={styles.container} keyboardShouldPersistTaps="handled">
+        <ScrollView
+          showsVerticalScrollIndicator={false}
+          contentContainerStyle={styles.container}
+          keyboardShouldPersistTaps="handled"
+        >
           <Text style={styles.title}>
             {isEditing ? t('returns.edit.title') : t('returns.create.title')}
           </Text>

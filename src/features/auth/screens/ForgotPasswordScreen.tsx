@@ -1,5 +1,12 @@
 import { useState } from 'react';
-import { View, TextInput, StyleSheet } from 'react-native';
+import {
+  View,
+  TextInput,
+  ScrollView,
+  StyleSheet,
+  KeyboardAvoidingView,
+  Platform,
+} from 'react-native';
 import { Text } from '@/components/AppText';
 import { useForm, Controller } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -47,72 +54,82 @@ export function ForgotPasswordScreen() {
 
   return (
     <Screen>
-      <View style={styles.container}>
-        <ScreenHeader title={t('auth.forgotPassword.title')} onBack={() => router.back()} />
+      <KeyboardAvoidingView
+        style={styles.flex}
+        behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+      >
+        <ScrollView
+          contentContainerStyle={styles.container}
+          keyboardShouldPersistTaps="handled"
+          showsVerticalScrollIndicator={false}
+        >
+          <ScreenHeader title={t('auth.forgotPassword.title')} onBack={() => router.back()} />
 
-        {success ? (
-          <>
-            <View style={styles.successBanner}>
-              <Text style={styles.successText}>{t('auth.forgotPassword.success')}</Text>
-            </View>
-            <Button
-              label={t('common.back')}
-              variant="outline"
-              onPress={() => router.replace('/login')}
-            />
-          </>
-        ) : (
-          <View style={styles.form}>
-            <Text style={styles.instructions}>{t('auth.forgotPassword.instructions')}</Text>
-
-            <View style={styles.field}>
-              <Text style={styles.label}>{t('auth.login.emailLabel')}</Text>
-              <Controller
-                control={control}
-                name="email"
-                render={({ field: { value, onChange, onBlur } }) => (
-                  <TextInput
-                    style={[styles.input, errors.email && styles.inputError]}
-                    placeholder={t('auth.login.emailPlaceholder')}
-                    placeholderTextColor={theme.colors.textSecondary}
-                    autoCapitalize="none"
-                    autoCorrect={false}
-                    keyboardType="email-address"
-                    value={value}
-                    onChangeText={(text) => {
-                      onChange(text);
-                      setSubmitError(null);
-                    }}
-                    onBlur={onBlur}
-                  />
-                )}
-              />
-              {errors.email ? (
-                <Text style={styles.errorText}>{t(errors.email.message ?? '')}</Text>
-              ) : null}
-            </View>
-
-            {submitError ? (
-              <View style={styles.errorBanner}>
-                <Text style={styles.errorBannerText}>{submitError}</Text>
+          {success ? (
+            <>
+              <View style={styles.successBanner}>
+                <Text style={styles.successText}>{t('auth.forgotPassword.success')}</Text>
               </View>
-            ) : null}
+              <Button
+                label={t('common.back')}
+                variant="outline"
+                onPress={() => router.replace('/login')}
+              />
+            </>
+          ) : (
+            <View style={styles.form}>
+              <Text style={styles.instructions}>{t('auth.forgotPassword.instructions')}</Text>
 
-            <Button
-              label={t('auth.forgotPassword.submit')}
-              onPress={handleSubmit(onSubmit)}
-              loading={isSubmitting}
-            />
-          </View>
-        )}
-      </View>
+              <View style={styles.field}>
+                <Text style={styles.label}>{t('auth.login.emailLabel')}</Text>
+                <Controller
+                  control={control}
+                  name="email"
+                  render={({ field: { value, onChange, onBlur } }) => (
+                    <TextInput
+                      style={[styles.input, errors.email && styles.inputError]}
+                      placeholder={t('auth.login.emailPlaceholder')}
+                      placeholderTextColor={theme.colors.textSecondary}
+                      autoCapitalize="none"
+                      autoCorrect={false}
+                      keyboardType="email-address"
+                      value={value}
+                      onChangeText={(text) => {
+                        onChange(text);
+                        setSubmitError(null);
+                      }}
+                      onBlur={onBlur}
+                    />
+                  )}
+                />
+                {errors.email ? (
+                  <Text style={styles.errorText}>{t(errors.email.message ?? '')}</Text>
+                ) : null}
+              </View>
+
+              {submitError ? (
+                <View style={styles.errorBanner}>
+                  <Text style={styles.errorBannerText}>{submitError}</Text>
+                </View>
+              ) : null}
+
+              <Button
+                label={t('auth.forgotPassword.submit')}
+                onPress={handleSubmit(onSubmit)}
+                loading={isSubmitting}
+              />
+            </View>
+          )}
+        </ScrollView>
+      </KeyboardAvoidingView>
     </Screen>
   );
 }
 
 function createStyles(theme: ReturnType<typeof useTheme>) {
   return StyleSheet.create({
-    container: { flex: 1, justifyContent: 'center', gap: theme.spacing.xl },
+    flex: { flex: 1 },
+    container: { flexGrow: 1, justifyContent: 'center', gap: theme.spacing.xl },
     instructions: {
       fontSize: theme.fontSizes.sm,
       color: theme.colors.textSecondary,

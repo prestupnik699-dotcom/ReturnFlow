@@ -81,7 +81,11 @@ export function RegisterScreen() {
         style={styles.flex}
         behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
       >
-        <ScrollView contentContainerStyle={styles.container} keyboardShouldPersistTaps="handled">
+        <ScrollView
+          showsVerticalScrollIndicator={false}
+          contentContainerStyle={styles.container}
+          keyboardShouldPersistTaps="handled"
+        >
           <View style={styles.header}>
             <Logo size={56} />
             <Text style={styles.title}>{t('auth.register.title')}</Text>

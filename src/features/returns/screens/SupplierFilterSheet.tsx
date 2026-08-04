@@ -36,7 +36,7 @@ export function SupplierFilterSheet({ visible, onClose, selectedSupplierId, onSe
             </Pressable>
           </View>
 
-          <ScrollView contentContainerStyle={styles.list}>
+          <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={styles.list}>
             <Chip
               label={t('returns.statusAll')}
               selected={selectedSupplierId === null}

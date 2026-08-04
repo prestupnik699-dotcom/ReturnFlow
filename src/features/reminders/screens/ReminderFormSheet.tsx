@@ -117,6 +117,7 @@ export function ReminderFormSheet({ visible, onClose, reminder }: Props) {
     >
       <SafeAreaView style={styles.safeArea} edges={['top', 'bottom']}>
         <ScrollView
+          showsVerticalScrollIndicator={false}
           style={styles.scrollView}
           contentContainerStyle={styles.container}
           keyboardShouldPersistTaps="handled"
