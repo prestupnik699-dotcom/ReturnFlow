@@ -1,13 +1,6 @@
 import { useState, useRef } from 'react';
-import {
-  View,
-  TextInput,
-  Pressable,
-  ScrollView,
-  StyleSheet,
-  KeyboardAvoidingView,
-  Platform,
-} from 'react-native';
+import { View, TextInput, Pressable, StyleSheet } from 'react-native';
+import { KeyboardAwareScrollView } from 'react-native-keyboard-controller';
 import { Text } from '@/components/AppText';
 import { useForm, Controller } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -77,89 +70,84 @@ export function RegisterScreen() {
 
   return (
     <Screen>
-      <KeyboardAvoidingView
-        style={styles.flex}
-        behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+      <KeyboardAwareScrollView
+        contentContainerStyle={styles.container}
+        keyboardShouldPersistTaps="handled"
+        showsVerticalScrollIndicator={false}
+        bottomOffset={32}
       >
-        <ScrollView
-          showsVerticalScrollIndicator={false}
-          contentContainerStyle={styles.container}
-          keyboardShouldPersistTaps="handled"
-        >
-          <View style={styles.header}>
-            <Logo size={56} />
-            <Text style={styles.title}>{t('auth.register.title')}</Text>
-          </View>
+        <View style={styles.header}>
+          <Logo size={56} />
+          <Text style={styles.title}>{t('auth.register.title')}</Text>
+        </View>
 
-          <View style={styles.form}>
-            {fields.map((field, index) => (
-              <View style={styles.field} key={field.name}>
-                <Text style={styles.label}>{t(field.labelKey)}</Text>
-                <Controller
-                  control={control}
-                  name={field.name}
-                  render={({ field: { value, onChange, onBlur } }) => (
-                    <TextInput
-                      ref={(el) => {
-                        inputRefs.current[index] = el;
-                      }}
-                      style={[styles.input, errors[field.name] && styles.inputError]}
-                      placeholderTextColor={theme.colors.textSecondary}
-                      autoCapitalize={field.autoCapitalize ?? 'none'}
-                      autoCorrect={false}
-                      keyboardType={field.keyboardType ?? 'default'}
-                      secureTextEntry={field.secure}
-                      value={value}
-                      onChangeText={(text) => {
-                        onChange(text);
-                        setSubmitError(null);
-                      }}
-                      onBlur={onBlur}
-                      returnKeyType={index === fields.length - 1 ? 'done' : 'next'}
-                      onSubmitEditing={
-                        index === fields.length - 1
-                          ? handleSubmit(onSubmit)
-                          : () => inputRefs.current[index + 1]?.focus()
-                      }
-                      blurOnSubmit={index === fields.length - 1}
-                    />
-                  )}
-                />
-                {errors[field.name] ? (
-                  <Text style={styles.errorText}>{t(errors[field.name]?.message ?? '')}</Text>
-                ) : null}
-              </View>
-            ))}
-
-            {submitError ? (
-              <View style={styles.errorBanner}>
-                <Text style={styles.errorBannerText}>{submitError}</Text>
-              </View>
-            ) : null}
-
-            <Button
-              label={t('auth.register.submit')}
-              onPress={handleSubmit(onSubmit)}
-              loading={isSubmitting}
-              style={styles.submitButton}
-            />
-
-            <View style={styles.footer}>
-              <Text style={styles.footerText}>{t('auth.register.haveAccount')} </Text>
-              <Pressable onPress={() => router.replace('/login')}>
-                <Text style={styles.footerLink}>{t('auth.register.logInLink')}</Text>
-              </Pressable>
+        <View style={styles.form}>
+          {fields.map((field, index) => (
+            <View style={styles.field} key={field.name}>
+              <Text style={styles.label}>{t(field.labelKey)}</Text>
+              <Controller
+                control={control}
+                name={field.name}
+                render={({ field: { value, onChange, onBlur } }) => (
+                  <TextInput
+                    ref={(el) => {
+                      inputRefs.current[index] = el;
+                    }}
+                    style={[styles.input, errors[field.name] && styles.inputError]}
+                    placeholderTextColor={theme.colors.textSecondary}
+                    autoCapitalize={field.autoCapitalize ?? 'none'}
+                    autoCorrect={false}
+                    keyboardType={field.keyboardType ?? 'default'}
+                    secureTextEntry={field.secure}
+                    value={value}
+                    onChangeText={(text) => {
+                      onChange(text);
+                      setSubmitError(null);
+                    }}
+                    onBlur={onBlur}
+                    returnKeyType={index === fields.length - 1 ? 'done' : 'next'}
+                    onSubmitEditing={
+                      index === fields.length - 1
+                        ? handleSubmit(onSubmit)
+                        : () => inputRefs.current[index + 1]?.focus()
+                    }
+                    blurOnSubmit={index === fields.length - 1}
+                  />
+                )}
+              />
+              {errors[field.name] ? (
+                <Text style={styles.errorText}>{t(errors[field.name]?.message ?? '')}</Text>
+              ) : null}
             </View>
+          ))}
+
+          {submitError ? (
+            <View style={styles.errorBanner}>
+              <Text style={styles.errorBannerText}>{submitError}</Text>
+            </View>
+          ) : null}
+
+          <Button
+            label={t('auth.register.submit')}
+            onPress={handleSubmit(onSubmit)}
+            loading={isSubmitting}
+            style={styles.submitButton}
+          />
+
+          <View style={styles.footer}>
+            <Text style={styles.footerText}>{t('auth.register.haveAccount')} </Text>
+            <Pressable onPress={() => router.replace('/login')}>
+              <Text style={styles.footerLink}>{t('auth.register.logInLink')}</Text>
+            </Pressable>
           </View>
-        </ScrollView>
-      </KeyboardAvoidingView>
+        </View>
+      </KeyboardAwareScrollView>
     </Screen>
   );
 }
 
 function createStyles(theme: ReturnType<typeof useTheme>) {
   return StyleSheet.create({
-    flex: { flex: 1 },
     container: {
       flexGrow: 1,
       justifyContent: 'center',

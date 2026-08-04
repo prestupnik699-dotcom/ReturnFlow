@@ -1,4 +1,5 @@
 import { View, StyleSheet } from 'react-native';
+import { KeyboardAwareScrollView } from 'react-native-keyboard-controller';
 import { Text } from '@/components/AppText';
 import { useTranslation } from 'react-i18next';
 import { useChangePasswordForm } from '@/features/auth/hooks/useChangePasswordForm';
@@ -22,7 +23,12 @@ export function ResetPasswordScreen() {
 
   return (
     <Screen>
-      <View style={styles.container}>
+      <KeyboardAwareScrollView
+        contentContainerStyle={styles.container}
+        keyboardShouldPersistTaps="handled"
+        showsVerticalScrollIndicator={false}
+        bottomOffset={32}
+      >
         <View style={styles.header}>
           <Logo size={56} />
           <Text style={styles.title}>{t('auth.changePassword.title')}</Text>
@@ -39,14 +45,14 @@ export function ResetPasswordScreen() {
 
           <Button label={t('auth.changePassword.submit')} onPress={submit} loading={isSubmitting} />
         </View>
-      </View>
+      </KeyboardAwareScrollView>
     </Screen>
   );
 }
 
 function createStyles(theme: ReturnType<typeof useTheme>) {
   return StyleSheet.create({
-    container: { flex: 1, justifyContent: 'center' },
+    container: { flexGrow: 1, justifyContent: 'center' },
     header: { alignItems: 'center', marginBottom: theme.spacing['2xl'], gap: theme.spacing.sm },
     title: {
       fontSize: theme.fontSizes.xl,

@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { View, StyleSheet } from 'react-native';
+import { KeyboardAwareScrollView } from 'react-native-keyboard-controller';
 import { Text } from '@/components/AppText';
 import { useRouter } from 'expo-router';
 import { useTranslation } from 'react-i18next';
@@ -22,7 +23,12 @@ export function ChangePasswordScreen() {
 
   return (
     <Screen>
-      <View style={styles.container}>
+      <KeyboardAwareScrollView
+        contentContainerStyle={styles.container}
+        keyboardShouldPersistTaps="handled"
+        showsVerticalScrollIndicator={false}
+        bottomOffset={32}
+      >
         <ScreenHeader title={t('auth.changePassword.title')} />
 
         {success ? (
@@ -50,14 +56,14 @@ export function ChangePasswordScreen() {
             />
           </View>
         )}
-      </View>
+      </KeyboardAwareScrollView>
     </Screen>
   );
 }
 
 function createStyles(theme: ReturnType<typeof useTheme>) {
   return StyleSheet.create({
-    container: { flex: 1, gap: theme.spacing.xl },
+    container: { flexGrow: 1, gap: theme.spacing.xl },
     form: { gap: theme.spacing.md },
     errorBanner: {
       backgroundColor: theme.colors.danger + '15',
