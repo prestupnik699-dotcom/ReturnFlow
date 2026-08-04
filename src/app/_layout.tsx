@@ -155,6 +155,7 @@ function RootNavigator() {
         contentStyle: { backgroundColor: theme.colors.background },
       }}
     >
+      <Stack.Screen name="reset-password" />
       <Stack.Protected guard={isPasswordRecovery}>
         <Stack.Screen name="(recovery)" />
       </Stack.Protected>
