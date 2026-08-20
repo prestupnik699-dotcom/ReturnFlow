@@ -222,6 +222,24 @@
       "defectRate": "წუნის %",
       "noData": "მონაცემები არ არის",
       "empty": "ამ მომწოდებელთან დაბრუნებები არ არის"
+    },
+    "catalog": {
+      "title": "კატალოგი",
+      "empty": "კატალოგში ჯერ არაა პროდუქტები",
+      "emptyMessage": "დაამატეთ პროდუქტები, რომლებსაც ეს მომწოდებელი მოიტანს",
+      "editItemTitle": "პროდუქტის რედაქტირება",
+      "itemNameLabel": "პროდუქტის დასახელება",
+      "itemNameRequired": "მიუთითეთ პროდუქტის დასახელება",
+      "itemPriceLabel": "ნაგულისხმევი ფასი",
+      "itemPricePlaceholder": "არასავალდებულო",
+      "saveItemButton": "შენახვა",
+      "deleteConfirmTitle": "წავშალოთ პროდუქტი?",
+      "deleteConfirmMessage": "ის წაიშლება კატალოგიდან.",
+      "quickAddPlaceholder": "პროდუქტის დასახელება (მაგ. Domestos 1000ml)",
+      "orderCount": "{{count}} პროდუქტი არჩეულია",
+      "shareOrder": "შეკვეთის გაზიარება",
+      "historyTitle": "შეკვეთების ისტორია",
+      "historyEmpty": "შეკვეთები ჯერ არ ყოფილა"
     }
   },
   "returns": {

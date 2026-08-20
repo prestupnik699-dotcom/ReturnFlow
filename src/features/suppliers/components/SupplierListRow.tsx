@@ -138,6 +138,7 @@ type Props = {
   deliveriesTotal: number;
   reliability?: SupplierReliability;
   onEdit: () => void;
+  onOpenCatalog: () => void;
   onToggleFavorite: () => void;
   onRequestDelete: () => void;
 };
@@ -149,6 +150,7 @@ export function SupplierListRow({
   deliveriesTotal,
   reliability,
   onEdit,
+  onOpenCatalog,
   onToggleFavorite,
   onRequestDelete,
 }: Props) {
@@ -185,6 +187,10 @@ export function SupplierListRow({
               {supplier.name}
             </Text>
           </PressableScale>
+
+          <Pressable onPress={onOpenCatalog} hitSlop={8} style={styles.catalogButton}>
+            <Feather name="shopping-bag" size={16} color={theme.colors.primary} />
+          </Pressable>
 
           <Pressable onPress={handleToggleFavorite} hitSlop={8}>
             <FavoriteStar favorite={supplier.favorite} theme={theme} />
@@ -312,6 +318,14 @@ function createStyles(theme: Theme) {
       fontSize: theme.fontSizes.xs,
       fontWeight: theme.fontWeights.bold,
       color: theme.colors.primary,
+    },
+    catalogButton: {
+      width: 30,
+      height: 30,
+      borderRadius: theme.radius.full,
+      backgroundColor: theme.colors.primary + '15',
+      alignItems: 'center',
+      justifyContent: 'center',
     },
     info: { flex: 1, gap: 2 },
     name: {

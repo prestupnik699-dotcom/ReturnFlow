@@ -20,6 +20,7 @@ import { Screen } from '@/components/Screen';
 import { FAB } from '@/components/FAB';
 import { EmptyState } from '@/components/EmptyState';
 import { ConfirmDialog } from '@/components/ConfirmDialog';
+import { useRouter } from 'expo-router';
 import { useHasRole } from '@/features/auth/hooks/usePermissions';
 import { useSuppliers } from '@/features/suppliers/hooks/useSuppliers';
 import {
@@ -41,6 +42,7 @@ export function SuppliersScreen() {
   const theme = useTheme();
   const { t } = useTranslation();
   const tabBarClearance = useTabBarClearance();
+  const router = useRouter();
   const canAdd = useHasRole([...EDIT_ROLES]);
   const [searchInput, setSearchInput] = useState('');
   const [filterMode, setFilterMode] = useState<FilterMode>('all');
@@ -199,6 +201,7 @@ export function SuppliersScreen() {
                     deliveriesTotal={deliveryCounts?.[item.id] ?? 0}
                     reliability={reliability?.[item.id]}
                     onEdit={() => handleEdit(item)}
+                    onOpenCatalog={() => router.push(`/supplier/${item.id}`)}
                     onToggleFavorite={() =>
                       favoriteMutation.mutate({ supplierId: item.id, favorite: !item.favorite })
                     }
