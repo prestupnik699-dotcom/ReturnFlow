@@ -9,12 +9,13 @@ import { ScreenHeader } from '@/components/ScreenHeader';
 import { Card } from '@/components/Card';
 import { Button } from '@/components/Button';
 import { EmptyState } from '@/components/EmptyState';
+import { Chip } from '@/components/Chip';
+import { useTabBarClearance } from '@/hooks/useTabBarClearance';
 import { useSuppliers } from '@/features/suppliers/hooks/useSuppliers';
 import { useSupplierCatalog } from '@/features/suppliers/hooks/useSupplierCatalog';
 import { usePlaceCatalogOrder } from '@/features/suppliers/hooks/useCatalogMutations';
 import { useOrderDraftStore } from '@/stores/orderDraft.store';
 import { hapticSelection, hapticSuccess } from '@/lib/haptics';
-import type { Supplier } from '@/features/suppliers/services/suppliers.service';
 
 // The order draft lives in a global store (useOrderDraftStore), not
 // screen-local state — switching between suppliers here, or leaving this
@@ -24,6 +25,7 @@ export function OrderScreen() {
   const theme = useTheme();
   const { t } = useTranslation();
   const { data: suppliers } = useSuppliers(false, 'name');
+  const tabBarClearance = useTabBarClearance();
   const [activeSupplierId, setActiveSupplierId] = useState<string | null>(null);
   const drafts = useOrderDraftStore((state) => state.drafts);
   const setQuantity = useOrderDraftStore((state) => state.setQuantity);
@@ -55,17 +57,19 @@ export function OrderScreen() {
               contentContainerStyle={styles.supplierRow}
             >
               {suppliers.map((supplier) => (
-                <SupplierChip
-                  key={supplier.id}
-                  supplier={supplier}
-                  active={supplier.id === activeSupplierId}
-                  hasDraft={pendingSupplierIds.includes(supplier.id)}
-                  onPress={() => {
-                    hapticSelection();
-                    setActiveSupplierId(supplier.id);
-                  }}
-                  theme={theme}
-                />
+                <View key={supplier.id} style={styles.chipWrap}>
+                  <Chip
+                    label={supplier.name}
+                    selected={supplier.id === activeSupplierId}
+                    onPress={() => {
+                      hapticSelection();
+                      setActiveSupplierId(supplier.id);
+                    }}
+                  />
+                  {pendingSupplierIds.includes(supplier.id) ? (
+                    <View style={styles.chipDot} />
+                  ) : null}
+                </View>
               ))}
             </ScrollView>
 
@@ -84,7 +88,7 @@ export function OrderScreen() {
             )}
 
             {pendingSupplierIds.length > 0 ? (
-              <View style={styles.pendingSection}>
+              <View style={[styles.pendingSection, { bottom: tabBarClearance }]}>
                 <Text style={styles.pendingTitle}>{t('orders.readyToSend')}</Text>
                 <FlatList
                   data={suppliers.filter((s) => pendingSupplierIds.includes(s.id))}
@@ -101,53 +105,6 @@ export function OrderScreen() {
       </View>
     </Screen>
   );
-}
-
-function SupplierChip({
-  supplier,
-  active,
-  hasDraft,
-  onPress,
-  theme,
-}: {
-  supplier: Supplier;
-  active: boolean;
-  hasDraft: boolean;
-  onPress: () => void;
-  theme: ReturnType<typeof useTheme>;
-}) {
-  const styles = createChipStyles(theme);
-  return (
-    <Pressable onPress={onPress} style={[styles.chip, active && styles.chipActive]}>
-      <Text style={[styles.chipText, active && styles.chipTextActive]} numberOfLines={1}>
-        {supplier.name}
-      </Text>
-      {hasDraft ? <View style={styles.dot} /> : null}
-    </Pressable>
-  );
-}
-
-function createChipStyles(theme: ReturnType<typeof useTheme>) {
-  return StyleSheet.create({
-    chip: {
-      flexDirection: 'row',
-      alignItems: 'center',
-      gap: 6,
-      backgroundColor: theme.colors.card,
-      borderRadius: theme.radius.full,
-      paddingHorizontal: theme.spacing.md,
-      paddingVertical: theme.spacing.smPlus,
-      marginRight: theme.spacing.sm,
-    },
-    chipActive: { backgroundColor: theme.colors.primary },
-    chipText: {
-      fontSize: theme.fontSizes.sm,
-      fontWeight: theme.fontWeights.medium,
-      color: theme.colors.textSecondary,
-    },
-    chipTextActive: { color: theme.colors.onPrimary, fontWeight: theme.fontWeights.semiBold },
-    dot: { width: 6, height: 6, borderRadius: 3, backgroundColor: theme.colors.warning },
-  });
 }
 
 function SupplierCatalogPicker({
@@ -343,13 +300,31 @@ function createStyles(theme: ReturnType<typeof useTheme>) {
     container: { flex: 1 },
     emptyWrap: { flex: 1, alignItems: 'center', justifyContent: 'center' },
     supplierRow: { paddingBottom: theme.spacing.md },
+    chipWrap: { marginRight: theme.spacing.sm },
+    chipDot: {
+      position: 'absolute',
+      top: 4,
+      right: 4,
+      width: 8,
+      height: 8,
+      borderRadius: 4,
+      backgroundColor: theme.colors.warning,
+      borderWidth: 1.5,
+      borderColor: theme.colors.background,
+    },
     hintWrap: { flex: 1, alignItems: 'center', justifyContent: 'center' },
     hintText: { color: theme.colors.textSecondary, textAlign: 'center' },
-    pendingSection: { gap: theme.spacing.sm, marginTop: theme.spacing.md },
+    pendingSection: {
+      position: 'absolute',
+      left: theme.spacing.lg,
+      right: theme.spacing.lg,
+      gap: theme.spacing.sm,
+    },
     pendingTitle: {
       fontSize: theme.fontSizes.sm,
       fontWeight: theme.fontWeights.semiBold,
       color: theme.colors.textSecondary,
+      marginLeft: theme.spacing.xs,
     },
     pendingList: { gap: theme.spacing.sm },
   });

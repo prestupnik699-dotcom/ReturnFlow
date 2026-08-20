@@ -271,15 +271,15 @@ export function DashboardScreen() {
                 theme={theme}
               />
               <QuickAction
-                icon="maximize"
-                label={t('dashboard.actionScanner')}
-                onPress={() => router.push('/scanner')}
+                icon="shopping-bag"
+                label={t('dashboard.actionOrder')}
+                onPress={() => router.push('/order')}
                 theme={theme}
               />
               <QuickAction
-                icon="bar-chart-2"
-                label={t('dashboard.actionStatistics')}
-                onPress={() => router.push('/statistics')}
+                icon="maximize"
+                label={t('dashboard.actionScanner')}
+                onPress={() => router.push('/scanner')}
                 theme={theme}
               />
               <QuickAction
@@ -289,9 +289,9 @@ export function DashboardScreen() {
                 theme={theme}
               />
               <QuickAction
-                icon="shopping-bag"
-                label={t('dashboard.actionOrder')}
-                onPress={() => router.push('/order')}
+                icon="bar-chart-2"
+                label={t('dashboard.actionStatistics')}
+                onPress={() => router.push('/statistics')}
                 theme={theme}
               />
             </ScrollView>
