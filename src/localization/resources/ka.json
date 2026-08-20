@@ -461,7 +461,8 @@
     "noStoreTitle": "ჯერ აირჩიეთ მაღაზია",
     "noStoreMessage": "აირჩიეთ მაღაზია „მაღაზიები“-ში",
     "noStoreButton": "მაღაზიებზე გადასვლა",
-    "actionReminders": "შენიშვნები"
+    "actionReminders": "შენიშვნები",
+    "actionOrder": "შეკვეთა"
   },
   "deliveries": {
     "title": "მიწოდებები",
@@ -506,5 +507,15 @@
       "title": "შენიშვნის რედაქტირება",
       "submit": "შენახვა"
     }
+  },
+  "orders": {
+    "title": "შეკვეთა",
+    "noSuppliers": "ჯერ არ არის მომწოდებელი",
+    "noSuppliersMessage": "ჯერ დაამატეთ მომწოდებელი შეკვეთის დასაწყებად",
+    "pickSupplierHint": "აირჩიეთ მომწოდებელი ზემოთ მისი კატალოგის სანახავად",
+    "supplierCatalogEmpty": "ამ მომწოდებელს ჯერ არ აქვს პროდუქტები კატალოგში",
+    "readyToSend": "გასაგზავნად მზადაა",
+    "itemCount": "{{count}} პროდუქტი",
+    "send": "გაგზავნა"
   }
 }

@@ -259,7 +259,11 @@ export function DashboardScreen() {
               </View>
             </View>
 
-            <View style={styles.quickActionsRow}>
+            <ScrollView
+              horizontal
+              showsHorizontalScrollIndicator={false}
+              contentContainerStyle={styles.quickActionsRow}
+            >
               <QuickAction
                 icon="plus-circle"
                 label={t('dashboard.actionCreateReturn')}
@@ -284,7 +288,13 @@ export function DashboardScreen() {
                 onPress={() => router.push('/reminders')}
                 theme={theme}
               />
-            </View>
+              <QuickAction
+                icon="shopping-bag"
+                label={t('dashboard.actionOrder')}
+                onPress={() => router.push('/order')}
+                theme={theme}
+              />
+            </ScrollView>
 
             {urgentCount > 0 || todayCount > 0 || (pendingSyncCount ?? 0) > 0 ? (
               <View style={styles.section}>
@@ -396,7 +406,7 @@ function QuickAction({
 function createQuickActionStyles(theme: Theme) {
   return StyleSheet.create({
     tile: {
-      flex: 1,
+      width: 86,
       height: 108,
       backgroundColor: theme.colors.card,
       borderRadius: theme.radius.md,
@@ -586,7 +596,11 @@ function createStyles(theme: Theme) {
       color: theme.colors.textPrimary,
     },
     bentoSideLabel: { fontSize: theme.fontSizes.xs, color: theme.colors.textSecondary },
-    quickActionsRow: { flexDirection: 'row', gap: theme.spacing.sm },
+    quickActionsRow: {
+      flexDirection: 'row',
+      gap: theme.spacing.sm,
+      paddingRight: theme.spacing.sm,
+    },
     section: { gap: theme.spacing.sm },
     sectionHeaderRow: {
       flexDirection: 'row',

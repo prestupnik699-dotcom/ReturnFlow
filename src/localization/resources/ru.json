@@ -462,7 +462,8 @@
     "noStoreTitle": "Сначала выберите магазин",
     "noStoreMessage": "Выберите магазин в разделе «Магазины»",
     "noStoreButton": "Перейти к магазинам",
-    "actionReminders": "Заметки"
+    "actionReminders": "Заметки",
+    "actionOrder": "Заказ"
   },
   "deliveries": {
     "title": "Приёмки",
@@ -507,5 +508,16 @@
       "title": "Изменить заметку",
       "submit": "Сохранить"
     }
+  },
+  "orders": {
+    "title": "Заказ",
+    "noSuppliers": "Пока нет поставщиков",
+    "noSuppliersMessage": "Сначала добавьте поставщика, чтобы начать заказ",
+    "pickSupplierHint": "Выберите поставщика выше, чтобы увидеть его каталог",
+    "supplierCatalogEmpty": "У этого поставщика пока нет товаров в каталоге",
+    "readyToSend": "Готово к отправке",
+    "itemCount": "{{count}} товар",
+    "itemCount_other": "{{count}} товаров",
+    "send": "Отправить"
   }
 }

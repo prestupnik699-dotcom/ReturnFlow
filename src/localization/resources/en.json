@@ -462,7 +462,8 @@
     "noStoreTitle": "Pick a store first",
     "noStoreMessage": "Select a store in Stores",
     "noStoreButton": "Go to stores",
-    "actionReminders": "Reminders"
+    "actionReminders": "Reminders",
+    "actionOrder": "Order"
   },
   "deliveries": {
     "title": "Deliveries",
@@ -507,5 +508,16 @@
       "title": "Edit reminder",
       "submit": "Save"
     }
+  },
+  "orders": {
+    "title": "Order",
+    "noSuppliers": "No suppliers yet",
+    "noSuppliersMessage": "Add a supplier first to start an order",
+    "pickSupplierHint": "Pick a supplier above to see their catalog",
+    "supplierCatalogEmpty": "This supplier has no catalog items yet",
+    "readyToSend": "Ready to send",
+    "itemCount": "{{count}} item",
+    "itemCount_other": "{{count}} items",
+    "send": "Send"
   }
 }
