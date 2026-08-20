@@ -7,6 +7,7 @@ export type CatalogItem = {
   supplierId: string;
   name: string;
   defaultPrice: number | null;
+  barcode: string | null;
   createdBy: string;
   createdAt: string;
 };
@@ -17,6 +18,7 @@ type CatalogItemRow = {
   supplier_id: string;
   name: string;
   default_price: number | null;
+  barcode: string | null;
   created_by: string;
   created_at: string;
 };
@@ -28,13 +30,33 @@ function mapCatalogItem(row: CatalogItemRow): CatalogItem {
     supplierId: row.supplier_id,
     name: row.name,
     defaultPrice: row.default_price,
+    barcode: row.barcode,
     createdBy: row.created_by,
     createdAt: row.created_at,
   };
 }
 
 const CATALOG_ITEM_FIELDS =
-  'id, organization_id, supplier_id, name, default_price, created_by, created_at';
+  'id, organization_id, supplier_id, name, default_price, barcode, created_by, created_at';
+
+export async function fetchCatalogItemByBarcode(
+  supplierId: string,
+  barcode: string,
+): Promise<ServiceResult<CatalogItem | null>> {
+  const { data, error } = await supabase
+    .from('supplier_catalog_items')
+    .select(CATALOG_ITEM_FIELDS)
+    .eq('supplier_id', supplierId)
+    .eq('barcode', barcode)
+    .is('deleted_at', null)
+    .maybeSingle();
+
+  if (error) {
+    return fromCaughtError(error, 'FETCH_CATALOG_ITEM_FAILED');
+  }
+
+  return { success: true, data: data ? mapCatalogItem(data) : null };
+}
 
 export async function fetchSupplierCatalog(
   supplierId: string,
@@ -59,6 +81,7 @@ type CreateCatalogItemInput = {
   createdBy: string;
   name: string;
   defaultPrice: number | null;
+  barcode: string | null;
 };
 
 export async function createCatalogItem(
@@ -72,6 +95,7 @@ export async function createCatalogItem(
       created_by: input.createdBy,
       name: input.name,
       default_price: input.defaultPrice,
+      barcode: input.barcode,
     })
     .select(CATALOG_ITEM_FIELDS)
     .single();
@@ -86,6 +110,7 @@ export async function createCatalogItem(
 type UpdateCatalogItemInput = {
   name: string;
   defaultPrice: number | null;
+  barcode: string | null;
 };
 
 export async function updateCatalogItem(
@@ -94,7 +119,7 @@ export async function updateCatalogItem(
 ): Promise<ServiceResult<CatalogItem>> {
   const { data, error } = await supabase
     .from('supplier_catalog_items')
-    .update({ name: input.name, default_price: input.defaultPrice })
+    .update({ name: input.name, default_price: input.defaultPrice, barcode: input.barcode })
     .eq('id', itemId)
     .select(CATALOG_ITEM_FIELDS)
     .single();

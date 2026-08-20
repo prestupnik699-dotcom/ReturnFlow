@@ -17,6 +17,7 @@ function useInvalidateCatalog(supplierId: string) {
 type CatalogItemFormValues = {
   name: string;
   defaultPrice: number | null;
+  barcode: string | null;
 };
 
 export function useCreateCatalogItem(supplierId: string) {
@@ -33,6 +34,7 @@ export function useCreateCatalogItem(supplierId: string) {
         createdBy: profile.id,
         name: values.name,
         defaultPrice: values.defaultPrice,
+        barcode: values.barcode,
       });
       if (!result.success) throw new Error(result.error.message);
       return result.data;

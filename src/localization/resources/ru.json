@@ -241,7 +241,9 @@
       "shareOrder": "Отправить заказ",
       "historyTitle": "История заказов",
       "historyEmpty": "Заказов пока не было",
-      "quickAddHint": "например, Domestos 1000ml"
+      "quickAddHint": "например, Domestos 1000ml",
+      "itemBarcodeLabel": "Штрихкод",
+      "itemBarcodePlaceholder": "Необязательно — отсканируйте или введите"
     }
   },
   "returns": {

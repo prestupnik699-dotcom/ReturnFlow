@@ -7,36 +7,43 @@ import { useTranslation } from 'react-i18next';
 import { useTheme } from '@/theme/ThemeProvider';
 import { Button } from '@/components/Button';
 import {
+  useCreateCatalogItem,
   useUpdateCatalogItem,
   useDeleteCatalogItem,
 } from '@/features/suppliers/hooks/useCatalogMutations';
 import { hapticSuccess, hapticError } from '@/lib/haptics';
 import type { CatalogItem } from '@/features/suppliers/services/catalog.service';
 
-type FormValues = { name: string; price: string };
+type FormValues = { name: string; price: string; barcode: string };
 
 type Props = {
   visible: boolean;
   onClose: () => void;
   supplierId: string;
   item: CatalogItem | null;
+  prefillBarcode?: string | null;
   onRequestDelete: (item: CatalogItem) => void;
 };
 
 // Editing only — quick-adding new items happens directly on the catalog
-// screen's persistent input row, not through this sheet. This form is
-// reached by tapping an existing item to fix a typo or set a price.
+// screen's persistent input row (or via barcode scan), not through this
+// sheet. This form is reached by tapping an existing item to fix a typo,
+// set a price, or attach/correct a barcode.
 export function CatalogItemFormSheet({
   visible,
   onClose,
   supplierId,
   item,
+  prefillBarcode,
   onRequestDelete,
 }: Props) {
   const theme = useTheme();
   const { t } = useTranslation();
   const updateMutation = useUpdateCatalogItem(supplierId, item?.id ?? '');
+  const createMutation = useCreateCatalogItem(supplierId);
   const deleteMutation = useDeleteCatalogItem(supplierId);
+  const isNewFromScan = !item && !!prefillBarcode;
+  const mutation = isNewFromScan ? createMutation : updateMutation;
   const styles = createStyles(theme);
 
   const {
@@ -44,39 +51,48 @@ export function CatalogItemFormSheet({
     handleSubmit,
     reset,
     formState: { errors },
-  } = useForm<FormValues>({ defaultValues: { name: '', price: '' } });
+  } = useForm<FormValues>({ defaultValues: { name: '', price: '', barcode: '' } });
 
   useEffect(() => {
     if (visible) {
       reset({
         name: item?.name ?? '',
         price: item?.defaultPrice != null ? String(item.defaultPrice) : '',
+        barcode: item?.barcode ?? prefillBarcode ?? '',
       });
       updateMutation.reset();
+      createMutation.reset();
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [visible, item]);
+  }, [visible, item, prefillBarcode]);
 
   const onSubmit = (values: FormValues) => {
     const name = values.name.trim();
-    if (!name || !item) return;
+    if (!name) return;
 
     const priceParsed = values.price.trim() ? parseFloat(values.price.trim()) : null;
     const defaultPrice = priceParsed != null && !isNaN(priceParsed) ? priceParsed : null;
+    const barcode = values.barcode.trim() || null;
 
-    updateMutation.mutate(
-      { name, defaultPrice },
-      {
-        onSuccess: () => {
-          hapticSuccess();
-          onClose();
-        },
-        onError: () => hapticError(),
-      },
-    );
+    const onSaveSuccess = () => {
+      hapticSuccess();
+      onClose();
+    };
+
+    if (isNewFromScan) {
+      createMutation.mutate(
+        { name, defaultPrice, barcode },
+        { onSuccess: onSaveSuccess, onError: () => hapticError() },
+      );
+    } else if (item) {
+      updateMutation.mutate(
+        { name, defaultPrice, barcode },
+        { onSuccess: onSaveSuccess, onError: () => hapticError() },
+      );
+    }
   };
 
-  if (!item) return null;
+  if (!item && !prefillBarcode) return null;
 
   return (
     <Modal
@@ -129,9 +145,28 @@ export function CatalogItemFormSheet({
             />
           </View>
 
-          {updateMutation.isError ? (
+          <View style={styles.field}>
+            <Text style={styles.label}>{t('suppliers.catalog.itemBarcodeLabel')}</Text>
+            <Controller
+              control={control}
+              name="barcode"
+              render={({ field: { value, onChange, onBlur } }) => (
+                <TextInput
+                  style={styles.input}
+                  value={value}
+                  onChangeText={onChange}
+                  onBlur={onBlur}
+                  keyboardType="number-pad"
+                  placeholder={t('suppliers.catalog.itemBarcodePlaceholder')}
+                  placeholderTextColor={theme.colors.textSecondary}
+                />
+              )}
+            />
+          </View>
+
+          {mutation.isError ? (
             <View style={styles.errorBanner}>
-              <Text style={styles.errorBannerText}>{updateMutation.error.message}</Text>
+              <Text style={styles.errorBannerText}>{mutation.error.message}</Text>
             </View>
           ) : null}
 
@@ -145,21 +180,23 @@ export function CatalogItemFormSheet({
             <Button
               label={t('suppliers.catalog.saveItemButton')}
               onPress={handleSubmit(onSubmit)}
-              loading={updateMutation.isPending}
+              loading={mutation.isPending}
               style={styles.flexButton}
             />
           </View>
 
-          <Button
-            label={t('suppliers.deleteAction')}
-            variant="outline"
-            onPress={() => {
-              onRequestDelete(item);
-              onClose();
-            }}
-            loading={deleteMutation.isPending}
-            style={styles.deleteButton}
-          />
+          {item ? (
+            <Button
+              label={t('suppliers.deleteAction')}
+              variant="outline"
+              onPress={() => {
+                onRequestDelete(item);
+                onClose();
+              }}
+              loading={deleteMutation.isPending}
+              style={styles.deleteButton}
+            />
+          ) : null}
         </ScrollView>
       </SafeAreaView>
     </Modal>

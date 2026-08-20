@@ -240,7 +240,9 @@
       "shareOrder": "შეკვეთის გაზიარება",
       "historyTitle": "შეკვეთების ისტორია",
       "historyEmpty": "შეკვეთები ჯერ არ ყოფილა",
-      "quickAddHint": "მაგ. Domestos 1000ml"
+      "quickAddHint": "მაგ. Domestos 1000ml",
+      "itemBarcodeLabel": "შტრიხკოდი",
+      "itemBarcodePlaceholder": "არასავალდებულო — დაასკანერეთ ან შეიყვანეთ"
     }
   },
   "returns": {

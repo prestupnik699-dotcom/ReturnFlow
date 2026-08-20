@@ -241,7 +241,9 @@
       "shareOrder": "Share order",
       "historyTitle": "Order history",
       "historyEmpty": "No orders placed yet",
-      "quickAddHint": "e.g. Domestos 1000ml"
+      "quickAddHint": "e.g. Domestos 1000ml",
+      "itemBarcodeLabel": "Barcode",
+      "itemBarcodePlaceholder": "Optional — scan or type"
     }
   },
   "returns": {
