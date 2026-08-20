@@ -235,11 +235,12 @@
       "saveItemButton": "შენახვა",
       "deleteConfirmTitle": "წავშალოთ პროდუქტი?",
       "deleteConfirmMessage": "ის წაიშლება კატალოგიდან.",
-      "quickAddPlaceholder": "პროდუქტის დასახელება (მაგ. Domestos 1000ml)",
+      "quickAddPlaceholder": "პროდუქტის დასახელება",
       "orderCount": "{{count}} პროდუქტი არჩეულია",
       "shareOrder": "შეკვეთის გაზიარება",
       "historyTitle": "შეკვეთების ისტორია",
-      "historyEmpty": "შეკვეთები ჯერ არ ყოფილა"
+      "historyEmpty": "შეკვეთები ჯერ არ ყოფილა",
+      "quickAddHint": "მაგ. Domestos 1000ml"
     }
   },
   "returns": {

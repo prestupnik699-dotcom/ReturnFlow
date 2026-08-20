@@ -235,12 +235,13 @@
       "saveItemButton": "Сохранить",
       "deleteConfirmTitle": "Удалить товар?",
       "deleteConfirmMessage": "Он будет удалён из каталога.",
-      "quickAddPlaceholder": "Название товара (напр. Domestos 1000ml)",
+      "quickAddPlaceholder": "Название товара",
       "orderCount": "{{count}} товар выбран",
       "orderCount_other": "{{count}} товаров выбрано",
       "shareOrder": "Отправить заказ",
       "historyTitle": "История заказов",
-      "historyEmpty": "Заказов пока не было"
+      "historyEmpty": "Заказов пока не было",
+      "quickAddHint": "например, Domestos 1000ml"
     }
   },
   "returns": {

@@ -235,12 +235,13 @@
       "saveItemButton": "Save",
       "deleteConfirmTitle": "Delete this item?",
       "deleteConfirmMessage": "This will remove it from the catalog.",
-      "quickAddPlaceholder": "Item name (e.g. Domestos 1000ml)",
+      "quickAddPlaceholder": "Item name",
       "orderCount": "{{count}} item selected",
       "orderCount_other": "{{count}} items selected",
       "shareOrder": "Share order",
       "historyTitle": "Order history",
-      "historyEmpty": "No orders placed yet"
+      "historyEmpty": "No orders placed yet",
+      "quickAddHint": "e.g. Domestos 1000ml"
     }
   },
   "returns": {

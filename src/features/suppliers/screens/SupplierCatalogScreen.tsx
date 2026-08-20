@@ -18,6 +18,7 @@ import { Card } from '@/components/Card';
 import { Button } from '@/components/Button';
 import { EmptyState } from '@/components/EmptyState';
 import { ConfirmDialog } from '@/components/ConfirmDialog';
+import { useTabBarClearance } from '@/hooks/useTabBarClearance';
 import { useSupplier } from '@/features/suppliers/hooks/useSupplier';
 import { useSupplierCatalog } from '@/features/suppliers/hooks/useSupplierCatalog';
 import {
@@ -35,6 +36,7 @@ type Props = { supplierId: string };
 export function SupplierCatalogScreen({ supplierId }: Props) {
   const theme = useTheme();
   const { t } = useTranslation();
+  const tabBarClearance = useTabBarClearance();
   const { data: supplier } = useSupplier(supplierId);
   const { data: catalog, isLoading, isError } = useSupplierCatalog(supplierId);
   const createMutation = useCreateCatalogItem(supplierId);
@@ -140,28 +142,31 @@ export function SupplierCatalogScreen({ supplierId }: Props) {
           onRightPress={() => setHistoryVisible(true)}
         />
 
-        <View style={styles.quickAddRow}>
-          <TextInput
-            style={[styles.quickInput, styles.quickName]}
-            placeholder={t('suppliers.catalog.quickAddPlaceholder')}
-            placeholderTextColor={theme.colors.textSecondary}
-            value={quickName}
-            onChangeText={setQuickName}
-            onSubmitEditing={handleQuickAdd}
-          />
-          <TextInput
-            style={[styles.quickInput, styles.quickQty]}
-            value={quickQty}
-            onChangeText={setQuickQty}
-            keyboardType="number-pad"
-          />
-          <Pressable
-            style={styles.quickAddButton}
-            onPress={handleQuickAdd}
-            disabled={createMutation.isPending}
-          >
-            <Feather name="plus" size={22} color={theme.colors.onPrimary} />
-          </Pressable>
+        <View style={styles.quickAddWrap}>
+          <View style={styles.quickAddRow}>
+            <TextInput
+              style={[styles.quickInput, styles.quickName]}
+              placeholder={t('suppliers.catalog.quickAddPlaceholder')}
+              placeholderTextColor={theme.colors.textSecondary}
+              value={quickName}
+              onChangeText={setQuickName}
+              onSubmitEditing={handleQuickAdd}
+            />
+            <TextInput
+              style={[styles.quickInput, styles.quickQty]}
+              value={quickQty}
+              onChangeText={setQuickQty}
+              keyboardType="number-pad"
+            />
+            <Pressable
+              style={styles.quickAddButton}
+              onPress={handleQuickAdd}
+              disabled={createMutation.isPending}
+            >
+              <Feather name="plus" size={22} color={theme.colors.onPrimary} />
+            </Pressable>
+          </View>
+          <Text style={styles.quickAddHint}>{t('suppliers.catalog.quickAddHint')}</Text>
         </View>
 
         {isError ? (
@@ -227,7 +232,7 @@ export function SupplierCatalogScreen({ supplierId }: Props) {
         )}
 
         {hasSelection ? (
-          <View style={styles.orderBar}>
+          <View style={[styles.orderBar, { bottom: tabBarClearance }]}>
             <View style={styles.orderBarInfo}>
               <Text style={styles.orderBarCount}>
                 {t('suppliers.catalog.orderCount', { count: totalItems })}
@@ -342,11 +347,16 @@ function createStyles(theme: ReturnType<typeof useTheme>) {
     container: { flex: 1 },
     center: { flex: 1, justifyContent: 'center', alignItems: 'center' },
     errorText: { color: theme.colors.danger, textAlign: 'center' },
+    quickAddWrap: { marginBottom: theme.spacing.md, gap: 4 },
     quickAddRow: {
       flexDirection: 'row',
       gap: theme.spacing.xs,
       alignItems: 'center',
-      marginBottom: theme.spacing.md,
+    },
+    quickAddHint: {
+      fontSize: theme.fontSizes.xs,
+      color: theme.colors.textSecondary,
+      marginLeft: theme.spacing.xs,
     },
     quickInput: {
       borderWidth: 1,
@@ -402,16 +412,20 @@ function createStyles(theme: ReturnType<typeof useTheme>) {
     },
     orderBar: {
       position: 'absolute',
-      left: 0,
-      right: 0,
-      bottom: 0,
+      left: theme.spacing.lg,
+      right: theme.spacing.lg,
       flexDirection: 'row',
       alignItems: 'center',
       gap: theme.spacing.md,
       backgroundColor: theme.colors.card,
-      borderTopWidth: StyleSheet.hairlineWidth,
-      borderTopColor: theme.colors.border,
-      padding: theme.spacing.lg,
+      borderRadius: theme.radius.full,
+      padding: theme.spacing.md,
+      paddingLeft: theme.spacing.lg,
+      shadowColor: '#000',
+      shadowOffset: { width: 0, height: 4 },
+      shadowOpacity: 0.15,
+      shadowRadius: 12,
+      elevation: 6,
     },
     orderBarInfo: { flex: 1 },
     orderBarCount: {
