@@ -1,13 +1,5 @@
 import { useState } from 'react';
-import {
-  View,
-  FlatList,
-  Pressable,
-  StyleSheet,
-  ActivityIndicator,
-  TextInput,
-  Share,
-} from 'react-native';
+import { View, FlatList, Pressable, StyleSheet, ActivityIndicator, TextInput } from 'react-native';
 import { Text } from '@/components/AppText';
 import { useTranslation } from 'react-i18next';
 import { Feather } from '@expo/vector-icons';
@@ -15,72 +7,45 @@ import { useTheme } from '@/theme/ThemeProvider';
 import { Screen } from '@/components/Screen';
 import { ScreenHeader } from '@/components/ScreenHeader';
 import { Card } from '@/components/Card';
-import { Button } from '@/components/Button';
 import { EmptyState } from '@/components/EmptyState';
 import { ConfirmDialog } from '@/components/ConfirmDialog';
-import { useTabBarClearance } from '@/hooks/useTabBarClearance';
 import { useSupplier } from '@/features/suppliers/hooks/useSupplier';
 import { useSupplierCatalog } from '@/features/suppliers/hooks/useSupplierCatalog';
 import {
   useCreateCatalogItem,
   useDeleteCatalogItem,
-  usePlaceCatalogOrder,
 } from '@/features/suppliers/hooks/useCatalogMutations';
 import { useCatalogOrderHistory } from '@/features/suppliers/hooks/useCatalogOrderHistory';
 import { CatalogItemFormSheet } from '@/features/suppliers/components/CatalogItemFormSheet';
-import { hapticSuccess, hapticSelection, hapticImpactLight } from '@/lib/haptics';
+import { hapticImpactLight } from '@/lib/haptics';
 import type { CatalogItem } from '@/features/suppliers/services/catalog.service';
 
 type Props = { supplierId: string };
 
+// Pure catalog management: this screen is only for building up "what this
+// supplier can bring" ahead of time — no quantities, no order building, no
+// sharing. That happens on the separate cross-supplier order screen, which
+// reads from this same catalog to let the person pick quantities quickly
+// instead of retyping names every time.
 export function SupplierCatalogScreen({ supplierId }: Props) {
   const theme = useTheme();
   const { t } = useTranslation();
-  const tabBarClearance = useTabBarClearance();
   const { data: supplier } = useSupplier(supplierId);
   const { data: catalog, isLoading, isError } = useSupplierCatalog(supplierId);
   const createMutation = useCreateCatalogItem(supplierId);
   const deleteMutation = useDeleteCatalogItem(supplierId);
-  const placeOrderMutation = usePlaceCatalogOrder(supplierId);
-  const [quantities, setQuantities] = useState<Record<string, number>>({});
   const [quickName, setQuickName] = useState('');
-  const [quickQty, setQuickQty] = useState('1');
   const [editingItem, setEditingItem] = useState<CatalogItem | null>(null);
   const [formVisible, setFormVisible] = useState(false);
   const [pendingDelete, setPendingDelete] = useState<CatalogItem | null>(null);
   const [historyVisible, setHistoryVisible] = useState(false);
   const styles = createStyles(theme);
 
-  const selectedLines = Object.entries(quantities).filter(([, qty]) => qty > 0);
-  const totalItems = selectedLines.reduce((sum, [, qty]) => sum + qty, 0);
-  const hasSelection = selectedLines.length > 0;
-
-  const setQuantity = (itemId: string, quantity: number) => {
-    setQuantities((prev) => ({ ...prev, [itemId]: Math.max(0, quantity) }));
-  };
-
-  // The core idea: typing a name + quantity here does both things at once —
-  // adds it to the persistent per-supplier catalog AND puts it straight
-  // into the order being built. There is no separate "fill the catalog
-  // first, place an order later" step; every order naturally grows the
-  // catalog for next time, matching how the person already writes orders
-  // by hand (name + quantity, one line at a time).
   const handleQuickAdd = () => {
     const name = quickName.trim();
     if (!name) return;
 
-    const quantity = Math.max(1, parseInt(quickQty, 10) || 1);
-
-    createMutation.mutate(
-      { name, defaultPrice: null },
-      {
-        onSuccess: (newItem) => {
-          if (newItem) setQuantity(newItem.id, quantity);
-          setQuickName('');
-          setQuickQty('1');
-        },
-      },
-    );
+    createMutation.mutate({ name, defaultPrice: null }, { onSuccess: () => setQuickName('') });
   };
 
   const openEdit = (item: CatalogItem) => {
@@ -92,35 +57,6 @@ export function SupplierCatalogScreen({ supplierId }: Props) {
   const confirmDelete = () => {
     if (!pendingDelete) return;
     deleteMutation.mutate(pendingDelete.id, { onSuccess: () => setPendingDelete(null) });
-  };
-
-  // Builds the order in the same shape the person already writes by hand
-  // ("1. Domestos 1000ml — 2 pcs"), records it for history, then hands
-  // off to the system share sheet so it goes straight to the supplier
-  // over WhatsApp/Telegram/email without any copy-pasting.
-  const handleShareOrder = () => {
-    const lines = selectedLines.map(([itemId, quantity]) => {
-      const item = catalog?.find((c) => c.id === itemId);
-      return { catalogItemId: itemId, title: item?.name ?? '', quantity };
-    });
-
-    const shareText = lines
-      .map((line, index) => `${index + 1}. ${line.title} — ${line.quantity} pcs`)
-      .join('\n');
-
-    placeOrderMutation.mutate(lines, {
-      onSuccess: async () => {
-        hapticSuccess();
-        setQuantities({});
-        try {
-          await Share.share({ message: shareText });
-        } catch {
-          // Sharing is a courtesy step after the order is already saved —
-          // if the share sheet fails or is dismissed, the order still
-          // exists in history, so there's nothing to recover from.
-        }
-      },
-    });
   };
 
   if (isLoading) {
@@ -145,18 +81,12 @@ export function SupplierCatalogScreen({ supplierId }: Props) {
         <View style={styles.quickAddWrap}>
           <View style={styles.quickAddRow}>
             <TextInput
-              style={[styles.quickInput, styles.quickName]}
+              style={styles.quickInput}
               placeholder={t('suppliers.catalog.quickAddPlaceholder')}
               placeholderTextColor={theme.colors.textSecondary}
               value={quickName}
               onChangeText={setQuickName}
               onSubmitEditing={handleQuickAdd}
-            />
-            <TextInput
-              style={[styles.quickInput, styles.quickQty]}
-              value={quickQty}
-              onChangeText={setQuickQty}
-              keyboardType="number-pad"
             />
             <Pressable
               style={styles.quickAddButton}
@@ -183,70 +113,27 @@ export function SupplierCatalogScreen({ supplierId }: Props) {
           <FlatList
             data={catalog}
             keyExtractor={(item) => item.id}
-            contentContainerStyle={[
-              styles.list,
-              { paddingBottom: hasSelection ? 140 : theme.spacing.xl },
-            ]}
+            contentContainerStyle={styles.list}
             showsVerticalScrollIndicator={false}
-            renderItem={({ item }) => {
-              const quantity = quantities[item.id] ?? 0;
-              return (
+            renderItem={({ item }) => (
+              <Pressable onPress={() => openEdit(item)}>
                 <Card>
                   <View style={styles.row}>
-                    <Pressable style={styles.info} onPress={() => openEdit(item)}>
+                    <View style={styles.info}>
                       <Text style={styles.itemName} numberOfLines={1}>
                         {item.name}
                       </Text>
                       {item.defaultPrice != null ? (
                         <Text style={styles.itemPrice}>{item.defaultPrice}</Text>
                       ) : null}
-                    </Pressable>
-                    <View style={styles.stepper}>
-                      <Pressable
-                        style={styles.stepperButton}
-                        onPress={() => {
-                          hapticSelection();
-                          setQuantity(item.id, quantity - 1);
-                        }}
-                        hitSlop={8}
-                      >
-                        <Feather name="minus" size={16} color={theme.colors.primary} />
-                      </Pressable>
-                      <Text style={styles.stepperValue}>{quantity}</Text>
-                      <Pressable
-                        style={styles.stepperButton}
-                        onPress={() => {
-                          hapticSelection();
-                          setQuantity(item.id, quantity + 1);
-                        }}
-                        hitSlop={8}
-                      >
-                        <Feather name="plus" size={16} color={theme.colors.primary} />
-                      </Pressable>
                     </View>
+                    <Feather name="chevron-right" size={18} color={theme.colors.textSecondary} />
                   </View>
                 </Card>
-              );
-            }}
+              </Pressable>
+            )}
           />
         )}
-
-        {hasSelection ? (
-          <View style={[styles.orderBar, { bottom: tabBarClearance }]}>
-            <View style={styles.orderBarInfo}>
-              <Text style={styles.orderBarCount}>
-                {t('suppliers.catalog.orderCount', { count: totalItems })}
-              </Text>
-            </View>
-            <Button
-              label={t('suppliers.catalog.shareOrder')}
-              icon="share-2"
-              onPress={handleShareOrder}
-              loading={placeOrderMutation.isPending}
-              style={styles.orderBarButton}
-            />
-          </View>
-        ) : null}
       </View>
 
       <CatalogItemFormSheet
@@ -348,17 +235,9 @@ function createStyles(theme: ReturnType<typeof useTheme>) {
     center: { flex: 1, justifyContent: 'center', alignItems: 'center' },
     errorText: { color: theme.colors.danger, textAlign: 'center' },
     quickAddWrap: { marginBottom: theme.spacing.md, gap: 4 },
-    quickAddRow: {
-      flexDirection: 'row',
-      gap: theme.spacing.xs,
-      alignItems: 'center',
-    },
-    quickAddHint: {
-      fontSize: theme.fontSizes.xs,
-      color: theme.colors.textSecondary,
-      marginLeft: theme.spacing.xs,
-    },
+    quickAddRow: { flexDirection: 'row', gap: theme.spacing.xs, alignItems: 'center' },
     quickInput: {
+      flex: 1,
       borderWidth: 1,
       borderColor: theme.colors.border,
       backgroundColor: theme.colors.surface,
@@ -368,8 +247,6 @@ function createStyles(theme: ReturnType<typeof useTheme>) {
       fontSize: theme.fontSizes.sm,
       color: theme.colors.textPrimary,
     },
-    quickName: { flex: 1 },
-    quickQty: { width: 52, textAlign: 'center' },
     quickAddButton: {
       width: 40,
       height: 40,
@@ -378,8 +255,13 @@ function createStyles(theme: ReturnType<typeof useTheme>) {
       alignItems: 'center',
       justifyContent: 'center',
     },
+    quickAddHint: {
+      fontSize: theme.fontSizes.xs,
+      color: theme.colors.textSecondary,
+      marginLeft: theme.spacing.xs,
+    },
     emptyWrap: { flex: 1, alignItems: 'center', justifyContent: 'center' },
-    list: { gap: theme.spacing.sm },
+    list: { gap: theme.spacing.sm, paddingBottom: theme.spacing.xl },
     row: {
       flexDirection: 'row',
       alignItems: 'center',
@@ -393,47 +275,6 @@ function createStyles(theme: ReturnType<typeof useTheme>) {
       color: theme.colors.textPrimary,
     },
     itemPrice: { fontSize: theme.fontSizes.sm, color: theme.colors.textSecondary },
-    stepper: {
-      flexDirection: 'row',
-      alignItems: 'center',
-      gap: theme.spacing.sm,
-      backgroundColor: theme.colors.surfaceVariant,
-      borderRadius: theme.radius.full,
-      paddingHorizontal: theme.spacing.sm,
-      paddingVertical: 4,
-    },
-    stepperButton: { padding: 4 },
-    stepperValue: {
-      minWidth: 24,
-      textAlign: 'center',
-      fontSize: theme.fontSizes.md,
-      fontWeight: theme.fontWeights.semiBold,
-      color: theme.colors.textPrimary,
-    },
-    orderBar: {
-      position: 'absolute',
-      left: theme.spacing.lg,
-      right: theme.spacing.lg,
-      flexDirection: 'row',
-      alignItems: 'center',
-      gap: theme.spacing.md,
-      backgroundColor: theme.colors.card,
-      borderRadius: theme.radius.full,
-      padding: theme.spacing.md,
-      paddingLeft: theme.spacing.lg,
-      shadowColor: '#000',
-      shadowOffset: { width: 0, height: 4 },
-      shadowOpacity: 0.15,
-      shadowRadius: 12,
-      elevation: 6,
-    },
-    orderBarInfo: { flex: 1 },
-    orderBarCount: {
-      fontSize: theme.fontSizes.md,
-      fontWeight: theme.fontWeights.semiBold,
-      color: theme.colors.textPrimary,
-    },
-    orderBarButton: { flex: 1.4 },
   });
 }
 
