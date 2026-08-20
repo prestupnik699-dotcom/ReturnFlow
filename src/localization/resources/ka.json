@@ -462,7 +462,9 @@
     "noStoreMessage": "აირჩიეთ მაღაზია „მაღაზიები“-ში",
     "noStoreButton": "მაღაზიებზე გადასვლა",
     "actionReminders": "შენიშვნები",
-    "actionOrder": "შეკვეთა"
+    "actionOrder": "შეკვეთა",
+    "attentionOrderDraft": "{{count}} პროდუქტი მზადაა გასაგზავნად {{suppliers}} მომწოდებელთან",
+    "overviewOrdersWeek": "შეკვეთები ამ კვირაში"
   },
   "deliveries": {
     "title": "მიწოდებები",

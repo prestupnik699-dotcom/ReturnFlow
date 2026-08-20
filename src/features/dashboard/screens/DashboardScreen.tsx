@@ -37,6 +37,8 @@ import { useMembershipStore } from '@/stores/membership.store';
 import { useReturns } from '@/features/returns/hooks/useReturns';
 import { usePendingSyncCount } from '@/features/statistics/hooks/usePendingSyncCount';
 import { useUnreadCount } from '@/features/notifications/hooks/useUnreadCount';
+import { useWeeklyOrderCount } from '@/features/orders/hooks/useWeeklyOrderCount';
+import { useOrderDraftStore } from '@/stores/orderDraft.store';
 import { ReturnFormSheet } from '@/features/returns/screens/ReturnFormSheet';
 import type { ReturnItem } from '@/features/returns/services/returns.service';
 
@@ -119,6 +121,15 @@ export function DashboardScreen() {
   const today = new Date();
   const totalCount = allReturns?.length ?? 0;
   const todayCount = allReturns?.filter((r) => isSameDay(new Date(r.createdAt), today)).length ?? 0;
+  const { data: weeklyOrderSummary } = useWeeklyOrderCount();
+  const orderDrafts = useOrderDraftStore((state) => state.drafts);
+  const draftItemCount = Object.values(orderDrafts).reduce(
+    (sum, items) => sum + Object.values(items).filter((qty) => qty > 0).length,
+    0,
+  );
+  const draftSupplierCount = Object.values(orderDrafts).filter((items) =>
+    Object.values(items).some((qty) => qty > 0),
+  ).length;
   const urgentCount = allReturns?.filter((r) => r.status === 'urgent').length ?? 0;
   const recentReturns = (allReturns ?? []).slice(0, 5);
 
@@ -257,6 +268,14 @@ export function DashboardScreen() {
                 <AnimatedNumber value={todayCount} style={styles.bentoSideValue} />
                 <Text style={styles.bentoSideLabel}>{t('dashboard.overviewToday')}</Text>
               </View>
+              <View style={styles.bentoSide}>
+                <Feather name="shopping-bag" size={18} color={theme.colors.accent} />
+                <AnimatedNumber
+                  value={weeklyOrderSummary?.orderCount ?? 0}
+                  style={styles.bentoSideValue}
+                />
+                <Text style={styles.bentoSideLabel}>{t('dashboard.overviewOrdersWeek')}</Text>
+              </View>
             </View>
 
             <ScrollView
@@ -275,6 +294,7 @@ export function DashboardScreen() {
                 label={t('dashboard.actionOrder')}
                 onPress={() => router.push('/order')}
                 theme={theme}
+                badge={draftItemCount}
               />
               <QuickAction
                 icon="maximize"
@@ -296,9 +316,24 @@ export function DashboardScreen() {
               />
             </ScrollView>
 
-            {urgentCount > 0 || todayCount > 0 || (pendingSyncCount ?? 0) > 0 ? (
+            {urgentCount > 0 ||
+            todayCount > 0 ||
+            (pendingSyncCount ?? 0) > 0 ||
+            draftItemCount > 0 ? (
               <View style={styles.section}>
                 <Text style={styles.sectionTitle}>{t('dashboard.attentionTitle')}</Text>
+                {draftItemCount > 0 ? (
+                  <AttentionCard
+                    icon="shopping-bag"
+                    color={theme.colors.primary}
+                    text={t('dashboard.attentionOrderDraft', {
+                      count: draftItemCount,
+                      suppliers: draftSupplierCount,
+                    })}
+                    onPress={() => router.push('/order')}
+                    theme={theme}
+                  />
+                ) : null}
                 {urgentCount > 0 ? (
                   <AttentionCard
                     icon="alert-circle"
@@ -384,17 +419,24 @@ function QuickAction({
   label,
   onPress,
   theme,
+  badge,
 }: {
   icon: keyof typeof Feather.glyphMap;
   label: string;
   onPress: () => void;
   theme: Theme;
+  badge?: number;
 }) {
   const styles = createQuickActionStyles(theme);
   return (
     <Pressable style={styles.tile} onPress={onPress}>
       <View style={styles.tileIconWrap}>
         <Feather name={icon} size={22} color={theme.colors.primary} />
+        {badge ? (
+          <View style={styles.tileBadge}>
+            <Text style={styles.tileBadgeText}>{badge > 9 ? '9+' : badge}</Text>
+          </View>
+        ) : null}
       </View>
       <Text style={styles.tileLabel} numberOfLines={2}>
         {label}
@@ -423,6 +465,25 @@ function createQuickActionStyles(theme: Theme) {
       backgroundColor: theme.colors.primary + '15',
       alignItems: 'center',
       justifyContent: 'center',
+    },
+    tileBadge: {
+      position: 'absolute',
+      top: -2,
+      right: -2,
+      minWidth: 18,
+      height: 18,
+      borderRadius: 9,
+      paddingHorizontal: 4,
+      backgroundColor: theme.colors.danger,
+      alignItems: 'center',
+      justifyContent: 'center',
+      borderWidth: 1.5,
+      borderColor: theme.colors.background,
+    },
+    tileBadgeText: {
+      fontSize: 10,
+      fontWeight: theme.fontWeights.bold,
+      color: '#fff',
     },
     tileLabel: {
       // Fixed to exactly two lines' worth of height, regardless of

@@ -463,7 +463,10 @@
     "noStoreMessage": "Select a store in Stores",
     "noStoreButton": "Go to stores",
     "actionReminders": "Reminders",
-    "actionOrder": "Order"
+    "actionOrder": "Order",
+    "attentionOrderDraft": "{{count}} item ready to send to {{suppliers}} supplier",
+    "attentionOrderDraft_other": "{{count}} items ready to send to {{suppliers}} suppliers",
+    "overviewOrdersWeek": "Orders this week"
   },
   "deliveries": {
     "title": "Deliveries",

@@ -463,7 +463,10 @@
     "noStoreMessage": "Выберите магазин в разделе «Магазины»",
     "noStoreButton": "Перейти к магазинам",
     "actionReminders": "Заметки",
-    "actionOrder": "Заказ"
+    "actionOrder": "Заказ",
+    "attentionOrderDraft": "{{count}} товар готов к отправке у {{suppliers}} поставщика",
+    "attentionOrderDraft_other": "{{count}} товаров готово к отправке у {{suppliers}} поставщиков",
+    "overviewOrdersWeek": "Заказов за неделю"
   },
   "deliveries": {
     "title": "Приёмки",
