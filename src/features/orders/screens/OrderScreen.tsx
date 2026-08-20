@@ -7,7 +7,6 @@ import { useTheme } from '@/theme/ThemeProvider';
 import { Screen } from '@/components/Screen';
 import { ScreenHeader } from '@/components/ScreenHeader';
 import { Card } from '@/components/Card';
-import { Button } from '@/components/Button';
 import { EmptyState } from '@/components/EmptyState';
 import { Chip } from '@/components/Chip';
 import { useTabBarClearance } from '@/hooks/useTabBarClearance';
@@ -55,6 +54,7 @@ export function OrderScreen() {
               horizontal
               showsHorizontalScrollIndicator={false}
               contentContainerStyle={styles.supplierRow}
+              style={styles.supplierScroll}
             >
               {suppliers.map((supplier) => (
                 <View key={supplier.id} style={styles.chipWrap}>
@@ -73,31 +73,39 @@ export function OrderScreen() {
               ))}
             </ScrollView>
 
-            {activeSupplier ? (
-              <SupplierCatalogPicker
-                supplierId={activeSupplier.id}
-                quantities={drafts[activeSupplier.id] ?? {}}
-                onSetQuantity={(itemId, qty) => setQuantity(activeSupplier.id, itemId, qty)}
-                theme={theme}
-                t={t}
-              />
-            ) : (
-              <View style={styles.hintWrap}>
-                <Text style={styles.hintText}>{t('orders.pickSupplierHint')}</Text>
-              </View>
-            )}
+            <View style={styles.catalogArea}>
+              {activeSupplier ? (
+                <SupplierCatalogPicker
+                  supplierId={activeSupplier.id}
+                  quantities={drafts[activeSupplier.id] ?? {}}
+                  onSetQuantity={(itemId, qty) => setQuantity(activeSupplier.id, itemId, qty)}
+                  theme={theme}
+                  t={t}
+                />
+              ) : (
+                <View style={styles.hintWrap}>
+                  <Text style={styles.hintText}>{t('orders.pickSupplierHint')}</Text>
+                </View>
+              )}
+            </View>
 
             {pendingSupplierIds.length > 0 ? (
-              <View style={[styles.pendingSection, { bottom: tabBarClearance }]}>
-                <Text style={styles.pendingTitle}>{t('orders.readyToSend')}</Text>
-                <FlatList
-                  data={suppliers.filter((s) => pendingSupplierIds.includes(s.id))}
-                  keyExtractor={(s) => s.id}
-                  contentContainerStyle={styles.pendingList}
-                  renderItem={({ item: supplier }) => (
-                    <PendingOrderRow supplierId={supplier.id} supplierName={supplier.name} />
-                  )}
-                />
+              <View style={[styles.pendingBar, { marginBottom: tabBarClearance }]}>
+                <ScrollView
+                  horizontal
+                  showsHorizontalScrollIndicator={false}
+                  contentContainerStyle={styles.pendingScrollContent}
+                >
+                  {suppliers
+                    .filter((s) => pendingSupplierIds.includes(s.id))
+                    .map((supplier) => (
+                      <PendingPill
+                        key={supplier.id}
+                        supplierId={supplier.id}
+                        supplierName={supplier.name}
+                      />
+                    ))}
+                </ScrollView>
               </View>
             ) : null}
           </>
@@ -137,6 +145,7 @@ function SupplierCatalogPicker({
     <FlatList
       data={catalog}
       keyExtractor={(item) => item.id}
+      style={styles.flatList}
       contentContainerStyle={styles.list}
       showsVerticalScrollIndicator={false}
       renderItem={({ item }) => {
@@ -180,6 +189,7 @@ function SupplierCatalogPicker({
 
 function createPickerStyles(theme: ReturnType<typeof useTheme>) {
   return StyleSheet.create({
+    flatList: { flex: 1 },
     list: { gap: theme.spacing.sm, paddingVertical: theme.spacing.md },
     row: {
       flexDirection: 'row',
@@ -216,15 +226,12 @@ function createPickerStyles(theme: ReturnType<typeof useTheme>) {
   });
 }
 
-function PendingOrderRow({
-  supplierId,
-  supplierName,
-}: {
-  supplierId: string;
-  supplierName: string;
-}) {
+// A compact pill instead of a full-width card — supplier name, item
+// count, and a tap-to-share icon all in one small row, laid out
+// horizontally so several pending suppliers fit without eating vertical
+// space or ever overlapping the catalog list above.
+function PendingPill({ supplierId, supplierName }: { supplierId: string; supplierName: string }) {
   const theme = useTheme();
-  const { t } = useTranslation();
   const { data: catalog } = useSupplierCatalog(supplierId);
   const draft = useOrderDraftStore((state) => state.drafts[supplierId] ?? {});
   const clearSupplier = useOrderDraftStore((state) => state.clearSupplier);
@@ -258,40 +265,48 @@ function PendingOrderRow({
   };
 
   return (
-    <Card>
-      <View style={styles.row}>
-        <View style={styles.info}>
-          <Text style={styles.supplierName} numberOfLines={1}>
-            {supplierName}
-          </Text>
-          <Text style={styles.itemCount}>{t('orders.itemCount', { count: lines.length })}</Text>
-        </View>
-        <Button
-          label={t('orders.send')}
-          icon="share-2"
-          onPress={handleSend}
-          loading={placeOrderMutation.isPending}
-        />
+    <Pressable style={styles.pill} onPress={handleSend} disabled={placeOrderMutation.isPending}>
+      <View style={styles.pillInfo}>
+        <Text style={styles.pillName} numberOfLines={1}>
+          {supplierName}
+        </Text>
+        <Text style={styles.pillCount}>{lines.length}</Text>
       </View>
-    </Card>
+      {placeOrderMutation.isPending ? (
+        <Feather name="loader" size={16} color={theme.colors.onPrimary} />
+      ) : (
+        <Feather name="share-2" size={16} color={theme.colors.onPrimary} />
+      )}
+    </Pressable>
   );
 }
 
 function createPendingStyles(theme: ReturnType<typeof useTheme>) {
   return StyleSheet.create({
-    row: {
+    pill: {
       flexDirection: 'row',
       alignItems: 'center',
-      gap: theme.spacing.md,
-      padding: theme.spacing.lg,
+      gap: theme.spacing.sm,
+      backgroundColor: theme.colors.primary,
+      borderRadius: theme.radius.full,
+      paddingLeft: theme.spacing.md,
+      paddingRight: theme.spacing.sm,
+      paddingVertical: theme.spacing.smPlus,
+      marginRight: theme.spacing.sm,
     },
-    info: { flex: 1, gap: 2 },
-    supplierName: {
-      fontSize: theme.fontSizes.md,
+    pillInfo: { flexDirection: 'row', alignItems: 'center', gap: 6 },
+    pillName: {
+      maxWidth: 110,
+      fontSize: theme.fontSizes.sm,
       fontWeight: theme.fontWeights.semiBold,
-      color: theme.colors.textPrimary,
+      color: theme.colors.onPrimary,
     },
-    itemCount: { fontSize: theme.fontSizes.sm, color: theme.colors.textSecondary },
+    pillCount: {
+      fontSize: theme.fontSizes.xs,
+      fontWeight: theme.fontWeights.bold,
+      color: theme.colors.onPrimary,
+      opacity: 0.85,
+    },
   });
 }
 
@@ -299,6 +314,7 @@ function createStyles(theme: ReturnType<typeof useTheme>) {
   return StyleSheet.create({
     container: { flex: 1 },
     emptyWrap: { flex: 1, alignItems: 'center', justifyContent: 'center' },
+    supplierScroll: { flexGrow: 0, flexShrink: 0 },
     supplierRow: { paddingBottom: theme.spacing.md },
     chipWrap: { marginRight: theme.spacing.sm },
     chipDot: {
@@ -312,20 +328,10 @@ function createStyles(theme: ReturnType<typeof useTheme>) {
       borderWidth: 1.5,
       borderColor: theme.colors.background,
     },
+    catalogArea: { flex: 1 },
     hintWrap: { flex: 1, alignItems: 'center', justifyContent: 'center' },
     hintText: { color: theme.colors.textSecondary, textAlign: 'center' },
-    pendingSection: {
-      position: 'absolute',
-      left: theme.spacing.lg,
-      right: theme.spacing.lg,
-      gap: theme.spacing.sm,
-    },
-    pendingTitle: {
-      fontSize: theme.fontSizes.sm,
-      fontWeight: theme.fontWeights.semiBold,
-      color: theme.colors.textSecondary,
-      marginLeft: theme.spacing.xs,
-    },
-    pendingList: { gap: theme.spacing.sm },
+    pendingBar: { paddingTop: theme.spacing.sm },
+    pendingScrollContent: { paddingRight: theme.spacing.md },
   });
 }
