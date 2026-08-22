@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { View, ScrollView, Pressable, FlatList, StyleSheet, Share, TextInput } from 'react-native';
+import { KeyboardAwareScrollView } from 'react-native-keyboard-controller';
 import { Text } from '@/components/AppText';
 import { useTranslation } from 'react-i18next';
 import { Feather } from '@expo/vector-icons';
@@ -157,18 +158,23 @@ export function OrderScreen() {
 
             {pendingSupplierIds.length > 0 ? (
               <View style={[styles.pendingBar, { marginBottom: tabBarClearance }]}>
-                {pendingSupplierIds.length > 1 ? (
-                  <Pressable
-                    style={styles.sendAllRow}
-                    onPress={handleSendAll}
-                    disabled={sendingAll}
-                  >
-                    <Text style={styles.sendAllText}>
-                      {sendingAll ? t('orders.sending') : t('orders.sendAll')}
-                    </Text>
-                    <Feather name="send" size={14} color={theme.colors.primary} />
-                  </Pressable>
-                ) : null}
+                <View style={styles.pendingHeaderRow}>
+                  <Text style={styles.pendingTitle}>
+                    {t('orders.readyToSend')} ({pendingSupplierIds.length})
+                  </Text>
+                  {pendingSupplierIds.length > 1 ? (
+                    <Pressable
+                      style={styles.sendAllButton}
+                      onPress={handleSendAll}
+                      disabled={sendingAll}
+                    >
+                      <Text style={styles.sendAllText}>
+                        {sendingAll ? t('orders.sending') : t('orders.sendAll')}
+                      </Text>
+                      <Feather name="send" size={13} color={theme.colors.primary} />
+                    </Pressable>
+                  ) : null}
+                </View>
                 <ScrollView
                   horizontal
                   showsHorizontalScrollIndicator={false}
@@ -490,71 +496,79 @@ function OrderReviewSheet({
         {lines.length === 0 ? (
           <Text style={styles.emptyText}>{t('orders.reviewEmpty')}</Text>
         ) : (
-          <FlatList
-            data={lines}
-            keyExtractor={(line) => line.catalogItemId}
-            contentContainerStyle={styles.list}
+          <KeyboardAwareScrollView
+            contentContainerStyle={styles.scrollContent}
+            keyboardShouldPersistTaps="handled"
             showsVerticalScrollIndicator={false}
-            renderItem={({ item: line }) => (
-              <Card>
-                <View style={styles.row}>
-                  <Text style={styles.itemName} numberOfLines={1}>
-                    {line.title}
-                  </Text>
-                  <View style={styles.stepper}>
+            bottomOffset={24}
+          >
+            <View style={styles.list}>
+              {lines.map((line) => (
+                <Card key={line.catalogItemId}>
+                  <View style={styles.row}>
+                    <Text style={styles.itemName} numberOfLines={1}>
+                      {line.title}
+                    </Text>
+                    <View style={styles.stepper}>
+                      <Pressable
+                        style={styles.stepperButton}
+                        onPress={() =>
+                          setQuantity(supplierId, line.catalogItemId, line.quantity - 1)
+                        }
+                        hitSlop={8}
+                      >
+                        <Feather name="minus" size={16} color={theme.colors.primary} />
+                      </Pressable>
+                      <Text style={styles.stepperValue}>{line.quantity}</Text>
+                      <Pressable
+                        style={styles.stepperButton}
+                        onPress={() =>
+                          setQuantity(supplierId, line.catalogItemId, line.quantity + 1)
+                        }
+                        hitSlop={8}
+                      >
+                        <Feather name="plus" size={16} color={theme.colors.primary} />
+                      </Pressable>
+                    </View>
                     <Pressable
-                      style={styles.stepperButton}
-                      onPress={() => setQuantity(supplierId, line.catalogItemId, line.quantity - 1)}
+                      onPress={() => removeItem(supplierId, line.catalogItemId)}
                       hitSlop={8}
                     >
-                      <Feather name="minus" size={16} color={theme.colors.primary} />
-                    </Pressable>
-                    <Text style={styles.stepperValue}>{line.quantity}</Text>
-                    <Pressable
-                      style={styles.stepperButton}
-                      onPress={() => setQuantity(supplierId, line.catalogItemId, line.quantity + 1)}
-                      hitSlop={8}
-                    >
-                      <Feather name="plus" size={16} color={theme.colors.primary} />
+                      <Feather name="x-circle" size={20} color={theme.colors.danger} />
                     </Pressable>
                   </View>
-                  <Pressable onPress={() => removeItem(supplierId, line.catalogItemId)} hitSlop={8}>
-                    <Feather name="x-circle" size={20} color={theme.colors.danger} />
-                  </Pressable>
-                </View>
-              </Card>
-            )}
-          />
+                </Card>
+              ))}
+            </View>
+
+            <TextInput
+              style={styles.noteInput}
+              placeholder={t('orders.notePlaceholder')}
+              placeholderTextColor={theme.colors.textSecondary}
+              value={note}
+              onChangeText={setNote}
+              multiline
+            />
+
+            {hasAnyPrice ? (
+              <View style={styles.totalRow}>
+                <Text style={styles.totalLabel}>
+                  {t('orders.orderTotal')}
+                  {hasMissingPrice ? ` ${t('orders.orderTotalPartial')}` : ''}
+                </Text>
+                <Text style={styles.totalValue}>{orderTotal.toLocaleString()}</Text>
+              </View>
+            ) : null}
+
+            <Button
+              label={t('orders.send')}
+              icon="share-2"
+              onPress={handleSend}
+              loading={placeOrderMutation.isPending}
+              disabled={lines.length === 0}
+            />
+          </KeyboardAwareScrollView>
         )}
-
-        {lines.length > 0 ? (
-          <TextInput
-            style={styles.noteInput}
-            placeholder={t('orders.notePlaceholder')}
-            placeholderTextColor={theme.colors.textSecondary}
-            value={note}
-            onChangeText={setNote}
-            multiline
-          />
-        ) : null}
-
-        {hasAnyPrice ? (
-          <View style={styles.totalRow}>
-            <Text style={styles.totalLabel}>
-              {t('orders.orderTotal')}
-              {hasMissingPrice ? ` ${t('orders.orderTotalPartial')}` : ''}
-            </Text>
-            <Text style={styles.totalValue}>{orderTotal.toLocaleString()}</Text>
-          </View>
-        ) : null}
-
-        <Button
-          label={t('orders.send')}
-          icon="share-2"
-          onPress={handleSend}
-          loading={placeOrderMutation.isPending}
-          disabled={lines.length === 0}
-        />
       </View>
     </View>
   );
@@ -570,8 +584,10 @@ function createReviewStyles(theme: ReturnType<typeof useTheme>) {
       borderTopLeftRadius: theme.radius.lg,
       borderTopRightRadius: theme.radius.lg,
       padding: theme.spacing.xl,
+      paddingBottom: theme.spacing.sm,
       gap: theme.spacing.md,
     },
+    scrollContent: { gap: theme.spacing.md, paddingBottom: theme.spacing.xl },
     sheetHeader: {
       flexDirection: 'row',
       alignItems: 'center',
@@ -661,16 +677,29 @@ function createStyles(theme: ReturnType<typeof useTheme>) {
     hintWrap: { flex: 1, alignItems: 'center', justifyContent: 'center' },
     hintText: { color: theme.colors.textSecondary, textAlign: 'center' },
     pendingBar: { paddingTop: theme.spacing.sm },
-    sendAllRow: {
+    pendingHeaderRow: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      justifyContent: 'space-between',
+      marginBottom: theme.spacing.xs,
+      paddingHorizontal: theme.spacing.xs,
+    },
+    pendingTitle: {
+      fontSize: theme.fontSizes.sm,
+      fontWeight: theme.fontWeights.semiBold,
+      color: theme.colors.textSecondary,
+    },
+    sendAllButton: {
       flexDirection: 'row',
       alignItems: 'center',
       gap: 6,
-      alignSelf: 'flex-end',
-      marginBottom: theme.spacing.xs,
-      marginRight: theme.spacing.xs,
+      backgroundColor: theme.colors.primary + '15',
+      borderRadius: theme.radius.full,
+      paddingHorizontal: theme.spacing.sm,
+      paddingVertical: 4,
     },
     sendAllText: {
-      fontSize: theme.fontSizes.sm,
+      fontSize: theme.fontSizes.xs,
       fontWeight: theme.fontWeights.semiBold,
       color: theme.colors.primary,
     },
