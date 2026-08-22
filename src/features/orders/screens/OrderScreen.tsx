@@ -181,7 +181,9 @@ export function OrderScreen() {
             </View>
 
             {pendingSupplierIds.length > 0 ? (
-              <View style={[styles.pendingBar, { marginBottom: tabBarClearance }]}>
+              <View
+                style={[styles.pendingBar, { marginBottom: tabBarClearance + theme.spacing.sm }]}
+              >
                 <Text style={styles.pendingTitle}>
                   {t('orders.readyToSend')} ({pendingSupplierIds.length})
                 </Text>
