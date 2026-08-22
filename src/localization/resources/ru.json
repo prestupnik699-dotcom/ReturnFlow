@@ -248,7 +248,8 @@
       "itemBarcodeLabel": "Штрихкод",
       "itemBarcodePlaceholder": "Необязательно",
       "reorderButton": "Повторить",
-      "pendingSync": "Ожидает синхронизации"
+      "pendingSync": "Ожидает синхронизации",
+      "itemAdded": "«{{name}}» добавлен"
     }
   },
   "returns": {

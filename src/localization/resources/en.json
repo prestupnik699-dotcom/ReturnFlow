@@ -248,7 +248,8 @@
       "itemBarcodeLabel": "Barcode",
       "itemBarcodePlaceholder": "Optional",
       "reorderButton": "Reorder",
-      "pendingSync": "Syncing..."
+      "pendingSync": "Syncing...",
+      "itemAdded": "\"{{name}}\" added"
     }
   },
   "returns": {

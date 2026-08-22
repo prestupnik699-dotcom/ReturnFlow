@@ -247,7 +247,8 @@
       "itemBarcodeLabel": "შტრიხკოდი",
       "itemBarcodePlaceholder": "არასავალდებულო",
       "reorderButton": "გამეორება",
-      "pendingSync": "სინქრონიზაცია..."
+      "pendingSync": "სინქრონიზაცია...",
+      "itemAdded": "„{{name}}\" დაემატა"
     }
   },
   "returns": {

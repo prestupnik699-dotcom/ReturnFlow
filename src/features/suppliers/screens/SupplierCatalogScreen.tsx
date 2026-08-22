@@ -24,7 +24,7 @@ import { useOrderDraftStore } from '@/stores/orderDraft.store';
 import { useLanguageStore } from '@/stores/language.store';
 import { useRouter } from 'expo-router';
 import { fetchCatalogItemByBarcode } from '@/features/suppliers/services/catalog.service';
-import { hapticImpactLight, hapticSuccess } from '@/lib/haptics';
+import { hapticImpactLight, hapticSuccess, hapticError } from '@/lib/haptics';
 import type { OrderHistoryEntry, CatalogItem } from '@/features/suppliers/services/catalog.service';
 
 type Props = { supplierId: string };
@@ -43,6 +43,7 @@ export function SupplierCatalogScreen({ supplierId }: Props) {
   const createMutation = useCreateCatalogItem(supplierId);
   const deleteMutation = useDeleteCatalogItem(supplierId);
   const [quickName, setQuickName] = useState('');
+  const [addedBanner, setAddedBanner] = useState<string | null>(null);
   const [searchQuery, setSearchQuery] = useState('');
   const [isListening, setIsListening] = useState(false);
   const appLanguage = useLanguageStore((state) => state.language);
@@ -92,7 +93,17 @@ export function SupplierCatalogScreen({ supplierId }: Props) {
     createMutation.mutate(
       { name, defaultPrice: null, barcode: null },
       {
-        onSuccess: () => setQuickName(''),
+        onSuccess: () => {
+          hapticSuccess();
+          setQuickName('');
+          // A banner rather than highlighting the new row in the list —
+          // the list is alphabetically sorted, so a newly added item can
+          // land anywhere, including off-screen below the fold, where an
+          // in-list highlight would never be seen.
+          setAddedBanner(name);
+          setTimeout(() => setAddedBanner((current) => (current === name ? null : current)), 1800);
+        },
+        onError: () => hapticError(),
       },
     );
   };
@@ -191,6 +202,15 @@ export function SupplierCatalogScreen({ supplierId }: Props) {
           </View>
           <Text style={styles.quickAddHint}>{t('suppliers.catalog.quickAddHint')}</Text>
         </View>
+
+        {addedBanner ? (
+          <View style={styles.addedBanner}>
+            <Feather name="check-circle" size={14} color={theme.colors.success} />
+            <Text style={styles.addedBannerText} numberOfLines={1}>
+              {t('suppliers.catalog.itemAdded', { name: addedBanner })}
+            </Text>
+          </View>
+        ) : null}
 
         {catalog && catalog.length > 0 ? (
           <View style={styles.searchRow}>
@@ -430,6 +450,22 @@ function createStyles(theme: ReturnType<typeof useTheme>) {
     center: { flex: 1, justifyContent: 'center', alignItems: 'center' },
     errorText: { color: theme.colors.danger, textAlign: 'center' },
     quickAddWrap: { marginBottom: theme.spacing.md, gap: 4 },
+    addedBanner: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      gap: theme.spacing.xs,
+      backgroundColor: theme.colors.success + '15',
+      borderRadius: theme.radius.sm,
+      paddingHorizontal: theme.spacing.md,
+      paddingVertical: theme.spacing.xsPlus,
+      marginBottom: theme.spacing.sm,
+    },
+    addedBannerText: {
+      flex: 1,
+      fontSize: theme.fontSizes.sm,
+      fontWeight: theme.fontWeights.medium,
+      color: theme.colors.success,
+    },
     quickAddRow: { flexDirection: 'row', gap: theme.spacing.xs, alignItems: 'center' },
     quickInput: {
       flex: 1,
