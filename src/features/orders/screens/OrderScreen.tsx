@@ -26,6 +26,7 @@ import { useTabBarClearance } from '@/hooks/useTabBarClearance';
 import { useSuppliers } from '@/features/suppliers/hooks/useSuppliers';
 import { useSupplierCatalog } from '@/features/suppliers/hooks/useSupplierCatalog';
 import { usePlaceCatalogOrder } from '@/features/suppliers/hooks/useCatalogMutations';
+import { useCatalogOrderHistory } from '@/features/suppliers/hooks/useCatalogOrderHistory';
 import {
   placeCatalogOrder,
   fetchSupplierCatalog,
@@ -227,9 +228,10 @@ function SupplierCatalogPicker({
   quantities: Record<string, number>;
   onSetQuantity: (itemId: string, quantity: number) => void;
   theme: ReturnType<typeof useTheme>;
-  t: (key: string) => string;
+  t: (key: string, options?: Record<string, unknown>) => string;
 }) {
   const { data: catalog, isLoading } = useSupplierCatalog(supplierId);
+  const { data: history } = useCatalogOrderHistory(supplierId);
   const [searchQuery, setSearchQuery] = useState('');
   const styles = createPickerStyles(theme);
 
@@ -247,6 +249,23 @@ function SupplierCatalogPicker({
     item.name.toLowerCase().includes(searchQuery.trim().toLowerCase()),
   );
 
+  // Only offered when the draft for this supplier is completely empty —
+  // once the person has picked even one quantity by hand, silently
+  // overwriting that with last time's order would be surprising rather
+  // than helpful.
+  const isDraftEmpty = Object.values(quantities).every((qty) => qty === 0);
+  const lastOrder = history?.[0];
+  const showRepeatBanner = isDraftEmpty && !!lastOrder && lastOrder.items.length > 0;
+
+  const handleRepeatLastOrder = () => {
+    if (!lastOrder) return;
+    for (const line of lastOrder.items) {
+      if (line.catalogItemId) {
+        onSetQuantity(line.catalogItemId, line.quantity);
+      }
+    }
+  };
+
   return (
     <FlatList
       data={filtered}
@@ -255,16 +274,26 @@ function SupplierCatalogPicker({
       contentContainerStyle={styles.list}
       showsVerticalScrollIndicator={false}
       ListHeaderComponent={
-        <View style={styles.searchRow}>
-          <Feather name="search" size={16} color={theme.colors.textSecondary} />
-          <TextInput
-            style={styles.searchInput}
-            placeholder={t('suppliers.searchPlaceholder')}
-            placeholderTextColor={theme.colors.textSecondary}
-            value={searchQuery}
-            onChangeText={setSearchQuery}
-          />
-        </View>
+        <>
+          <View style={styles.searchRow}>
+            <Feather name="search" size={16} color={theme.colors.textSecondary} />
+            <TextInput
+              style={styles.searchInput}
+              placeholder={t('suppliers.searchPlaceholder')}
+              placeholderTextColor={theme.colors.textSecondary}
+              value={searchQuery}
+              onChangeText={setSearchQuery}
+            />
+          </View>
+          {showRepeatBanner ? (
+            <Pressable style={styles.repeatBanner} onPress={handleRepeatLastOrder}>
+              <Feather name="refresh-cw" size={15} color={theme.colors.primary} />
+              <Text style={styles.repeatBannerText}>
+                {t('orders.repeatLastOrder', { count: lastOrder.items.length })}
+              </Text>
+            </Pressable>
+          ) : null}
+        </>
       }
       renderItem={({ item }) => {
         const quantity = quantities[item.id] ?? 0;
@@ -341,6 +370,22 @@ function createPickerStyles(theme: ReturnType<typeof useTheme>) {
     },
     emptyCatalog: { padding: theme.spacing.xl, alignItems: 'center' },
     emptyCatalogText: { color: theme.colors.textSecondary, textAlign: 'center' },
+    repeatBanner: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      gap: theme.spacing.sm,
+      backgroundColor: theme.colors.primary + '15',
+      borderRadius: theme.radius.md,
+      paddingHorizontal: theme.spacing.md,
+      paddingVertical: theme.spacing.sm,
+      marginBottom: theme.spacing.sm,
+    },
+    repeatBannerText: {
+      flex: 1,
+      fontSize: theme.fontSizes.sm,
+      fontWeight: theme.fontWeights.medium,
+      color: theme.colors.primary,
+    },
     searchRow: {
       flexDirection: 'row',
       alignItems: 'center',

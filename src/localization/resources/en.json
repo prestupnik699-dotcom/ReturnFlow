@@ -528,6 +528,8 @@
     "orderTotalPartial": "(some items have no price)",
     "notePlaceholder": "Note for the supplier (optional)",
     "sendAll": "Send all",
-    "sending": "Sending…"
+    "sending": "Sending…",
+    "repeatLastOrder": "Fill in {{count}} item like last time?",
+    "repeatLastOrder_other": "Fill in {{count}} items like last time?"
   }
 }
