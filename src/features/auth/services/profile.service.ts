@@ -52,6 +52,21 @@ export async function updateProfileSettings(
   }
 }
 
+export async function updateProfileName(
+  profileId: string,
+  firstName: string,
+  lastName: string,
+): Promise<void> {
+  const { error } = await supabase
+    .from('profiles')
+    .update({ first_name: firstName, last_name: lastName })
+    .eq('id', profileId);
+
+  if (error) {
+    throw error;
+  }
+}
+
 export async function markOnboardingSeen(profileId: string): Promise<void> {
   const { error } = await supabase
     .from('profiles')

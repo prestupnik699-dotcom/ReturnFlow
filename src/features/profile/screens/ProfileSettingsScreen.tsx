@@ -8,6 +8,7 @@ import {
   Platform,
   Pressable,
   Image,
+  TextInput,
 } from 'react-native';
 import { Text } from '@/components/AppText';
 import { useTranslation } from 'react-i18next';
@@ -27,7 +28,7 @@ import { useLanguageStore, type AppLanguage } from '@/stores/language.store';
 import { useThemeStore, type ThemeMode } from '@/stores/theme.store';
 import { useBiometricLockStore } from '@/stores/biometricLock.store';
 import { useSoundSettingsStore } from '@/stores/soundSettings.store';
-import { updateProfileSettings } from '@/features/auth/services/profile.service';
+import { updateProfileSettings, updateProfileName } from '@/features/auth/services/profile.service';
 import { useDeleteAccount } from '@/features/profile/hooks/useDeleteAccount';
 import { useUpdateProfilePhoto } from '@/features/profile/hooks/useUpdateProfilePhoto';
 
@@ -49,6 +50,12 @@ export function ProfileSettingsScreen() {
   const biometricEnabled = useBiometricLockStore((state) => state.enabled);
   const setBiometricEnabled = useBiometricLockStore((state) => state.setEnabled);
   const photoMutation = useUpdateProfilePhoto();
+  const setProfile = useAuthStore((state) => state.setProfile);
+  const [isEditingName, setIsEditingName] = useState(false);
+  const [firstNameDraft, setFirstNameDraft] = useState('');
+  const [lastNameDraft, setLastNameDraft] = useState('');
+  const [nameSaving, setNameSaving] = useState(false);
+  const [nameError, setNameError] = useState<string | null>(null);
   const [bioAvailable, setBioAvailable] = useState<boolean | null>(null);
   const [saved, setSaved] = useState(false);
   const [saveError, setSaveError] = useState<string | null>(null);
@@ -159,6 +166,37 @@ export function ProfileSettingsScreen() {
     });
   };
 
+  const startEditingName = () => {
+    if (!profile) return;
+    setFirstNameDraft(profile.firstName);
+    setLastNameDraft(profile.lastName);
+    setNameError(null);
+    setIsEditingName(true);
+  };
+
+  const saveNameEdit = async () => {
+    if (!profile) return;
+    const firstName = firstNameDraft.trim();
+    const lastName = lastNameDraft.trim();
+    if (!firstName || !lastName) {
+      setNameError(t('profile.nameRequired'));
+      return;
+    }
+
+    setNameSaving(true);
+    setNameError(null);
+    try {
+      await updateProfileName(profile.id, firstName, lastName);
+      setProfile({ ...profile, firstName, lastName });
+      setIsEditingName(false);
+    } catch (error) {
+      const message = error instanceof Error ? error.message : 'Unknown error';
+      setNameError(message);
+    } finally {
+      setNameSaving(false);
+    }
+  };
+
   const themeLabels: Record<ThemeMode, string> = {
     light: t('profile.themeLight'),
     dark: t('profile.themeDark'),
@@ -192,9 +230,45 @@ export function ProfileSettingsScreen() {
               <Feather name="camera" size={14} color={theme.colors.onPrimary} />
             </View>
           </Pressable>
-          <Text style={styles.avatarName}>
-            {profile ? `${profile.firstName} ${profile.lastName}` : ''}
-          </Text>
+          {isEditingName ? (
+            <View style={styles.nameEditRow}>
+              <TextInput
+                style={styles.nameInput}
+                value={firstNameDraft}
+                onChangeText={setFirstNameDraft}
+                placeholder={t('profile.firstNamePlaceholder')}
+                placeholderTextColor={theme.colors.textSecondary}
+                autoFocus
+              />
+              <TextInput
+                style={styles.nameInput}
+                value={lastNameDraft}
+                onChangeText={setLastNameDraft}
+                placeholder={t('profile.lastNamePlaceholder')}
+                placeholderTextColor={theme.colors.textSecondary}
+              />
+              <View style={styles.nameEditActions}>
+                <Pressable
+                  onPress={() => setIsEditingName(false)}
+                  hitSlop={8}
+                  disabled={nameSaving}
+                >
+                  <Feather name="x" size={20} color={theme.colors.textSecondary} />
+                </Pressable>
+                <Pressable onPress={saveNameEdit} hitSlop={8} disabled={nameSaving}>
+                  <Feather name="check" size={20} color={theme.colors.success} />
+                </Pressable>
+              </View>
+            </View>
+          ) : (
+            <Pressable style={styles.nameRow} onPress={startEditingName}>
+              <Text style={styles.avatarName}>
+                {profile ? `${profile.firstName} ${profile.lastName}` : ''}
+              </Text>
+              <Feather name="edit-2" size={13} color={theme.colors.textSecondary} />
+            </Pressable>
+          )}
+          {nameError ? <Text style={styles.avatarErrorText}>{nameError}</Text> : null}
           <Text style={styles.avatarHint}>{t('profile.photoHint')}</Text>
           {photoMutation.isError ? (
             <Text style={styles.avatarErrorText}>{photoMutation.error.message}</Text>
@@ -363,6 +437,29 @@ function createStyles(theme: ReturnType<typeof useTheme>) {
       fontWeight: theme.fontWeights.semiBold,
       color: theme.colors.textPrimary,
       marginTop: theme.spacing.sm,
+    },
+    nameRow: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      gap: theme.spacing.xs,
+      marginTop: theme.spacing.sm,
+    },
+    nameEditRow: { width: '100%', gap: theme.spacing.sm, marginTop: theme.spacing.sm },
+    nameInput: {
+      borderWidth: 1,
+      borderColor: theme.colors.border,
+      backgroundColor: theme.colors.surface,
+      borderRadius: theme.radius.md,
+      paddingHorizontal: theme.spacing.md,
+      paddingVertical: theme.spacing.sm,
+      fontSize: theme.fontSizes.md,
+      color: theme.colors.textPrimary,
+      textAlign: 'center',
+    },
+    nameEditActions: {
+      flexDirection: 'row',
+      justifyContent: 'center',
+      gap: theme.spacing.xl,
     },
     avatarHint: { fontSize: theme.fontSizes.xs, color: theme.colors.textSecondary },
     avatarErrorText: {
