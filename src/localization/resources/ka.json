@@ -526,6 +526,13 @@
     "notePlaceholder": "შენიშვნა მომწოდებლისთვის (არასავალდებულო)",
     "sendAll": "ყველას გაგზავნა",
     "sending": "იგზავნება…",
-    "repeatLastOrder": "შევავსოთ {{count}} პროდუქტი როგორც გასულ ჯერზე?"
+    "repeatLastOrder": "შევავსოთ {{count}} პროდუქტი როგორც გასულ ჯერზე?",
+    "sendAsPdf": "PDF-ის გაგზავნა",
+    "pdfDocumentTitle": "შეკვეთა",
+    "pdfColumnItem": "პროდუქტი",
+    "pdfColumnQuantity": "რაოდ.",
+    "pdfColumnPrice": "ფასი",
+    "pdfColumnSubtotal": "ჯამი",
+    "pdfNoteLabel": "შენიშვნა"
   }
 }

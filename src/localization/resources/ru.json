@@ -530,6 +530,13 @@
     "sendAll": "Отправить все",
     "sending": "Отправка…",
     "repeatLastOrder": "Заполнить {{count}} товар как в прошлый раз?",
-    "repeatLastOrder_other": "Заполнить {{count}} товаров как в прошлый раз?"
+    "repeatLastOrder_other": "Заполнить {{count}} товаров как в прошлый раз?",
+    "sendAsPdf": "Отправить как PDF",
+    "pdfDocumentTitle": "Заказ",
+    "pdfColumnItem": "Товар",
+    "pdfColumnQuantity": "Кол-во",
+    "pdfColumnPrice": "Цена",
+    "pdfColumnSubtotal": "Сумма",
+    "pdfNoteLabel": "Комментарий"
   }
 }

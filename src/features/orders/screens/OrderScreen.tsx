@@ -27,6 +27,7 @@ import { useSuppliers } from '@/features/suppliers/hooks/useSuppliers';
 import { useSupplierReliability } from '@/features/suppliers/hooks/useSupplierReliability';
 import { useSupplierCatalog } from '@/features/suppliers/hooks/useSupplierCatalog';
 import { usePlaceCatalogOrder } from '@/features/suppliers/hooks/useCatalogMutations';
+import { shareOrderAsPdf } from '@/features/orders/services/orderExport.service';
 import { useCatalogOrderHistory } from '@/features/suppliers/hooks/useCatalogOrderHistory';
 import {
   placeCatalogOrder,
@@ -542,6 +543,31 @@ function OrderReviewSheet({
     });
   };
 
+  const handleSendAsPdf = () => {
+    placeOrderMutation.mutate(lines, {
+      onSuccess: async () => {
+        hapticSuccess();
+        clearSupplier(supplierId);
+        onClose();
+        try {
+          await shareOrderAsPdf(supplierName, lines, note, {
+            documentTitle: t('orders.pdfDocumentTitle'),
+            columnItem: t('orders.pdfColumnItem'),
+            columnQuantity: t('orders.pdfColumnQuantity'),
+            columnPrice: t('orders.pdfColumnPrice'),
+            columnSubtotal: t('orders.pdfColumnSubtotal'),
+            totalLabel: t('orders.orderTotal'),
+            noteLabel: t('orders.pdfNoteLabel'),
+          });
+        } catch {
+          // The order is already saved by this point regardless of
+          // whether PDF generation or the share sheet itself failed.
+        }
+        setNote('');
+      },
+    });
+  };
+
   return (
     <Modal
       visible={visible}
@@ -636,13 +662,25 @@ function OrderReviewSheet({
                   </View>
                 ) : null}
 
-                <Button
-                  label={t('orders.send')}
-                  icon="share-2"
-                  onPress={handleSend}
-                  loading={placeOrderMutation.isPending}
-                  disabled={lines.length === 0}
-                />
+                <View style={styles.sendButtonsRow}>
+                  <Button
+                    label={t('orders.send')}
+                    icon="share-2"
+                    onPress={handleSend}
+                    loading={placeOrderMutation.isPending}
+                    disabled={lines.length === 0}
+                    style={styles.sendButton}
+                  />
+                  <Button
+                    label={t('orders.sendAsPdf')}
+                    icon="file-text"
+                    variant="outline"
+                    onPress={handleSendAsPdf}
+                    loading={placeOrderMutation.isPending}
+                    disabled={lines.length === 0}
+                    style={styles.sendButton}
+                  />
+                </View>
               </ScrollView>
             </>
           )}
@@ -745,6 +783,8 @@ function createReviewStyles(theme: ReturnType<typeof useTheme>) {
       minHeight: 44,
       textAlignVertical: 'top',
     },
+    sendButtonsRow: { flexDirection: 'row', gap: theme.spacing.sm },
+    sendButton: { flex: 1 },
   });
 }
 

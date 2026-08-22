@@ -530,6 +530,13 @@
     "sendAll": "Send all",
     "sending": "Sending…",
     "repeatLastOrder": "Fill in {{count}} item like last time?",
-    "repeatLastOrder_other": "Fill in {{count}} items like last time?"
+    "repeatLastOrder_other": "Fill in {{count}} items like last time?",
+    "sendAsPdf": "Send as PDF",
+    "pdfDocumentTitle": "Order",
+    "pdfColumnItem": "Item",
+    "pdfColumnQuantity": "Qty",
+    "pdfColumnPrice": "Price",
+    "pdfColumnSubtotal": "Subtotal",
+    "pdfNoteLabel": "Note"
   }
 }
