@@ -212,13 +212,6 @@ export function DashboardScreen() {
               <Feather name="bell" size={20} color={theme.colors.primary} />
               {unreadCount > 0 ? <View style={styles.headerBadge} /> : null}
             </Pressable>
-            <Pressable
-              style={styles.headerIconButton}
-              onPress={() => router.push('/profile-settings')}
-              hitSlop={8}
-            >
-              <Feather name="settings" size={20} color={theme.colors.primary} />
-            </Pressable>
           </View>
         </View>
 
