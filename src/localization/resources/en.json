@@ -524,6 +524,7 @@
     "send": "Send",
     "reviewEmpty": "No items left — add some or close this",
     "orderTotal": "Total:",
-    "orderTotalPartial": "(some items have no price)"
+    "orderTotalPartial": "(some items have no price)",
+    "notePlaceholder": "Note for the supplier (optional)"
   }
 }

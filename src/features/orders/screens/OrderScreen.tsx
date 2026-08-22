@@ -355,6 +355,7 @@ function OrderReviewSheet({
   const removeItem = useOrderDraftStore((state) => state.removeItem);
   const clearSupplier = useOrderDraftStore((state) => state.clearSupplier);
   const placeOrderMutation = usePlaceCatalogOrder(supplierId ?? '');
+  const [note, setNote] = useState('');
   const styles = createReviewStyles(theme);
 
   if (!visible || !supplierId) return null;
@@ -376,15 +377,18 @@ function OrderReviewSheet({
   const orderTotal = lines.reduce((sum, line) => sum + (line.unitPrice ?? 0) * line.quantity, 0);
 
   const handleSend = () => {
-    const shareText = lines
+    const orderLines = lines
       .map((line, index) => `${index + 1}. ${line.title} — ${line.quantity} pcs`)
       .join('\n');
+    const trimmedNote = note.trim();
+    const shareText = trimmedNote ? `${orderLines}\n\n${trimmedNote}` : orderLines;
 
     placeOrderMutation.mutate(lines, {
       onSuccess: async () => {
         hapticSuccess();
         clearSupplier(supplierId);
         onClose();
+        setNote('');
         try {
           await Share.share({ message: shareText });
         } catch {
@@ -447,6 +451,17 @@ function OrderReviewSheet({
             )}
           />
         )}
+
+        {lines.length > 0 ? (
+          <TextInput
+            style={styles.noteInput}
+            placeholder={t('orders.notePlaceholder')}
+            placeholderTextColor={theme.colors.textSecondary}
+            value={note}
+            onChangeText={setNote}
+            multiline
+          />
+        ) : null}
 
         {hasAnyPrice ? (
           <View style={styles.totalRow}>
@@ -535,6 +550,18 @@ function createReviewStyles(theme: ReturnType<typeof useTheme>) {
       fontSize: theme.fontSizes.lg,
       fontWeight: theme.fontWeights.bold,
       color: theme.colors.textPrimary,
+    },
+    noteInput: {
+      borderWidth: 1,
+      borderColor: theme.colors.border,
+      backgroundColor: theme.colors.surface,
+      borderRadius: theme.radius.md,
+      paddingHorizontal: theme.spacing.md,
+      paddingVertical: theme.spacing.sm,
+      fontSize: theme.fontSizes.sm,
+      color: theme.colors.textPrimary,
+      minHeight: 44,
+      textAlignVertical: 'top',
     },
   });
 }
