@@ -242,7 +242,7 @@
       "historyEmpty": "შეკვეთები ჯერ არ ყოფილა",
       "quickAddHint": "მაგ. Domestos 1000ml",
       "itemBarcodeLabel": "შტრიხკოდი",
-      "itemBarcodePlaceholder": "არასავალდებულო — დაასკანერეთ ან შეიყვანეთ"
+      "itemBarcodePlaceholder": "არასავალდებულო"
     }
   },
   "returns": {
