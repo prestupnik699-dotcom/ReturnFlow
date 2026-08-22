@@ -9,9 +9,21 @@ type Props = {
   onBack?: () => void;
   rightIcon?: keyof typeof Feather.glyphMap;
   onRightPress?: () => void;
+  // A second optional action, rendered to the left of rightIcon — added
+  // for screens (like supplier catalog) that need two header actions
+  // instead of one. Omitting it keeps every existing screen unchanged.
+  secondaryRightIcon?: keyof typeof Feather.glyphMap;
+  onSecondaryRightPress?: () => void;
 };
 
-export function ScreenHeader({ title, onBack, rightIcon, onRightPress }: Props) {
+export function ScreenHeader({
+  title,
+  onBack,
+  rightIcon,
+  onRightPress,
+  secondaryRightIcon,
+  onSecondaryRightPress,
+}: Props) {
   const theme = useTheme();
   const router = useRouter();
   const styles = createStyles(theme);
@@ -26,6 +38,11 @@ export function ScreenHeader({ title, onBack, rightIcon, onRightPress }: Props) 
       <Text style={styles.title} numberOfLines={1}>
         {title}
       </Text>
+      {secondaryRightIcon && onSecondaryRightPress ? (
+        <Pressable onPress={onSecondaryRightPress} hitSlop={12} style={styles.iconButton}>
+          <Feather name={secondaryRightIcon} size={20} color={theme.colors.primary} />
+        </Pressable>
+      ) : null}
       {rightIcon && onRightPress ? (
         <Pressable onPress={onRightPress} hitSlop={12} style={styles.iconButton}>
           <Feather name={rightIcon} size={20} color={theme.colors.primary} />

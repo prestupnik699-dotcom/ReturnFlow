@@ -167,6 +167,8 @@ export function SupplierCatalogScreen({ supplierId }: Props) {
       <View style={styles.container}>
         <ScreenHeader
           title={supplier?.name ?? t('suppliers.catalog.title')}
+          secondaryRightIcon="upload"
+          onSecondaryRightPress={() => setImportVisible(true)}
           rightIcon="clock"
           onRightPress={() => setHistoryVisible(true)}
         />
@@ -204,9 +206,6 @@ export function SupplierCatalogScreen({ supplierId }: Props) {
                 size={20}
                 color={isListening ? '#fff' : theme.colors.primary}
               />
-            </Pressable>
-            <Pressable style={styles.scanButton} onPress={() => setImportVisible(true)}>
-              <Feather name="upload" size={20} color={theme.colors.primary} />
             </Pressable>
           </View>
           <Text style={styles.quickAddHint}>{t('suppliers.catalog.quickAddHint')}</Text>
