@@ -1,5 +1,9 @@
 import { supabase } from '@/lib/supabase';
 import { fromCaughtError, type ServiceResult } from '@/lib/result';
+import {
+  groupOrderHistory,
+  type OrderHistoryRow,
+} from '@/features/suppliers/utils/groupOrderHistory';
 
 export type CatalogItem = {
   id: string;
@@ -215,28 +219,13 @@ export async function fetchSupplierOrderHistory(
     return fromCaughtError(error, 'FETCH_ORDER_HISTORY_FAILED');
   }
 
-  const grouped = new Map<string, OrderHistoryEntry[]>();
-  for (const row of data) {
-    const key = row.created_at;
-    const entry: OrderHistoryEntry = {
-      id: row.id,
-      title: row.title,
-      quantity: row.quantity,
-      createdAt: row.created_at,
-      catalogItemId: row.catalog_item_id,
-    };
-    const existing = grouped.get(key);
-    if (existing) {
-      existing.push(entry);
-    } else {
-      grouped.set(key, [entry]);
-    }
-  }
-
-  const result: GroupedOrder[] = Array.from(grouped.entries()).map(([createdAt, items]) => ({
-    createdAt,
-    items,
+  const rows: OrderHistoryRow[] = data.map((row) => ({
+    id: row.id,
+    title: row.title,
+    quantity: row.quantity,
+    createdAt: row.created_at,
+    catalogItemId: row.catalog_item_id,
   }));
 
-  return { success: true, data: result };
+  return { success: true, data: groupOrderHistory(rows) };
 }

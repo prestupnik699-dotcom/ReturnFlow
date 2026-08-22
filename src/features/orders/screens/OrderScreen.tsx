@@ -28,6 +28,7 @@ import { useSupplierReliability } from '@/features/suppliers/hooks/useSupplierRe
 import { useSupplierCatalog } from '@/features/suppliers/hooks/useSupplierCatalog';
 import { usePlaceCatalogOrder } from '@/features/suppliers/hooks/useCatalogMutations';
 import { shareOrderAsPdf } from '@/features/orders/services/orderExport.service';
+import { computeOrderTotal } from '@/features/orders/utils/computeOrderTotal';
 import { useCatalogOrderHistory } from '@/features/suppliers/hooks/useCatalogOrderHistory';
 import {
   placeCatalogOrder,
@@ -522,9 +523,7 @@ function OrderReviewSheet({
       };
     });
 
-  const hasAnyPrice = lines.some((line) => line.unitPrice != null);
-  const hasMissingPrice = lines.some((line) => line.unitPrice == null);
-  const orderTotal = lines.reduce((sum, line) => sum + (line.unitPrice ?? 0) * line.quantity, 0);
+  const { total: orderTotal, hasAnyPrice, hasMissingPrice } = computeOrderTotal(lines);
 
   const handleSend = () => {
     const orderLines = lines
