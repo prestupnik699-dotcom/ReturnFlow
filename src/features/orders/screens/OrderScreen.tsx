@@ -192,16 +192,13 @@ export function OrderScreen() {
                     ))}
                 </ScrollView>
                 {pendingSupplierIds.length > 1 ? (
-                  <Pressable
-                    style={styles.sendAllButton}
+                  <Button
+                    label={sendingAll ? t('orders.sending') : t('orders.sendAll')}
+                    icon="send"
                     onPress={handleSendAll}
-                    disabled={sendingAll}
-                  >
-                    <Feather name="send" size={15} color={theme.colors.onPrimary} />
-                    <Text style={styles.sendAllText}>
-                      {sendingAll ? t('orders.sending') : t('orders.sendAll')}
-                    </Text>
-                  </Pressable>
+                    loading={sendingAll}
+                    style={styles.sendAllButton}
+                  />
                 ) : null}
               </View>
             ) : null}
@@ -722,21 +719,7 @@ function createStyles(theme: ReturnType<typeof useTheme>) {
       marginBottom: theme.spacing.xs,
       paddingHorizontal: theme.spacing.xs,
     },
-    sendAllButton: {
-      flexDirection: 'row',
-      alignItems: 'center',
-      justifyContent: 'center',
-      gap: 8,
-      backgroundColor: theme.colors.primary,
-      borderRadius: theme.radius.full,
-      paddingVertical: theme.spacing.smPlus,
-      marginTop: theme.spacing.xs,
-    },
-    sendAllText: {
-      fontSize: theme.fontSizes.sm,
-      fontWeight: theme.fontWeights.semiBold,
-      color: theme.colors.onPrimary,
-    },
+    sendAllButton: { marginTop: theme.spacing.md, alignSelf: 'stretch' },
     pendingScrollContent: { paddingRight: theme.spacing.md },
   });
 }
