@@ -311,7 +311,7 @@ export function DashboardScreen() {
 
             {urgentCount > 0 ||
             todayCount > 0 ||
-            (pendingSyncCount ?? 0) > 0 ||
+            (pendingSyncCount?.total ?? 0) > 0 ||
             draftItemCount > 0 ? (
               <View style={styles.section}>
                 <Text style={styles.sectionTitle}>{t('dashboard.attentionTitle')}</Text>
@@ -350,12 +350,25 @@ export function DashboardScreen() {
                     theme={theme}
                   />
                 ) : null}
-                {(pendingSyncCount ?? 0) > 0 ? (
+                {(pendingSyncCount?.returns ?? 0) > 0 ? (
                   <AttentionCard
                     icon="upload-cloud"
                     color={theme.colors.warning}
-                    text={t('dashboard.attentionPendingSync', { count: pendingSyncCount })}
+                    text={t('dashboard.attentionPendingSync', {
+                      count: pendingSyncCount?.returns,
+                    })}
                     onPress={() => router.push('/returns')}
+                    theme={theme}
+                  />
+                ) : null}
+                {(pendingSyncCount?.orders ?? 0) > 0 ? (
+                  <AttentionCard
+                    icon="upload-cloud"
+                    color={theme.colors.warning}
+                    text={t('dashboard.attentionPendingSyncOrders', {
+                      count: pendingSyncCount?.orders,
+                    })}
+                    onPress={() => router.push('/order')}
                     theme={theme}
                   />
                 ) : null}

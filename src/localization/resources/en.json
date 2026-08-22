@@ -471,7 +471,9 @@
     "actionOrder": "Order",
     "attentionOrderDraft": "{{count}} item ready to send to {{suppliers}} supplier",
     "attentionOrderDraft_other": "{{count}} items ready to send to {{suppliers}} suppliers",
-    "overviewOrdersWeek": "Orders this week"
+    "overviewOrdersWeek": "Orders this week",
+    "attentionPendingSyncOrders": "{{count}} order item pending sync",
+    "attentionPendingSyncOrders_other": "{{count}} order items pending sync"
   },
   "deliveries": {
     "title": "Deliveries",

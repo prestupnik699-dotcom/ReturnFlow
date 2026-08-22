@@ -469,7 +469,8 @@
     "actionReminders": "შენიშვნები",
     "actionOrder": "შეკვეთა",
     "attentionOrderDraft": "{{count}} პროდუქტი მზადაა გასაგზავნად {{suppliers}} მომწოდებელთან",
-    "overviewOrdersWeek": "შეკვეთები ამ კვირაში"
+    "overviewOrdersWeek": "შეკვეთები ამ კვირაში",
+    "attentionPendingSyncOrders": "{{count}} შეკვეთის პროდუქტი ელოდება სინქრონიზაციას"
   },
   "deliveries": {
     "title": "მიწოდებები",

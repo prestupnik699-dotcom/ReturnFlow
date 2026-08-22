@@ -471,7 +471,9 @@
     "actionOrder": "Заказ",
     "attentionOrderDraft": "{{count}} товар готов к отправке у {{suppliers}} поставщика",
     "attentionOrderDraft_other": "{{count}} товаров готово к отправке у {{suppliers}} поставщиков",
-    "overviewOrdersWeek": "Заказов за неделю"
+    "overviewOrdersWeek": "Заказов за неделю",
+    "attentionPendingSyncOrders": "{{count}} позиция заказа ожидает синхронизации",
+    "attentionPendingSyncOrders_other": "{{count}} позиций заказа ожидает синхронизации"
   },
   "deliveries": {
     "title": "Приёмки",
