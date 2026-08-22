@@ -59,7 +59,14 @@
       "expo-sharing",
       "expo-font",
       "@react-native-community/datetimepicker",
-      "expo-audio"
+      "expo-audio",
+      [
+        "expo-speech-recognition",
+        {
+          "microphonePermission": "ReturnFlow использует микрофон для голосового ввода названий товаров",
+          "speechRecognitionPermission": "ReturnFlow использует распознавание речи для голосового ввода названий товаров"
+        }
+      ]
     ],
     "extra": {
       "router": {},

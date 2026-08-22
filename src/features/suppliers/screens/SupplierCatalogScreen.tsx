@@ -2,6 +2,7 @@ import { useRef, useState } from 'react';
 import { View, FlatList, Pressable, StyleSheet, ActivityIndicator, TextInput } from 'react-native';
 import { Text } from '@/components/AppText';
 import { CameraView, useCameraPermissions } from 'expo-camera';
+import { ExpoSpeechRecognitionModule, useSpeechRecognitionEvent } from 'expo-speech-recognition';
 import { useTranslation } from 'react-i18next';
 import { Feather } from '@expo/vector-icons';
 import { useTheme } from '@/theme/ThemeProvider';
@@ -20,6 +21,7 @@ import {
 import { useCatalogOrderHistory } from '@/features/suppliers/hooks/useCatalogOrderHistory';
 import { CatalogItemFormSheet } from '@/features/suppliers/components/CatalogItemFormSheet';
 import { useOrderDraftStore } from '@/stores/orderDraft.store';
+import { useLanguageStore } from '@/stores/language.store';
 import { useRouter } from 'expo-router';
 import { fetchCatalogItemByBarcode } from '@/features/suppliers/services/catalog.service';
 import { hapticImpactLight, hapticSuccess } from '@/lib/haptics';
@@ -42,6 +44,8 @@ export function SupplierCatalogScreen({ supplierId }: Props) {
   const deleteMutation = useDeleteCatalogItem(supplierId);
   const [quickName, setQuickName] = useState('');
   const [searchQuery, setSearchQuery] = useState('');
+  const [isListening, setIsListening] = useState(false);
+  const appLanguage = useLanguageStore((state) => state.language);
   const [scanningActive, setScanningActive] = useState(false);
   const [isLookingUp, setIsLookingUp] = useState(false);
   const [editingItem, setEditingItem] = useState<CatalogItem | null>(null);
@@ -51,6 +55,35 @@ export function SupplierCatalogScreen({ supplierId }: Props) {
   const [historyVisible, setHistoryVisible] = useState(false);
   const scanLockRef = useRef(false);
   const styles = createStyles(theme);
+
+  const speechLocale = appLanguage === 'ru' ? 'ru-RU' : appLanguage === 'ka' ? 'ka-GE' : 'en-US';
+
+  // The recognized transcript replaces (not appends to) the quick-add
+  // field, matching how a person would expect dictation to work for a
+  // single short item name — not accumulating fragments across taps.
+  useSpeechRecognitionEvent('result', (event) => {
+    const transcript = event.results[0]?.transcript;
+    if (transcript) setQuickName(transcript);
+  });
+  useSpeechRecognitionEvent('end', () => setIsListening(false));
+  useSpeechRecognitionEvent('error', () => setIsListening(false));
+
+  const handleVoiceInput = async () => {
+    if (isListening) {
+      ExpoSpeechRecognitionModule.stop();
+      return;
+    }
+    const permission = await ExpoSpeechRecognitionModule.requestPermissionsAsync();
+    if (!permission.granted) return;
+
+    hapticImpactLight();
+    setIsListening(true);
+    ExpoSpeechRecognitionModule.start({
+      lang: speechLocale,
+      interimResults: false,
+      continuous: false,
+    });
+  };
 
   const handleQuickAdd = () => {
     const name = quickName.trim();
@@ -144,6 +177,16 @@ export function SupplierCatalogScreen({ supplierId }: Props) {
             </Pressable>
             <Pressable style={styles.scanButton} onPress={() => setScanningActive(true)}>
               <Feather name="maximize" size={20} color={theme.colors.primary} />
+            </Pressable>
+            <Pressable
+              style={[styles.scanButton, isListening && styles.micButtonActive]}
+              onPress={handleVoiceInput}
+            >
+              <Feather
+                name={isListening ? 'mic-off' : 'mic'}
+                size={20}
+                color={isListening ? '#fff' : theme.colors.primary}
+              />
             </Pressable>
           </View>
           <Text style={styles.quickAddHint}>{t('suppliers.catalog.quickAddHint')}</Text>
@@ -398,6 +441,7 @@ function createStyles(theme: ReturnType<typeof useTheme>) {
       alignItems: 'center',
       justifyContent: 'center',
     },
+    micButtonActive: { backgroundColor: theme.colors.danger },
     scanButton: {
       width: 40,
       height: 40,
