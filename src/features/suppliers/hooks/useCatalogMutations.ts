@@ -5,7 +5,13 @@ import {
   deleteCatalogItem,
   placeCatalogOrder,
   type OrderLine,
+  type CatalogItem,
 } from '@/features/suppliers/services/catalog.service';
+import {
+  enqueueCreateCatalogItem,
+  enqueuePlaceOrder,
+} from '@/features/orders/services/offlineOrders.service';
+import { useNetworkStatus } from '@/hooks/useNetworkStatus';
 import { useAuthStore } from '@/stores/auth.store';
 import { useMembershipStore } from '@/stores/membership.store';
 
@@ -23,19 +29,35 @@ type CatalogItemFormValues = {
 export function useCreateCatalogItem(supplierId: string) {
   const activeOrganizationId = useMembershipStore((state) => state.activeOrganizationId);
   const profile = useAuthStore((state) => state.profile);
+  const isConnected = useNetworkStatus();
   const invalidate = useInvalidateCatalog(supplierId);
 
   return useMutation({
-    mutationFn: async (values: CatalogItemFormValues) => {
+    mutationFn: async (values: CatalogItemFormValues): Promise<CatalogItem | null> => {
       if (!activeOrganizationId || !profile) throw new Error('No active organization');
-      const result = await createCatalogItem({
+
+      const input = {
         organizationId: activeOrganizationId,
         supplierId,
         createdBy: profile.id,
         name: values.name,
         defaultPrice: values.defaultPrice,
         barcode: values.barcode,
-      });
+      };
+
+      // Offline: queue it and return null instead of a real item — the
+      // catalog list picks the queued entry up on its own via
+      // fetchPendingCatalogItems, so callers that need the created row
+      // back (like scan-to-add, which opens it for editing) simply won't
+      // have one to open until sync completes, which is the correct
+      // behavior rather than fabricating a fake id that would break once
+      // the real sync happens.
+      if (!isConnected) {
+        await enqueueCreateCatalogItem(input);
+        return null;
+      }
+
+      const result = await createCatalogItem(input);
       if (!result.success) throw new Error(result.error.message);
       return result.data;
     },
@@ -72,6 +94,7 @@ export function usePlaceCatalogOrder(supplierId: string) {
   const activeOrganizationId = useMembershipStore((state) => state.activeOrganizationId);
   const activeStoreId = useMembershipStore((state) => state.activeStoreId);
   const profile = useAuthStore((state) => state.profile);
+  const isConnected = useNetworkStatus();
   const queryClient = useQueryClient();
 
   return useMutation({
@@ -79,13 +102,25 @@ export function usePlaceCatalogOrder(supplierId: string) {
       if (!activeOrganizationId || !activeStoreId || !profile) {
         throw new Error('No active store');
       }
-      const result = await placeCatalogOrder({
+
+      const input = {
         organizationId: activeOrganizationId,
         storeId: activeStoreId,
         supplierId,
         createdBy: profile.id,
         lines,
-      });
+      };
+
+      // Offline: the order is queued and will be written to
+      // catalog_order_items once connectivity returns — history for this
+      // order simply won't show up until then, same tradeoff as offline
+      // returns.
+      if (!isConnected) {
+        await enqueuePlaceOrder(input);
+        return;
+      }
+
+      const result = await placeCatalogOrder(input);
       if (!result.success) throw new Error(result.error.message);
     },
     onSuccess: () =>

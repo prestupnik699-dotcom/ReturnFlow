@@ -1,6 +1,7 @@
 import '@/localization/i18n';
 import '@/features/returns/sync/returnsSyncHandler';
 import '@/features/deliveries/sync/deliveriesSyncHandler';
+import '@/features/orders/sync/ordersSyncHandler';
 import { useEffect } from 'react';
 import { useFonts } from 'expo-font';
 import {
