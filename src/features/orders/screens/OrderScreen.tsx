@@ -445,7 +445,7 @@ function PendingPill({
         </Text>
         <Text style={styles.pillCount}>{itemCount}</Text>
       </View>
-      <Feather name="chevron-right" size={16} color={theme.colors.onPrimary} />
+      <Feather name="chevron-right" size={16} color={theme.colors.textSecondary} />
     </Pressable>
   );
 }
@@ -456,7 +456,9 @@ function createPendingStyles(theme: ReturnType<typeof useTheme>) {
       flexDirection: 'row',
       alignItems: 'center',
       gap: theme.spacing.sm,
-      backgroundColor: theme.colors.primary,
+      backgroundColor: theme.colors.card,
+      borderWidth: 1,
+      borderColor: theme.colors.border,
       borderRadius: theme.radius.full,
       paddingLeft: theme.spacing.md,
       paddingRight: theme.spacing.sm,
@@ -468,13 +470,12 @@ function createPendingStyles(theme: ReturnType<typeof useTheme>) {
       maxWidth: 110,
       fontSize: theme.fontSizes.sm,
       fontWeight: theme.fontWeights.semiBold,
-      color: theme.colors.onPrimary,
+      color: theme.colors.textPrimary,
     },
     pillCount: {
       fontSize: theme.fontSizes.xs,
       fontWeight: theme.fontWeights.bold,
-      color: theme.colors.onPrimary,
-      opacity: 0.85,
+      color: theme.colors.primary,
     },
   });
 }
