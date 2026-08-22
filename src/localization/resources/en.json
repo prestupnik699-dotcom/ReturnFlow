@@ -521,6 +521,7 @@
     "readyToSend": "Ready to send",
     "itemCount": "{{count}} item",
     "itemCount_other": "{{count}} items",
-    "send": "Send"
+    "send": "Send",
+    "reviewEmpty": "No items left — add some or close this"
   }
 }

@@ -7,6 +7,7 @@ import { useTheme } from '@/theme/ThemeProvider';
 import { Screen } from '@/components/Screen';
 import { ScreenHeader } from '@/components/ScreenHeader';
 import { Card } from '@/components/Card';
+import { Button } from '@/components/Button';
 import { EmptyState } from '@/components/EmptyState';
 import { Chip } from '@/components/Chip';
 import { useTabBarClearance } from '@/hooks/useTabBarClearance';
@@ -14,23 +15,25 @@ import { useSuppliers } from '@/features/suppliers/hooks/useSuppliers';
 import { useSupplierCatalog } from '@/features/suppliers/hooks/useSupplierCatalog';
 import { usePlaceCatalogOrder } from '@/features/suppliers/hooks/useCatalogMutations';
 import { useOrderDraftStore } from '@/stores/orderDraft.store';
-import { hapticSelection, hapticSuccess } from '@/lib/haptics';
+import { hapticSelection, hapticSuccess, hapticImpactLight } from '@/lib/haptics';
 
-// The order draft lives in a global store (useOrderDraftStore), not
-// screen-local state — switching between suppliers here, or leaving this
-// screen entirely and coming back, must not lose quantities already
-// chosen for a supplier that isn't currently active.
+// The order draft lives in a global, persisted store (useOrderDraftStore),
+// not screen-local state — switching between suppliers here, leaving this
+// screen, or closing the app entirely and coming back later must not
+// lose quantities already chosen for a supplier.
 export function OrderScreen() {
   const theme = useTheme();
   const { t } = useTranslation();
   const { data: suppliers } = useSuppliers(false, 'name');
   const tabBarClearance = useTabBarClearance();
   const [activeSupplierId, setActiveSupplierId] = useState<string | null>(null);
+  const [reviewSupplierId, setReviewSupplierId] = useState<string | null>(null);
   const drafts = useOrderDraftStore((state) => state.drafts);
   const setQuantity = useOrderDraftStore((state) => state.setQuantity);
   const styles = createStyles(theme);
 
   const activeSupplier = suppliers?.find((s) => s.id === activeSupplierId) ?? null;
+  const reviewSupplier = suppliers?.find((s) => s.id === reviewSupplierId) ?? null;
   const pendingSupplierIds = Object.entries(drafts)
     .filter(([, items]) => Object.values(items).some((qty) => qty > 0))
     .map(([supplierId]) => supplierId);
@@ -103,6 +106,10 @@ export function OrderScreen() {
                         key={supplier.id}
                         supplierId={supplier.id}
                         supplierName={supplier.name}
+                        onPress={() => {
+                          hapticImpactLight();
+                          setReviewSupplierId(supplier.id);
+                        }}
                       />
                     ))}
                 </ScrollView>
@@ -111,6 +118,13 @@ export function OrderScreen() {
           </>
         )}
       </View>
+
+      <OrderReviewSheet
+        visible={!!reviewSupplier}
+        onClose={() => setReviewSupplierId(null)}
+        supplierId={reviewSupplier?.id ?? null}
+        supplierName={reviewSupplier?.name ?? ''}
+      />
     </Screen>
   );
 }
@@ -226,57 +240,29 @@ function createPickerStyles(theme: ReturnType<typeof useTheme>) {
   });
 }
 
-// A compact pill instead of a full-width card — supplier name, item
-// count, and a tap-to-share icon all in one small row, laid out
-// horizontally so several pending suppliers fit without eating vertical
-// space or ever overlapping the catalog list above.
-function PendingPill({ supplierId, supplierName }: { supplierId: string; supplierName: string }) {
+function PendingPill({
+  supplierId,
+  supplierName,
+  onPress,
+}: {
+  supplierId: string;
+  supplierName: string;
+  onPress: () => void;
+}) {
   const theme = useTheme();
-  const { data: catalog } = useSupplierCatalog(supplierId);
   const draft = useOrderDraftStore((state) => state.drafts[supplierId] ?? {});
-  const clearSupplier = useOrderDraftStore((state) => state.clearSupplier);
-  const placeOrderMutation = usePlaceCatalogOrder(supplierId);
+  const itemCount = Object.values(draft).filter((qty) => qty > 0).length;
   const styles = createPendingStyles(theme);
 
-  const lines = Object.entries(draft)
-    .filter(([, qty]) => qty > 0)
-    .map(([itemId, quantity]) => {
-      const item = catalog?.find((c) => c.id === itemId);
-      return { catalogItemId: itemId, title: item?.name ?? '', quantity };
-    });
-
-  const handleSend = () => {
-    const shareText = lines
-      .map((line, index) => `${index + 1}. ${line.title} — ${line.quantity} pcs`)
-      .join('\n');
-
-    placeOrderMutation.mutate(lines, {
-      onSuccess: async () => {
-        hapticSuccess();
-        clearSupplier(supplierId);
-        try {
-          await Share.share({ message: shareText });
-        } catch {
-          // The order is already saved by this point — a dismissed or
-          // failed share sheet doesn't need to roll anything back.
-        }
-      },
-    });
-  };
-
   return (
-    <Pressable style={styles.pill} onPress={handleSend} disabled={placeOrderMutation.isPending}>
+    <Pressable style={styles.pill} onPress={onPress}>
       <View style={styles.pillInfo}>
         <Text style={styles.pillName} numberOfLines={1}>
           {supplierName}
         </Text>
-        <Text style={styles.pillCount}>{lines.length}</Text>
+        <Text style={styles.pillCount}>{itemCount}</Text>
       </View>
-      {placeOrderMutation.isPending ? (
-        <Feather name="loader" size={16} color={theme.colors.onPrimary} />
-      ) : (
-        <Feather name="share-2" size={16} color={theme.colors.onPrimary} />
-      )}
+      <Feather name="chevron-right" size={16} color={theme.colors.onPrimary} />
     </Pressable>
   );
 }
@@ -306,6 +292,184 @@ function createPendingStyles(theme: ReturnType<typeof useTheme>) {
       fontWeight: theme.fontWeights.bold,
       color: theme.colors.onPrimary,
       opacity: 0.85,
+    },
+  });
+}
+
+// Tapping a pending pill opens this review sheet instead of sending
+// immediately — a stray tap on the pill list used to fire off a share
+// sheet with no chance to double-check quantities or drop an item first.
+// This gives that chance: steppers to adjust, a remove button per line,
+// and the actual send action lives at the bottom, requiring a deliberate
+// second tap.
+function OrderReviewSheet({
+  visible,
+  onClose,
+  supplierId,
+  supplierName,
+}: {
+  visible: boolean;
+  onClose: () => void;
+  supplierId: string | null;
+  supplierName: string;
+}) {
+  const theme = useTheme();
+  const { t } = useTranslation();
+  const { data: catalog } = useSupplierCatalog(supplierId ?? '');
+  const draft = useOrderDraftStore((state) => (supplierId ? state.drafts[supplierId] : undefined));
+  const setQuantity = useOrderDraftStore((state) => state.setQuantity);
+  const removeItem = useOrderDraftStore((state) => state.removeItem);
+  const clearSupplier = useOrderDraftStore((state) => state.clearSupplier);
+  const placeOrderMutation = usePlaceCatalogOrder(supplierId ?? '');
+  const styles = createReviewStyles(theme);
+
+  if (!visible || !supplierId) return null;
+
+  const lines = Object.entries(draft ?? {})
+    .filter(([, qty]) => qty > 0)
+    .map(([itemId, quantity]) => {
+      const item = catalog?.find((c) => c.id === itemId);
+      return { catalogItemId: itemId, title: item?.name ?? '', quantity };
+    });
+
+  const handleSend = () => {
+    const shareText = lines
+      .map((line, index) => `${index + 1}. ${line.title} — ${line.quantity} pcs`)
+      .join('\n');
+
+    placeOrderMutation.mutate(lines, {
+      onSuccess: async () => {
+        hapticSuccess();
+        clearSupplier(supplierId);
+        onClose();
+        try {
+          await Share.share({ message: shareText });
+        } catch {
+          // The order is already saved by this point — a dismissed or
+          // failed share sheet doesn't need to roll anything back.
+        }
+      },
+    });
+  };
+
+  return (
+    <View style={styles.overlay}>
+      <Pressable style={styles.backdrop} onPress={onClose} />
+      <View style={styles.sheet}>
+        <View style={styles.sheetHeader}>
+          <Text style={styles.sheetTitle} numberOfLines={1}>
+            {supplierName}
+          </Text>
+          <Pressable onPress={onClose} hitSlop={12}>
+            <Feather name="x" size={22} color={theme.colors.textPrimary} />
+          </Pressable>
+        </View>
+
+        {lines.length === 0 ? (
+          <Text style={styles.emptyText}>{t('orders.reviewEmpty')}</Text>
+        ) : (
+          <FlatList
+            data={lines}
+            keyExtractor={(line) => line.catalogItemId}
+            contentContainerStyle={styles.list}
+            showsVerticalScrollIndicator={false}
+            renderItem={({ item: line }) => (
+              <Card>
+                <View style={styles.row}>
+                  <Text style={styles.itemName} numberOfLines={1}>
+                    {line.title}
+                  </Text>
+                  <View style={styles.stepper}>
+                    <Pressable
+                      style={styles.stepperButton}
+                      onPress={() => setQuantity(supplierId, line.catalogItemId, line.quantity - 1)}
+                      hitSlop={8}
+                    >
+                      <Feather name="minus" size={16} color={theme.colors.primary} />
+                    </Pressable>
+                    <Text style={styles.stepperValue}>{line.quantity}</Text>
+                    <Pressable
+                      style={styles.stepperButton}
+                      onPress={() => setQuantity(supplierId, line.catalogItemId, line.quantity + 1)}
+                      hitSlop={8}
+                    >
+                      <Feather name="plus" size={16} color={theme.colors.primary} />
+                    </Pressable>
+                  </View>
+                  <Pressable onPress={() => removeItem(supplierId, line.catalogItemId)} hitSlop={8}>
+                    <Feather name="x-circle" size={20} color={theme.colors.danger} />
+                  </Pressable>
+                </View>
+              </Card>
+            )}
+          />
+        )}
+
+        <Button
+          label={t('orders.send')}
+          icon="share-2"
+          onPress={handleSend}
+          loading={placeOrderMutation.isPending}
+          disabled={lines.length === 0}
+        />
+      </View>
+    </View>
+  );
+}
+
+function createReviewStyles(theme: ReturnType<typeof useTheme>) {
+  return StyleSheet.create({
+    overlay: { ...StyleSheet.absoluteFill, justifyContent: 'flex-end' },
+    backdrop: { ...StyleSheet.absoluteFill, backgroundColor: 'rgba(0,0,0,0.6)' },
+    sheet: {
+      maxHeight: '75%',
+      backgroundColor: theme.colors.background,
+      borderTopLeftRadius: theme.radius.lg,
+      borderTopRightRadius: theme.radius.lg,
+      padding: theme.spacing.xl,
+      gap: theme.spacing.md,
+    },
+    sheetHeader: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      justifyContent: 'space-between',
+    },
+    sheetTitle: {
+      flex: 1,
+      fontSize: theme.fontSizes.lg,
+      fontWeight: theme.fontWeights.bold,
+      color: theme.colors.textPrimary,
+    },
+    emptyText: { color: theme.colors.textSecondary, textAlign: 'center' },
+    list: { gap: theme.spacing.sm },
+    row: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      gap: theme.spacing.md,
+      padding: theme.spacing.lg,
+    },
+    itemName: {
+      flex: 1,
+      fontSize: theme.fontSizes.md,
+      fontWeight: theme.fontWeights.semiBold,
+      color: theme.colors.textPrimary,
+    },
+    stepper: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      gap: theme.spacing.sm,
+      backgroundColor: theme.colors.surfaceVariant,
+      borderRadius: theme.radius.full,
+      paddingHorizontal: theme.spacing.sm,
+      paddingVertical: 4,
+    },
+    stepperButton: { padding: 4 },
+    stepperValue: {
+      minWidth: 24,
+      textAlign: 'center',
+      fontSize: theme.fontSizes.md,
+      fontWeight: theme.fontWeights.semiBold,
+      color: theme.colors.textPrimary,
     },
   });
 }
