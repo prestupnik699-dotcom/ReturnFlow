@@ -531,7 +531,7 @@
     "sending": "Sending…",
     "repeatLastOrder": "Fill in {{count}} item like last time?",
     "repeatLastOrder_other": "Fill in {{count}} items like last time?",
-    "sendAsPdf": "Send as PDF",
+    "sendAsPdf": "PDF",
     "pdfDocumentTitle": "Order",
     "pdfColumnItem": "Item",
     "pdfColumnQuantity": "Qty",

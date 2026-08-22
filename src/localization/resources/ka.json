@@ -527,7 +527,7 @@
     "sendAll": "ყველას გაგზავნა",
     "sending": "იგზავნება…",
     "repeatLastOrder": "შევავსოთ {{count}} პროდუქტი როგორც გასულ ჯერზე?",
-    "sendAsPdf": "PDF-ის გაგზავნა",
+    "sendAsPdf": "PDF",
     "pdfDocumentTitle": "შეკვეთა",
     "pdfColumnItem": "პროდუქტი",
     "pdfColumnQuantity": "რაოდ.",
