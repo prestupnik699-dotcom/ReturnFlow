@@ -1,7 +1,7 @@
 import { useEffect } from 'react';
 import { supabase } from '@/lib/supabase';
 import { useAuthStore, type Profile } from '@/stores/auth.store';
-import { useMembershipStore } from '@/stores/membership.store';
+import { useMembershipStore, getPersistedStoreId } from '@/stores/membership.store';
 import { useLanguageStore, type AppLanguage } from '@/stores/language.store';
 import { useThemeStore, type ThemeMode } from '@/stores/theme.store';
 import { fetchCurrentProfile } from '@/features/auth/services/profile.service';
@@ -14,10 +14,19 @@ async function bootstrapProfileContext(profile: Profile) {
   const memberships = await fetchMemberships(profile.id);
   useMembershipStore.getState().setMemberships(memberships);
 
-  const first = memberships[0];
+  // Prefer whatever store the person had open last time — falls back to
+  // the first membership only when there's no saved choice, or the saved
+  // store no longer appears in this person's current memberships (e.g.
+  // they were removed from it, or it was deleted).
+  const persistedStoreId = await getPersistedStoreId();
+  const persisted = persistedStoreId
+    ? memberships.find((m) => m.storeId === persistedStoreId)
+    : undefined;
+  const target = persisted ?? memberships[0];
+
   useMembershipStore
     .getState()
-    .setActiveContext(first?.organizationId ?? null, first?.storeId ?? null);
+    .setActiveContext(target?.organizationId ?? null, target?.storeId ?? null);
 
   if (VALID_LANGUAGES.includes(profile.language as AppLanguage)) {
     useLanguageStore.getState().setLanguage(profile.language as AppLanguage);
