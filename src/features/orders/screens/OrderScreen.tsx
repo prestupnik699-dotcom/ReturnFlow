@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { View, ScrollView, Pressable, FlatList, StyleSheet, Share } from 'react-native';
+import { View, ScrollView, Pressable, FlatList, StyleSheet, Share, TextInput } from 'react-native';
 import { Text } from '@/components/AppText';
 import { useTranslation } from 'react-i18next';
 import { Feather } from '@expo/vector-icons';
@@ -143,6 +143,7 @@ function SupplierCatalogPicker({
   t: (key: string) => string;
 }) {
   const { data: catalog, isLoading } = useSupplierCatalog(supplierId);
+  const [searchQuery, setSearchQuery] = useState('');
   const styles = createPickerStyles(theme);
 
   if (isLoading) return null;
@@ -155,13 +156,29 @@ function SupplierCatalogPicker({
     );
   }
 
+  const filtered = catalog.filter((item) =>
+    item.name.toLowerCase().includes(searchQuery.trim().toLowerCase()),
+  );
+
   return (
     <FlatList
-      data={catalog}
+      data={filtered}
       keyExtractor={(item) => item.id}
       style={styles.flatList}
       contentContainerStyle={styles.list}
       showsVerticalScrollIndicator={false}
+      ListHeaderComponent={
+        <View style={styles.searchRow}>
+          <Feather name="search" size={16} color={theme.colors.textSecondary} />
+          <TextInput
+            style={styles.searchInput}
+            placeholder={t('suppliers.searchPlaceholder')}
+            placeholderTextColor={theme.colors.textSecondary}
+            value={searchQuery}
+            onChangeText={setSearchQuery}
+          />
+        </View>
+      }
       renderItem={({ item }) => {
         const quantity = quantities[item.id] ?? 0;
         return (
@@ -237,6 +254,23 @@ function createPickerStyles(theme: ReturnType<typeof useTheme>) {
     },
     emptyCatalog: { padding: theme.spacing.xl, alignItems: 'center' },
     emptyCatalogText: { color: theme.colors.textSecondary, textAlign: 'center' },
+    searchRow: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      gap: theme.spacing.sm,
+      borderWidth: 1,
+      borderColor: theme.colors.border,
+      backgroundColor: theme.colors.card,
+      borderRadius: theme.radius.md,
+      paddingHorizontal: theme.spacing.md,
+      paddingVertical: theme.spacing.sm,
+      marginBottom: theme.spacing.sm,
+    },
+    searchInput: {
+      flex: 1,
+      color: theme.colors.textPrimary,
+      fontSize: theme.fontSizes.sm,
+    },
   });
 }
 

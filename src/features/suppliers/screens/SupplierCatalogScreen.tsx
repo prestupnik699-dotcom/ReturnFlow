@@ -39,6 +39,7 @@ export function SupplierCatalogScreen({ supplierId }: Props) {
   const createMutation = useCreateCatalogItem(supplierId);
   const deleteMutation = useDeleteCatalogItem(supplierId);
   const [quickName, setQuickName] = useState('');
+  const [searchQuery, setSearchQuery] = useState('');
   const [scanningActive, setScanningActive] = useState(false);
   const [isLookingUp, setIsLookingUp] = useState(false);
   const [editingItem, setEditingItem] = useState<CatalogItem | null>(null);
@@ -146,6 +147,19 @@ export function SupplierCatalogScreen({ supplierId }: Props) {
           <Text style={styles.quickAddHint}>{t('suppliers.catalog.quickAddHint')}</Text>
         </View>
 
+        {catalog && catalog.length > 0 ? (
+          <View style={styles.searchRow}>
+            <Feather name="search" size={16} color={theme.colors.textSecondary} />
+            <TextInput
+              style={styles.searchInput}
+              placeholder={t('suppliers.searchPlaceholder')}
+              placeholderTextColor={theme.colors.textSecondary}
+              value={searchQuery}
+              onChangeText={setSearchQuery}
+            />
+          </View>
+        ) : null}
+
         {isError ? (
           <Text style={styles.errorText}>{t('organizations.settings.loadError')}</Text>
         ) : !catalog || catalog.length === 0 ? (
@@ -158,7 +172,9 @@ export function SupplierCatalogScreen({ supplierId }: Props) {
           </View>
         ) : (
           <FlatList
-            data={catalog}
+            data={catalog.filter((item) =>
+              item.name.toLowerCase().includes(searchQuery.trim().toLowerCase()),
+            )}
             keyExtractor={(item) => item.id}
             contentContainerStyle={styles.list}
             showsVerticalScrollIndicator={false}
@@ -359,6 +375,23 @@ function createStyles(theme: ReturnType<typeof useTheme>) {
       fontSize: theme.fontSizes.xs,
       color: theme.colors.textSecondary,
       marginLeft: theme.spacing.xs,
+    },
+    searchRow: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      gap: theme.spacing.sm,
+      borderWidth: 1,
+      borderColor: theme.colors.border,
+      backgroundColor: theme.colors.card,
+      borderRadius: theme.radius.md,
+      paddingHorizontal: theme.spacing.md,
+      paddingVertical: theme.spacing.sm,
+      marginBottom: theme.spacing.sm,
+    },
+    searchInput: {
+      flex: 1,
+      color: theme.colors.textPrimary,
+      fontSize: theme.fontSizes.sm,
     },
     emptyWrap: { flex: 1, alignItems: 'center', justifyContent: 'center' },
     list: { gap: theme.spacing.sm, paddingBottom: theme.spacing.xl },
