@@ -513,77 +513,85 @@ function OrderReviewSheet({
           {lines.length === 0 ? (
             <Text style={styles.emptyText}>{t('orders.reviewEmpty')}</Text>
           ) : (
-            <ScrollView
-              contentContainerStyle={styles.scrollContent}
-              keyboardShouldPersistTaps="handled"
-              showsVerticalScrollIndicator={false}
-            >
-              <View style={styles.list}>
-                {lines.map((line) => (
-                  <Card key={line.catalogItemId}>
-                    <View style={styles.row}>
-                      <Text style={styles.itemName} numberOfLines={1}>
-                        {line.title}
-                      </Text>
-                      <View style={styles.stepper}>
+            <>
+              <ScrollView
+                style={styles.listScroll}
+                contentContainerStyle={styles.listContent}
+                showsVerticalScrollIndicator={false}
+              >
+                <View style={styles.list}>
+                  {lines.map((line) => (
+                    <Card key={line.catalogItemId}>
+                      <View style={styles.row}>
+                        <Text style={styles.itemName} numberOfLines={1}>
+                          {line.title}
+                        </Text>
+                        <View style={styles.stepper}>
+                          <Pressable
+                            style={styles.stepperButton}
+                            onPress={() =>
+                              setQuantity(supplierId, line.catalogItemId, line.quantity - 1)
+                            }
+                            hitSlop={8}
+                          >
+                            <Feather name="minus" size={16} color={theme.colors.primary} />
+                          </Pressable>
+                          <Text style={styles.stepperValue}>{line.quantity}</Text>
+                          <Pressable
+                            style={styles.stepperButton}
+                            onPress={() =>
+                              setQuantity(supplierId, line.catalogItemId, line.quantity + 1)
+                            }
+                            hitSlop={8}
+                          >
+                            <Feather name="plus" size={16} color={theme.colors.primary} />
+                          </Pressable>
+                        </View>
                         <Pressable
-                          style={styles.stepperButton}
-                          onPress={() =>
-                            setQuantity(supplierId, line.catalogItemId, line.quantity - 1)
-                          }
+                          onPress={() => removeItem(supplierId, line.catalogItemId)}
                           hitSlop={8}
                         >
-                          <Feather name="minus" size={16} color={theme.colors.primary} />
-                        </Pressable>
-                        <Text style={styles.stepperValue}>{line.quantity}</Text>
-                        <Pressable
-                          style={styles.stepperButton}
-                          onPress={() =>
-                            setQuantity(supplierId, line.catalogItemId, line.quantity + 1)
-                          }
-                          hitSlop={8}
-                        >
-                          <Feather name="plus" size={16} color={theme.colors.primary} />
+                          <Feather name="x-circle" size={20} color={theme.colors.danger} />
                         </Pressable>
                       </View>
-                      <Pressable
-                        onPress={() => removeItem(supplierId, line.catalogItemId)}
-                        hitSlop={8}
-                      >
-                        <Feather name="x-circle" size={20} color={theme.colors.danger} />
-                      </Pressable>
-                    </View>
-                  </Card>
-                ))}
-              </View>
-
-              <TextInput
-                style={styles.noteInput}
-                placeholder={t('orders.notePlaceholder')}
-                placeholderTextColor={theme.colors.textSecondary}
-                value={note}
-                onChangeText={setNote}
-                multiline
-              />
-
-              {hasAnyPrice ? (
-                <View style={styles.totalRow}>
-                  <Text style={styles.totalLabel}>
-                    {t('orders.orderTotal')}
-                    {hasMissingPrice ? ` ${t('orders.orderTotalPartial')}` : ''}
-                  </Text>
-                  <Text style={styles.totalValue}>{orderTotal.toLocaleString()}</Text>
+                    </Card>
+                  ))}
                 </View>
-              ) : null}
+              </ScrollView>
 
-              <Button
-                label={t('orders.send')}
-                icon="share-2"
-                onPress={handleSend}
-                loading={placeOrderMutation.isPending}
-                disabled={lines.length === 0}
-              />
-            </ScrollView>
+              <ScrollView
+                style={styles.footerScroll}
+                keyboardShouldPersistTaps="handled"
+                contentContainerStyle={styles.footerContent}
+              >
+                <TextInput
+                  style={styles.noteInput}
+                  placeholder={t('orders.notePlaceholder')}
+                  placeholderTextColor={theme.colors.textSecondary}
+                  value={note}
+                  onChangeText={setNote}
+                  multiline
+                />
+
+                {hasAnyPrice ? (
+                  <View style={styles.totalRow}>
+                    <Text style={styles.totalLabel}>
+                      {t('orders.orderTotal')}
+                      {hasMissingPrice ? ` ${t('orders.orderTotalPartial')}` : ''}
+                    </Text>
+                    <Text style={styles.totalValue}>{orderTotal.toLocaleString()}</Text>
+                  </View>
+                ) : null}
+
+                <Button
+                  label={t('orders.send')}
+                  icon="share-2"
+                  onPress={handleSend}
+                  loading={placeOrderMutation.isPending}
+                  disabled={lines.length === 0}
+                />
+              </ScrollView>
+            </>
           )}
         </KeyboardAvoidingView>
       </SafeAreaView>
@@ -604,15 +612,24 @@ function createReviewStyles(theme: ReturnType<typeof useTheme>) {
       paddingBottom: theme.spacing.sm,
       gap: theme.spacing.md,
     },
-    scrollContent: {
-      gap: theme.spacing.md,
-      padding: theme.spacing.xl,
+    listScroll: { flexGrow: 0, flexShrink: 1 },
+    listContent: {
+      paddingHorizontal: theme.spacing.xl,
       paddingTop: theme.spacing.md,
+    },
+    footerScroll: { flexGrow: 0, flexShrink: 0 },
+    footerContent: {
+      gap: theme.spacing.md,
+      paddingHorizontal: theme.spacing.xl,
+      paddingTop: theme.spacing.md,
+      paddingBottom: theme.spacing.md,
     },
     sheetHeader: {
       flexDirection: 'row',
       alignItems: 'center',
       justifyContent: 'space-between',
+      paddingHorizontal: theme.spacing.xl,
+      paddingTop: theme.spacing.md,
     },
     sheetTitle: {
       flex: 1,
