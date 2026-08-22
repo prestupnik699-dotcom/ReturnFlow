@@ -181,7 +181,7 @@ export function SupplierCatalogScreen({ supplierId }: Props) {
             />
             <Pressable
               style={styles.quickAddButton}
-              onPress={handleQuickAdd}
+              onPressIn={handleQuickAdd}
               disabled={createMutation.isPending}
             >
               <Feather name="plus" size={22} color={theme.colors.onPrimary} />
