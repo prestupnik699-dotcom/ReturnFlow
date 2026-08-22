@@ -477,8 +477,6 @@ function createQuickActionStyles(theme: Theme) {
       backgroundColor: theme.colors.danger,
       alignItems: 'center',
       justifyContent: 'center',
-      borderWidth: 1.5,
-      borderColor: theme.colors.background,
     },
     tileBadgeText: {
       fontSize: 10,
