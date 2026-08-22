@@ -11,7 +11,7 @@ import {
   enqueueCreateCatalogItem,
   enqueuePlaceOrder,
 } from '@/features/orders/services/offlineOrders.service';
-import { useNetworkStatus } from '@/hooks/useNetworkStatus';
+import NetInfo from '@react-native-community/netinfo';
 import { useAuthStore } from '@/stores/auth.store';
 import { useMembershipStore } from '@/stores/membership.store';
 
@@ -29,7 +29,6 @@ type CatalogItemFormValues = {
 export function useCreateCatalogItem(supplierId: string) {
   const activeOrganizationId = useMembershipStore((state) => state.activeOrganizationId);
   const profile = useAuthStore((state) => state.profile);
-  const isConnected = useNetworkStatus();
   const invalidate = useInvalidateCatalog(supplierId);
 
   return useMutation({
@@ -44,6 +43,14 @@ export function useCreateCatalogItem(supplierId: string) {
         defaultPrice: values.defaultPrice,
         barcode: values.barcode,
       };
+
+      // Fetch fresh connectivity state right at submit time rather than
+      // trusting a subscribed value from useNetworkStatus — that hook's
+      // state can lag a moment behind reality (e.g. right after toggling
+      // airplane mode), which made the first tap silently attempt and
+      // fail a network call instead of queuing, requiring a second tap.
+      const netState = await NetInfo.fetch();
+      const isConnected = Boolean(netState.isConnected && netState.isInternetReachable !== false);
 
       // Offline: queue it and return null instead of a real item — the
       // catalog list picks the queued entry up on its own via
@@ -94,7 +101,6 @@ export function usePlaceCatalogOrder(supplierId: string) {
   const activeOrganizationId = useMembershipStore((state) => state.activeOrganizationId);
   const activeStoreId = useMembershipStore((state) => state.activeStoreId);
   const profile = useAuthStore((state) => state.profile);
-  const isConnected = useNetworkStatus();
   const queryClient = useQueryClient();
 
   return useMutation({
@@ -110,6 +116,11 @@ export function usePlaceCatalogOrder(supplierId: string) {
         createdBy: profile.id,
         lines,
       };
+
+      // Same fresh-fetch reasoning as useCreateCatalogItem — a subscribed
+      // connectivity value can be stale right after a network change.
+      const netState = await NetInfo.fetch();
+      const isConnected = Boolean(netState.isConnected && netState.isInternetReachable !== false);
 
       // Offline: the order is queued and will be written to
       // catalog_order_items once connectivity returns — history for this
