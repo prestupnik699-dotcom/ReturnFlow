@@ -184,7 +184,11 @@ export function SupplierCatalogScreen({ supplierId }: Props) {
               onPressIn={handleQuickAdd}
               disabled={createMutation.isPending}
             >
-              <Feather name="plus" size={22} color={theme.colors.onPrimary} />
+              {createMutation.isPending ? (
+                <ActivityIndicator size="small" color={theme.colors.onPrimary} />
+              ) : (
+                <Feather name="plus" size={22} color={theme.colors.onPrimary} />
+              )}
             </Pressable>
             <Pressable style={styles.scanButton} onPress={() => setScanningActive(true)}>
               <Feather name="maximize" size={20} color={theme.colors.primary} />
