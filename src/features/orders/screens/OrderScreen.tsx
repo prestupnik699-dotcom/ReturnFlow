@@ -184,7 +184,7 @@ export function OrderScreen() {
               <View
                 style={[
                   styles.pendingBar,
-                  { marginBottom: Math.max(0, tabBarClearance - theme.spacing.xl) },
+                  { marginBottom: Math.max(0, tabBarClearance - theme.spacing['4xl']) },
                 ]}
               >
                 <Text style={styles.pendingTitle}>
