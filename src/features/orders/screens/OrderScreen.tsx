@@ -24,6 +24,7 @@ import { EmptyState } from '@/components/EmptyState';
 import { Chip } from '@/components/Chip';
 import { useTabBarClearance } from '@/hooks/useTabBarClearance';
 import { useSuppliers } from '@/features/suppliers/hooks/useSuppliers';
+import { useSupplierReliability } from '@/features/suppliers/hooks/useSupplierReliability';
 import { useSupplierCatalog } from '@/features/suppliers/hooks/useSupplierCatalog';
 import { usePlaceCatalogOrder } from '@/features/suppliers/hooks/useCatalogMutations';
 import { useCatalogOrderHistory } from '@/features/suppliers/hooks/useCatalogOrderHistory';
@@ -44,6 +45,7 @@ export function OrderScreen() {
   const theme = useTheme();
   const { t } = useTranslation();
   const { data: suppliers } = useSuppliers(false, 'name');
+  const { data: reliability } = useSupplierReliability();
   const tabBarClearance = useTabBarClearance();
   const [activeSupplierId, setActiveSupplierId] = useState<string | null>(null);
   const [reviewSupplierId, setReviewSupplierId] = useState<string | null>(null);
@@ -135,21 +137,30 @@ export function OrderScreen() {
               contentContainerStyle={styles.supplierRow}
               style={styles.supplierScroll}
             >
-              {suppliers.map((supplier) => (
-                <View key={supplier.id} style={styles.chipWrap}>
-                  <Chip
-                    label={supplier.name}
-                    selected={supplier.id === activeSupplierId}
-                    onPress={() => {
-                      hapticSelection();
-                      setActiveSupplierId(supplier.id);
-                    }}
-                  />
-                  {pendingSupplierIds.includes(supplier.id) ? (
-                    <View style={styles.chipDot} />
-                  ) : null}
-                </View>
-              ))}
+              {suppliers.map((supplier) => {
+                const defectRate = reliability?.[supplier.id]?.defectRatePercent;
+                const isUnreliable = defectRate != null && defectRate > 15;
+                return (
+                  <View key={supplier.id} style={styles.chipWrap}>
+                    <Chip
+                      label={supplier.name}
+                      selected={supplier.id === activeSupplierId}
+                      onPress={() => {
+                        hapticSelection();
+                        setActiveSupplierId(supplier.id);
+                      }}
+                    />
+                    {isUnreliable ? (
+                      <View style={styles.warningDot}>
+                        <Feather name="alert-triangle" size={9} color="#fff" />
+                      </View>
+                    ) : null}
+                    {pendingSupplierIds.includes(supplier.id) ? (
+                      <View style={styles.chipDot} />
+                    ) : null}
+                  </View>
+                );
+              })}
             </ScrollView>
 
             <View style={styles.catalogArea}>
@@ -752,6 +763,17 @@ function createStyles(theme: ReturnType<typeof useTheme>) {
       height: 8,
       borderRadius: 4,
       backgroundColor: theme.colors.warning,
+    },
+    warningDot: {
+      position: 'absolute',
+      top: -4,
+      left: -4,
+      width: 16,
+      height: 16,
+      borderRadius: 8,
+      backgroundColor: theme.colors.danger,
+      alignItems: 'center',
+      justifyContent: 'center',
     },
     catalogArea: { flex: 1 },
     hintWrap: { flex: 1, alignItems: 'center', justifyContent: 'center' },
