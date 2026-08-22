@@ -329,8 +329,17 @@ function OrderReviewSheet({
     .filter(([, qty]) => qty > 0)
     .map(([itemId, quantity]) => {
       const item = catalog?.find((c) => c.id === itemId);
-      return { catalogItemId: itemId, title: item?.name ?? '', quantity };
+      return {
+        catalogItemId: itemId,
+        title: item?.name ?? '',
+        quantity,
+        unitPrice: item?.defaultPrice ?? null,
+      };
     });
+
+  const hasAnyPrice = lines.some((line) => line.unitPrice != null);
+  const hasMissingPrice = lines.some((line) => line.unitPrice == null);
+  const orderTotal = lines.reduce((sum, line) => sum + (line.unitPrice ?? 0) * line.quantity, 0);
 
   const handleSend = () => {
     const shareText = lines
@@ -405,6 +414,16 @@ function OrderReviewSheet({
           />
         )}
 
+        {hasAnyPrice ? (
+          <View style={styles.totalRow}>
+            <Text style={styles.totalLabel}>
+              {t('orders.orderTotal')}
+              {hasMissingPrice ? ` ${t('orders.orderTotalPartial')}` : ''}
+            </Text>
+            <Text style={styles.totalValue}>{orderTotal.toLocaleString()}</Text>
+          </View>
+        ) : null}
+
         <Button
           label={t('orders.send')}
           icon="share-2"
@@ -469,6 +488,18 @@ function createReviewStyles(theme: ReturnType<typeof useTheme>) {
       textAlign: 'center',
       fontSize: theme.fontSizes.md,
       fontWeight: theme.fontWeights.semiBold,
+      color: theme.colors.textPrimary,
+    },
+    totalRow: {
+      flexDirection: 'row',
+      justifyContent: 'space-between',
+      alignItems: 'baseline',
+      paddingHorizontal: theme.spacing.xs,
+    },
+    totalLabel: { fontSize: theme.fontSizes.sm, color: theme.colors.textSecondary },
+    totalValue: {
+      fontSize: theme.fontSizes.lg,
+      fontWeight: theme.fontWeights.bold,
       color: theme.colors.textPrimary,
     },
   });

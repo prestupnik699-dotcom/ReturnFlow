@@ -522,6 +522,8 @@
     "itemCount": "{{count}} item",
     "itemCount_other": "{{count}} items",
     "send": "Send",
-    "reviewEmpty": "No items left — add some or close this"
+    "reviewEmpty": "No items left — add some or close this",
+    "orderTotal": "Total:",
+    "orderTotalPartial": "(some items have no price)"
   }
 }
