@@ -189,6 +189,7 @@ export type OrderHistoryEntry = {
   title: string;
   quantity: number;
   createdAt: string;
+  catalogItemId: string | null;
 };
 
 export type GroupedOrder = {
@@ -205,7 +206,7 @@ export async function fetchSupplierOrderHistory(
 ): Promise<ServiceResult<GroupedOrder[]>> {
   const { data, error } = await supabase
     .from('catalog_order_items')
-    .select('id, title, quantity, created_at')
+    .select('id, title, quantity, created_at, catalog_item_id')
     .eq('supplier_id', supplierId)
     .order('created_at', { ascending: false });
 
@@ -221,6 +222,7 @@ export async function fetchSupplierOrderHistory(
       title: row.title,
       quantity: row.quantity,
       createdAt: row.created_at,
+      catalogItemId: row.catalog_item_id,
     };
     const existing = grouped.get(key);
     if (existing) {

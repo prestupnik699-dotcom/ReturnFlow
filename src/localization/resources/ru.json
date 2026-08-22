@@ -243,7 +243,8 @@
       "historyEmpty": "Заказов пока не было",
       "quickAddHint": "например, Domestos 1000ml",
       "itemBarcodeLabel": "Штрихкод",
-      "itemBarcodePlaceholder": "Необязательно"
+      "itemBarcodePlaceholder": "Необязательно",
+      "reorderButton": "Повторить"
     }
   },
   "returns": {

@@ -19,6 +19,9 @@ import {
 } from '@/features/suppliers/hooks/useCatalogMutations';
 import { useCatalogOrderHistory } from '@/features/suppliers/hooks/useCatalogOrderHistory';
 import { CatalogItemFormSheet } from '@/features/suppliers/components/CatalogItemFormSheet';
+import { useOrderDraftStore } from '@/stores/orderDraft.store';
+import type { OrderHistoryEntry } from '@/features/suppliers/services/catalog.service';
+import { useRouter } from 'expo-router';
 import { fetchCatalogItemByBarcode } from '@/features/suppliers/services/catalog.service';
 import { hapticImpactLight, hapticSuccess } from '@/lib/haptics';
 import type { CatalogItem } from '@/features/suppliers/services/catalog.service';
@@ -286,10 +289,31 @@ function OrderHistorySheet({
 }) {
   const theme = useTheme();
   const { t } = useTranslation();
+  const router = useRouter();
   const { data: history, isLoading } = useCatalogOrderHistory(supplierId);
+  const setQuantity = useOrderDraftStore((state) => state.setQuantity);
   const styles = createHistoryStyles(theme);
 
   if (!visible) return null;
+
+  // Only lines still linked to a catalog item can be restored — one
+  // that's since been deleted from the catalog has nothing to attach a
+  // quantity to, so it's silently skipped rather than reconstructed as
+  // a new item (that would defeat the point of a catalog in the first
+  // place: reusing the same tracked item, not spawning near-duplicates).
+  const handleReorder = (items: OrderHistoryEntry[]) => {
+    let restoredCount = 0;
+    for (const item of items) {
+      if (item.catalogItemId) {
+        setQuantity(supplierId, item.catalogItemId, item.quantity);
+        restoredCount += 1;
+      }
+    }
+    onClose();
+    if (restoredCount > 0) {
+      router.push('/order');
+    }
+  };
 
   const formatDate = (iso: string) => {
     const d = new Date(iso);
@@ -321,7 +345,19 @@ function OrderHistorySheet({
             renderItem={({ item: order }) => (
               <Card>
                 <View style={styles.orderCard}>
-                  <Text style={styles.orderDate}>{formatDate(order.createdAt)}</Text>
+                  <View style={styles.orderCardHeader}>
+                    <Text style={styles.orderDate}>{formatDate(order.createdAt)}</Text>
+                    <Pressable
+                      style={styles.reorderButton}
+                      onPress={() => handleReorder(order.items)}
+                      hitSlop={8}
+                    >
+                      <Feather name="refresh-cw" size={13} color={theme.colors.primary} />
+                      <Text style={styles.reorderButtonText}>
+                        {t('suppliers.catalog.reorderButton')}
+                      </Text>
+                    </Pressable>
+                  </View>
                   {order.items.map((line) => (
                     <Text key={line.id} style={styles.orderLine}>
                       {line.title} × {line.quantity}
@@ -490,11 +526,30 @@ function createHistoryStyles(theme: ReturnType<typeof useTheme>) {
     emptyText: { color: theme.colors.textSecondary, textAlign: 'center' },
     historyList: { gap: theme.spacing.sm },
     orderCard: { padding: theme.spacing.lg, gap: 4 },
+    orderCardHeader: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      justifyContent: 'space-between',
+      marginBottom: 4,
+    },
     orderDate: {
       fontSize: theme.fontSizes.sm,
       fontWeight: theme.fontWeights.semiBold,
       color: theme.colors.textSecondary,
-      marginBottom: 4,
+    },
+    reorderButton: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      gap: 4,
+      backgroundColor: theme.colors.primary + '15',
+      borderRadius: theme.radius.full,
+      paddingHorizontal: theme.spacing.sm,
+      paddingVertical: 4,
+    },
+    reorderButtonText: {
+      fontSize: theme.fontSizes.xs,
+      fontWeight: theme.fontWeights.semiBold,
+      color: theme.colors.primary,
     },
     orderLine: { fontSize: theme.fontSizes.sm, color: theme.colors.textPrimary },
   });
