@@ -20,11 +20,10 @@ import {
 import { useCatalogOrderHistory } from '@/features/suppliers/hooks/useCatalogOrderHistory';
 import { CatalogItemFormSheet } from '@/features/suppliers/components/CatalogItemFormSheet';
 import { useOrderDraftStore } from '@/stores/orderDraft.store';
-import type { OrderHistoryEntry } from '@/features/suppliers/services/catalog.service';
 import { useRouter } from 'expo-router';
 import { fetchCatalogItemByBarcode } from '@/features/suppliers/services/catalog.service';
 import { hapticImpactLight, hapticSuccess } from '@/lib/haptics';
-import type { CatalogItem } from '@/features/suppliers/services/catalog.service';
+import type { OrderHistoryEntry, CatalogItem } from '@/features/suppliers/services/catalog.service';
 
 type Props = { supplierId: string };
 

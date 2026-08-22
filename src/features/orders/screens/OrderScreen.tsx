@@ -14,6 +14,12 @@ import { useTabBarClearance } from '@/hooks/useTabBarClearance';
 import { useSuppliers } from '@/features/suppliers/hooks/useSuppliers';
 import { useSupplierCatalog } from '@/features/suppliers/hooks/useSupplierCatalog';
 import { usePlaceCatalogOrder } from '@/features/suppliers/hooks/useCatalogMutations';
+import {
+  placeCatalogOrder,
+  fetchSupplierCatalog,
+} from '@/features/suppliers/services/catalog.service';
+import { useAuthStore } from '@/stores/auth.store';
+import { useMembershipStore } from '@/stores/membership.store';
 import { useOrderDraftStore } from '@/stores/orderDraft.store';
 import { hapticSelection, hapticSuccess, hapticImpactLight } from '@/lib/haptics';
 
@@ -30,7 +36,64 @@ export function OrderScreen() {
   const [reviewSupplierId, setReviewSupplierId] = useState<string | null>(null);
   const drafts = useOrderDraftStore((state) => state.drafts);
   const setQuantity = useOrderDraftStore((state) => state.setQuantity);
+  const clearSupplier = useOrderDraftStore((state) => state.clearSupplier);
+  const activeOrganizationId = useMembershipStore((state) => state.activeOrganizationId);
+  const activeStoreId = useMembershipStore((state) => state.activeStoreId);
+  const profile = useAuthStore((state) => state.profile);
+  const [sendingAll, setSendingAll] = useState(false);
   const styles = createStyles(theme);
+
+  // Sequential, not parallel — the OS only supports one native share sheet
+  // at a time. Each supplier's order is saved, its share sheet opened and
+  // awaited until the person dismisses it, and only then does the next
+  // supplier's sheet open. Share.share()'s promise already resolves once
+  // the sheet closes, so awaiting it in a loop naturally gives this
+  // one-at-a-time behavior without extra coordination.
+  const handleSendAll = async () => {
+    if (!activeOrganizationId || !activeStoreId || !profile || !suppliers) return;
+    setSendingAll(true);
+
+    const targets = suppliers.filter((s) => pendingSupplierIds.includes(s.id));
+
+    for (const supplier of targets) {
+      const draftItems = drafts[supplier.id] ?? {};
+      const supplierCatalog = await fetchSupplierCatalog(supplier.id);
+      const catalogItems = supplierCatalog.success ? supplierCatalog.data : [];
+
+      const lines = Object.entries(draftItems)
+        .filter(([, qty]) => qty > 0)
+        .map(([itemId, quantity]) => {
+          const item = catalogItems.find((c) => c.id === itemId);
+          return { catalogItemId: itemId, title: item?.name ?? '', quantity };
+        });
+
+      if (lines.length === 0) continue;
+
+      const shareText = lines
+        .map((line, index) => `${index + 1}. ${line.title} — ${line.quantity} pcs`)
+        .join('\n');
+
+      const result = await placeCatalogOrder({
+        organizationId: activeOrganizationId,
+        storeId: activeStoreId,
+        supplierId: supplier.id,
+        createdBy: profile.id,
+        lines,
+      });
+
+      if (result.success) {
+        clearSupplier(supplier.id);
+        try {
+          await Share.share({ message: `${supplier.name}\n\n${shareText}` });
+        } catch {
+          // Move on to the next supplier regardless of how this share
+          // sheet was dismissed — the order itself is already saved.
+        }
+      }
+    }
+
+    setSendingAll(false);
+  };
 
   const activeSupplier = suppliers?.find((s) => s.id === activeSupplierId) ?? null;
   const reviewSupplier = suppliers?.find((s) => s.id === reviewSupplierId) ?? null;
@@ -94,6 +157,18 @@ export function OrderScreen() {
 
             {pendingSupplierIds.length > 0 ? (
               <View style={[styles.pendingBar, { marginBottom: tabBarClearance }]}>
+                {pendingSupplierIds.length > 1 ? (
+                  <Pressable
+                    style={styles.sendAllRow}
+                    onPress={handleSendAll}
+                    disabled={sendingAll}
+                  >
+                    <Text style={styles.sendAllText}>
+                      {sendingAll ? t('orders.sending') : t('orders.sendAll')}
+                    </Text>
+                    <Feather name="send" size={14} color={theme.colors.primary} />
+                  </Pressable>
+                ) : null}
                 <ScrollView
                   horizontal
                   showsHorizontalScrollIndicator={false}
@@ -586,6 +661,19 @@ function createStyles(theme: ReturnType<typeof useTheme>) {
     hintWrap: { flex: 1, alignItems: 'center', justifyContent: 'center' },
     hintText: { color: theme.colors.textSecondary, textAlign: 'center' },
     pendingBar: { paddingTop: theme.spacing.sm },
+    sendAllRow: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      gap: 6,
+      alignSelf: 'flex-end',
+      marginBottom: theme.spacing.xs,
+      marginRight: theme.spacing.xs,
+    },
+    sendAllText: {
+      fontSize: theme.fontSizes.sm,
+      fontWeight: theme.fontWeights.semiBold,
+      color: theme.colors.primary,
+    },
     pendingScrollContent: { paddingRight: theme.spacing.md },
   });
 }
