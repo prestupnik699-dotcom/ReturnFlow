@@ -21,6 +21,9 @@ export function useSyncOnReconnect(): void {
       processSyncQueue()
         .then((succeeded) => {
           queryClient.invalidateQueries({ queryKey: ['returns'] });
+          queryClient.invalidateQueries({ queryKey: ['supplierCatalog'] });
+          queryClient.invalidateQueries({ queryKey: ['supplierOrderHistory'] });
+          queryClient.invalidateQueries({ queryKey: ['pendingSyncCount'] });
           // Only celebrate if there was actually something queued and it
           // synced successfully — reconnecting with an empty queue (e.g.
           // a brief network blip with nothing pending) shouldn't trigger
