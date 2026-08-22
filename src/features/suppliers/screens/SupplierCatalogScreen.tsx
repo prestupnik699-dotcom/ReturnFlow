@@ -80,8 +80,8 @@ export function SupplierCatalogScreen({ supplierId }: Props) {
     setIsListening(true);
     ExpoSpeechRecognitionModule.start({
       lang: speechLocale,
-      interimResults: true,
-      continuous: true,
+      interimResults: false,
+      continuous: false,
     });
   };
 
