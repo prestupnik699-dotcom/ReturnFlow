@@ -441,7 +441,7 @@ function createStyles(theme: ReturnType<typeof useTheme>) {
     nameRow: {
       flexDirection: 'row',
       alignItems: 'center',
-      gap: theme.spacing.xs,
+      gap: theme.spacing.sm,
       marginTop: theme.spacing.sm,
     },
     nameEditRow: { width: '100%', gap: theme.spacing.sm, marginTop: theme.spacing.sm },
