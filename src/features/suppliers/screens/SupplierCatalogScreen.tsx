@@ -224,18 +224,27 @@ export function SupplierCatalogScreen({ supplierId }: Props) {
             contentContainerStyle={styles.list}
             showsVerticalScrollIndicator={false}
             renderItem={({ item }) => (
-              <Pressable onPress={() => openEdit(item)}>
+              <Pressable onPress={() => !item.pendingSync && openEdit(item)}>
                 <Card>
                   <View style={styles.row}>
                     <View style={styles.info}>
                       <Text style={styles.itemName} numberOfLines={1}>
                         {item.name}
                       </Text>
-                      {item.defaultPrice != null ? (
+                      {item.pendingSync ? (
+                        <View style={styles.pendingBadge}>
+                          <Feather name="upload-cloud" size={11} color={theme.colors.warning} />
+                          <Text style={styles.pendingBadgeText}>
+                            {t('suppliers.catalog.pendingSync')}
+                          </Text>
+                        </View>
+                      ) : item.defaultPrice != null ? (
                         <Text style={styles.itemPrice}>{item.defaultPrice}</Text>
                       ) : null}
                     </View>
-                    <Feather name="chevron-right" size={18} color={theme.colors.textSecondary} />
+                    {!item.pendingSync ? (
+                      <Feather name="chevron-right" size={18} color={theme.colors.textSecondary} />
+                    ) : null}
                   </View>
                 </Card>
               </Pressable>
@@ -487,6 +496,22 @@ function createStyles(theme: ReturnType<typeof useTheme>) {
       color: theme.colors.textPrimary,
     },
     itemPrice: { fontSize: theme.fontSizes.sm, color: theme.colors.textSecondary },
+    pendingBadge: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      alignSelf: 'flex-start',
+      gap: 4,
+      backgroundColor: theme.colors.warning + '22',
+      borderRadius: theme.radius.full,
+      paddingHorizontal: theme.spacing.sm,
+      paddingVertical: 2,
+      marginTop: 2,
+    },
+    pendingBadgeText: {
+      fontSize: theme.fontSizes.xs,
+      fontWeight: theme.fontWeights.semiBold,
+      color: theme.colors.warning,
+    },
     cameraOverlayRoot: {
       ...StyleSheet.absoluteFill,
       alignItems: 'center',

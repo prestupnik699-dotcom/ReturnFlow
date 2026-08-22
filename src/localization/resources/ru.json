@@ -247,7 +247,8 @@
       "quickAddHint": "например, Domestos 1000ml",
       "itemBarcodeLabel": "Штрихкод",
       "itemBarcodePlaceholder": "Необязательно",
-      "reorderButton": "Повторить"
+      "reorderButton": "Повторить",
+      "pendingSync": "Ожидает синхронизации"
     }
   },
   "returns": {

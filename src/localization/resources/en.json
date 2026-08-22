@@ -247,7 +247,8 @@
       "quickAddHint": "e.g. Domestos 1000ml",
       "itemBarcodeLabel": "Barcode",
       "itemBarcodePlaceholder": "Optional",
-      "reorderButton": "Reorder"
+      "reorderButton": "Reorder",
+      "pendingSync": "Syncing..."
     }
   },
   "returns": {

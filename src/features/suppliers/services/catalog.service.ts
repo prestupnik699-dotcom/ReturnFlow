@@ -10,6 +10,7 @@ export type CatalogItem = {
   barcode: string | null;
   createdBy: string;
   createdAt: string;
+  pendingSync?: boolean;
 };
 
 type CatalogItemRow = {

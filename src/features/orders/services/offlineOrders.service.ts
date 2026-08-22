@@ -49,5 +49,6 @@ export async function fetchPendingCatalogItems(supplierId: string): Promise<Cata
       barcode: payload.barcode,
       createdBy: payload.createdBy,
       createdAt: op.createdAt,
+      pendingSync: true,
     }));
 }
