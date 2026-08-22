@@ -249,7 +249,15 @@
       "itemBarcodePlaceholder": "Необязательно",
       "reorderButton": "Повторить",
       "pendingSync": "Ожидает синхронизации",
-      "itemAdded": "«{{name}}» добавлен"
+      "itemAdded": "«{{name}}» добавлен",
+      "importTitle": "Импорт прайс-листа",
+      "importHint": "Вставьте список товаров, по одному на строке. Число в конце строки станет ценой.",
+      "importPlaceholder": "Доместос 1000мл\nАджакс 500мл — 4.50\nФейри для посуды, 6.90",
+      "importPreviewCount": "{{count}} товар распознан",
+      "importPreviewCount_other": "{{count}} товаров распознано",
+      "importPreviewMore": "ещё {{count}}",
+      "importProgress": "Импорт {{done}} из {{total}}...",
+      "importButton": "Импортировать"
     }
   },
   "returns": {

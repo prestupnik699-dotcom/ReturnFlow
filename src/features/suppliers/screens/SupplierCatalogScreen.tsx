@@ -20,6 +20,7 @@ import {
 } from '@/features/suppliers/hooks/useCatalogMutations';
 import { useCatalogOrderHistory } from '@/features/suppliers/hooks/useCatalogOrderHistory';
 import { CatalogItemFormSheet } from '@/features/suppliers/components/CatalogItemFormSheet';
+import { CatalogImportSheet } from '@/features/suppliers/components/CatalogImportSheet';
 import { useOrderDraftStore } from '@/stores/orderDraft.store';
 import { useLanguageStore } from '@/stores/language.store';
 import { useRouter } from 'expo-router';
@@ -54,6 +55,7 @@ export function SupplierCatalogScreen({ supplierId }: Props) {
   const [formVisible, setFormVisible] = useState(false);
   const [pendingDelete, setPendingDelete] = useState<CatalogItem | null>(null);
   const [historyVisible, setHistoryVisible] = useState(false);
+  const [importVisible, setImportVisible] = useState(false);
   const scanLockRef = useRef(false);
   const styles = createStyles(theme);
 
@@ -203,6 +205,9 @@ export function SupplierCatalogScreen({ supplierId }: Props) {
                 color={isListening ? '#fff' : theme.colors.primary}
               />
             </Pressable>
+            <Pressable style={styles.scanButton} onPress={() => setImportVisible(true)}>
+              <Feather name="upload" size={20} color={theme.colors.primary} />
+            </Pressable>
           </View>
           <Text style={styles.quickAddHint}>{t('suppliers.catalog.quickAddHint')}</Text>
         </View>
@@ -347,6 +352,12 @@ export function SupplierCatalogScreen({ supplierId }: Props) {
       <OrderHistorySheet
         visible={historyVisible}
         onClose={() => setHistoryVisible(false)}
+        supplierId={supplierId}
+      />
+
+      <CatalogImportSheet
+        visible={importVisible}
+        onClose={() => setImportVisible(false)}
         supplierId={supplierId}
       />
     </Screen>

@@ -248,7 +248,14 @@
       "itemBarcodePlaceholder": "არასავალდებულო",
       "reorderButton": "გამეორება",
       "pendingSync": "სინქრონიზაცია...",
-      "itemAdded": "„{{name}}\" დაემატა"
+      "itemAdded": "„{{name}}\" დაემატა",
+      "importTitle": "ფასების სიის იმპორტი",
+      "importHint": "ჩასვით პროდუქტების სია, თითო ხაზზე ერთი. ბოლო რიცხვი გამოყენებული იქნება როგორც ფასი.",
+      "importPlaceholder": "დომესტოსი 1000მლ\nაჯაქსი 500მლ — 4.50\nფეირი, 6.90",
+      "importPreviewCount": "{{count}} პროდუქტი ამოცნობილია",
+      "importPreviewMore": "+{{count}} სხვა",
+      "importProgress": "იმპორტი {{done}}/{{total}}...",
+      "importButton": "იმპორტი"
     }
   },
   "returns": {

@@ -249,7 +249,15 @@
       "itemBarcodePlaceholder": "Optional",
       "reorderButton": "Reorder",
       "pendingSync": "Syncing...",
-      "itemAdded": "\"{{name}}\" added"
+      "itemAdded": "\"{{name}}\" added",
+      "importTitle": "Import price list",
+      "importHint": "Paste a list of items, one per line. A trailing number is used as the price.",
+      "importPlaceholder": "Domestos 1000ml\nAjax 500ml — 4.50\nFairy dish soap, 6.90",
+      "importPreviewCount": "{{count}} item detected",
+      "importPreviewCount_other": "{{count}} items detected",
+      "importPreviewMore": "+{{count}} more",
+      "importProgress": "Importing {{done}} of {{total}}...",
+      "importButton": "Import"
     }
   },
   "returns": {
