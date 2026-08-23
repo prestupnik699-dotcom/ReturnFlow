@@ -620,8 +620,8 @@ function createStyles(theme: Theme) {
       borderColor: theme.colors.background,
     },
     greeting: {
-      fontSize: theme.fontSizes.lg,
-      fontWeight: theme.fontWeights.bold,
+      fontSize: theme.fontSizes.md,
+      fontWeight: theme.fontWeights.medium,
       fontFamily: theme.fontFamily.display,
       color: theme.colors.textPrimary,
     },
