@@ -1,5 +1,5 @@
 import { useRef } from 'react';
-import { View, Pressable, StyleSheet, Linking } from 'react-native';
+import { View, Pressable, StyleSheet, Linking, useWindowDimensions } from 'react-native';
 import { Text } from '@/components/AppText';
 import ReanimatedSwipeable, {
   type SwipeableMethods,
@@ -111,6 +111,12 @@ export function StoreListRow({
   const { t } = useTranslation();
   const canDelete = useHasRole(['Owner']);
   const swipeableRef = useRef<SwipeableMethods>(null);
+  // Below this width, the checkbox + avatar + gaps eat too much of the
+  // row for the store name to have reasonable space — hiding the avatar
+  // icon on narrow screens (rather than shrinking it further) keeps the
+  // name readable instead of truncating early.
+  const { width: screenWidth } = useWindowDimensions();
+  const showAvatar = screenWidth >= 380;
   const styles = createStyles(theme);
 
   const trigger = () => {
@@ -131,9 +137,11 @@ export function StoreListRow({
             />
           </Pressable>
 
-          <View style={styles.avatar}>
-            <Feather name="shopping-bag" size={15} color={theme.colors.primary} />
-          </View>
+          {showAvatar ? (
+            <View style={styles.avatar}>
+              <Feather name="shopping-bag" size={15} color={theme.colors.primary} />
+            </View>
+          ) : null}
 
           <PressableScale style={styles.info} onPress={onEdit}>
             <Text style={styles.name} numberOfLines={1}>
@@ -146,7 +154,7 @@ export function StoreListRow({
           </Pressable>
         </View>
 
-        <View style={styles.detailsList}>
+        <View style={[styles.detailsList, { marginLeft: showAvatar ? 76 : 34 }]}>
           <Text style={styles.detailLine} numberOfLines={1}>
             {subtitle}
           </Text>
@@ -221,6 +229,7 @@ function createStyles(theme: Theme) {
       justifyContent: 'center',
     },
     info: { flex: 1, gap: 2 },
+    detailsList: { gap: theme.spacing.xs },
     name: {
       fontSize: theme.fontSizes.md,
       fontWeight: theme.fontWeights.semiBold,
@@ -234,7 +243,7 @@ function createStyles(theme: Theme) {
       alignItems: 'center',
       justifyContent: 'center',
     },
-    detailsList: { marginLeft: 76, gap: theme.spacing.xs },
+
     detailLine: {
       fontSize: theme.fontSizes.sm,
       color: theme.colors.textSecondary,
