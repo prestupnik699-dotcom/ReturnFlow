@@ -34,6 +34,7 @@ import { SupplierFormSheet } from '@/features/suppliers/screens/SupplierFormShee
 import { SupplierListRow } from '@/features/suppliers/components/SupplierListRow';
 import type { Supplier, SupplierSort } from '@/features/suppliers/services/suppliers.service';
 import { SkeletonList } from '@/components/Skeleton';
+import { useResponsiveTitleSize } from '@/hooks/useResponsiveTitleSize';
 
 const EDIT_ROLES = ['Owner', 'StoreManager', 'Employee'] as const;
 type FilterMode = 'all' | 'favorites' | 'attention';
@@ -63,7 +64,8 @@ export function SuppliersScreen() {
   const [formVisible, setFormVisible] = useState(false);
   const [editingId, setEditingId] = useState<string | null>(null);
   const [pendingDelete, setPendingDelete] = useState<Supplier | null>(null);
-  const styles = createStyles(theme);
+  const titleFontSize = useResponsiveTitleSize();
+  const styles = createStyles(theme, titleFontSize);
 
   const query = searchInput.trim().toLowerCase();
   const filtered = (allSuppliers ?? [])
@@ -300,7 +302,7 @@ function createChipStyles(theme: Theme) {
   });
 }
 
-function createStyles(theme: Theme) {
+function createStyles(theme: Theme, titleFontSize: number) {
   return StyleSheet.create({
     container: { flex: 1 },
     center: { flex: 1, justifyContent: 'center', alignItems: 'center' },
@@ -311,7 +313,7 @@ function createStyles(theme: Theme) {
       marginBottom: theme.spacing.md,
     },
     title: {
-      fontSize: theme.fontSizes['2xl'],
+      fontSize: titleFontSize,
       fontWeight: theme.fontWeights.bold,
       color: theme.colors.textPrimary,
     },

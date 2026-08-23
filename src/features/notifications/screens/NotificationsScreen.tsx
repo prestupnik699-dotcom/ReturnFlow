@@ -28,6 +28,7 @@ import {
   useDeleteNotifications,
 } from '@/features/notifications/hooks/useNotificationActions';
 import { hapticImpactLight } from '@/lib/haptics';
+import { useResponsiveTitleSize } from '@/hooks/useResponsiveTitleSize';
 import type { AppNotification } from '@/features/notifications/services/notifications.service';
 
 type Theme = ReturnType<typeof useTheme>;
@@ -83,7 +84,8 @@ export function NotificationsScreen() {
   const deleteMutation = useDeleteNotifications();
   const [selectedIds, setSelectedIds] = useState<string[]>([]);
   const [deleteConfirmVisible, setDeleteConfirmVisible] = useState(false);
-  const styles = createStyles(theme);
+  const titleFontSize = useResponsiveTitleSize();
+  const styles = createStyles(theme, titleFontSize);
 
   const notifications = (allNotifications ?? []).filter((n) => n.type !== 'chat_message');
   const unreadCount = notifications.filter((n) => !n.isRead).length;
@@ -298,7 +300,7 @@ export function NotificationsScreen() {
   );
 }
 
-function createStyles(theme: Theme) {
+function createStyles(theme: Theme, titleFontSize: number) {
   return StyleSheet.create({
     container: { flex: 1, paddingTop: theme.spacing.xl },
     center: { flex: 1, justifyContent: 'center', alignItems: 'center' },
@@ -318,7 +320,7 @@ function createStyles(theme: Theme) {
     },
     title: {
       flex: 1,
-      fontSize: theme.fontSizes['2xl'],
+      fontSize: titleFontSize,
       fontWeight: theme.fontWeights.bold,
       color: theme.colors.textPrimary,
     },

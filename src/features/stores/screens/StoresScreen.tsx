@@ -31,6 +31,7 @@ import { StoreListRow } from '@/features/stores/components/StoreListRow';
 import { useMembershipStore } from '@/stores/membership.store';
 import type { Store } from '@/features/stores/services/stores.service';
 import { SkeletonList } from '@/components/Skeleton';
+import { useResponsiveTitleSize } from '@/hooks/useResponsiveTitleSize';
 
 type FilterMode = 'all' | 'attention';
 
@@ -60,7 +61,8 @@ export function StoresScreen() {
   const [formVisible, setFormVisible] = useState(false);
   const [editingStore, setEditingStore] = useState<Store | null>(null);
   const [pendingDelete, setPendingDelete] = useState<Store | null>(null);
-  const styles = createStyles(theme);
+  const titleFontSize = useResponsiveTitleSize();
+  const styles = createStyles(theme, titleFontSize);
 
   const query = searchInput.trim().toLowerCase();
   const filtered = (stores ?? [])
@@ -308,7 +310,7 @@ function createChipStyles(theme: Theme) {
   });
 }
 
-function createStyles(theme: Theme) {
+function createStyles(theme: Theme, titleFontSize: number) {
   return StyleSheet.create({
     container: { flex: 1 },
     center: { flex: 1, justifyContent: 'center', alignItems: 'center' },
@@ -319,7 +321,7 @@ function createStyles(theme: Theme) {
       marginBottom: theme.spacing.md,
     },
     title: {
-      fontSize: theme.fontSizes['2xl'],
+      fontSize: titleFontSize,
       fontWeight: theme.fontWeights.bold,
       color: theme.colors.textPrimary,
     },

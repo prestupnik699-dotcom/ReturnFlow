@@ -35,6 +35,7 @@ import {
   useBulkDeleteReturns,
 } from '@/features/returns/hooks/useBulkReturnActions';
 import { useHasRole } from '@/features/auth/hooks/usePermissions';
+import { useResponsiveTitleSize } from '@/hooks/useResponsiveTitleSize';
 import { useMembershipStore } from '@/stores/membership.store';
 import type { ReturnItem, ReturnStatus } from '@/features/returns/services/returns.service';
 
@@ -103,7 +104,8 @@ export function ReturnsScreen() {
   const bulkMarkReturnedMutation = useBulkMarkReturned();
   const bulkArchiveMutation = useBulkArchive();
   const bulkDeleteMutation = useBulkDeleteReturns();
-  const styles = createStyles(theme);
+  const titleFontSize = useResponsiveTitleSize();
+  const styles = createStyles(theme, titleFontSize);
 
   const selectionMode = selectedIds.length > 0;
 
@@ -548,7 +550,7 @@ function createChipStyles(theme: Theme) {
   });
 }
 
-function createStyles(theme: Theme) {
+function createStyles(theme: Theme, titleFontSize: number) {
   return StyleSheet.create({
     container: { flex: 1 },
     center: { flex: 1, justifyContent: 'center', alignItems: 'center', padding: theme.spacing.xl },
@@ -559,7 +561,7 @@ function createStyles(theme: Theme) {
       marginBottom: theme.spacing.md,
     },
     title: {
-      fontSize: theme.fontSizes['2xl'],
+      fontSize: titleFontSize,
       fontWeight: theme.fontWeights.bold,
       color: theme.colors.textPrimary,
     },
