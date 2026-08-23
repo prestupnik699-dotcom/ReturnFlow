@@ -13,6 +13,7 @@ import { Button } from '@/components/Button';
 import { EmptyState } from '@/components/EmptyState';
 import { ConfirmDialog } from '@/components/ConfirmDialog';
 import { useSupplier } from '@/features/suppliers/hooks/useSupplier';
+import { useHasRole } from '@/features/auth/hooks/usePermissions';
 import { useSupplierCatalog } from '@/features/suppliers/hooks/useSupplierCatalog';
 import {
   useCreateCatalogItem,
@@ -43,6 +44,7 @@ export function SupplierCatalogScreen({ supplierId }: Props) {
   const { data: catalog, isLoading, isError } = useSupplierCatalog(supplierId);
   const createMutation = useCreateCatalogItem(supplierId);
   const deleteMutation = useDeleteCatalogItem(supplierId);
+  const canEdit = useHasRole(['Owner', 'StoreManager']);
   const [quickName, setQuickName] = useState('');
   const [addedBanner, setAddedBanner] = useState<string | null>(null);
   const [searchQuery, setSearchQuery] = useState('');
@@ -167,49 +169,51 @@ export function SupplierCatalogScreen({ supplierId }: Props) {
       <View style={styles.container}>
         <ScreenHeader
           title={supplier?.name ?? t('suppliers.catalog.title')}
-          secondaryRightIcon="upload"
-          onSecondaryRightPress={() => setImportVisible(true)}
+          secondaryRightIcon={canEdit ? 'upload' : undefined}
+          onSecondaryRightPress={canEdit ? () => setImportVisible(true) : undefined}
           rightIcon="clock"
           onRightPress={() => setHistoryVisible(true)}
         />
 
-        <View style={styles.quickAddWrap}>
-          <View style={styles.quickAddRow}>
-            <TextInput
-              style={styles.quickInput}
-              placeholder={t('suppliers.catalog.quickAddPlaceholder')}
-              placeholderTextColor={theme.colors.textSecondary}
-              value={quickName}
-              onChangeText={setQuickName}
-              onSubmitEditing={handleQuickAdd}
-            />
-            <Pressable
-              style={styles.quickAddButton}
-              onPress={handleQuickAdd}
-              disabled={createMutation.isPending}
-            >
-              {createMutation.isPending ? (
-                <ActivityIndicator size="small" color={theme.colors.onPrimary} />
-              ) : (
-                <Feather name="plus" size={22} color={theme.colors.onPrimary} />
-              )}
-            </Pressable>
-            <Pressable style={styles.scanButton} onPress={() => setScanningActive(true)}>
-              <Feather name="maximize" size={20} color={theme.colors.primary} />
-            </Pressable>
-            <Pressable
-              style={[styles.scanButton, isListening && styles.micButtonActive]}
-              onPress={handleVoiceInput}
-            >
-              <Feather
-                name={isListening ? 'mic-off' : 'mic'}
-                size={20}
-                color={isListening ? '#fff' : theme.colors.primary}
+        {canEdit ? (
+          <View style={styles.quickAddWrap}>
+            <View style={styles.quickAddRow}>
+              <TextInput
+                style={styles.quickInput}
+                placeholder={t('suppliers.catalog.quickAddPlaceholder')}
+                placeholderTextColor={theme.colors.textSecondary}
+                value={quickName}
+                onChangeText={setQuickName}
+                onSubmitEditing={handleQuickAdd}
               />
-            </Pressable>
+              <Pressable
+                style={styles.quickAddButton}
+                onPress={handleQuickAdd}
+                disabled={createMutation.isPending}
+              >
+                {createMutation.isPending ? (
+                  <ActivityIndicator size="small" color={theme.colors.onPrimary} />
+                ) : (
+                  <Feather name="plus" size={22} color={theme.colors.onPrimary} />
+                )}
+              </Pressable>
+              <Pressable style={styles.scanButton} onPress={() => setScanningActive(true)}>
+                <Feather name="maximize" size={20} color={theme.colors.primary} />
+              </Pressable>
+              <Pressable
+                style={[styles.scanButton, isListening && styles.micButtonActive]}
+                onPress={handleVoiceInput}
+              >
+                <Feather
+                  name={isListening ? 'mic-off' : 'mic'}
+                  size={20}
+                  color={isListening ? '#fff' : theme.colors.primary}
+                />
+              </Pressable>
+            </View>
+            <Text style={styles.quickAddHint}>{t('suppliers.catalog.quickAddHint')}</Text>
           </View>
-          <Text style={styles.quickAddHint}>{t('suppliers.catalog.quickAddHint')}</Text>
-        </View>
+        ) : null}
 
         {addedBanner ? (
           <View style={styles.addedBanner}>
@@ -252,7 +256,7 @@ export function SupplierCatalogScreen({ supplierId }: Props) {
             contentContainerStyle={styles.list}
             showsVerticalScrollIndicator={false}
             renderItem={({ item }) => (
-              <Pressable onPress={() => !item.pendingSync && openEdit(item)}>
+              <Pressable onPress={() => canEdit && !item.pendingSync && openEdit(item)}>
                 <Card>
                   <View style={styles.row}>
                     <View style={styles.info}>
