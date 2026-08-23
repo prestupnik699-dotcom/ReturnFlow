@@ -199,13 +199,34 @@ export function DashboardScreen() {
         refreshControl={<RefreshControl {...refreshProps} />}
       >
         <View style={styles.headerRow}>
-          <Pressable style={styles.avatar} onPress={() => router.push('/profile-settings')}>
-            {profile?.photoUrl ? (
-              <Image source={{ uri: profile.photoUrl }} style={styles.avatarImage} />
-            ) : (
-              <Text style={styles.avatarText}>{initials}</Text>
-            )}
-          </Pressable>
+          <View style={styles.headerIdentity}>
+            <Pressable style={styles.avatar} onPress={() => router.push('/profile-settings')}>
+              {profile?.photoUrl ? (
+                <Image source={{ uri: profile.photoUrl }} style={styles.avatarImage} />
+              ) : (
+                <Text style={styles.avatarText}>{initials}</Text>
+              )}
+            </Pressable>
+            <Animated.View
+              key={`greeting-${greetingReplayKey}`}
+              entering={FadeIn.duration(450)}
+              style={styles.greetingCol}
+            >
+              <Text
+                style={styles.greeting}
+                numberOfLines={1}
+                adjustsFontSizeToFit
+                minimumFontScale={0.7}
+              >
+                {greeting}{' '}
+                <WavingHand
+                  size={18}
+                  color={theme.colors.textPrimary}
+                  replayKey={greetingReplayKey}
+                />
+              </Text>
+            </Animated.View>
+          </View>
           <View style={styles.headerActions}>
             <Pressable
               style={styles.headerIconButton}
@@ -218,17 +239,6 @@ export function DashboardScreen() {
           </View>
         </View>
 
-        <Animated.View key={`greeting-${greetingReplayKey}`} entering={FadeIn.duration(450)}>
-          <Text
-            style={styles.greeting}
-            numberOfLines={language === 'ka' ? 1 : undefined}
-            adjustsFontSizeToFit={language === 'ka'}
-            minimumFontScale={0.75}
-          >
-            {greeting}{' '}
-            <WavingHand size={26} color={theme.colors.textPrimary} replayKey={greetingReplayKey} />
-          </Text>
-        </Animated.View>
         <Animated.Text
           key={`subtitle-${greetingReplayKey}`}
           entering={FadeIn.delay(150).duration(450)}
@@ -584,21 +594,23 @@ function createStyles(theme: Theme) {
     container: { gap: theme.spacing.lg, paddingTop: theme.spacing.sm },
     center: { flex: 1, alignItems: 'center', justifyContent: 'center' },
     headerRow: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' },
+    headerIdentity: { flexDirection: 'row', alignItems: 'center', gap: theme.spacing.sm, flex: 1 },
     avatar: {
-      width: 40,
-      height: 40,
+      width: 48,
+      height: 48,
       borderRadius: theme.radius.full,
       backgroundColor: theme.colors.primary,
       alignItems: 'center',
       justifyContent: 'center',
       overflow: 'hidden',
     },
-    avatarImage: { width: 40, height: 40 },
+    avatarImage: { width: 48, height: 48 },
     avatarText: {
       color: theme.colors.onPrimary,
       fontSize: theme.fontSizes.sm,
       fontWeight: theme.fontWeights.bold,
     },
+    greetingCol: { flex: 1 },
     headerActions: { flexDirection: 'row', gap: theme.spacing.sm },
     headerIconButton: {
       width: 40,
@@ -619,20 +631,18 @@ function createStyles(theme: Theme) {
       borderWidth: 1.5,
       borderColor: theme.colors.background,
     },
-    greetingRow: {
-      flexDirection: 'row',
-      alignItems: 'center',
-      gap: theme.spacing.sm,
-      marginTop: theme.spacing.md,
-    },
     greeting: {
-      fontSize: theme.fontSizes['2xl'],
+      fontSize: theme.fontSizes.lg,
       fontWeight: theme.fontWeights.bold,
       fontFamily: theme.fontFamily.display,
       color: theme.colors.textPrimary,
-      marginTop: theme.spacing.md,
     },
-    subtitle: { fontSize: theme.fontSizes.sm, color: theme.colors.textSecondary },
+    subtitle: {
+      fontSize: theme.fontSizes.sm,
+      color: theme.colors.textSecondary,
+      marginTop: theme.spacing.sm,
+      marginLeft: 60,
+    },
     emptyWrap: { alignItems: 'center', gap: theme.spacing.lg, paddingTop: theme.spacing['3xl'] },
     bentoRow: { flexDirection: 'row', gap: theme.spacing.sm },
     bentoHero: {
