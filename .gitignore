@@ -48,3 +48,6 @@ example
 # Supabase CLI local cache
 supabase/.temp
 *.apk
+
+# Firebase service account keys (secret, never commit)
+*firebase-adminsdk*.json

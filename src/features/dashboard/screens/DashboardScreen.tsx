@@ -24,6 +24,7 @@ import Animated, {
   withTiming,
   withSequence,
   withDelay,
+  Easing,
 } from 'react-native-reanimated';
 import { useTheme } from '@/theme/ThemeProvider';
 import { Screen } from '@/components/Screen';
@@ -70,15 +71,17 @@ function WavingHand({
 
   useEffect(() => {
     rotate.value = 0;
+    // Three swings, easing in/out on each — a real wave decelerates at
+    // the top of each turn rather than snapping between fixed angles at
+    // a constant rate, which is what made the original version feel
+    // mechanical rather than like an actual hand wave.
     rotate.value = withDelay(
       600,
       withSequence(
-        withTiming(32, { duration: 220 }),
-        withTiming(-22, { duration: 220 }),
-        withTiming(28, { duration: 220 }),
-        withTiming(-18, { duration: 220 }),
-        withTiming(14, { duration: 180 }),
-        withTiming(0, { duration: 180 }),
+        withTiming(22, { duration: 260, easing: Easing.out(Easing.quad) }),
+        withTiming(-16, { duration: 300, easing: Easing.inOut(Easing.quad) }),
+        withTiming(18, { duration: 280, easing: Easing.inOut(Easing.quad) }),
+        withTiming(0, { duration: 240, easing: Easing.out(Easing.quad) }),
       ),
     );
     // eslint-disable-next-line react-hooks/exhaustive-deps -- intentional: replayKey is the only thing that should re-trigger this
