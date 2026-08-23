@@ -234,7 +234,7 @@ function createStyles(theme: Theme) {
       alignItems: 'center',
       justifyContent: 'center',
     },
-    detailsList: { marginLeft: 86, gap: theme.spacing.xs },
+    detailsList: { marginLeft: 76, gap: theme.spacing.xs },
     detailLine: {
       fontSize: theme.fontSizes.sm,
       color: theme.colors.textSecondary,
