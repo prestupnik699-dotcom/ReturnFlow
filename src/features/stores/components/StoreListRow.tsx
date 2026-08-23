@@ -132,7 +132,7 @@ export function StoreListRow({
           </Pressable>
 
           <View style={styles.avatar}>
-            <Feather name="shopping-bag" size={20} color={theme.colors.primary} />
+            <Feather name="shopping-bag" size={15} color={theme.colors.primary} />
           </View>
 
           <PressableScale style={styles.info} onPress={onEdit}>
@@ -213,8 +213,8 @@ function createStyles(theme: Theme) {
     container: { padding: theme.spacing.lg, gap: theme.spacing.xs },
     topRow: { flexDirection: 'row', alignItems: 'center', gap: theme.spacing.md },
     avatar: {
-      width: 40,
-      height: 40,
+      width: 30,
+      height: 30,
       borderRadius: theme.radius.full,
       backgroundColor: theme.colors.primary + '15',
       alignItems: 'center',
