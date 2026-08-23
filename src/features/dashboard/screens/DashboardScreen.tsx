@@ -33,7 +33,6 @@ import { EmptyState } from '@/components/EmptyState';
 import { AnimatedNumber } from '@/components/AnimatedNumber';
 import { useTabBarClearance } from '@/hooks/useTabBarClearance';
 import { useAuthStore } from '@/stores/auth.store';
-import { useLanguageStore } from '@/stores/language.store';
 import { useMembershipStore } from '@/stores/membership.store';
 import { useReturns } from '@/features/returns/hooks/useReturns';
 import { usePendingSyncCount } from '@/features/statistics/hooks/usePendingSyncCount';
@@ -104,7 +103,6 @@ export function DashboardScreen() {
   const router = useRouter();
   const tabBarClearance = useTabBarClearance();
   const profile = useAuthStore((state) => state.profile);
-  const language = useLanguageStore((state) => state.language);
   const activeStoreId = useMembershipStore((state) => state.activeStoreId);
   const unreadCount = useUnreadCount();
   const [formVisible, setFormVisible] = useState(false);
