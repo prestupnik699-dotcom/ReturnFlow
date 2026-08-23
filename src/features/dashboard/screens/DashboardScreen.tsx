@@ -628,8 +628,7 @@ function createStyles(theme: Theme) {
     subtitle: {
       fontSize: theme.fontSizes.sm,
       color: theme.colors.textSecondary,
-      marginTop: theme.spacing.sm,
-      marginLeft: 60,
+      marginTop: 2,
     },
     emptyWrap: { alignItems: 'center', gap: theme.spacing.lg, paddingTop: theme.spacing['3xl'] },
     bentoRow: { flexDirection: 'row', gap: theme.spacing.sm },
