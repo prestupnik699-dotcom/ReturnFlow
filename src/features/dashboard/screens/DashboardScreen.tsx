@@ -648,7 +648,12 @@ function createStyles(theme: Theme) {
       fontFamily: theme.fontFamily.display,
       color: theme.colors.onPrimary,
     },
-    bentoHeroLabel: { fontSize: theme.fontSizes.sm, color: theme.colors.onPrimary, opacity: 0.85 },
+    bentoHeroLabel: {
+      fontSize: theme.fontSizes.sm,
+      color: theme.colors.onPrimary,
+      opacity: 0.85,
+      minHeight: 36,
+    },
     bentoSide: {
       flex: 1,
       backgroundColor: theme.colors.card,
@@ -663,7 +668,11 @@ function createStyles(theme: Theme) {
       fontFamily: theme.fontFamily.display,
       color: theme.colors.textPrimary,
     },
-    bentoSideLabel: { fontSize: theme.fontSizes.xs, color: theme.colors.textSecondary },
+    bentoSideLabel: {
+      fontSize: theme.fontSizes.xs,
+      color: theme.colors.textSecondary,
+      minHeight: 32,
+    },
     quickActionsRow: {
       flexDirection: 'row',
       gap: theme.spacing.sm,
