@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "819097395182",
+    "project_id": "returnflow-8265a",
+    "storage_bucket": "returnflow-8265a.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:819097395182:android:1a17354187fdfeccffb8ff",
+        "android_client_info": {
+          "package_name": "com.returnflow.app"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyD_LF_yPY_tOd2ljIvvkPay2f5LTtQ4W7E"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

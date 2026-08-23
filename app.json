@@ -10,6 +10,7 @@
     "icon": "./assets/images/icon.png",
     "android": {
       "package": "com.returnflow.app",
+      "googleServicesFile": "./google-services.json",
       "softwareKeyboardLayoutMode": "resize",
       "adaptiveIcon": {
         "foregroundImage": "./assets/images/adaptive-icon.png",
@@ -44,7 +45,7 @@
       [
         "expo-notifications",
         {
-          "icon": "./assets/images/adaptive-icon.png",
+          "icon": "./assets/images/notification-icon.png",
           "color": "#6C5CE7"
         }
       ],

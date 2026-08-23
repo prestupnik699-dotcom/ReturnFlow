@@ -1,11 +1,27 @@
 import { createClient } from 'jsr:@supabase/supabase-js@2';
 
-const PUSH_TITLES: Record<string, string> = {
-  chat_message: 'Новое сообщение в чате',
-  return_created: 'Добавлен новый возврат',
-  reminder_due_tomorrow: 'Напоминание: завтра',
-  reminder_due_today: 'Напоминание: сегодня',
+const PUSH_TITLES: Record<string, Record<string, string>> = {
+  ru: {
+    chat_message: 'Новое сообщение в чате',
+    return_created: 'Добавлен новый возврат',
+    reminder_due_tomorrow: 'Напоминание: завтра',
+    reminder_due_today: 'Напоминание: сегодня',
+  },
+  en: {
+    chat_message: 'New chat message',
+    return_created: 'New return added',
+    reminder_due_tomorrow: 'Reminder: tomorrow',
+    reminder_due_today: 'Reminder: today',
+  },
+  ka: {
+    chat_message: 'ახალი შეტყობინება ჩატში',
+    return_created: 'დაემატა ახალი დაბრუნება',
+    reminder_due_tomorrow: 'შეხსენება: ხვალ',
+    reminder_due_today: 'შეხსენება: დღეს',
+  },
 };
+
+const DEFAULT_LANGUAGE = 'ru';
 
 Deno.serve(async (req) => {
   try {
@@ -27,6 +43,17 @@ Deno.serve(async (req) => {
       return new Response(JSON.stringify({ error: 'Notification not found' }), { status: 404 });
     }
 
+    // The recipient's own saved language preference, not the sender's —
+    // a Georgian-speaking employee should see a Georgian title even if
+    // whoever triggered the notification uses the app in Russian.
+    const { data: profile } = await supabase
+      .from('profiles')
+      .select('language')
+      .eq('id', notification.profile_id)
+      .single();
+
+    const language = profile?.language && PUSH_TITLES[profile.language] ? profile.language : DEFAULT_LANGUAGE;
+
     const { data: tokens, error: tokensError } = await supabase
       .from('push_tokens')
       .select('token')
@@ -41,13 +68,19 @@ Deno.serve(async (req) => {
       return new Response(JSON.stringify({ skipped: 'No push tokens for this profile' }), { status: 200 });
     }
 
-    const title = PUSH_TITLES[notification.type] ?? 'ReturnFlow';
+    const title = PUSH_TITLES[language][notification.type] ?? 'ReturnFlow';
 
     const messages = tokens.map((row) => ({
       to: row.token,
       title,
       body: notification.body,
       sound: 'default',
+      // Without an explicit high priority, Android is free to deliver
+      // the notification silently into the tray without a heads-up
+      // banner — this is the documented Expo/FCM behavior, not a bug on
+      // our end that a client-side channel setting alone can fix.
+      priority: 'high',
+      channelId: 'default',
       data: { type: notification.type, notificationId: notification.id },
     }));
 
