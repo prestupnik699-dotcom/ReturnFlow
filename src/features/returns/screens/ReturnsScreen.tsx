@@ -238,14 +238,14 @@ export function ReturnsScreen() {
               onPress={() => setBatchVisible(true)}
               hitSlop={8}
             >
-              <Feather name="zap" size={20} color={theme.colors.primary} />
+              <Feather name="zap" size={17} color={theme.colors.primary} />
             </Pressable>
             <Pressable
               style={styles.headerIconButton}
               onPress={() => router.push('/scanner')}
               hitSlop={8}
             >
-              <Feather name="maximize" size={20} color={theme.colors.primary} />
+              <Feather name="maximize" size={17} color={theme.colors.primary} />
             </Pressable>
             {statsReturns && statsReturns.length > 0 ? (
               <Pressable
@@ -256,7 +256,7 @@ export function ReturnsScreen() {
                 }}
                 hitSlop={8}
               >
-                <Feather name="copy" size={20} color={theme.colors.primary} />
+                <Feather name="copy" size={17} color={theme.colors.primary} />
               </Pressable>
             ) : null}
           </View>
@@ -565,10 +565,10 @@ function createStyles(theme: Theme, titleFontSize: number) {
       fontWeight: theme.fontWeights.bold,
       color: theme.colors.textPrimary,
     },
-    headerActions: { flexDirection: 'row', alignItems: 'center', gap: theme.spacing.sm },
+    headerActions: { flexDirection: 'row', alignItems: 'center', gap: theme.spacing.xsPlus },
     headerIconButton: {
-      width: 40,
-      height: 40,
+      width: 34,
+      height: 34,
       borderRadius: theme.radius.full,
       backgroundColor: theme.colors.primary + '15',
       alignItems: 'center',
