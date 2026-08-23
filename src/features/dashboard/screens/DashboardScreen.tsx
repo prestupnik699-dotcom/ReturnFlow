@@ -210,18 +210,16 @@ export function DashboardScreen() {
               entering={FadeIn.duration(450)}
               style={styles.greetingCol}
             >
-              <Text
-                style={styles.greeting}
-                numberOfLines={1}
-                adjustsFontSizeToFit
-                minimumFontScale={0.7}
-              >
+              <Text style={styles.greeting} numberOfLines={2}>
                 {greeting}{' '}
                 <WavingHand
                   size={18}
                   color={theme.colors.textPrimary}
                   replayKey={greetingReplayKey}
                 />
+              </Text>
+              <Text style={styles.subtitle} numberOfLines={1}>
+                {t('dashboard.subtitle')}
               </Text>
             </Animated.View>
           </View>
@@ -236,14 +234,6 @@ export function DashboardScreen() {
             </Pressable>
           </View>
         </View>
-
-        <Animated.Text
-          key={`subtitle-${greetingReplayKey}`}
-          entering={FadeIn.delay(150).duration(450)}
-          style={styles.subtitle}
-        >
-          {t('dashboard.subtitle')}
-        </Animated.Text>
 
         {totalCount === 0 ? (
           <View style={styles.emptyWrap}>
