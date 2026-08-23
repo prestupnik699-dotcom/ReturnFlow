@@ -185,7 +185,7 @@ export function SupplierCatalogScreen({ supplierId }: Props) {
             />
             <Pressable
               style={styles.quickAddButton}
-              onPressIn={handleQuickAdd}
+              onPress={handleQuickAdd}
               disabled={createMutation.isPending}
             >
               {createMutation.isPending ? (
