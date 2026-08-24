@@ -445,6 +445,7 @@ function createStyles(theme: Theme, titleFontSize: number) {
     bulkBarTop: {
       flexDirection: 'row',
       alignItems: 'center',
+      justifyContent: 'center',
       gap: theme.spacing.sm,
     },
     cancelButton: {
