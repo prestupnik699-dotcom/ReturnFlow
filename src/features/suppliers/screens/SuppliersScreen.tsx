@@ -242,6 +242,9 @@ export function SuppliersScreen() {
         {selectionMode ? (
           <View style={[styles.footerSelectionMode, { paddingBottom: tabBarClearance }]}>
             <View style={styles.bulkBar}>
+              <Text style={styles.countText}>
+                {t('suppliers.selectedCount', { count: selectedIds.length })}
+              </Text>
               <View style={styles.bulkBarTop}>
                 <Pressable style={styles.cancelButton} onPress={() => setSelectedIds([])}>
                   <Text style={styles.cancelText}>{t('suppliers.cancelSelection')}</Text>
@@ -260,17 +263,14 @@ export function SuppliersScreen() {
                       : t('suppliers.selectAll')}
                   </Text>
                 </Pressable>
-                <Text style={styles.countText}>
-                  {t('suppliers.selectedCount', { count: selectedIds.length })}
-                </Text>
+                <Pressable
+                  style={styles.deleteIconButton}
+                  onPress={() => setBulkDeleteConfirmVisible(true)}
+                  hitSlop={8}
+                >
+                  <Feather name="trash-2" size={20} color={theme.colors.danger} />
+                </Pressable>
               </View>
-              <Pressable
-                style={styles.deleteIconButton}
-                onPress={() => setBulkDeleteConfirmVisible(true)}
-                hitSlop={8}
-              >
-                <Feather name="trash-2" size={20} color={theme.colors.danger} />
-              </Pressable>
             </View>
           </View>
         ) : canAdd ? (
@@ -441,12 +441,10 @@ function createStyles(theme: Theme, titleFontSize: number) {
       paddingTop: theme.spacing.md,
       paddingHorizontal: theme.spacing.xl,
     },
-    bulkBar: { flexDirection: 'row', alignItems: 'center', gap: theme.spacing.sm },
+    bulkBar: { gap: theme.spacing.sm },
     bulkBarTop: {
-      flex: 1,
       flexDirection: 'row',
       alignItems: 'center',
-      justifyContent: 'space-between',
       gap: theme.spacing.sm,
     },
     cancelButton: {
