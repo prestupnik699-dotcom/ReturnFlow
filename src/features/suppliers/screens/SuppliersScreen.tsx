@@ -476,6 +476,7 @@ function createStyles(theme: Theme, titleFontSize: number) {
       color: theme.colors.textSecondary,
       fontSize: theme.fontSizes.sm,
       fontWeight: theme.fontWeights.semiBold,
+      textAlign: 'center',
     },
     deleteIconButton: {
       width: 40,
