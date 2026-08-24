@@ -97,6 +97,19 @@ export function useDeleteCatalogItem(supplierId: string) {
   });
 }
 
+export function useBulkDeleteCatalogItems(supplierId: string) {
+  const invalidate = useInvalidateCatalog(supplierId);
+
+  return useMutation({
+    mutationFn: async (itemIds: string[]) => {
+      const results = await Promise.all(itemIds.map((id) => deleteCatalogItem(id)));
+      const failed = results.filter((r) => !r.success);
+      if (failed.length > 0) throw new Error(`${failed.length} of ${itemIds.length} failed`);
+    },
+    onSuccess: invalidate,
+  });
+}
+
 export function usePlaceCatalogOrder(supplierId: string) {
   const activeOrganizationId = useMembershipStore((state) => state.activeOrganizationId);
   const activeStoreId = useMembershipStore((state) => state.activeStoreId);

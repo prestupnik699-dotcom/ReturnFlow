@@ -18,6 +18,7 @@ import { useSupplierCatalog } from '@/features/suppliers/hooks/useSupplierCatalo
 import {
   useCreateCatalogItem,
   useDeleteCatalogItem,
+  useBulkDeleteCatalogItems,
 } from '@/features/suppliers/hooks/useCatalogMutations';
 import { useCatalogOrderHistory } from '@/features/suppliers/hooks/useCatalogOrderHistory';
 import { CatalogItemFormSheet } from '@/features/suppliers/components/CatalogItemFormSheet';
@@ -58,6 +59,25 @@ export function SupplierCatalogScreen({ supplierId }: Props) {
   const [pendingDelete, setPendingDelete] = useState<CatalogItem | null>(null);
   const [historyVisible, setHistoryVisible] = useState(false);
   const [importVisible, setImportVisible] = useState(false);
+  const bulkDeleteMutation = useBulkDeleteCatalogItems(supplierId);
+  const [selectedIds, setSelectedIds] = useState<string[]>([]);
+  const [bulkDeleteConfirmVisible, setBulkDeleteConfirmVisible] = useState(false);
+
+  const selectionMode = selectedIds.length > 0;
+
+  const toggleSelect = (id: string) => {
+    setSelectedIds((prev) => (prev.includes(id) ? prev.filter((x) => x !== id) : [...prev, id]));
+  };
+
+  const confirmBulkDelete = () => {
+    const ids = [...selectedIds];
+    bulkDeleteMutation.mutate(ids, {
+      onSuccess: () => {
+        setSelectedIds([]);
+        setBulkDeleteConfirmVisible(false);
+      },
+    });
+  };
   const scanLockRef = useRef(false);
   const styles = createStyles(theme);
 
@@ -256,9 +276,33 @@ export function SupplierCatalogScreen({ supplierId }: Props) {
             contentContainerStyle={styles.list}
             showsVerticalScrollIndicator={false}
             renderItem={({ item }) => (
-              <Pressable onPress={() => canEdit && !item.pendingSync && openEdit(item)}>
+              <Pressable
+                onPress={() => {
+                  if (item.pendingSync) return;
+                  if (selectionMode) {
+                    toggleSelect(item.id);
+                    return;
+                  }
+                  if (canEdit) openEdit(item);
+                }}
+                onLongPress={() => {
+                  if (!canEdit || item.pendingSync) return;
+                  toggleSelect(item.id);
+                }}
+              >
                 <Card>
                   <View style={styles.row}>
+                    {selectionMode ? (
+                      <Feather
+                        name={selectedIds.includes(item.id) ? 'check-circle' : 'circle'}
+                        size={20}
+                        color={
+                          selectedIds.includes(item.id)
+                            ? theme.colors.primary
+                            : theme.colors.textSecondary
+                        }
+                      />
+                    ) : null}
                     <View style={styles.info}>
                       <Text style={styles.itemName} numberOfLines={1}>
                         {item.name}
@@ -274,7 +318,7 @@ export function SupplierCatalogScreen({ supplierId }: Props) {
                         <Text style={styles.itemPrice}>{item.defaultPrice}</Text>
                       ) : null}
                     </View>
-                    {!item.pendingSync ? (
+                    {!item.pendingSync && !selectionMode ? (
                       <Feather name="chevron-right" size={18} color={theme.colors.textSecondary} />
                     ) : null}
                   </View>
@@ -283,6 +327,28 @@ export function SupplierCatalogScreen({ supplierId }: Props) {
             )}
           />
         )}
+
+        {selectionMode ? (
+          <View style={styles.footerSelectionMode}>
+            <View style={styles.bulkBar}>
+              <Text style={styles.countText}>
+                {t('suppliers.catalog.selectedCount', { count: selectedIds.length })}
+              </Text>
+              <View style={styles.bulkBarTop}>
+                <Pressable style={styles.cancelButton} onPress={() => setSelectedIds([])}>
+                  <Text style={styles.cancelText}>{t('suppliers.catalog.cancelSelection')}</Text>
+                </Pressable>
+                <Pressable
+                  style={styles.deleteIconButton}
+                  onPress={() => setBulkDeleteConfirmVisible(true)}
+                  hitSlop={8}
+                >
+                  <Feather name="trash-2" size={16} color={theme.colors.danger} />
+                </Pressable>
+              </View>
+            </View>
+          </View>
+        ) : null}
       </View>
 
       {/* Rendered as a sibling of the screen's ScrollView-free layout, as
@@ -350,6 +416,18 @@ export function SupplierCatalogScreen({ supplierId }: Props) {
         loading={deleteMutation.isPending}
         onConfirm={confirmDelete}
         onCancel={() => setPendingDelete(null)}
+      />
+
+      <ConfirmDialog
+        visible={bulkDeleteConfirmVisible}
+        title={t('suppliers.catalog.bulkDeleteConfirmTitle', { count: selectedIds.length })}
+        message={t('suppliers.catalog.deleteConfirmMessage')}
+        confirmLabel={t('organizations.settings.deleteConfirmButton')}
+        cancelLabel={t('organizations.settings.cancelButton')}
+        destructive
+        loading={bulkDeleteMutation.isPending}
+        onConfirm={confirmBulkDelete}
+        onCancel={() => setBulkDeleteConfirmVisible(false)}
       />
 
       <OrderHistorySheet
@@ -544,6 +622,46 @@ function createStyles(theme: ReturnType<typeof useTheme>) {
       padding: theme.spacing.lg,
     },
     info: { flex: 1, gap: 2 },
+    footerSelectionMode: {
+      borderTopWidth: StyleSheet.hairlineWidth,
+      borderTopColor: theme.colors.border,
+      paddingTop: theme.spacing.md,
+      marginTop: theme.spacing.sm,
+    },
+    bulkBar: { gap: theme.spacing.sm },
+    bulkBarTop: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      justifyContent: 'center',
+      gap: theme.spacing.sm,
+    },
+    cancelButton: {
+      borderWidth: 1,
+      borderColor: theme.colors.border,
+      borderRadius: theme.radius.full,
+      paddingHorizontal: theme.spacing.md,
+      paddingVertical: 8,
+    },
+    cancelText: {
+      color: theme.colors.textPrimary,
+      fontSize: theme.fontSizes.sm,
+      fontWeight: theme.fontWeights.medium,
+    },
+    countText: {
+      color: theme.colors.textSecondary,
+      fontSize: theme.fontSizes.sm,
+      fontWeight: theme.fontWeights.semiBold,
+      textAlign: 'center',
+    },
+    deleteIconButton: {
+      width: 40,
+      height: 40,
+      borderRadius: theme.radius.full,
+      borderWidth: 1,
+      borderColor: theme.colors.danger,
+      alignItems: 'center',
+      justifyContent: 'center',
+    },
     itemName: {
       fontSize: theme.fontSizes.md,
       fontWeight: theme.fontWeights.semiBold,

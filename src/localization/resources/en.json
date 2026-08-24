@@ -262,7 +262,10 @@
       "importPreviewCount_other": "{{count}} items detected",
       "importPreviewMore": "+{{count}} more",
       "importProgress": "Importing {{done}} of {{total}}...",
-      "importButton": "Import"
+      "importButton": "Import",
+      "selectedCount": "Selected: {{count}}",
+      "cancelSelection": "Cancel",
+      "bulkDeleteConfirmTitle": "Delete {{count}} items?"
     },
     "selectedCount": "Selected: {{count}}",
     "cancelSelection": "Cancel",

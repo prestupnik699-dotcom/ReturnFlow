@@ -262,7 +262,10 @@
       "importPreviewCount_other": "{{count}} товаров распознано",
       "importPreviewMore": "ещё {{count}}",
       "importProgress": "Импорт {{done}} из {{total}}...",
-      "importButton": "Импортировать"
+      "importButton": "Импортировать",
+      "selectedCount": "Выбрано: {{count}}",
+      "cancelSelection": "Отмена",
+      "bulkDeleteConfirmTitle": "Удалить {{count}} товаров?"
     },
     "selectedCount": "Выбрано: {{count}}",
     "cancelSelection": "Отмена",

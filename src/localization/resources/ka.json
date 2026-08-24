@@ -260,7 +260,10 @@
       "importPreviewCount": "{{count}} პროდუქტი ამოცნობილია",
       "importPreviewMore": "+{{count}} სხვა",
       "importProgress": "იმპორტი {{done}}/{{total}}...",
-      "importButton": "იმპორტი"
+      "importButton": "იმპორტი",
+      "selectedCount": "არჩეულია: {{count}}",
+      "cancelSelection": "გაუქმება",
+      "bulkDeleteConfirmTitle": "წავშალოთ {{count}} პროდუქტი?"
     },
     "selectedCount": "არჩეულია: {{count}}",
     "cancelSelection": "გაუქმება",
