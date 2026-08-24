@@ -24,6 +24,7 @@ import { ConfirmDialog } from '@/components/ConfirmDialog';
 import { useHasRole } from '@/features/auth/hooks/usePermissions';
 import { useStores } from '@/features/stores/hooks/useStores';
 import { useDeleteStore } from '@/features/stores/hooks/useDeleteStore';
+import { useBulkDeleteStores } from '@/features/stores/hooks/useBulkStoreActions';
 import { useStoreReturnCounts } from '@/features/stores/hooks/useStoreReturnCounts';
 import { useStoreDeliveryCounts } from '@/features/stores/hooks/useStoreDeliveryCounts';
 import { StoreFormSheet } from '@/features/stores/screens/StoreFormSheet';
@@ -61,8 +62,27 @@ export function StoresScreen() {
   const [formVisible, setFormVisible] = useState(false);
   const [editingStore, setEditingStore] = useState<Store | null>(null);
   const [pendingDelete, setPendingDelete] = useState<Store | null>(null);
+  const bulkDeleteMutation = useBulkDeleteStores();
+  const [selectedIds, setSelectedIds] = useState<string[]>([]);
+  const [bulkDeleteConfirmVisible, setBulkDeleteConfirmVisible] = useState(false);
   const titleFontSize = useResponsiveTitleSize();
   const styles = createStyles(theme, titleFontSize);
+
+  const selectionMode = selectedIds.length > 0;
+
+  const toggleSelect = (id: string) => {
+    setSelectedIds((prev) => (prev.includes(id) ? prev.filter((x) => x !== id) : [...prev, id]));
+  };
+
+  const confirmBulkDelete = () => {
+    const ids = [...selectedIds];
+    bulkDeleteMutation.mutate(ids, {
+      onSuccess: () => {
+        setSelectedIds([]);
+        setBulkDeleteConfirmVisible(false);
+      },
+    });
+  };
 
   const query = searchInput.trim().toLowerCase();
   const filtered = (stores ?? [])
@@ -216,6 +236,10 @@ export function StoresScreen() {
                     onEdit={() => handleEdit(item)}
                     onOpenChat={() => handleOpenChat(item)}
                     onRequestDelete={() => setPendingDelete(item)}
+                    selectionMode={selectionMode}
+                    selected={selectedIds.includes(item.id)}
+                    onLongPress={() => toggleSelect(item.id)}
+                    onPressWhileSelecting={() => toggleSelect(item.id)}
                   />
                 </AnimatedListItem>
               );
@@ -223,7 +247,41 @@ export function StoresScreen() {
           />
         )}
 
-        {canAdd ? (
+        {selectionMode ? (
+          <View style={[styles.footerSelectionMode, { paddingBottom: tabBarClearance }]}>
+            <View style={styles.bulkBar}>
+              <Text style={styles.countText}>
+                {t('stores.selectedCount', { count: selectedIds.length })}
+              </Text>
+              <View style={styles.bulkBarTop}>
+                <Pressable style={styles.cancelButton} onPress={() => setSelectedIds([])}>
+                  <Text style={styles.cancelText}>{t('stores.cancelSelection')}</Text>
+                </Pressable>
+                <Pressable
+                  style={styles.selectAllButton}
+                  onPress={() =>
+                    setSelectedIds(
+                      selectedIds.length === filtered.length ? [] : filtered.map((s) => s.id),
+                    )
+                  }
+                >
+                  <Text style={styles.selectAllText}>
+                    {selectedIds.length === filtered.length
+                      ? t('stores.deselectAll')
+                      : t('stores.selectAll')}
+                  </Text>
+                </Pressable>
+                <Pressable
+                  style={styles.deleteIconButton}
+                  onPress={() => setBulkDeleteConfirmVisible(true)}
+                  hitSlop={8}
+                >
+                  <Feather name="trash-2" size={16} color={theme.colors.danger} />
+                </Pressable>
+              </View>
+            </View>
+          </View>
+        ) : canAdd ? (
           <FAB
             onPress={handleAdd}
             style={[styles.fab, { bottom: tabBarClearance + theme.spacing.md }]}
@@ -247,6 +305,18 @@ export function StoresScreen() {
         loading={deleteMutation.isPending}
         onConfirm={confirmDelete}
         onCancel={() => setPendingDelete(null)}
+      />
+
+      <ConfirmDialog
+        visible={bulkDeleteConfirmVisible}
+        title={t('stores.bulkDeleteConfirmTitle', { count: selectedIds.length })}
+        message={t('stores.deleteConfirmMessage')}
+        confirmLabel={t('organizations.settings.deleteConfirmButton')}
+        cancelLabel={t('organizations.settings.cancelButton')}
+        destructive
+        loading={bulkDeleteMutation.isPending}
+        onConfirm={confirmBulkDelete}
+        onCancel={() => setBulkDeleteConfirmVisible(false)}
       />
     </Screen>
   );
@@ -365,5 +435,57 @@ function createStyles(theme: Theme, titleFontSize: number) {
     emptyWrap: { flex: 1, alignItems: 'center', justifyContent: 'center' },
     errorText: { color: theme.colors.danger, textAlign: 'center' },
     fab: { position: 'absolute', right: 0 },
+    footerSelectionMode: {
+      borderTopWidth: StyleSheet.hairlineWidth,
+      borderTopColor: theme.colors.border,
+      paddingTop: theme.spacing.md,
+      paddingHorizontal: theme.spacing.xl,
+    },
+    bulkBar: { gap: theme.spacing.sm },
+    bulkBarTop: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      justifyContent: 'center',
+      gap: theme.spacing.sm,
+    },
+    cancelButton: {
+      borderWidth: 1,
+      borderColor: theme.colors.border,
+      borderRadius: theme.radius.full,
+      paddingHorizontal: theme.spacing.md,
+      paddingVertical: 8,
+    },
+    cancelText: {
+      color: theme.colors.textPrimary,
+      fontSize: theme.fontSizes.sm,
+      fontWeight: theme.fontWeights.medium,
+    },
+    selectAllButton: {
+      borderWidth: 1,
+      borderColor: theme.colors.primary,
+      borderRadius: theme.radius.full,
+      paddingHorizontal: theme.spacing.md,
+      paddingVertical: 8,
+    },
+    selectAllText: {
+      color: theme.colors.primary,
+      fontSize: theme.fontSizes.sm,
+      fontWeight: theme.fontWeights.medium,
+    },
+    countText: {
+      color: theme.colors.textSecondary,
+      fontSize: theme.fontSizes.sm,
+      fontWeight: theme.fontWeights.semiBold,
+      textAlign: 'center',
+    },
+    deleteIconButton: {
+      width: 40,
+      height: 40,
+      borderRadius: theme.radius.full,
+      borderWidth: 1,
+      borderColor: theme.colors.danger,
+      alignItems: 'center',
+      justifyContent: 'center',
+    },
   });
 }

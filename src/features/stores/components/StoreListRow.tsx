@@ -93,6 +93,10 @@ type Props = {
   onEdit: () => void;
   onOpenChat: () => void;
   onRequestDelete: () => void;
+  selectionMode?: boolean;
+  selected?: boolean;
+  onLongPress?: () => void;
+  onPressWhileSelecting?: () => void;
 };
 
 export function StoreListRow({
@@ -106,6 +110,10 @@ export function StoreListRow({
   onEdit,
   onOpenChat,
   onRequestDelete,
+  selectionMode = false,
+  selected = false,
+  onLongPress,
+  onPressWhileSelecting,
 }: Props) {
   const theme = useTheme();
   const { t } = useTranslation();
@@ -128,12 +136,28 @@ export function StoreListRow({
   const content = (
     <Card>
       <View style={styles.container}>
-        <View style={styles.topRow}>
-          <Pressable onPress={onSelectCurrent} hitSlop={8}>
+        <Pressable style={styles.topRow} onLongPress={onLongPress}>
+          <Pressable onPress={selectionMode ? onPressWhileSelecting : onSelectCurrent} hitSlop={8}>
             <Feather
-              name={isCurrent ? 'check-circle' : 'circle'}
+              name={
+                selectionMode
+                  ? selected
+                    ? 'check-circle'
+                    : 'circle'
+                  : isCurrent
+                    ? 'check-circle'
+                    : 'circle'
+              }
               size={22}
-              color={isCurrent ? theme.colors.primary : theme.colors.textSecondary}
+              color={
+                selectionMode
+                  ? selected
+                    ? theme.colors.primary
+                    : theme.colors.textSecondary
+                  : isCurrent
+                    ? theme.colors.primary
+                    : theme.colors.textSecondary
+              }
             />
           </Pressable>
 
@@ -143,16 +167,21 @@ export function StoreListRow({
             </View>
           ) : null}
 
-          <PressableScale style={styles.info} onPress={onEdit}>
+          <PressableScale
+            style={styles.info}
+            onPress={selectionMode ? onPressWhileSelecting : onEdit}
+          >
             <Text style={styles.name} numberOfLines={1}>
               {store.name}
             </Text>
           </PressableScale>
 
-          <Pressable style={styles.chatButton} onPress={onOpenChat} hitSlop={8}>
-            <Feather name="message-circle" size={18} color={theme.colors.primary} />
-          </Pressable>
-        </View>
+          {!selectionMode ? (
+            <Pressable style={styles.chatButton} onPress={onOpenChat} hitSlop={8}>
+              <Feather name="message-circle" size={18} color={theme.colors.primary} />
+            </Pressable>
+          ) : null}
+        </Pressable>
 
         <View style={[styles.detailsList, { marginLeft: showAvatar ? 76 : 34 }]}>
           <Text style={styles.detailLine} numberOfLines={1}>
@@ -192,7 +221,7 @@ export function StoreListRow({
     </Card>
   );
 
-  if (!canDelete) {
+  if (!canDelete || selectionMode) {
     return content;
   }
 

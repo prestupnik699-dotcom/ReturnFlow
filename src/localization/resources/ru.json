@@ -181,7 +181,12 @@
     "attentionBadge": "{{count}} срочных",
     "currentBadge": "Текущий",
     "deleteAction": "Удалить",
-    "deliveriesCount": "{{count}} поставок"
+    "deliveriesCount": "{{count}} поставок",
+    "selectedCount": "Выбрано: {{count}}",
+    "cancelSelection": "Отмена",
+    "bulkDeleteConfirmTitle": "Удалить {{count}} магазинов?",
+    "selectAll": "Выбрать всё",
+    "deselectAll": "Снять всё"
   },
   "suppliers": {
     "title": "Поставщики",

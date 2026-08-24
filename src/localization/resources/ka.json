@@ -181,7 +181,12 @@
     "attentionBadge": "{{count}} სასწრაფო",
     "currentBadge": "მიმდინარე",
     "deleteAction": "წაშლა",
-    "deliveriesCount": "{{count}} მიწოდება"
+    "deliveriesCount": "{{count}} მიწოდება",
+    "selectedCount": "არჩეულია: {{count}}",
+    "cancelSelection": "გაუქმება",
+    "bulkDeleteConfirmTitle": "წავშალოთ {{count}} მაღაზია?",
+    "selectAll": "ყველას არჩევა",
+    "deselectAll": "არჩევის მოხსნა"
   },
   "suppliers": {
     "title": "მომწოდებლები",

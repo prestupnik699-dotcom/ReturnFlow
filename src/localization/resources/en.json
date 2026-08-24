@@ -181,7 +181,12 @@
     "attentionBadge": "{{count}} urgent",
     "currentBadge": "Current",
     "deleteAction": "Delete",
-    "deliveriesCount": "{{count}} deliveries"
+    "deliveriesCount": "{{count}} deliveries",
+    "selectedCount": "Selected: {{count}}",
+    "cancelSelection": "Cancel",
+    "bulkDeleteConfirmTitle": "Delete {{count}} stores?",
+    "selectAll": "Select all",
+    "deselectAll": "Deselect all"
   },
   "suppliers": {
     "title": "Suppliers",
