@@ -8,7 +8,7 @@ import {
 import { useMembershipStore } from '@/stores/membership.store';
 import type { CreateSupplierFormValues } from '@/features/suppliers/validators/create-supplier.schema';
 
-function useInvalidateSuppliers() {
+export function useInvalidateSuppliers() {
   const activeOrganizationId = useMembershipStore((state) => state.activeOrganizationId);
   const queryClient = useQueryClient();
   return () => queryClient.invalidateQueries({ queryKey: ['suppliers', activeOrganizationId] });

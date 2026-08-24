@@ -141,6 +141,10 @@ type Props = {
   onOpenCatalog: () => void;
   onToggleFavorite: () => void;
   onRequestDelete: () => void;
+  selectionMode?: boolean;
+  selected?: boolean;
+  onLongPress?: () => void;
+  onPressWhileSelecting?: () => void;
 };
 
 export function SupplierListRow({
@@ -153,6 +157,10 @@ export function SupplierListRow({
   onOpenCatalog,
   onToggleFavorite,
   onRequestDelete,
+  selectionMode = false,
+  selected = false,
+  onLongPress,
+  onPressWhileSelecting,
 }: Props) {
   const theme = useTheme();
   const { t } = useTranslation();
@@ -177,25 +185,46 @@ export function SupplierListRow({
   const content = (
     <Card>
       <View style={styles.container}>
-        <View style={styles.topRow}>
-          <View style={styles.avatar}>
-            <Text style={styles.avatarText}>{initials}</Text>
-          </View>
+        <Pressable
+          style={styles.topRow}
+          onLongPress={onLongPress}
+          onPress={selectionMode ? onPressWhileSelecting : undefined}
+        >
+          {selectionMode ? (
+            <View style={styles.avatar}>
+              <Feather
+                name={selected ? 'check-circle' : 'circle'}
+                size={22}
+                color={selected ? theme.colors.primary : theme.colors.textSecondary}
+              />
+            </View>
+          ) : (
+            <View style={styles.avatar}>
+              <Text style={styles.avatarText}>{initials}</Text>
+            </View>
+          )}
 
-          <PressableScale style={styles.info} onPress={onEdit}>
+          <PressableScale
+            style={styles.info}
+            onPress={selectionMode ? onPressWhileSelecting : onEdit}
+          >
             <Text style={styles.name} numberOfLines={1}>
               {supplier.name}
             </Text>
           </PressableScale>
 
-          <Pressable onPress={onOpenCatalog} hitSlop={8} style={styles.catalogButton}>
-            <Feather name="shopping-bag" size={16} color={theme.colors.primary} />
-          </Pressable>
+          {!selectionMode ? (
+            <>
+              <Pressable onPress={onOpenCatalog} hitSlop={8} style={styles.catalogButton}>
+                <Feather name="shopping-bag" size={16} color={theme.colors.primary} />
+              </Pressable>
 
-          <Pressable onPress={handleToggleFavorite} hitSlop={8}>
-            <FavoriteStar favorite={supplier.favorite} theme={theme} />
-          </Pressable>
-        </View>
+              <Pressable onPress={handleToggleFavorite} hitSlop={8}>
+                <FavoriteStar favorite={supplier.favorite} theme={theme} />
+              </Pressable>
+            </>
+          ) : null}
+        </Pressable>
 
         <View style={styles.detailsList}>
           {metaParts.length > 0 ? (
@@ -278,7 +307,7 @@ export function SupplierListRow({
     </Card>
   );
 
-  if (!canDelete) {
+  if (!canDelete || selectionMode) {
     return content;
   }
 

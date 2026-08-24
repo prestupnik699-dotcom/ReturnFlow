@@ -258,7 +258,12 @@
       "importPreviewMore": "+{{count}} more",
       "importProgress": "Importing {{done}} of {{total}}...",
       "importButton": "Import"
-    }
+    },
+    "selectedCount": "Selected: {{count}}",
+    "cancelSelection": "Cancel",
+    "bulkDeleteConfirmTitle": "Delete {{count}} suppliers?",
+    "selectAll": "Select all",
+    "deselectAll": "Deselect all"
   },
   "returns": {
     "title": "Returns",

@@ -258,7 +258,12 @@
       "importPreviewMore": "ещё {{count}}",
       "importProgress": "Импорт {{done}} из {{total}}...",
       "importButton": "Импортировать"
-    }
+    },
+    "selectedCount": "Выбрано: {{count}}",
+    "cancelSelection": "Отмена",
+    "bulkDeleteConfirmTitle": "Удалить {{count}} поставщиков?",
+    "selectAll": "Выбрать всё",
+    "deselectAll": "Снять всё"
   },
   "returns": {
     "title": "Возвраты",
