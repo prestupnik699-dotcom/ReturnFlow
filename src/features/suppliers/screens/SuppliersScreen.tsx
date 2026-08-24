@@ -268,7 +268,7 @@ export function SuppliersScreen() {
                   onPress={() => setBulkDeleteConfirmVisible(true)}
                   hitSlop={8}
                 >
-                  <Feather name="trash-2" size={20} color={theme.colors.danger} />
+                  <Feather name="trash-2" size={16} color={theme.colors.danger} />
                 </Pressable>
               </View>
             </View>
@@ -477,8 +477,8 @@ function createStyles(theme: Theme, titleFontSize: number) {
       fontWeight: theme.fontWeights.semiBold,
     },
     deleteIconButton: {
-      width: 52,
-      height: 52,
+      width: 40,
+      height: 40,
       borderRadius: theme.radius.full,
       borderWidth: 1,
       borderColor: theme.colors.danger,
