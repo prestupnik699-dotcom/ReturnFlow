@@ -623,10 +623,16 @@ function createStyles(theme: ReturnType<typeof useTheme>) {
     },
     info: { flex: 1, gap: 2 },
     footerSelectionMode: {
+      position: 'absolute',
+      left: 0,
+      right: 0,
+      bottom: 0,
+      backgroundColor: theme.colors.background,
       borderTopWidth: StyleSheet.hairlineWidth,
       borderTopColor: theme.colors.border,
       paddingTop: theme.spacing.md,
-      marginTop: theme.spacing.sm,
+      paddingBottom: theme.spacing.lg,
+      paddingHorizontal: theme.spacing.xl,
     },
     bulkBar: { gap: theme.spacing.sm },
     bulkBarTop: {
