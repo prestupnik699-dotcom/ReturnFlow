@@ -1,6 +1,7 @@
 import { useRef, useState } from 'react';
 import { View, FlatList, Pressable, StyleSheet, ActivityIndicator, TextInput } from 'react-native';
 import { Text } from '@/components/AppText';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { CameraView, useCameraPermissions } from 'expo-camera';
 import { ExpoSpeechRecognitionModule, useSpeechRecognitionEvent } from 'expo-speech-recognition';
 import { useTranslation } from 'react-i18next';
@@ -39,6 +40,7 @@ type Props = { supplierId: string };
 // instead of retyping names every time.
 export function SupplierCatalogScreen({ supplierId }: Props) {
   const theme = useTheme();
+  const insets = useSafeAreaInsets();
   const { t } = useTranslation();
   const [permission, requestPermission] = useCameraPermissions();
   const { data: supplier } = useSupplier(supplierId);
@@ -329,7 +331,12 @@ export function SupplierCatalogScreen({ supplierId }: Props) {
         )}
 
         {selectionMode ? (
-          <View style={styles.footerSelectionMode}>
+          <View
+            style={[
+              styles.footerSelectionMode,
+              { paddingBottom: insets.bottom + theme.spacing.md },
+            ]}
+          >
             <View style={styles.bulkBar}>
               <Text style={styles.countText}>
                 {t('suppliers.catalog.selectedCount', { count: selectedIds.length })}
