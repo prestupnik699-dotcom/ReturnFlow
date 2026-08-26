@@ -510,7 +510,29 @@
       "addManualLabel": "Добавить вручную",
       "empty": "Пока нет ни одной позиции",
       "saveAll": "Сохранить поставку ({{count}})"
-    }
+    },
+    "invoice": {
+      "formTitle": "Запись накладной",
+      "pickPhotoHint": "Сфотографируй накладную или выбери из галереи — приложение попробует распознать поля автоматически.",
+      "takePhoto": "Сделать фото",
+      "pickFromGallery": "Выбрать из галереи",
+      "skipPhoto": "Заполнить вручную",
+      "extracting": "Распознаём накладную...",
+      "extractionFailed": "Не удалось распознать накладную автоматически — заполни поля вручную.",
+      "invoiceNumberLabel": "Номер накладной",
+      "distributorNameLabel": "Компания-дистрибьютор",
+      "totalAmountLabel": "Общая сумма",
+      "pageCountLabel": "Страниц",
+      "itemCountLabel": "Позиций",
+      "hasSignature": "Есть обе подписи",
+      "saveButton": "Сохранить запись",
+      "empty": "Пока нет накладных",
+      "emptyMessage": "Добавь первую накладную, чтобы начать журнал",
+      "numberPrefix": "№",
+      "noSignature": "Подписи ещё нет"
+    },
+    "tabItems": "Товары",
+    "tabInvoices": "Накладные"
   },
   "reminders": {
     "title": "Заметки",

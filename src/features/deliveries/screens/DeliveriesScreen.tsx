@@ -20,9 +20,21 @@ import { Card } from '@/components/Card';
 import { EmptyState } from '@/components/EmptyState';
 import { useTabBarClearance } from '@/hooks/useTabBarClearance';
 import { useDeliveryItems } from '@/features/deliveries/hooks/useDeliveryItems';
+import { useDeliveryInvoices } from '@/features/deliveries/hooks/useDeliveryInvoices';
+import { DeliveryInvoiceFormSheet } from '@/features/deliveries/components/DeliveryInvoiceFormSheet';
+import { FAB } from '@/components/FAB';
 import type { DeliveryItem } from '@/features/deliveries/services/deliveries.service';
+import type { DeliveryInvoice } from '@/features/deliveries/services/deliveryInvoices.service';
 
 function formatDateTime(iso: string): string {
+  const d = new Date(iso);
+  const pad = (n: number) => String(n).padStart(2, '0');
+  return `${pad(d.getDate())}.${pad(d.getMonth() + 1)}.${d.getFullYear()} ${pad(d.getHours())}:${pad(d.getMinutes())}`;
+}
+
+type Tab = 'items' | 'invoices';
+
+function formatInvoiceDateTime(iso: string): string {
   const d = new Date(iso);
   const pad = (n: number) => String(n).padStart(2, '0');
   return `${pad(d.getDate())}.${pad(d.getMonth() + 1)}.${d.getFullYear()} ${pad(d.getHours())}:${pad(d.getMinutes())}`;
@@ -34,8 +46,15 @@ export function DeliveriesScreen() {
   const router = useRouter();
   const tabBarClearance = useTabBarClearance();
   const { data: deliveries, isLoading, isError, isRefetching, refetch } = useDeliveryItems();
+  const {
+    data: invoices,
+    isLoading: invoicesLoading,
+    isError: invoicesError,
+  } = useDeliveryInvoices();
   const refreshProps = useBrandedRefreshProps(isRefetching, refetch);
   const [searchInput, setSearchInput] = useState('');
+  const [activeTab, setActiveTab] = useState<Tab>('items');
+  const [formVisible, setFormVisible] = useState(false);
   const styles = createStyles(theme);
 
   const query = searchInput.trim().toLowerCase();
@@ -51,84 +70,186 @@ export function DeliveriesScreen() {
       <View style={styles.container}>
         <ScreenHeader title={t('deliveries.title')} onBack={() => router.back()} />
 
-        <View style={styles.searchRow}>
-          <Feather name="search" size={18} color={theme.colors.textSecondary} />
-          <TextInput
-            style={styles.searchInput}
-            placeholder={t('suppliers.searchPlaceholder')}
-            placeholderTextColor={theme.colors.textSecondary}
-            value={searchInput}
-            onChangeText={setSearchInput}
-          />
+        <View style={styles.tabRow}>
+          <View
+            style={[styles.tabChip, activeTab === 'items' && styles.tabChipActive]}
+            onTouchEnd={() => setActiveTab('items')}
+          >
+            <Text style={[styles.tabChipText, activeTab === 'items' && styles.tabChipTextActive]}>
+              {t('deliveries.tabItems')}
+            </Text>
+          </View>
+          <View
+            style={[styles.tabChip, activeTab === 'invoices' && styles.tabChipActive]}
+            onTouchEnd={() => setActiveTab('invoices')}
+          >
+            <Text
+              style={[styles.tabChipText, activeTab === 'invoices' && styles.tabChipTextActive]}
+            >
+              {t('deliveries.tabInvoices')}
+            </Text>
+          </View>
         </View>
 
-        {isLoading ? (
-          <View style={styles.center}>
-            <ActivityIndicator color={theme.colors.primary} />
+        {activeTab === 'items' ? (
+          <View style={styles.searchRow}>
+            <Feather name="search" size={18} color={theme.colors.textSecondary} />
+            <TextInput
+              style={styles.searchInput}
+              placeholder={t('suppliers.searchPlaceholder')}
+              placeholderTextColor={theme.colors.textSecondary}
+              value={searchInput}
+              onChangeText={setSearchInput}
+            />
           </View>
-        ) : isError ? (
-          <Text style={styles.errorText}>{t('organizations.settings.loadError')}</Text>
-        ) : (
-          <FlatList
-            data={filtered}
-            keyExtractor={(item) => item.id}
-            style={styles.flatList}
-            contentContainerStyle={[
-              styles.list,
-              { paddingBottom: tabBarClearance },
-              filtered.length === 0 && styles.listEmptyGrow,
-            ]}
-            showsVerticalScrollIndicator={false}
-            refreshControl={<RefreshControl {...refreshProps} />}
-            ListEmptyComponent={
-              <View style={styles.emptyWrap}>
-                <EmptyState
-                  icon="download"
-                  title={t('deliveries.empty')}
-                  message={t('deliveries.emptyMessage')}
-                />
-              </View>
-            }
-            renderItem={({ item, index }: { item: DeliveryItem; index: number }) => (
-              <AnimatedListItem index={index} step={40} duration={220}>
-                <Card>
-                  <View style={styles.row}>
-                    <View style={styles.iconWrap}>
-                      <Feather name="download" size={18} color={theme.colors.primary} />
+        ) : null}
+
+        {activeTab === 'items' ? (
+          isLoading ? (
+            <View style={styles.center}>
+              <ActivityIndicator color={theme.colors.primary} />
+            </View>
+          ) : isError ? (
+            <Text style={styles.errorText}>{t('organizations.settings.loadError')}</Text>
+          ) : (
+            <FlatList
+              data={filtered}
+              keyExtractor={(item) => item.id}
+              style={styles.flatList}
+              contentContainerStyle={[
+                styles.list,
+                { paddingBottom: tabBarClearance },
+                filtered.length === 0 && styles.listEmptyGrow,
+              ]}
+              showsVerticalScrollIndicator={false}
+              refreshControl={<RefreshControl {...refreshProps} />}
+              ListEmptyComponent={
+                <View style={styles.emptyWrap}>
+                  <EmptyState
+                    icon="download"
+                    title={t('deliveries.empty')}
+                    message={t('deliveries.emptyMessage')}
+                  />
+                </View>
+              }
+              renderItem={({ item, index }: { item: DeliveryItem; index: number }) => (
+                <AnimatedListItem index={index} step={40} duration={220}>
+                  <Card>
+                    <View style={styles.row}>
+                      <View style={styles.iconWrap}>
+                        <Feather name="download" size={18} color={theme.colors.primary} />
+                      </View>
+                      <View style={styles.info}>
+                        <Text style={styles.title} numberOfLines={1}>
+                          {item.title}
+                        </Text>
+                        <Text style={styles.meta} numberOfLines={1}>
+                          {item.supplierName} · ×{item.quantity}
+                        </Text>
+                        {item.barcode ? (
+                          <View style={styles.barcodeRow}>
+                            <Ionicons
+                              name="barcode-outline"
+                              size={12}
+                              color={theme.colors.textSecondary}
+                            />
+                            <Text style={styles.barcodeText} numberOfLines={1}>
+                              {item.barcode}
+                            </Text>
+                          </View>
+                        ) : null}
+                      </View>
+                      <View style={styles.dateColumn}>
+                        {item.pendingSync ? (
+                          <Text style={styles.pendingText}>{t('returns.pendingSync')}</Text>
+                        ) : null}
+                        <Text style={styles.date}>{formatDateTime(item.createdAt)}</Text>
+                      </View>
                     </View>
-                    <View style={styles.info}>
-                      <Text style={styles.title} numberOfLines={1}>
-                        {item.title}
-                      </Text>
-                      <Text style={styles.meta} numberOfLines={1}>
-                        {item.supplierName} · ×{item.quantity}
-                      </Text>
-                      {item.barcode ? (
+                  </Card>
+                </AnimatedListItem>
+              )}
+            />
+          )
+        ) : null}
+
+        {activeTab === 'invoices' ? (
+          invoicesLoading ? (
+            <View style={styles.center}>
+              <ActivityIndicator color={theme.colors.primary} />
+            </View>
+          ) : invoicesError ? (
+            <Text style={styles.errorText}>{t('organizations.settings.loadError')}</Text>
+          ) : (
+            <FlatList
+              data={invoices ?? []}
+              keyExtractor={(item) => item.id}
+              style={styles.flatList}
+              contentContainerStyle={[
+                styles.list,
+                { paddingBottom: tabBarClearance },
+                (invoices ?? []).length === 0 && styles.listEmptyGrow,
+              ]}
+              showsVerticalScrollIndicator={false}
+              ListEmptyComponent={
+                <View style={styles.emptyWrap}>
+                  <EmptyState
+                    icon="file-text"
+                    title={t('deliveries.invoice.empty')}
+                    message={t('deliveries.invoice.emptyMessage')}
+                  />
+                </View>
+              }
+              renderItem={({ item, index }: { item: DeliveryInvoice; index: number }) => (
+                <AnimatedListItem index={index} step={40} duration={220}>
+                  <Card>
+                    <View style={styles.row}>
+                      <View style={styles.iconWrap}>
+                        <Feather name="file-text" size={18} color={theme.colors.primary} />
+                      </View>
+                      <View style={styles.info}>
+                        <Text style={styles.title} numberOfLines={1}>
+                          {item.distributorName}
+                        </Text>
+                        <Text style={styles.meta} numberOfLines={1}>
+                          {t('deliveries.invoice.numberPrefix')} {item.invoiceNumber}
+                          {item.totalAmount != null ? ` · ${item.totalAmount}` : ''}
+                        </Text>
                         <View style={styles.barcodeRow}>
-                          <Ionicons
-                            name="barcode-outline"
+                          <Feather
+                            name={item.hasSignature ? 'check-circle' : 'circle'}
                             size={12}
-                            color={theme.colors.textSecondary}
+                            color={
+                              item.hasSignature ? theme.colors.success : theme.colors.textSecondary
+                            }
                           />
-                          <Text style={styles.barcodeText} numberOfLines={1}>
-                            {item.barcode}
+                          <Text style={styles.barcodeText}>
+                            {item.hasSignature
+                              ? t('deliveries.invoice.hasSignature')
+                              : t('deliveries.invoice.noSignature')}
                           </Text>
                         </View>
-                      ) : null}
+                      </View>
+                      <View style={styles.dateColumn}>
+                        <Text style={styles.date}>{formatInvoiceDateTime(item.receivedAt)}</Text>
+                      </View>
                     </View>
-                    <View style={styles.dateColumn}>
-                      {item.pendingSync ? (
-                        <Text style={styles.pendingText}>{t('returns.pendingSync')}</Text>
-                      ) : null}
-                      <Text style={styles.date}>{formatDateTime(item.createdAt)}</Text>
-                    </View>
-                  </View>
-                </Card>
-              </AnimatedListItem>
-            )}
+                  </Card>
+                </AnimatedListItem>
+              )}
+            />
+          )
+        ) : null}
+
+        {activeTab === 'invoices' ? (
+          <FAB
+            onPress={() => setFormVisible(true)}
+            style={[styles.fab, { bottom: tabBarClearance + theme.spacing.md }]}
           />
-        )}
+        ) : null}
       </View>
+
+      <DeliveryInvoiceFormSheet visible={formVisible} onClose={() => setFormVisible(false)} />
     </Screen>
   );
 }
@@ -137,6 +258,27 @@ function createStyles(theme: ReturnType<typeof useTheme>) {
   return StyleSheet.create({
     container: { flex: 1 },
     center: { flex: 1, justifyContent: 'center', alignItems: 'center' },
+    tabRow: { flexDirection: 'row', gap: theme.spacing.sm, marginBottom: theme.spacing.md },
+    tabChip: {
+      flex: 1,
+      alignItems: 'center',
+      paddingVertical: theme.spacing.sm,
+      borderRadius: theme.radius.full,
+      backgroundColor: theme.colors.card,
+      borderWidth: 1,
+      borderColor: theme.colors.border,
+    },
+    tabChipActive: {
+      backgroundColor: theme.colors.primary + '15',
+      borderColor: theme.colors.primary,
+    },
+    tabChipText: {
+      fontSize: theme.fontSizes.sm,
+      fontWeight: theme.fontWeights.medium,
+      color: theme.colors.textSecondary,
+    },
+    tabChipTextActive: { color: theme.colors.primary, fontWeight: theme.fontWeights.semiBold },
+    fab: { position: 'absolute', right: 0 },
     searchRow: {
       flexDirection: 'row',
       alignItems: 'center',

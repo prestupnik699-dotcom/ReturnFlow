@@ -510,7 +510,29 @@
       "addManualLabel": "Add manually",
       "empty": "No items added yet",
       "saveAll": "Save delivery ({{count}})"
-    }
+    },
+    "invoice": {
+      "formTitle": "Log received invoice",
+      "pickPhotoHint": "Photograph the invoice, or pick from gallery — the app will try to read the fields automatically.",
+      "takePhoto": "Take photo",
+      "pickFromGallery": "Choose from gallery",
+      "skipPhoto": "Fill in manually",
+      "extracting": "Reading the invoice...",
+      "extractionFailed": "Couldn't read the invoice automatically — fill in the fields below.",
+      "invoiceNumberLabel": "Invoice number",
+      "distributorNameLabel": "Distributor company",
+      "totalAmountLabel": "Total amount",
+      "pageCountLabel": "Pages",
+      "itemCountLabel": "Items",
+      "hasSignature": "Both signatures present",
+      "saveButton": "Save entry",
+      "empty": "No invoices yet",
+      "emptyMessage": "Log a received invoice to start the journal",
+      "numberPrefix": "#",
+      "noSignature": "No signature yet"
+    },
+    "tabItems": "Items",
+    "tabInvoices": "Invoices"
   },
   "reminders": {
     "title": "Reminders",
