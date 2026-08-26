@@ -39,6 +39,7 @@ const ICONS: Record<string, keyof typeof Feather.glyphMap> = {
   stores: 'shopping-bag',
   suppliers: 'box',
   returns: 'repeat',
+  deliveries: 'download',
   more: 'menu',
 };
 
