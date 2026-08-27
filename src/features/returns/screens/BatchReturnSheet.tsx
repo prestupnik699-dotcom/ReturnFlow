@@ -254,7 +254,7 @@ export function BatchReturnSheet({ visible, onClose }: Props) {
             {mode === 'return' ? (
               <Pressable style={styles.exchangeToggle} onPress={() => setIsExchange((v) => !v)}>
                 <Feather
-                  name={isExchange ? 'check-square' : 'square'}
+                  name={isExchange ? 'check-circle' : 'circle'}
                   size={22}
                   color={isExchange ? theme.colors.primary : theme.colors.textSecondary}
                 />

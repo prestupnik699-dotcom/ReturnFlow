@@ -1,5 +1,14 @@
 import { useEffect, useState } from 'react';
-import { Modal, View, TextInput, StyleSheet, ScrollView, Image, Pressable } from 'react-native';
+import {
+  Modal,
+  View,
+  TextInput,
+  StyleSheet,
+  ScrollView,
+  Image,
+  Pressable,
+  Alert,
+} from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Text } from '@/components/AppText';
 import { useForm, Controller } from 'react-hook-form';
@@ -155,7 +164,7 @@ export function DeliveryInvoiceFormSheet({ visible, onClose, existingInvoice }: 
   // Adding page 2, 3, etc. — no re-extraction, these are attached purely
   // as supporting evidence alongside whatever the first photo already
   // gave us.
-  const handleAddPage = async () => {
+  const handleAddPageFromCamera = async () => {
     const permission = await ImagePicker.requestCameraPermissionsAsync();
     if (!permission.granted) return;
     const result = await ImagePicker.launchCameraAsync({ quality: 1, mediaTypes: ['images'] });
@@ -163,6 +172,27 @@ export function DeliveryInvoiceFormSheet({ visible, onClose, existingInvoice }: 
     if (!result.canceled && asset) {
       setPhotoUris((prev) => [...prev, asset.uri]);
     }
+  };
+
+  const handleAddPageFromGallery = async () => {
+    const permission = await ImagePicker.requestMediaLibraryPermissionsAsync();
+    if (!permission.granted) return;
+    const result = await ImagePicker.launchImageLibraryAsync({
+      quality: 1,
+      mediaTypes: ['images'],
+    });
+    const asset = result.assets?.[0];
+    if (!result.canceled && asset) {
+      setPhotoUris((prev) => [...prev, asset.uri]);
+    }
+  };
+
+  const handleAddPage = () => {
+    Alert.alert(t('deliveries.invoice.addPage'), undefined, [
+      { text: t('deliveries.invoice.takePhoto'), onPress: handleAddPageFromCamera },
+      { text: t('deliveries.invoice.pickFromGallery'), onPress: handleAddPageFromGallery },
+      { text: t('organizations.settings.cancelButton'), style: 'cancel' },
+    ]);
   };
 
   const handleRemovePage = (index: number) => {
@@ -394,7 +424,7 @@ export function DeliveryInvoiceFormSheet({ visible, onClose, existingInvoice }: 
                 onPress={() => setHasSignature((current) => !current)}
               >
                 <Feather
-                  name={hasSignature ? 'check-square' : 'square'}
+                  name={hasSignature ? 'check-circle' : 'circle'}
                   size={20}
                   color={hasSignature ? theme.colors.primary : theme.colors.textSecondary}
                 />
@@ -519,7 +549,7 @@ function createStyles(theme: ReturnType<typeof useTheme>) {
       flexDirection: 'row',
       gap: theme.spacing.sm,
     },
-    addPageText: { fontSize: theme.fontSizes.xs, color: theme.colors.primary },
+    addPageText: { fontSize: theme.fontSizes.xs, color: theme.colors.primary, textAlign: 'center' },
     field: { gap: theme.spacing.xs },
     row: { flexDirection: 'row', gap: theme.spacing.md },
     flex1: { flex: 1 },
