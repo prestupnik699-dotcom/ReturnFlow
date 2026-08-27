@@ -76,6 +76,7 @@ export function DeliveryInvoiceFormSheet({ visible, onClose, existingInvoice }: 
   const [step, setStep] = useState<Step>(isEditing ? 'review' : 'pickPhoto');
   const [photoUris, setPhotoUris] = useState<string[]>([]);
   const [hasSignature, setHasSignature] = useState(true);
+  const [photoSourceSheetVisible, setPhotoSourceSheetVisible] = useState(false);
 
   const { control, handleSubmit, reset } = useForm<FormValues>({ defaultValues: EMPTY_FORM });
 
@@ -188,11 +189,7 @@ export function DeliveryInvoiceFormSheet({ visible, onClose, existingInvoice }: 
   };
 
   const handleAddPage = () => {
-    Alert.alert(t('deliveries.invoice.addPage'), undefined, [
-      { text: t('deliveries.invoice.takePhoto'), onPress: handleAddPageFromCamera },
-      { text: t('deliveries.invoice.pickFromGallery'), onPress: handleAddPageFromGallery },
-      { text: t('organizations.settings.cancelButton'), style: 'cancel' },
-    ]);
+    setPhotoSourceSheetVisible(true);
   };
 
   const handleRemovePage = (index: number) => {
@@ -369,19 +366,22 @@ export function DeliveryInvoiceFormSheet({ visible, onClose, existingInvoice }: 
 
               <View style={styles.field}>
                 <Text style={styles.label}>{t('deliveries.invoice.totalAmountLabel')}</Text>
-                <Controller
-                  control={control}
-                  name="totalAmount"
-                  render={({ field: { value, onChange, onBlur } }) => (
-                    <TextInput
-                      style={styles.input}
-                      value={value}
-                      onChangeText={onChange}
-                      onBlur={onBlur}
-                      keyboardType="decimal-pad"
-                    />
-                  )}
-                />
+                <View style={styles.currencyInputWrap}>
+                  <Controller
+                    control={control}
+                    name="totalAmount"
+                    render={({ field: { value, onChange, onBlur } }) => (
+                      <TextInput
+                        style={[styles.input, styles.currencyInput]}
+                        value={value}
+                        onChangeText={onChange}
+                        onBlur={onBlur}
+                        keyboardType="decimal-pad"
+                      />
+                    )}
+                  />
+                  <Text style={styles.currencySuffix}>₾</Text>
+                </View>
               </View>
 
               <View style={styles.row}>
@@ -455,6 +455,42 @@ export function DeliveryInvoiceFormSheet({ visible, onClose, existingInvoice }: 
           ) : null}
         </ScrollView>
       </SafeAreaView>
+
+      <Modal
+        visible={photoSourceSheetVisible}
+        animationType="fade"
+        transparent
+        onRequestClose={() => setPhotoSourceSheetVisible(false)}
+      >
+        <Pressable style={styles.sheetBackdrop} onPress={() => setPhotoSourceSheetVisible(false)}>
+          <Pressable style={styles.sheetCard}>
+            <Text style={styles.sheetTitle}>{t('deliveries.invoice.addPage')}</Text>
+            <Pressable
+              style={styles.sheetOption}
+              onPress={() => {
+                setPhotoSourceSheetVisible(false);
+                handleAddPageFromCamera();
+              }}
+            >
+              <Feather name="camera" size={20} color={theme.colors.primary} />
+              <Text style={styles.sheetOptionText}>{t('deliveries.invoice.takePhoto')}</Text>
+            </Pressable>
+            <Pressable
+              style={styles.sheetOption}
+              onPress={() => {
+                setPhotoSourceSheetVisible(false);
+                handleAddPageFromGallery();
+              }}
+            >
+              <Feather name="image" size={20} color={theme.colors.primary} />
+              <Text style={styles.sheetOptionText}>{t('deliveries.invoice.pickFromGallery')}</Text>
+            </Pressable>
+            <Pressable style={styles.sheetCancel} onPress={() => setPhotoSourceSheetVisible(false)}>
+              <Text style={styles.sheetCancelText}>{t('organizations.settings.cancelButton')}</Text>
+            </Pressable>
+          </Pressable>
+        </Pressable>
+      </Modal>
     </Modal>
   );
 }
@@ -568,6 +604,15 @@ function createStyles(theme: ReturnType<typeof useTheme>) {
       fontSize: theme.fontSizes.md,
       color: theme.colors.textPrimary,
     },
+    currencyInputWrap: { position: 'relative', justifyContent: 'center' },
+    currencyInput: { paddingRight: theme.spacing.xl },
+    currencySuffix: {
+      position: 'absolute',
+      right: theme.spacing.md,
+      fontSize: theme.fontSizes.md,
+      color: theme.colors.textSecondary,
+      fontWeight: theme.fontWeights.medium,
+    },
     signatureRow: { flexDirection: 'row', alignItems: 'center', gap: theme.spacing.sm },
     signatureLabel: { fontSize: theme.fontSizes.sm, color: theme.colors.textPrimary },
     errorBanner: {
@@ -582,5 +627,44 @@ function createStyles(theme: ReturnType<typeof useTheme>) {
     },
     actions: { flexDirection: 'row', gap: theme.spacing.md, marginTop: theme.spacing.md },
     flexButton: { flex: 1 },
+    sheetBackdrop: {
+      flex: 1,
+      backgroundColor: 'rgba(0,0,0,0.5)',
+      justifyContent: 'flex-end',
+    },
+    sheetCard: {
+      backgroundColor: theme.colors.background,
+      borderTopLeftRadius: theme.radius.lg,
+      borderTopRightRadius: theme.radius.lg,
+      padding: theme.spacing.xl,
+      gap: theme.spacing.sm,
+    },
+    sheetTitle: {
+      fontSize: theme.fontSizes.md,
+      fontWeight: theme.fontWeights.semiBold,
+      color: theme.colors.textPrimary,
+      marginBottom: theme.spacing.sm,
+      textAlign: 'center',
+    },
+    sheetOption: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      gap: theme.spacing.md,
+      backgroundColor: theme.colors.card,
+      borderRadius: theme.radius.md,
+      paddingHorizontal: theme.spacing.lg,
+      paddingVertical: theme.spacing.md,
+    },
+    sheetOptionText: { fontSize: theme.fontSizes.md, color: theme.colors.textPrimary },
+    sheetCancel: {
+      alignItems: 'center',
+      paddingVertical: theme.spacing.md,
+      marginTop: theme.spacing.xs,
+    },
+    sheetCancelText: {
+      fontSize: theme.fontSizes.md,
+      fontWeight: theme.fontWeights.medium,
+      color: theme.colors.textSecondary,
+    },
   });
 }
