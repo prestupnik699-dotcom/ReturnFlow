@@ -6,6 +6,7 @@ import {
   ActivityIndicator,
   StyleSheet,
   RefreshControl,
+  Pressable,
 } from 'react-native';
 import { Text } from '@/components/AppText';
 import { useTranslation } from 'react-i18next';
@@ -26,18 +27,48 @@ import { FAB } from '@/components/FAB';
 import type { DeliveryItem } from '@/features/deliveries/services/deliveries.service';
 import type { DeliveryInvoice } from '@/features/deliveries/services/deliveryInvoices.service';
 
-function formatDateTime(iso: string): string {
+function formatDatePart(iso: string): string {
   const d = new Date(iso);
   const pad = (n: number) => String(n).padStart(2, '0');
-  return `${pad(d.getDate())}.${pad(d.getMonth() + 1)}.${d.getFullYear()} ${pad(d.getHours())}:${pad(d.getMinutes())}`;
+  return `${pad(d.getDate())}.${pad(d.getMonth() + 1)}.${d.getFullYear()}`;
+}
+
+function formatTimePart(iso: string): string {
+  const d = new Date(iso);
+  const pad = (n: number) => String(n).padStart(2, '0');
+  return `${pad(d.getHours())}:${pad(d.getMinutes())}`;
 }
 
 type Tab = 'items' | 'invoices';
 
-function formatInvoiceDateTime(iso: string): string {
-  const d = new Date(iso);
-  const pad = (n: number) => String(n).padStart(2, '0');
-  return `${pad(d.getDate())}.${pad(d.getMonth() + 1)}.${d.getFullYear()} ${pad(d.getHours())}:${pad(d.getMinutes())}`;
+// Shared by both tabs — date on top with a calendar icon, time below
+// with a clock icon, rather than one cramped single-line timestamp.
+function DateTimeColumn({ iso, theme }: { iso: string; theme: ReturnType<typeof useTheme> }) {
+  const styles = createDateTimeStyles(theme);
+  return (
+    <View style={styles.dateColumn}>
+      <View style={styles.dateTimeRow}>
+        <Feather name="calendar" size={11} color={theme.colors.textSecondary} />
+        <Text style={styles.dateTimeText}>{formatDatePart(iso)}</Text>
+      </View>
+      <View style={styles.dateTimeRow}>
+        <Feather name="clock" size={11} color={theme.colors.textSecondary} />
+        <Text style={styles.dateTimeText}>{formatTimePart(iso)}</Text>
+      </View>
+    </View>
+  );
+}
+
+function createDateTimeStyles(theme: ReturnType<typeof useTheme>) {
+  return StyleSheet.create({
+    dateColumn: { alignItems: 'flex-end', gap: 3 },
+    dateTimeRow: { flexDirection: 'row', alignItems: 'center', gap: 4 },
+    dateTimeText: {
+      fontSize: theme.fontSizes.xs,
+      color: theme.colors.textSecondary,
+      fontVariant: ['tabular-nums'],
+    },
+  });
 }
 
 export function DeliveriesScreen() {
@@ -55,6 +86,7 @@ export function DeliveriesScreen() {
   const [searchInput, setSearchInput] = useState('');
   const [activeTab, setActiveTab] = useState<Tab>('items');
   const [formVisible, setFormVisible] = useState(false);
+  const [editingInvoice, setEditingInvoice] = useState<DeliveryInvoice | null>(null);
   const styles = createStyles(theme);
 
   const query = searchInput.trim().toLowerCase();
@@ -64,6 +96,16 @@ export function DeliveriesScreen() {
       d.title.toLowerCase().includes(query) ||
       d.supplierName.toLowerCase().includes(query),
   );
+
+  const handleAddInvoice = () => {
+    setEditingInvoice(null);
+    setFormVisible(true);
+  };
+
+  const handleEditInvoice = (invoice: DeliveryInvoice) => {
+    setEditingInvoice(invoice);
+    setFormVisible(true);
+  };
 
   return (
     <Screen>
@@ -158,13 +200,11 @@ export function DeliveriesScreen() {
                             </Text>
                           </View>
                         ) : null}
-                      </View>
-                      <View style={styles.dateColumn}>
                         {item.pendingSync ? (
                           <Text style={styles.pendingText}>{t('returns.pendingSync')}</Text>
                         ) : null}
-                        <Text style={styles.date}>{formatDateTime(item.createdAt)}</Text>
                       </View>
+                      <DateTimeColumn iso={item.createdAt} theme={theme} />
                     </View>
                   </Card>
                 </AnimatedListItem>
@@ -202,39 +242,41 @@ export function DeliveriesScreen() {
               }
               renderItem={({ item, index }: { item: DeliveryInvoice; index: number }) => (
                 <AnimatedListItem index={index} step={40} duration={220}>
-                  <Card>
-                    <View style={styles.row}>
-                      <View style={styles.iconWrap}>
-                        <Feather name="file-text" size={18} color={theme.colors.primary} />
-                      </View>
-                      <View style={styles.info}>
-                        <Text style={styles.title} numberOfLines={1}>
-                          {item.distributorName}
-                        </Text>
-                        <Text style={styles.meta} numberOfLines={1}>
-                          {t('deliveries.invoice.numberPrefix')} {item.invoiceNumber}
-                          {item.totalAmount != null ? ` · ${item.totalAmount}` : ''}
-                        </Text>
-                        <View style={styles.barcodeRow}>
-                          <Feather
-                            name={item.hasSignature ? 'check-circle' : 'circle'}
-                            size={12}
-                            color={
-                              item.hasSignature ? theme.colors.success : theme.colors.textSecondary
-                            }
-                          />
-                          <Text style={styles.barcodeText}>
-                            {item.hasSignature
-                              ? t('deliveries.invoice.hasSignature')
-                              : t('deliveries.invoice.noSignature')}
-                          </Text>
+                  <Pressable onPress={() => handleEditInvoice(item)}>
+                    <Card>
+                      <View style={styles.row}>
+                        <View style={styles.iconWrap}>
+                          <Feather name="file-text" size={18} color={theme.colors.primary} />
                         </View>
+                        <View style={styles.info}>
+                          <Text style={styles.title} numberOfLines={1}>
+                            {item.distributorName}
+                          </Text>
+                          <Text style={styles.meta} numberOfLines={1}>
+                            {t('deliveries.invoice.numberPrefix')} {item.invoiceNumber}
+                            {item.totalAmount != null ? ` · ${item.totalAmount}` : ''}
+                          </Text>
+                          <View style={styles.barcodeRow}>
+                            <Feather
+                              name={item.hasSignature ? 'check-circle' : 'circle'}
+                              size={12}
+                              color={
+                                item.hasSignature
+                                  ? theme.colors.success
+                                  : theme.colors.textSecondary
+                              }
+                            />
+                            <Text style={styles.barcodeText}>
+                              {item.hasSignature
+                                ? t('deliveries.invoice.hasSignature')
+                                : t('deliveries.invoice.noSignature')}
+                            </Text>
+                          </View>
+                        </View>
+                        <DateTimeColumn iso={item.receivedAt} theme={theme} />
                       </View>
-                      <View style={styles.dateColumn}>
-                        <Text style={styles.date}>{formatInvoiceDateTime(item.receivedAt)}</Text>
-                      </View>
-                    </View>
-                  </Card>
+                    </Card>
+                  </Pressable>
                 </AnimatedListItem>
               )}
             />
@@ -243,13 +285,17 @@ export function DeliveriesScreen() {
 
         {activeTab === 'invoices' ? (
           <FAB
-            onPress={() => setFormVisible(true)}
+            onPress={handleAddInvoice}
             style={[styles.fab, { bottom: tabBarClearance + theme.spacing.md }]}
           />
         ) : null}
       </View>
 
-      <DeliveryInvoiceFormSheet visible={formVisible} onClose={() => setFormVisible(false)} />
+      <DeliveryInvoiceFormSheet
+        visible={formVisible}
+        onClose={() => setFormVisible(false)}
+        existingInvoice={editingInvoice}
+      />
     </Screen>
   );
 }
@@ -328,8 +374,6 @@ function createStyles(theme: ReturnType<typeof useTheme>) {
       color: theme.colors.textSecondary,
       fontVariant: ['tabular-nums'],
     },
-    dateColumn: { alignItems: 'flex-end', gap: 2 },
-    date: { fontSize: theme.fontSizes.xs, color: theme.colors.textSecondary },
     pendingText: {
       fontSize: theme.fontSizes.xs,
       color: theme.colors.warning,

@@ -16,7 +16,7 @@ export type DeliveryInvoice = {
   pageCount: number | null;
   itemCount: number | null;
   hasSignature: boolean;
-  photoUrl: string | null;
+  photoUrls: string[];
   createdAt: string;
 };
 
@@ -33,12 +33,12 @@ type DeliveryInvoiceRow = {
   page_count: number | null;
   item_count: number | null;
   has_signature: boolean;
-  photo_url: string | null;
+  photo_urls: string[];
   created_at: string;
 };
 
 const SELECT_FIELDS =
-  'id, organization_id, store_id, supplier_id, created_by, invoice_number, distributor_name, received_at, total_amount, page_count, item_count, has_signature, photo_url, created_at';
+  'id, organization_id, store_id, supplier_id, created_by, invoice_number, distributor_name, received_at, total_amount, page_count, item_count, has_signature, photo_urls, created_at';
 
 const SIGNED_URL_TTL_SECONDS = 60 * 60;
 
@@ -56,7 +56,7 @@ function mapRow(row: DeliveryInvoiceRow): DeliveryInvoice {
     pageCount: row.page_count,
     itemCount: row.item_count,
     hasSignature: row.has_signature,
-    photoUrl: row.photo_url,
+    photoUrls: row.photo_urls ?? [],
     createdAt: row.created_at,
   };
 }
@@ -67,6 +67,40 @@ async function resizeForStorage(uri: string): Promise<string> {
   const rendered = await context.renderAsync();
   const result = await rendered.saveAsync({ compress: 0.8, format: SaveFormat.JPEG });
   return result.uri;
+}
+
+async function uploadInvoicePhotos(invoiceId: string, localUris: string[]): Promise<string[]> {
+  const paths: string[] = [];
+
+  // Sequential, not parallel — keeps page order predictable
+  // (photo-1, photo-2, ...) matching the order the person attached them
+  // in, which matters for a multi-page invoice.
+  for (let i = 0; i < localUris.length; i++) {
+    const localUri = localUris[i];
+    if (!localUri) continue;
+    try {
+      const resizedUri = await resizeForStorage(localUri);
+      const file = new File(resizedUri);
+      const bytes = await file.bytes();
+      const photoPath = `${invoiceId}/photo-${i + 1}.jpg`;
+
+      const { error } = await supabase.storage
+        .from('delivery-invoices')
+        .upload(photoPath, bytes, { contentType: 'image/jpeg' });
+
+      if (!error) {
+        paths.push(photoPath);
+      }
+      // A single page failing to upload doesn't abort the rest — the
+      // invoice entry itself is already saved regardless (see
+      // createDeliveryInvoice), so partial photo coverage is better
+      // than losing the whole batch over one bad file.
+    } catch {
+      // Same reasoning — skip this page, continue with the rest.
+    }
+  }
+
+  return paths;
 }
 
 export type CreateDeliveryInvoiceInput = {
@@ -80,11 +114,10 @@ export type CreateDeliveryInvoiceInput = {
   pageCount: number | null;
   itemCount: number | null;
   hasSignature: boolean;
-  // Local file URI of the invoice photo, still on-device — the row is
-  // created first (see the storage bucket migration's comment for why),
-  // then the photo is uploaded referencing this row's freshly-created id,
-  // then photo_url is set on the same row.
-  localPhotoUri: string | null;
+  // Local file URIs, still on-device — the row is created first (see
+  // the storage bucket migration's comment for why), then photos are
+  // uploaded referencing this row's freshly-created id.
+  localPhotoUris: string[];
 };
 
 export async function createDeliveryInvoice(
@@ -113,39 +146,62 @@ export async function createDeliveryInvoice(
 
   let invoice = mapRow(data as unknown as DeliveryInvoiceRow);
 
-  if (input.localPhotoUri) {
-    try {
-      const resizedUri = await resizeForStorage(input.localPhotoUri);
-      const file = new File(resizedUri);
-      const bytes = await file.bytes();
-      const photoPath = `${invoice.id}/photo.jpg`;
+  if (input.localPhotoUris.length > 0) {
+    const photoUrls = await uploadInvoicePhotos(invoice.id, input.localPhotoUris);
 
-      const { error: uploadError } = await supabase.storage
-        .from('delivery-invoices')
-        .upload(photoPath, bytes, { contentType: 'image/jpeg' });
+    if (photoUrls.length > 0) {
+      const { data: updated } = await supabase
+        .from('delivery_invoices')
+        .update({ photo_urls: photoUrls })
+        .eq('id', invoice.id)
+        .select(SELECT_FIELDS)
+        .single();
 
-      if (!uploadError) {
-        const { data: updated } = await supabase
-          .from('delivery_invoices')
-          .update({ photo_url: photoPath })
-          .eq('id', invoice.id)
-          .select(SELECT_FIELDS)
-          .single();
-
-        if (updated) {
-          invoice = mapRow(updated as unknown as DeliveryInvoiceRow);
-        }
+      if (updated) {
+        invoice = mapRow(updated as unknown as DeliveryInvoiceRow);
       }
-      // A photo upload failure after the row is already saved isn't
-      // treated as a hard failure — the journal entry itself (the
-      // important part) is safely saved either way, just without a
-      // photo attached this time.
-    } catch {
-      // Same reasoning — swallow and keep the successfully created entry.
     }
   }
 
   return { success: true, data: invoice };
+}
+
+export type UpdateDeliveryInvoiceInput = {
+  invoiceNumber: string;
+  distributorName: string;
+  totalAmount: number | null;
+  pageCount: number | null;
+  itemCount: number | null;
+  hasSignature: boolean;
+};
+
+// Text-field edits only — photos aren't editable after creation (adding
+// a page later would need to re-run OCR to stay meaningful, which is a
+// bigger feature than "fix a typo in the amount"). If more photos are
+// needed, the person can log a fresh entry.
+export async function updateDeliveryInvoice(
+  invoiceId: string,
+  input: UpdateDeliveryInvoiceInput,
+): Promise<ServiceResult<DeliveryInvoice>> {
+  const { data, error } = await supabase
+    .from('delivery_invoices')
+    .update({
+      invoice_number: input.invoiceNumber,
+      distributor_name: input.distributorName,
+      total_amount: input.totalAmount,
+      page_count: input.pageCount,
+      item_count: input.itemCount,
+      has_signature: input.hasSignature,
+    })
+    .eq('id', invoiceId)
+    .select(SELECT_FIELDS)
+    .single();
+
+  if (error || !data) {
+    return fromCaughtError(error, 'UPDATE_DELIVERY_INVOICE_FAILED');
+  }
+
+  return { success: true, data: mapRow(data as unknown as DeliveryInvoiceRow) };
 }
 
 export async function fetchDeliveryInvoices(

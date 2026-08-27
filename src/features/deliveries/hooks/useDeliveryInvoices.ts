@@ -1,9 +1,11 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import {
   createDeliveryInvoice,
+  updateDeliveryInvoice,
   fetchDeliveryInvoices,
   deleteDeliveryInvoice,
   type CreateDeliveryInvoiceInput,
+  type UpdateDeliveryInvoiceInput,
 } from '@/features/deliveries/services/deliveryInvoices.service';
 import { extractInvoicePhoto } from '@/features/deliveries/services/invoiceExtraction.service';
 import { useMembershipStore } from '@/stores/membership.store';
@@ -45,6 +47,22 @@ export function useCreateDeliveryInvoice() {
   return useMutation({
     mutationFn: async (input: CreateDeliveryInvoiceInput) => {
       const result = await createDeliveryInvoice(input);
+      if (!result.success) throw new Error(result.error.message);
+      return result.data;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['deliveryInvoices', activeStoreId] });
+    },
+  });
+}
+
+export function useUpdateDeliveryInvoice(invoiceId: string) {
+  const activeStoreId = useMembershipStore((state) => state.activeStoreId);
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: async (input: UpdateDeliveryInvoiceInput) => {
+      const result = await updateDeliveryInvoice(invoiceId, input);
       if (!result.success) throw new Error(result.error.message);
       return result.data;
     },

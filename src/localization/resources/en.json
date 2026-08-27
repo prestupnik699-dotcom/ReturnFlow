@@ -529,7 +529,10 @@
       "empty": "No invoices yet",
       "emptyMessage": "Log a received invoice to start the journal",
       "numberPrefix": "#",
-      "noSignature": "No signature yet"
+      "noSignature": "No signature yet",
+      "editTitle": "Edit invoice entry",
+      "pageBadge": "Page {{n}}",
+      "addPage": "Add page"
     },
     "tabItems": "Items",
     "tabInvoices": "Invoices"

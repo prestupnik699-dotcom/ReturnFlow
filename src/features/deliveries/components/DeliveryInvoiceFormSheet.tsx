@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { Modal, View, TextInput, StyleSheet, ScrollView, Image, Pressable } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Text } from '@/components/AppText';
@@ -11,10 +11,12 @@ import { Button } from '@/components/Button';
 import {
   useExtractInvoicePhoto,
   useCreateDeliveryInvoice,
+  useUpdateDeliveryInvoice,
 } from '@/features/deliveries/hooks/useDeliveryInvoices';
 import { useAuthStore } from '@/stores/auth.store';
 import { useMembershipStore } from '@/stores/membership.store';
 import { hapticSuccess, hapticError } from '@/lib/haptics';
+import type { DeliveryInvoice } from '@/features/deliveries/services/deliveryInvoices.service';
 
 type FormValues = {
   invoiceNumber: string;
@@ -29,6 +31,10 @@ type Step = 'pickPhoto' | 'extracting' | 'review';
 type Props = {
   visible: boolean;
   onClose: () => void;
+  // Editing an existing entry skips the photo step entirely — see the
+  // service layer comment on updateDeliveryInvoice for why photos
+  // aren't editable after creation.
+  existingInvoice?: DeliveryInvoice | null;
 };
 
 const EMPTY_FORM: FormValues = {
@@ -39,12 +45,13 @@ const EMPTY_FORM: FormValues = {
   itemCount: '',
 };
 
-// Three steps: pick/take the invoice photo, wait while it's recognized,
-// then review and correct the extracted fields before saving. The photo
-// stays purely local (never uploaded) until the person actually confirms
-// save — see deliveryInvoices.service.ts for why the row is created
-// before the photo is attached to it.
-export function DeliveryInvoiceFormSheet({ visible, onClose }: Props) {
+// Create flow: pick/take photo(s) → wait while the first one is
+// recognized → review and correct the extracted fields → save.
+// Edit flow: skips straight to review, pre-filled from the existing row.
+// Photos stay purely local (never uploaded) until the person confirms
+// save — see deliveryInvoices.service.ts for why rows are created
+// before photos are attached to them.
+export function DeliveryInvoiceFormSheet({ visible, onClose, existingInvoice }: Props) {
   const theme = useTheme();
   const { t } = useTranslation();
   const profile = useAuthStore((state) => state.profile);
@@ -52,30 +59,56 @@ export function DeliveryInvoiceFormSheet({ visible, onClose }: Props) {
   const activeStoreId = useMembershipStore((state) => state.activeStoreId);
   const extractMutation = useExtractInvoicePhoto();
   const createMutation = useCreateDeliveryInvoice();
+  const updateMutation = useUpdateDeliveryInvoice(existingInvoice?.id ?? '');
   const styles = createStyles(theme);
+  const isEditing = !!existingInvoice;
+  const saveMutation = isEditing ? updateMutation : createMutation;
 
-  const [step, setStep] = useState<Step>('pickPhoto');
-  const [photoUri, setPhotoUri] = useState<string | null>(null);
+  const [step, setStep] = useState<Step>(isEditing ? 'review' : 'pickPhoto');
+  const [photoUris, setPhotoUris] = useState<string[]>([]);
   const [hasSignature, setHasSignature] = useState(true);
 
   const { control, handleSubmit, reset } = useForm<FormValues>({ defaultValues: EMPTY_FORM });
 
-  const resetAll = () => {
-    setStep('pickPhoto');
-    setPhotoUri(null);
-    setHasSignature(true);
-    reset(EMPTY_FORM);
+  // Re-sync whenever the sheet opens for a (possibly different) existing
+  // invoice, or opens fresh for a new one. This intentionally
+  // synchronizes local form state with the visible/existingInvoice props
+  // whenever the sheet opens (or the target invoice changes) — the
+  // standard reset-a-form-on-open pattern react-hook-form's own docs
+  // recommend, not accidental state drift the lint rule is meant to catch.
+  useEffect(() => {
+    /* eslint-disable react-hooks/set-state-in-effect */
+    if (!visible) return;
+    if (existingInvoice) {
+      setStep('review');
+      setPhotoUris([]);
+      setHasSignature(existingInvoice.hasSignature);
+      reset({
+        invoiceNumber: existingInvoice.invoiceNumber,
+        distributorName: existingInvoice.distributorName,
+        totalAmount: existingInvoice.totalAmount != null ? String(existingInvoice.totalAmount) : '',
+        pageCount: existingInvoice.pageCount != null ? String(existingInvoice.pageCount) : '',
+        itemCount: existingInvoice.itemCount != null ? String(existingInvoice.itemCount) : '',
+      });
+    } else {
+      setStep('pickPhoto');
+      setPhotoUris([]);
+      setHasSignature(true);
+      reset(EMPTY_FORM);
+    }
     extractMutation.reset();
     createMutation.reset();
-  };
+    updateMutation.reset();
+    /* eslint-enable react-hooks/set-state-in-effect */
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [visible, existingInvoice]);
 
   const handleClose = () => {
-    resetAll();
     onClose();
   };
 
   const runExtraction = (uri: string) => {
-    setPhotoUri(uri);
+    setPhotoUris([uri]);
     setStep('extracting');
     extractMutation.mutate(uri, {
       onSuccess: (extracted) => {
@@ -119,9 +152,24 @@ export function DeliveryInvoiceFormSheet({ visible, onClose }: Props) {
     }
   };
 
-  const onSubmit = (values: FormValues) => {
-    if (!profile || !activeOrganizationId || !activeStoreId) return;
+  // Adding page 2, 3, etc. — no re-extraction, these are attached purely
+  // as supporting evidence alongside whatever the first photo already
+  // gave us.
+  const handleAddPage = async () => {
+    const permission = await ImagePicker.requestCameraPermissionsAsync();
+    if (!permission.granted) return;
+    const result = await ImagePicker.launchCameraAsync({ quality: 1, mediaTypes: ['images'] });
+    const asset = result.assets?.[0];
+    if (!result.canceled && asset) {
+      setPhotoUris((prev) => [...prev, asset.uri]);
+    }
+  };
 
+  const handleRemovePage = (index: number) => {
+    setPhotoUris((prev) => prev.filter((_, i) => i !== index));
+  };
+
+  const onSubmit = (values: FormValues) => {
     const invoiceNumber = values.invoiceNumber.trim();
     const distributorName = values.distributorName.trim();
     if (!invoiceNumber || !distributorName) return;
@@ -129,6 +177,28 @@ export function DeliveryInvoiceFormSheet({ visible, onClose }: Props) {
     const totalAmount = values.totalAmount.trim() ? parseFloat(values.totalAmount.trim()) : null;
     const pageCount = values.pageCount.trim() ? parseInt(values.pageCount.trim(), 10) : null;
     const itemCount = values.itemCount.trim() ? parseInt(values.itemCount.trim(), 10) : null;
+
+    const onSaveSuccess = () => {
+      hapticSuccess();
+      handleClose();
+    };
+
+    if (isEditing) {
+      updateMutation.mutate(
+        {
+          invoiceNumber,
+          distributorName,
+          totalAmount: totalAmount != null && !isNaN(totalAmount) ? totalAmount : null,
+          pageCount: pageCount != null && !isNaN(pageCount) ? pageCount : null,
+          itemCount: itemCount != null && !isNaN(itemCount) ? itemCount : null,
+          hasSignature,
+        },
+        { onSuccess: onSaveSuccess, onError: () => hapticError() },
+      );
+      return;
+    }
+
+    if (!profile || !activeOrganizationId || !activeStoreId) return;
 
     createMutation.mutate(
       {
@@ -142,15 +212,9 @@ export function DeliveryInvoiceFormSheet({ visible, onClose }: Props) {
         pageCount: pageCount != null && !isNaN(pageCount) ? pageCount : null,
         itemCount: itemCount != null && !isNaN(itemCount) ? itemCount : null,
         hasSignature,
-        localPhotoUri: photoUri,
+        localPhotoUris: photoUris,
       },
-      {
-        onSuccess: () => {
-          hapticSuccess();
-          handleClose();
-        },
-        onError: () => hapticError(),
-      },
+      { onSuccess: onSaveSuccess, onError: () => hapticError() },
     );
   };
 
@@ -163,7 +227,9 @@ export function DeliveryInvoiceFormSheet({ visible, onClose }: Props) {
     >
       <SafeAreaView style={styles.safeArea} edges={['top', 'bottom']}>
         <ScrollView contentContainerStyle={styles.container} keyboardShouldPersistTaps="handled">
-          <Text style={styles.title}>{t('deliveries.invoice.formTitle')}</Text>
+          <Text style={styles.title}>
+            {isEditing ? t('deliveries.invoice.editTitle') : t('deliveries.invoice.formTitle')}
+          </Text>
 
           {step === 'pickPhoto' ? (
             <View style={styles.pickPhotoWrap}>
@@ -190,15 +256,44 @@ export function DeliveryInvoiceFormSheet({ visible, onClose }: Props) {
 
           {step === 'extracting' ? (
             <View style={styles.extractingWrap}>
-              {photoUri ? <Image source={{ uri: photoUri }} style={styles.photoPreview} /> : null}
+              {photoUris[0] ? (
+                <Image source={{ uri: photoUris[0] }} style={styles.photoPreview} />
+              ) : null}
               <Text style={styles.extractingText}>{t('deliveries.invoice.extracting')}</Text>
             </View>
           ) : null}
 
           {step === 'review' ? (
             <View style={styles.reviewWrap}>
-              {photoUri ? (
-                <Image source={{ uri: photoUri }} style={styles.photoPreviewSmall} />
+              {photoUris.length > 0 ? (
+                <View style={styles.pagesRow}>
+                  {photoUris.map((uri, index) => (
+                    <View key={uri} style={styles.pageThumbWrap}>
+                      <Image source={{ uri }} style={styles.pageThumb} />
+                      <View style={styles.pageBadge}>
+                        <Text style={styles.pageBadgeText}>
+                          {t('deliveries.invoice.pageBadge', { n: index + 1 })}
+                        </Text>
+                      </View>
+                      <Pressable
+                        style={styles.pageRemoveButton}
+                        onPress={() => handleRemovePage(index)}
+                        hitSlop={8}
+                      >
+                        <Feather name="x" size={12} color="#fff" />
+                      </Pressable>
+                    </View>
+                  ))}
+                  <Pressable style={styles.addPageButton} onPress={handleAddPage}>
+                    <Feather name="plus" size={22} color={theme.colors.primary} />
+                    <Text style={styles.addPageText}>{t('deliveries.invoice.addPage')}</Text>
+                  </Pressable>
+                </View>
+              ) : !isEditing ? (
+                <Pressable style={styles.addFirstPhotoButton} onPress={handleAddPage}>
+                  <Feather name="camera" size={22} color={theme.colors.primary} />
+                  <Text style={styles.addPageText}>{t('deliveries.invoice.takePhoto')}</Text>
+                </Pressable>
               ) : null}
 
               {extractMutation.isError ? (
@@ -306,9 +401,9 @@ export function DeliveryInvoiceFormSheet({ visible, onClose }: Props) {
                 <Text style={styles.signatureLabel}>{t('deliveries.invoice.hasSignature')}</Text>
               </Pressable>
 
-              {createMutation.isError ? (
+              {saveMutation.isError ? (
                 <View style={styles.errorBanner}>
-                  <Text style={styles.errorBannerText}>{createMutation.error.message}</Text>
+                  <Text style={styles.errorBannerText}>{saveMutation.error.message}</Text>
                 </View>
               ) : null}
 
@@ -322,7 +417,7 @@ export function DeliveryInvoiceFormSheet({ visible, onClose }: Props) {
                 <Button
                   label={t('deliveries.invoice.saveButton')}
                   onPress={handleSubmit(onSubmit)}
-                  loading={createMutation.isPending}
+                  loading={saveMutation.isPending}
                   style={styles.flexButton}
                 />
               </View>
@@ -363,22 +458,68 @@ function createStyles(theme: ReturnType<typeof useTheme>) {
     },
     photoPreview: {
       width: '100%',
-      height: 280,
+      height: 420,
       borderRadius: theme.radius.md,
       backgroundColor: theme.colors.card,
     },
-    photoPreviewSmall: {
-      width: '100%',
-      height: 160,
-      borderRadius: theme.radius.md,
-      backgroundColor: theme.colors.card,
-      marginBottom: theme.spacing.sm,
-    },
-    extractingText: {
-      fontSize: theme.fontSizes.md,
-      color: theme.colors.textSecondary,
-    },
+    extractingText: { fontSize: theme.fontSizes.md, color: theme.colors.textSecondary },
     reviewWrap: { gap: theme.spacing.lg },
+    pagesRow: { flexDirection: 'row', flexWrap: 'wrap', gap: theme.spacing.sm },
+    pageThumbWrap: { width: 96, height: 96, position: 'relative' },
+    pageThumb: {
+      width: 96,
+      height: 96,
+      borderRadius: theme.radius.md,
+      backgroundColor: theme.colors.card,
+    },
+    pageBadge: {
+      position: 'absolute',
+      bottom: 4,
+      left: 4,
+      backgroundColor: theme.colors.background + 'DD',
+      borderRadius: theme.radius.full,
+      paddingHorizontal: 6,
+      paddingVertical: 2,
+    },
+    pageBadgeText: {
+      fontSize: 10,
+      fontWeight: theme.fontWeights.semiBold,
+      color: theme.colors.textPrimary,
+    },
+    pageRemoveButton: {
+      position: 'absolute',
+      top: -6,
+      right: -6,
+      width: 22,
+      height: 22,
+      borderRadius: 11,
+      backgroundColor: theme.colors.danger,
+      alignItems: 'center',
+      justifyContent: 'center',
+    },
+    addPageButton: {
+      width: 96,
+      height: 96,
+      borderRadius: theme.radius.md,
+      borderWidth: 1,
+      borderColor: theme.colors.border,
+      borderStyle: 'dashed',
+      alignItems: 'center',
+      justifyContent: 'center',
+      gap: 4,
+    },
+    addFirstPhotoButton: {
+      height: 96,
+      borderRadius: theme.radius.md,
+      borderWidth: 1,
+      borderColor: theme.colors.border,
+      borderStyle: 'dashed',
+      alignItems: 'center',
+      justifyContent: 'center',
+      flexDirection: 'row',
+      gap: theme.spacing.sm,
+    },
+    addPageText: { fontSize: theme.fontSizes.xs, color: theme.colors.primary },
     field: { gap: theme.spacing.xs },
     row: { flexDirection: 'row', gap: theme.spacing.md },
     flex1: { flex: 1 },
@@ -397,11 +538,7 @@ function createStyles(theme: ReturnType<typeof useTheme>) {
       fontSize: theme.fontSizes.md,
       color: theme.colors.textPrimary,
     },
-    signatureRow: {
-      flexDirection: 'row',
-      alignItems: 'center',
-      gap: theme.spacing.sm,
-    },
+    signatureRow: { flexDirection: 'row', alignItems: 'center', gap: theme.spacing.sm },
     signatureLabel: { fontSize: theme.fontSizes.sm, color: theme.colors.textPrimary },
     errorBanner: {
       backgroundColor: theme.colors.danger + '15',
