@@ -35,6 +35,19 @@ export async function extractInvoicePhoto(
     });
 
     if (error) {
+      // On a non-2xx response, supabase-js's `error` is a generic
+      // "non-2xx status code" message and discards the actual JSON
+      // body our function returned — the real reason lives on
+      // error.context, which is the raw Response object. See
+      // https://github.com/orgs/supabase/discussions/11886.
+      try {
+        const body = await error.context?.json();
+        if (body?.error) {
+          return fromCaughtError(new Error(body.error), 'EXTRACT_INVOICE_FAILED');
+        }
+      } catch {
+        // Body wasn't readable/JSON — fall through to the generic error below.
+      }
       return fromCaughtError(error, 'EXTRACT_INVOICE_FAILED');
     }
 
