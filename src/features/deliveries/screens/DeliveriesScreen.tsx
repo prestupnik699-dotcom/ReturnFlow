@@ -41,28 +41,32 @@ function formatTimePart(iso: string): string {
 
 type Tab = 'items' | 'invoices';
 
-// Shared by both tabs — date on top with a calendar icon, time below
-// with a clock icon, rather than one cramped single-line timestamp.
-function DateTimeColumn({ iso, theme }: { iso: string; theme: ReturnType<typeof useTheme> }) {
+// Shared by both tabs — a compact single-line date+time strip that sits
+// ABOVE the main card content (not squeezed into the same row as the
+// title), so long titles/amounts get the full card width instead of
+// competing horizontally with the timestamp.
+function DateTimeRow({ iso, theme }: { iso: string; theme: ReturnType<typeof useTheme> }) {
   const styles = createDateTimeStyles(theme);
   return (
-    <View style={styles.dateColumn}>
-      <View style={styles.dateTimeRow}>
-        <Feather name="calendar" size={11} color={theme.colors.textSecondary} />
-        <Text style={styles.dateTimeText}>{formatDatePart(iso)}</Text>
-      </View>
-      <View style={styles.dateTimeRow}>
-        <Feather name="clock" size={11} color={theme.colors.textSecondary} />
-        <Text style={styles.dateTimeText}>{formatTimePart(iso)}</Text>
-      </View>
+    <View style={styles.dateTimeRow}>
+      <Feather name="calendar" size={11} color={theme.colors.textSecondary} />
+      <Text style={styles.dateTimeText}>{formatDatePart(iso)}</Text>
+      <Feather name="clock" size={11} color={theme.colors.textSecondary} style={styles.clockIcon} />
+      <Text style={styles.dateTimeText}>{formatTimePart(iso)}</Text>
     </View>
   );
 }
 
 function createDateTimeStyles(theme: ReturnType<typeof useTheme>) {
   return StyleSheet.create({
-    dateColumn: { alignItems: 'flex-end', gap: 3 },
-    dateTimeRow: { flexDirection: 'row', alignItems: 'center', gap: 4 },
+    dateTimeRow: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      gap: 4,
+      paddingHorizontal: theme.spacing.lg,
+      paddingTop: theme.spacing.sm,
+    },
+    clockIcon: { marginLeft: 8 },
     dateTimeText: {
       fontSize: theme.fontSizes.xs,
       color: theme.colors.textSecondary,
@@ -177,6 +181,7 @@ export function DeliveriesScreen() {
               renderItem={({ item, index }: { item: DeliveryItem; index: number }) => (
                 <AnimatedListItem index={index} step={40} duration={220}>
                   <Card>
+                    <DateTimeRow iso={item.createdAt} theme={theme} />
                     <View style={styles.row}>
                       <View style={styles.iconWrap}>
                         <Feather name="download" size={18} color={theme.colors.primary} />
@@ -204,7 +209,6 @@ export function DeliveriesScreen() {
                           <Text style={styles.pendingText}>{t('returns.pendingSync')}</Text>
                         ) : null}
                       </View>
-                      <DateTimeColumn iso={item.createdAt} theme={theme} />
                     </View>
                   </Card>
                 </AnimatedListItem>
@@ -244,6 +248,7 @@ export function DeliveriesScreen() {
                 <AnimatedListItem index={index} step={40} duration={220}>
                   <Pressable onPress={() => handleEditInvoice(item)}>
                     <Card>
+                      <DateTimeRow iso={item.receivedAt} theme={theme} />
                       <View style={styles.row}>
                         <View style={styles.iconWrap}>
                           <Feather name="file-text" size={18} color={theme.colors.primary} />
@@ -273,7 +278,6 @@ export function DeliveriesScreen() {
                             </Text>
                           </View>
                         </View>
-                        <DateTimeColumn iso={item.receivedAt} theme={theme} />
                       </View>
                     </Card>
                   </Pressable>
