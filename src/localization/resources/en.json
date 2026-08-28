@@ -535,7 +535,9 @@
       "addPage": "Add page"
     },
     "tabItems": "Items",
-    "tabInvoices": "Invoices"
+    "tabInvoices": "Invoices",
+    "bulkDeleteConfirmTitle": "Delete {{count}} items?",
+    "deleteConfirmMessage": "This action cannot be undone."
   },
   "reminders": {
     "title": "Reminders",

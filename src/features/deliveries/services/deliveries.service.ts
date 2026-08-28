@@ -99,6 +99,19 @@ export type DeliveryCountsByStore = Record<string, number>;
 
 // Same aggregation pattern as fetchReturnCountsByStore — used to show
 // "N поставок" alongside "N возвратов" wherever store stats are shown.
+export async function deleteDeliveryItem(itemId: string): Promise<ServiceResult<null>> {
+  const { error } = await supabase
+    .from('delivery_items')
+    .update({ deleted_at: new Date().toISOString() })
+    .eq('id', itemId);
+
+  if (error) {
+    return fromCaughtError(error, 'DELETE_DELIVERY_ITEM_FAILED');
+  }
+
+  return { success: true, data: null };
+}
+
 export async function fetchDeliveryCountsByStore(
   organizationId: string,
 ): Promise<ServiceResult<DeliveryCountsByStore>> {

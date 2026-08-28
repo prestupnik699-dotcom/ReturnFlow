@@ -531,7 +531,9 @@
       "addPage": "გვერდის დამატება"
     },
     "tabItems": "პროდუქტები",
-    "tabInvoices": "ზედნადებები"
+    "tabInvoices": "ზედნადებები",
+    "bulkDeleteConfirmTitle": "წავშალოთ {{count}} პროდუქტი?",
+    "deleteConfirmMessage": "ეს მოქმედება შეუქცევადია."
   },
   "reminders": {
     "title": "შენიშვნები",

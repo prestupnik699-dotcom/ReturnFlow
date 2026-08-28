@@ -24,6 +24,8 @@ import { useDeliveryItems } from '@/features/deliveries/hooks/useDeliveryItems';
 import { useDeliveryInvoices } from '@/features/deliveries/hooks/useDeliveryInvoices';
 import { DeliveryInvoiceFormSheet } from '@/features/deliveries/components/DeliveryInvoiceFormSheet';
 import { FAB } from '@/components/FAB';
+import { ConfirmDialog } from '@/components/ConfirmDialog';
+import { useBulkDeleteDeliveryItems } from '@/features/deliveries/hooks/useBulkDeliveryItemActions';
 import type { DeliveryItem } from '@/features/deliveries/services/deliveries.service';
 import type { DeliveryInvoice } from '@/features/deliveries/services/deliveryInvoices.service';
 
@@ -93,7 +95,26 @@ export function DeliveriesScreen() {
   const [activeTab, setActiveTab] = useState<Tab>('items');
   const [formVisible, setFormVisible] = useState(false);
   const [editingInvoice, setEditingInvoice] = useState<DeliveryInvoice | null>(null);
+  const bulkDeleteMutation = useBulkDeleteDeliveryItems();
+  const [selectedIds, setSelectedIds] = useState<string[]>([]);
+  const [bulkDeleteConfirmVisible, setBulkDeleteConfirmVisible] = useState(false);
   const styles = createStyles(theme);
+
+  const selectionMode = selectedIds.length > 0;
+
+  const toggleSelect = (id: string) => {
+    setSelectedIds((prev) => (prev.includes(id) ? prev.filter((x) => x !== id) : [...prev, id]));
+  };
+
+  const confirmBulkDelete = () => {
+    const ids = [...selectedIds];
+    bulkDeleteMutation.mutate(ids, {
+      onSuccess: () => {
+        setSelectedIds([]);
+        setBulkDeleteConfirmVisible(false);
+      },
+    });
+  };
 
   const query = searchInput.trim().toLowerCase();
   const filtered = (deliveries ?? []).filter(
@@ -182,41 +203,80 @@ export function DeliveriesScreen() {
               }
               renderItem={({ item, index }: { item: DeliveryItem; index: number }) => (
                 <AnimatedListItem index={index} step={40} duration={220}>
-                  <Card>
-                    <View style={styles.row}>
-                      <View style={styles.iconWrap}>
-                        <Feather name="download" size={18} color={theme.colors.primary} />
-                      </View>
-                      <View style={styles.info}>
-                        <Text style={styles.title} numberOfLines={1}>
-                          {item.title}
-                        </Text>
-                        <Text style={styles.meta} numberOfLines={1}>
-                          {item.supplierName} · ×{item.quantity}
-                        </Text>
-                        {item.barcode ? (
-                          <View style={styles.barcodeRow}>
-                            <Ionicons
-                              name="barcode-outline"
-                              size={12}
-                              color={theme.colors.textSecondary}
-                            />
-                            <Text style={styles.barcodeText} numberOfLines={1}>
-                              {item.barcode}
-                            </Text>
+                  <Pressable
+                    onLongPress={() => !item.pendingSync && toggleSelect(item.id)}
+                    onPress={() => selectionMode && !item.pendingSync && toggleSelect(item.id)}
+                  >
+                    <Card>
+                      <View style={styles.row}>
+                        {selectionMode ? (
+                          <Feather
+                            name={selectedIds.includes(item.id) ? 'check-circle' : 'circle'}
+                            size={20}
+                            color={
+                              selectedIds.includes(item.id)
+                                ? theme.colors.primary
+                                : theme.colors.textSecondary
+                            }
+                          />
+                        ) : (
+                          <View style={styles.iconWrap}>
+                            <Feather name="download" size={18} color={theme.colors.primary} />
                           </View>
-                        ) : null}
-                        {item.pendingSync ? (
-                          <Text style={styles.pendingText}>{t('returns.pendingSync')}</Text>
-                        ) : null}
+                        )}
+                        <View style={styles.info}>
+                          <Text style={styles.title} numberOfLines={1}>
+                            {item.title}
+                          </Text>
+                          <Text style={styles.meta} numberOfLines={1}>
+                            {item.supplierName} · ×{item.quantity}
+                          </Text>
+                          {item.barcode ? (
+                            <View style={styles.barcodeRow}>
+                              <Ionicons
+                                name="barcode-outline"
+                                size={12}
+                                color={theme.colors.textSecondary}
+                              />
+                              <Text style={styles.barcodeText} numberOfLines={1}>
+                                {item.barcode}
+                              </Text>
+                            </View>
+                          ) : null}
+                          {item.pendingSync ? (
+                            <Text style={styles.pendingText}>{t('returns.pendingSync')}</Text>
+                          ) : null}
+                        </View>
                       </View>
-                    </View>
-                    <DateTimeRow iso={item.createdAt} theme={theme} />
-                  </Card>
+                      <DateTimeRow iso={item.createdAt} theme={theme} />
+                    </Card>
+                  </Pressable>
                 </AnimatedListItem>
               )}
             />
           )
+        ) : null}
+
+        {activeTab === 'items' && selectionMode ? (
+          <View style={[styles.footerSelectionMode, { paddingBottom: tabBarClearance }]}>
+            <View style={styles.bulkBar}>
+              <Text style={styles.countText}>
+                {t('suppliers.catalog.selectedCount', { count: selectedIds.length })}
+              </Text>
+              <View style={styles.bulkBarTop}>
+                <Pressable style={styles.cancelButton} onPress={() => setSelectedIds([])}>
+                  <Text style={styles.cancelText}>{t('suppliers.catalog.cancelSelection')}</Text>
+                </Pressable>
+                <Pressable
+                  style={styles.deleteIconButton}
+                  onPress={() => setBulkDeleteConfirmVisible(true)}
+                  hitSlop={8}
+                >
+                  <Feather name="trash-2" size={16} color={theme.colors.danger} />
+                </Pressable>
+              </View>
+            </View>
+          </View>
         ) : null}
 
         {activeTab === 'invoices' ? (
@@ -302,6 +362,18 @@ export function DeliveriesScreen() {
         onClose={() => setFormVisible(false)}
         existingInvoice={editingInvoice}
       />
+
+      <ConfirmDialog
+        visible={bulkDeleteConfirmVisible}
+        title={t('deliveries.bulkDeleteConfirmTitle', { count: selectedIds.length })}
+        message={t('deliveries.deleteConfirmMessage')}
+        confirmLabel={t('organizations.settings.deleteConfirmButton')}
+        cancelLabel={t('organizations.settings.cancelButton')}
+        destructive
+        loading={bulkDeleteMutation.isPending}
+        onConfirm={confirmBulkDelete}
+        onCancel={() => setBulkDeleteConfirmVisible(false)}
+      />
     </Screen>
   );
 }
@@ -384,6 +456,46 @@ function createStyles(theme: ReturnType<typeof useTheme>) {
       fontSize: theme.fontSizes.xs,
       color: theme.colors.warning,
       fontWeight: theme.fontWeights.medium,
+    },
+    footerSelectionMode: {
+      borderTopWidth: StyleSheet.hairlineWidth,
+      borderTopColor: theme.colors.border,
+      paddingTop: theme.spacing.md,
+      paddingHorizontal: theme.spacing.xl,
+    },
+    bulkBar: { gap: theme.spacing.sm },
+    bulkBarTop: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      justifyContent: 'center',
+      gap: theme.spacing.sm,
+    },
+    cancelButton: {
+      borderWidth: 1,
+      borderColor: theme.colors.border,
+      borderRadius: theme.radius.full,
+      paddingHorizontal: theme.spacing.md,
+      paddingVertical: 8,
+    },
+    cancelText: {
+      color: theme.colors.textPrimary,
+      fontSize: theme.fontSizes.sm,
+      fontWeight: theme.fontWeights.medium,
+    },
+    countText: {
+      color: theme.colors.textSecondary,
+      fontSize: theme.fontSizes.sm,
+      fontWeight: theme.fontWeights.semiBold,
+      textAlign: 'center',
+    },
+    deleteIconButton: {
+      width: 40,
+      height: 40,
+      borderRadius: theme.radius.full,
+      borderWidth: 1,
+      borderColor: theme.colors.danger,
+      alignItems: 'center',
+      justifyContent: 'center',
     },
   });
 }

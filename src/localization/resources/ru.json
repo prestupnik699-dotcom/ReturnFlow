@@ -535,7 +535,9 @@
       "addPage": "Добавить страницу"
     },
     "tabItems": "Товары",
-    "tabInvoices": "Накладные"
+    "tabInvoices": "Накладные",
+    "bulkDeleteConfirmTitle": "Удалить {{count}} позиций?",
+    "deleteConfirmMessage": "Действие необратимо."
   },
   "reminders": {
     "title": "Заметки",
