@@ -62,9 +62,11 @@ function createDateTimeStyles(theme: ReturnType<typeof useTheme>) {
     dateTimeRow: {
       flexDirection: 'row',
       alignItems: 'center',
+      alignSelf: 'flex-end',
       gap: 4,
       paddingHorizontal: theme.spacing.lg,
-      paddingTop: theme.spacing.sm,
+      paddingBottom: theme.spacing.md,
+      marginTop: -theme.spacing.xs,
     },
     clockIcon: { marginLeft: 8 },
     dateTimeText: {
@@ -181,7 +183,6 @@ export function DeliveriesScreen() {
               renderItem={({ item, index }: { item: DeliveryItem; index: number }) => (
                 <AnimatedListItem index={index} step={40} duration={220}>
                   <Card>
-                    <DateTimeRow iso={item.createdAt} theme={theme} />
                     <View style={styles.row}>
                       <View style={styles.iconWrap}>
                         <Feather name="download" size={18} color={theme.colors.primary} />
@@ -210,6 +211,7 @@ export function DeliveriesScreen() {
                         ) : null}
                       </View>
                     </View>
+                    <DateTimeRow iso={item.createdAt} theme={theme} />
                   </Card>
                 </AnimatedListItem>
               )}
@@ -248,7 +250,6 @@ export function DeliveriesScreen() {
                 <AnimatedListItem index={index} step={40} duration={220}>
                   <Pressable onPress={() => handleEditInvoice(item)}>
                     <Card>
-                      <DateTimeRow iso={item.receivedAt} theme={theme} />
                       <View style={styles.row}>
                         <View style={styles.iconWrap}>
                           <Feather name="file-text" size={18} color={theme.colors.primary} />
@@ -279,6 +280,7 @@ export function DeliveriesScreen() {
                           </View>
                         </View>
                       </View>
+                      <DateTimeRow iso={item.receivedAt} theme={theme} />
                     </Card>
                   </Pressable>
                 </AnimatedListItem>
