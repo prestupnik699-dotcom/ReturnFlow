@@ -40,8 +40,8 @@ export function SupplierFilterSheet({
         <View style={styles.container}>
           <View style={styles.header}>
             <Text style={styles.title}>{t(titleKey)}</Text>
-            <Pressable onPress={onClose} hitSlop={12}>
-              <Feather name="x" size={22} color={theme.colors.textPrimary} />
+            <Pressable onPress={onClose} hitSlop={12} style={styles.closeButton}>
+              <Feather name="x" size={20} color={theme.colors.textPrimary} />
             </Pressable>
           </View>
 
@@ -81,6 +81,14 @@ function createStyles(theme: ReturnType<typeof useTheme>) {
       justifyContent: 'space-between',
       alignItems: 'center',
       marginBottom: theme.spacing.xl,
+    },
+    closeButton: {
+      width: 36,
+      height: 36,
+      borderRadius: theme.radius.full,
+      backgroundColor: theme.colors.surfaceVariant,
+      alignItems: 'center',
+      justifyContent: 'center',
     },
     title: {
       fontSize: theme.fontSizes.xl,
