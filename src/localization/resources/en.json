@@ -541,7 +541,19 @@
     "filterBySupplier": "Filter by supplier",
     "sortByDate": "Sorted by: date",
     "sortByName": "Sorted by: name",
-    "sortByQuantity": "Sorted by: quantity"
+    "sortByQuantity": "Sorted by: quantity",
+    "exportTitle": "Export items",
+    "exportCsv": "CSV file",
+    "exportPdf": "PDF report",
+    "exportEmpty": "No items to export",
+    "exportFailed": "Export failed",
+    "exportColumnTitle": "Item",
+    "exportColumnSupplier": "Supplier",
+    "exportColumnQuantity": "Quantity",
+    "exportColumnBarcode": "Barcode",
+    "exportColumnDate": "Received",
+    "exportReportTitle": "Received items",
+    "exportTotalItems": "Total items"
   },
   "reminders": {
     "title": "Reminders",

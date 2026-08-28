@@ -541,7 +541,19 @@
     "filterBySupplier": "Фильтр по поставщику",
     "sortByDate": "Сортировка: по дате",
     "sortByName": "Сортировка: по названию",
-    "sortByQuantity": "Сортировка: по количеству"
+    "sortByQuantity": "Сортировка: по количеству",
+    "exportTitle": "Экспорт товаров",
+    "exportCsv": "CSV-файл",
+    "exportPdf": "PDF-отчёт",
+    "exportEmpty": "Нет товаров для экспорта",
+    "exportFailed": "Не удалось экспортировать",
+    "exportColumnTitle": "Товар",
+    "exportColumnSupplier": "Поставщик",
+    "exportColumnQuantity": "Количество",
+    "exportColumnBarcode": "Штрихкод",
+    "exportColumnDate": "Принято",
+    "exportReportTitle": "Принятые товары",
+    "exportTotalItems": "Всего позиций"
   },
   "reminders": {
     "title": "Заметки",

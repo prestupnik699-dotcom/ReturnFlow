@@ -537,7 +537,19 @@
     "filterBySupplier": "ფილტრი მომწოდებლის მიხედვით",
     "sortByDate": "დალაგება: თარიღით",
     "sortByName": "დალაგება: სახელით",
-    "sortByQuantity": "დალაგება: რაოდენობით"
+    "sortByQuantity": "დალაგება: რაოდენობით",
+    "exportTitle": "პროდუქტების ექსპორტი",
+    "exportCsv": "CSV ფაილი",
+    "exportPdf": "PDF ანგარიში",
+    "exportEmpty": "ექსპორტისთვის პროდუქტები არ არის",
+    "exportFailed": "ექსპორტი ვერ მოხერხდა",
+    "exportColumnTitle": "პროდუქტი",
+    "exportColumnSupplier": "მომწოდებელი",
+    "exportColumnQuantity": "რაოდენობა",
+    "exportColumnBarcode": "შტრიხკოდი",
+    "exportColumnDate": "მიღებულია",
+    "exportReportTitle": "მიღებული პროდუქტები",
+    "exportTotalItems": "სულ პოზიციები"
   },
   "reminders": {
     "title": "შენიშვნები",

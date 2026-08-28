@@ -7,6 +7,7 @@ import {
   StyleSheet,
   RefreshControl,
   Pressable,
+  Modal,
 } from 'react-native';
 import { Text } from '@/components/AppText';
 import { useTranslation } from 'react-i18next';
@@ -25,6 +26,7 @@ import { useDeliveryInvoices } from '@/features/deliveries/hooks/useDeliveryInvo
 import { DeliveryInvoiceFormSheet } from '@/features/deliveries/components/DeliveryInvoiceFormSheet';
 import { FAB } from '@/components/FAB';
 import { ConfirmDialog } from '@/components/ConfirmDialog';
+import { useExportDeliveryItems } from '@/features/deliveries/hooks/useExportDeliveryItems';
 import { SupplierFilterSheet } from '@/features/returns/screens/SupplierFilterSheet';
 import { useBulkDeleteDeliveryItems } from '@/features/deliveries/hooks/useBulkDeliveryItemActions';
 import type { DeliveryItem } from '@/features/deliveries/services/deliveries.service';
@@ -102,6 +104,22 @@ export function DeliveriesScreen() {
   const [supplierFilterId, setSupplierFilterId] = useState<string | null>(null);
   const [supplierFilterVisible, setSupplierFilterVisible] = useState(false);
   const [itemsSort, setItemsSort] = useState<'date' | 'name' | 'quantity'>('date');
+  const [exportSheetVisible, setExportSheetVisible] = useState(false);
+  const {
+    runExport,
+    isExporting,
+    error: exportError,
+  } = useExportDeliveryItems({
+    columns: {
+      title: t('deliveries.exportColumnTitle'),
+      supplier: t('deliveries.exportColumnSupplier'),
+      quantity: t('deliveries.exportColumnQuantity'),
+      barcode: t('deliveries.exportColumnBarcode'),
+      date: t('deliveries.exportColumnDate'),
+    },
+    reportTitle: t('deliveries.exportReportTitle'),
+    totalItemsLabel: t('deliveries.exportTotalItems'),
+  });
   const styles = createStyles(theme);
 
   const selectionMode = selectedIds.length > 0;
@@ -206,6 +224,9 @@ export function DeliveriesScreen() {
             </Pressable>
             <Pressable style={styles.filterButton} onPress={cycleItemsSort}>
               <Feather name={itemsSortIcon} size={18} color={theme.colors.textSecondary} />
+            </Pressable>
+            <Pressable style={styles.filterButton} onPress={() => setExportSheetVisible(true)}>
+              <Feather name="share" size={18} color={theme.colors.textSecondary} />
             </Pressable>
           </View>
         ) : null}
@@ -421,6 +442,59 @@ export function DeliveriesScreen() {
         onSelect={setSupplierFilterId}
         titleKey="deliveries.filterBySupplier"
       />
+
+      <Modal
+        visible={exportSheetVisible}
+        animationType="fade"
+        transparent
+        onRequestClose={() => setExportSheetVisible(false)}
+      >
+        <Pressable style={styles.sheetBackdrop} onPress={() => setExportSheetVisible(false)}>
+          <Pressable style={styles.sheetCard}>
+            <Text style={styles.sheetTitle}>{t('deliveries.exportTitle')}</Text>
+            <Pressable
+              style={styles.sheetOption}
+              disabled={isExporting !== null}
+              onPress={() => {
+                setExportSheetVisible(false);
+                runExport(filtered, 'csv');
+              }}
+            >
+              {isExporting === 'csv' ? (
+                <ActivityIndicator size="small" color={theme.colors.primary} />
+              ) : (
+                <Feather name="grid" size={20} color={theme.colors.primary} />
+              )}
+              <Text style={styles.sheetOptionText}>{t('deliveries.exportCsv')}</Text>
+            </Pressable>
+            <Pressable
+              style={styles.sheetOption}
+              disabled={isExporting !== null}
+              onPress={() => {
+                setExportSheetVisible(false);
+                runExport(filtered, 'pdf');
+              }}
+            >
+              {isExporting === 'pdf' ? (
+                <ActivityIndicator size="small" color={theme.colors.primary} />
+              ) : (
+                <Feather name="file-text" size={20} color={theme.colors.primary} />
+              )}
+              <Text style={styles.sheetOptionText}>{t('deliveries.exportPdf')}</Text>
+            </Pressable>
+            <Pressable style={styles.sheetCancel} onPress={() => setExportSheetVisible(false)}>
+              <Text style={styles.sheetCancelText}>{t('organizations.settings.cancelButton')}</Text>
+            </Pressable>
+            {exportError ? (
+              <Text style={styles.exportErrorText}>
+                {exportError === 'EMPTY'
+                  ? t('deliveries.exportEmpty')
+                  : t('deliveries.exportFailed')}
+              </Text>
+            ) : null}
+          </Pressable>
+        </Pressable>
+      </Modal>
     </Screen>
   );
 }
@@ -568,6 +642,51 @@ function createStyles(theme: ReturnType<typeof useTheme>) {
       borderColor: theme.colors.danger,
       alignItems: 'center',
       justifyContent: 'center',
+    },
+    sheetBackdrop: {
+      flex: 1,
+      backgroundColor: 'rgba(0,0,0,0.5)',
+      justifyContent: 'flex-end',
+    },
+    sheetCard: {
+      backgroundColor: theme.colors.background,
+      borderTopLeftRadius: theme.radius.lg,
+      borderTopRightRadius: theme.radius.lg,
+      padding: theme.spacing.xl,
+      gap: theme.spacing.sm,
+    },
+    sheetTitle: {
+      fontSize: theme.fontSizes.md,
+      fontWeight: theme.fontWeights.semiBold,
+      color: theme.colors.textPrimary,
+      marginBottom: theme.spacing.sm,
+      textAlign: 'center',
+    },
+    sheetOption: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      gap: theme.spacing.md,
+      backgroundColor: theme.colors.card,
+      borderRadius: theme.radius.md,
+      paddingHorizontal: theme.spacing.lg,
+      paddingVertical: theme.spacing.md,
+    },
+    sheetOptionText: { fontSize: theme.fontSizes.md, color: theme.colors.textPrimary },
+    sheetCancel: {
+      alignItems: 'center',
+      paddingVertical: theme.spacing.md,
+      marginTop: theme.spacing.xs,
+    },
+    sheetCancelText: {
+      fontSize: theme.fontSizes.md,
+      fontWeight: theme.fontWeights.medium,
+      color: theme.colors.textSecondary,
+    },
+    exportErrorText: {
+      fontSize: theme.fontSizes.sm,
+      color: theme.colors.danger,
+      textAlign: 'center',
+      marginTop: theme.spacing.xs,
     },
   });
 }
