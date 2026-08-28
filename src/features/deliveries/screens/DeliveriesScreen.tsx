@@ -254,7 +254,7 @@ export function DeliveriesScreen() {
                           </Text>
                           <Text style={styles.meta} numberOfLines={1}>
                             {t('deliveries.invoice.numberPrefix')} {item.invoiceNumber}
-                            {item.totalAmount != null ? ` · ${item.totalAmount}` : ''}
+                            {item.totalAmount != null ? ` · ${item.totalAmount}₾` : ''}
                           </Text>
                           <View style={styles.barcodeRow}>
                             <Feather
