@@ -91,6 +91,7 @@ function createStyles(theme: ReturnType<typeof useTheme>) {
       justifyContent: 'center',
     },
     title: {
+      flex: 1,
       fontSize: theme.fontSizes.xl,
       fontWeight: theme.fontWeights.bold,
       color: theme.colors.textPrimary,
