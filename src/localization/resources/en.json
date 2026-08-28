@@ -537,7 +537,8 @@
     "tabItems": "Items",
     "tabInvoices": "Invoices",
     "bulkDeleteConfirmTitle": "Delete {{count}} items?",
-    "deleteConfirmMessage": "This action cannot be undone."
+    "deleteConfirmMessage": "This action cannot be undone.",
+    "filterBySupplier": "Filter by supplier"
   },
   "reminders": {
     "title": "Reminders",

@@ -25,6 +25,7 @@ import { useDeliveryInvoices } from '@/features/deliveries/hooks/useDeliveryInvo
 import { DeliveryInvoiceFormSheet } from '@/features/deliveries/components/DeliveryInvoiceFormSheet';
 import { FAB } from '@/components/FAB';
 import { ConfirmDialog } from '@/components/ConfirmDialog';
+import { SupplierFilterSheet } from '@/features/returns/screens/SupplierFilterSheet';
 import { useBulkDeleteDeliveryItems } from '@/features/deliveries/hooks/useBulkDeliveryItemActions';
 import type { DeliveryItem } from '@/features/deliveries/services/deliveries.service';
 import type { DeliveryInvoice } from '@/features/deliveries/services/deliveryInvoices.service';
@@ -98,6 +99,8 @@ export function DeliveriesScreen() {
   const bulkDeleteMutation = useBulkDeleteDeliveryItems();
   const [selectedIds, setSelectedIds] = useState<string[]>([]);
   const [bulkDeleteConfirmVisible, setBulkDeleteConfirmVisible] = useState(false);
+  const [supplierFilterId, setSupplierFilterId] = useState<string | null>(null);
+  const [supplierFilterVisible, setSupplierFilterVisible] = useState(false);
   const styles = createStyles(theme);
 
   const selectionMode = selectedIds.length > 0;
@@ -117,12 +120,14 @@ export function DeliveriesScreen() {
   };
 
   const query = searchInput.trim().toLowerCase();
-  const filtered = (deliveries ?? []).filter(
-    (d) =>
-      !query ||
-      d.title.toLowerCase().includes(query) ||
-      d.supplierName.toLowerCase().includes(query),
-  );
+  const filtered = (deliveries ?? [])
+    .filter(
+      (d) =>
+        !query ||
+        d.title.toLowerCase().includes(query) ||
+        d.supplierName.toLowerCase().includes(query),
+    )
+    .filter((d) => !supplierFilterId || d.supplierId === supplierFilterId);
 
   const handleAddInvoice = () => {
     setEditingInvoice(null);
@@ -161,15 +166,27 @@ export function DeliveriesScreen() {
         </View>
 
         {activeTab === 'items' ? (
-          <View style={styles.searchRow}>
-            <Feather name="search" size={18} color={theme.colors.textSecondary} />
-            <TextInput
-              style={styles.searchInput}
-              placeholder={t('suppliers.searchPlaceholder')}
-              placeholderTextColor={theme.colors.textSecondary}
-              value={searchInput}
-              onChangeText={setSearchInput}
-            />
+          <View style={styles.searchFilterRow}>
+            <View style={styles.searchRow}>
+              <Feather name="search" size={18} color={theme.colors.textSecondary} />
+              <TextInput
+                style={styles.searchInput}
+                placeholder={t('suppliers.searchPlaceholder')}
+                placeholderTextColor={theme.colors.textSecondary}
+                value={searchInput}
+                onChangeText={setSearchInput}
+              />
+            </View>
+            <Pressable
+              style={[styles.filterButton, supplierFilterId && styles.filterButtonActive]}
+              onPress={() => setSupplierFilterVisible(true)}
+            >
+              <Feather
+                name="filter"
+                size={18}
+                color={supplierFilterId ? theme.colors.primary : theme.colors.textSecondary}
+              />
+            </Pressable>
           </View>
         ) : null}
 
@@ -374,6 +391,14 @@ export function DeliveriesScreen() {
         onConfirm={confirmBulkDelete}
         onCancel={() => setBulkDeleteConfirmVisible(false)}
       />
+
+      <SupplierFilterSheet
+        visible={supplierFilterVisible}
+        onClose={() => setSupplierFilterVisible(false)}
+        selectedSupplierId={supplierFilterId}
+        onSelect={setSupplierFilterId}
+        titleKey="deliveries.filterBySupplier"
+      />
     </Screen>
   );
 }
@@ -404,6 +429,7 @@ function createStyles(theme: ReturnType<typeof useTheme>) {
     tabChipTextActive: { color: theme.colors.primary, fontWeight: theme.fontWeights.semiBold },
     fab: { position: 'absolute', right: 0 },
     searchRow: {
+      flex: 1,
       flexDirection: 'row',
       alignItems: 'center',
       gap: theme.spacing.sm,
@@ -412,13 +438,32 @@ function createStyles(theme: ReturnType<typeof useTheme>) {
       backgroundColor: theme.colors.card,
       borderRadius: theme.radius.md,
       paddingHorizontal: theme.spacing.md,
-      marginBottom: theme.spacing.md,
     },
     searchInput: {
       flex: 1,
       paddingVertical: theme.spacing.md,
       color: theme.colors.textPrimary,
       fontSize: theme.fontSizes.md,
+    },
+    searchFilterRow: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      gap: theme.spacing.sm,
+      marginBottom: theme.spacing.md,
+    },
+    filterButton: {
+      width: 44,
+      height: 44,
+      borderRadius: theme.radius.md,
+      borderWidth: 1,
+      borderColor: theme.colors.border,
+      backgroundColor: theme.colors.card,
+      alignItems: 'center',
+      justifyContent: 'center',
+    },
+    filterButtonActive: {
+      borderColor: theme.colors.primary,
+      backgroundColor: theme.colors.primary + '15',
     },
     errorText: { color: theme.colors.danger, textAlign: 'center' },
     flatList: { flex: 1 },

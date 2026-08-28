@@ -12,9 +12,18 @@ type Props = {
   onClose: () => void;
   selectedSupplierId: string | null;
   onSelect: (supplierId: string | null) => void;
+  // Defaults to the returns-screen wording so every existing call site
+  // (unaware of this prop) keeps behaving exactly as before.
+  titleKey?: string;
 };
 
-export function SupplierFilterSheet({ visible, onClose, selectedSupplierId, onSelect }: Props) {
+export function SupplierFilterSheet({
+  visible,
+  onClose,
+  selectedSupplierId,
+  onSelect,
+  titleKey = 'returns.filterBySupplier',
+}: Props) {
   const theme = useTheme();
   const { t } = useTranslation();
   const { data: suppliers } = useSuppliers(false, 'name');
@@ -30,7 +39,7 @@ export function SupplierFilterSheet({ visible, onClose, selectedSupplierId, onSe
       <SafeAreaView style={styles.safeArea} edges={['top', 'bottom']}>
         <View style={styles.container}>
           <View style={styles.header}>
-            <Text style={styles.title}>{t('returns.filterBySupplier')}</Text>
+            <Text style={styles.title}>{t(titleKey)}</Text>
             <Pressable onPress={onClose} hitSlop={12}>
               <Feather name="x" size={22} color={theme.colors.textPrimary} />
             </Pressable>
