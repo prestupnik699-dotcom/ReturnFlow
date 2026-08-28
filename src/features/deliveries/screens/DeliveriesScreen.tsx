@@ -101,6 +101,7 @@ export function DeliveriesScreen() {
   const [bulkDeleteConfirmVisible, setBulkDeleteConfirmVisible] = useState(false);
   const [supplierFilterId, setSupplierFilterId] = useState<string | null>(null);
   const [supplierFilterVisible, setSupplierFilterVisible] = useState(false);
+  const [itemsSort, setItemsSort] = useState<'date' | 'name' | 'quantity'>('date');
   const styles = createStyles(theme);
 
   const selectionMode = selectedIds.length > 0;
@@ -127,7 +128,23 @@ export function DeliveriesScreen() {
         d.title.toLowerCase().includes(query) ||
         d.supplierName.toLowerCase().includes(query),
     )
-    .filter((d) => !supplierFilterId || d.supplierId === supplierFilterId);
+    .filter((d) => !supplierFilterId || d.supplierId === supplierFilterId)
+    .sort((a, b) => {
+      if (itemsSort === 'name') return a.title.localeCompare(b.title);
+      if (itemsSort === 'quantity') return b.quantity - a.quantity;
+      return new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime();
+    });
+
+  const cycleItemsSort = () => {
+    setItemsSort((current) =>
+      current === 'date' ? 'name' : current === 'name' ? 'quantity' : 'date',
+    );
+  };
+
+  const itemsSortIcon = itemsSort === 'date' ? 'calendar' : itemsSort === 'name' ? 'type' : 'hash';
+  const itemsSortLabel = t(
+    `deliveries.sortBy${itemsSort === 'date' ? 'Date' : itemsSort === 'name' ? 'Name' : 'Quantity'}`,
+  );
 
   const handleAddInvoice = () => {
     setEditingInvoice(null);
@@ -187,8 +204,13 @@ export function DeliveriesScreen() {
                 color={supplierFilterId ? theme.colors.primary : theme.colors.textSecondary}
               />
             </Pressable>
+            <Pressable style={styles.filterButton} onPress={cycleItemsSort}>
+              <Feather name={itemsSortIcon} size={18} color={theme.colors.textSecondary} />
+            </Pressable>
           </View>
         ) : null}
+
+        {activeTab === 'items' ? <Text style={styles.sortLabel}>{itemsSortLabel}</Text> : null}
 
         {activeTab === 'items' ? (
           isLoading ? (
@@ -464,6 +486,11 @@ function createStyles(theme: ReturnType<typeof useTheme>) {
     filterButtonActive: {
       borderColor: theme.colors.primary,
       backgroundColor: theme.colors.primary + '15',
+    },
+    sortLabel: {
+      fontSize: theme.fontSizes.xs,
+      color: theme.colors.textSecondary,
+      marginBottom: theme.spacing.sm,
     },
     errorText: { color: theme.colors.danger, textAlign: 'center' },
     flatList: { flex: 1 },

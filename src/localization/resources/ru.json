@@ -538,7 +538,10 @@
     "tabInvoices": "Накладные",
     "bulkDeleteConfirmTitle": "Удалить {{count}} позиций?",
     "deleteConfirmMessage": "Действие необратимо.",
-    "filterBySupplier": "Фильтр по поставщику"
+    "filterBySupplier": "Фильтр по поставщику",
+    "sortByDate": "Сортировка: по дате",
+    "sortByName": "Сортировка: по названию",
+    "sortByQuantity": "Сортировка: по количеству"
   },
   "reminders": {
     "title": "Заметки",

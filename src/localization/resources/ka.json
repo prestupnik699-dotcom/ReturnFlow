@@ -534,7 +534,10 @@
     "tabInvoices": "ზედნადებები",
     "bulkDeleteConfirmTitle": "წავშალოთ {{count}} პროდუქტი?",
     "deleteConfirmMessage": "ეს მოქმედება შეუქცევადია.",
-    "filterBySupplier": "ფილტრი მომწოდებლის მიხედვით"
+    "filterBySupplier": "ფილტრი მომწოდებლის მიხედვით",
+    "sortByDate": "დალაგება: თარიღით",
+    "sortByName": "დალაგება: სახელით",
+    "sortByQuantity": "დალაგება: რაოდენობით"
   },
   "reminders": {
     "title": "შენიშვნები",
