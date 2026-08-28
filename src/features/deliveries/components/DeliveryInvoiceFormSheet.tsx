@@ -1,14 +1,5 @@
 import { useEffect, useState } from 'react';
-import {
-  Modal,
-  View,
-  TextInput,
-  StyleSheet,
-  ScrollView,
-  Image,
-  Pressable,
-  Alert,
-} from 'react-native';
+import { Modal, View, TextInput, StyleSheet, ScrollView, Image, Pressable } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Text } from '@/components/AppText';
 import { useForm, Controller } from 'react-hook-form';
