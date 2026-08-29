@@ -1,5 +1,14 @@
 import { useState } from 'react';
-import { Modal, View, Image, Pressable, StyleSheet, FlatList, Dimensions } from 'react-native';
+import {
+  Modal,
+  View,
+  Image,
+  Pressable,
+  StyleSheet,
+  FlatList,
+  ScrollView,
+  Dimensions,
+} from 'react-native';
 import { Feather } from '@expo/vector-icons';
 import { Text } from '@/components/AppText';
 
@@ -9,10 +18,17 @@ type Props = {
   onClose: () => void;
 };
 
+const IMAGE_RADIUS = 16;
+
 // A small paged photo gallery for multi-page invoices — swipe between
 // pages with a "1 of N" counter, rather than only ever being able to
 // see one photo at a time (which is what the single-image
 // ImageViewerModal is for, and remains unchanged for its other callers).
+// Each page is its own pinch-zoomable ScrollView — RN's ScrollView
+// supports native pinch-zoom on iOS out of the box via
+// minimumZoomScale/maximumZoomScale; Android's support for this is more
+// limited (no dedicated native zoom gesture on ScrollView), so zoom is
+// best-effort there without pulling in an extra dependency.
 export function InvoicePhotoGallery({ visible, uris, onClose }: Props) {
   const [activeIndex, setActiveIndex] = useState(0);
   const screenWidth = Dimensions.get('window').width;
@@ -51,9 +67,17 @@ export function InvoicePhotoGallery({ visible, uris, onClose }: Props) {
             setActiveIndex(index);
           }}
           renderItem={({ item }) => (
-            <View style={[styles.page, { width: screenWidth }]}>
+            <ScrollView
+              style={{ width: screenWidth }}
+              contentContainerStyle={styles.page}
+              minimumZoomScale={1}
+              maximumZoomScale={4}
+              pinchGestureEnabled
+              showsVerticalScrollIndicator={false}
+              centerContent
+            >
               <Image source={{ uri: item }} style={styles.image} resizeMode="contain" />
-            </View>
+            </ScrollView>
           )}
         />
       </View>
@@ -63,8 +87,13 @@ export function InvoicePhotoGallery({ visible, uris, onClose }: Props) {
 
 const styles = StyleSheet.create({
   backdrop: { flex: 1, backgroundColor: 'rgba(0,0,0,0.9)', justifyContent: 'center' },
-  page: { justifyContent: 'center', alignItems: 'center' },
-  image: { width: '100%', height: '80%' },
+  page: { flexGrow: 1, justifyContent: 'center', alignItems: 'center' },
+  image: {
+    width: '100%',
+    height: '80%',
+    borderRadius: IMAGE_RADIUS,
+    overflow: 'hidden',
+  },
   closeButton: { position: 'absolute', top: 60, right: 24, zIndex: 1 },
   counterBadge: {
     position: 'absolute',
