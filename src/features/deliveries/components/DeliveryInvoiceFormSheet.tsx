@@ -14,6 +14,8 @@ import {
   useUpdateDeliveryInvoice,
 } from '@/features/deliveries/hooks/useDeliveryInvoices';
 import { useAuthStore } from '@/stores/auth.store';
+import { useSuppliers } from '@/features/suppliers/hooks/useSuppliers';
+import { SupplierFilterSheet } from '@/features/returns/screens/SupplierFilterSheet';
 import { useMembershipStore } from '@/stores/membership.store';
 import { hapticSuccess, hapticError } from '@/lib/haptics';
 import type { DeliveryInvoice } from '@/features/deliveries/services/deliveryInvoices.service';
@@ -68,6 +70,9 @@ export function DeliveryInvoiceFormSheet({ visible, onClose, existingInvoice }: 
   const [photoUris, setPhotoUris] = useState<string[]>([]);
   const [hasSignature, setHasSignature] = useState(true);
   const [photoSourceSheetVisible, setPhotoSourceSheetVisible] = useState(false);
+  const [supplierId, setSupplierId] = useState<string | null>(null);
+  const [supplierPickerVisible, setSupplierPickerVisible] = useState(false);
+  const { data: suppliers } = useSuppliers(false, 'name');
 
   const { control, handleSubmit, reset } = useForm<FormValues>({ defaultValues: EMPTY_FORM });
 
@@ -84,6 +89,7 @@ export function DeliveryInvoiceFormSheet({ visible, onClose, existingInvoice }: 
       setStep('review');
       setPhotoUris([]);
       setHasSignature(existingInvoice.hasSignature);
+      setSupplierId(existingInvoice.supplierId);
       reset({
         invoiceNumber: existingInvoice.invoiceNumber,
         distributorName: existingInvoice.distributorName,
@@ -95,6 +101,7 @@ export function DeliveryInvoiceFormSheet({ visible, onClose, existingInvoice }: 
       setStep('pickPhoto');
       setPhotoUris([]);
       setHasSignature(true);
+      setSupplierId(null);
       reset(EMPTY_FORM);
     }
     extractMutation.reset();
@@ -120,6 +127,18 @@ export function DeliveryInvoiceFormSheet({ visible, onClose, existingInvoice }: 
           pageCount: extracted.pageCount != null ? String(extracted.pageCount) : '',
           itemCount: extracted.itemCount != null ? String(extracted.itemCount) : '',
         });
+        // Best-effort convenience only — a loose case-insensitive
+        // substring match against known suppliers. This pre-selects a
+        // likely match but never silently commits to it: the person
+        // still sees and can change the selection via the picker before
+        // saving, so a wrong guess here costs nothing.
+        if (extracted.distributorName) {
+          const needle = extracted.distributorName.trim().toLowerCase();
+          const match = (suppliers ?? []).find(
+            (s) => needle.includes(s.name.toLowerCase()) || s.name.toLowerCase().includes(needle),
+          );
+          if (match) setSupplierId(match.id);
+        }
         setStep('review');
       },
       onError: () => {
@@ -204,6 +223,7 @@ export function DeliveryInvoiceFormSheet({ visible, onClose, existingInvoice }: 
     if (isEditing) {
       updateMutation.mutate(
         {
+          supplierId,
           invoiceNumber,
           distributorName,
           totalAmount: totalAmount != null && !isNaN(totalAmount) ? totalAmount : null,
@@ -222,7 +242,7 @@ export function DeliveryInvoiceFormSheet({ visible, onClose, existingInvoice }: 
       {
         organizationId: activeOrganizationId,
         storeId: activeStoreId,
-        supplierId: null,
+        supplierId,
         createdBy: profile.id,
         invoiceNumber,
         distributorName,
@@ -356,6 +376,23 @@ export function DeliveryInvoiceFormSheet({ visible, onClose, existingInvoice }: 
               </View>
 
               <View style={styles.field}>
+                <Text style={styles.label}>{t('deliveries.invoice.linkedSupplierLabel')}</Text>
+                <Pressable
+                  style={styles.supplierPickerButton}
+                  onPress={() => setSupplierPickerVisible(true)}
+                >
+                  <Feather name="box" size={16} color={theme.colors.primary} />
+                  <Text style={styles.supplierPickerText} numberOfLines={1}>
+                    {supplierId
+                      ? ((suppliers ?? []).find((s) => s.id === supplierId)?.name ??
+                        t('deliveries.invoice.noLinkedSupplier'))
+                      : t('deliveries.invoice.noLinkedSupplier')}
+                  </Text>
+                  <Feather name="chevron-right" size={16} color={theme.colors.textSecondary} />
+                </Pressable>
+              </View>
+
+              <View style={styles.field}>
                 <Text style={styles.label}>{t('deliveries.invoice.totalAmountLabel')}</Text>
                 <View style={styles.currencyInputWrap}>
                   <Controller
@@ -482,6 +519,14 @@ export function DeliveryInvoiceFormSheet({ visible, onClose, existingInvoice }: 
           </Pressable>
         </Pressable>
       </Modal>
+
+      <SupplierFilterSheet
+        visible={supplierPickerVisible}
+        onClose={() => setSupplierPickerVisible(false)}
+        selectedSupplierId={supplierId}
+        onSelect={setSupplierId}
+        titleKey="deliveries.invoice.linkedSupplierLabel"
+      />
     </Modal>
   );
 }
@@ -656,6 +701,22 @@ function createStyles(theme: ReturnType<typeof useTheme>) {
       fontSize: theme.fontSizes.md,
       fontWeight: theme.fontWeights.medium,
       color: theme.colors.textSecondary,
+    },
+    supplierPickerButton: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      gap: theme.spacing.sm,
+      borderWidth: 1,
+      borderColor: theme.colors.border,
+      backgroundColor: theme.colors.surface,
+      borderRadius: theme.radius.md,
+      paddingHorizontal: theme.spacing.md,
+      paddingVertical: theme.spacing.md,
+    },
+    supplierPickerText: {
+      flex: 1,
+      fontSize: theme.fontSizes.md,
+      color: theme.colors.textPrimary,
     },
   });
 }

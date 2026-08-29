@@ -532,7 +532,9 @@
       "noSignature": "Подписи ещё нет",
       "editTitle": "Редактирование накладной",
       "pageBadge": "Стр. {{n}}",
-      "addPage": "Добавить страницу"
+      "addPage": "Добавить страницу",
+      "linkedSupplierLabel": "Связанный поставщик (необязательно)",
+      "noLinkedSupplier": "Не привязан"
     },
     "tabItems": "Товары",
     "tabInvoices": "Накладные",

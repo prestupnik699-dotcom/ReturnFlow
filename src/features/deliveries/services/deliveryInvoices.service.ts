@@ -167,6 +167,7 @@ export async function createDeliveryInvoice(
 }
 
 export type UpdateDeliveryInvoiceInput = {
+  supplierId: string | null;
   invoiceNumber: string;
   distributorName: string;
   totalAmount: number | null;
@@ -186,6 +187,7 @@ export async function updateDeliveryInvoice(
   const { data, error } = await supabase
     .from('delivery_invoices')
     .update({
+      supplier_id: input.supplierId,
       invoice_number: input.invoiceNumber,
       distributor_name: input.distributorName,
       total_amount: input.totalAmount,

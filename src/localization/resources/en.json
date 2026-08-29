@@ -532,7 +532,9 @@
       "noSignature": "No signature yet",
       "editTitle": "Edit invoice entry",
       "pageBadge": "Page {{n}}",
-      "addPage": "Add page"
+      "addPage": "Add page",
+      "linkedSupplierLabel": "Linked supplier (optional)",
+      "noLinkedSupplier": "Not linked"
     },
     "tabItems": "Items",
     "tabInvoices": "Invoices",
