@@ -557,7 +557,11 @@
     "exportReportTitle": "Received items",
     "exportTotalItems": "Total items",
     "dateToday": "Today",
-    "dateYesterday": "Yesterday"
+    "dateYesterday": "Yesterday",
+    "periodAll": "All time",
+    "periodWeek": "This week",
+    "periodMonth": "This month",
+    "noSignatureFilter": "No signature"
   },
   "reminders": {
     "title": "Reminders",

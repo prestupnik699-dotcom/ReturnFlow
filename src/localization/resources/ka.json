@@ -553,7 +553,11 @@
     "exportReportTitle": "მიღებული პროდუქტები",
     "exportTotalItems": "სულ პოზიციები",
     "dateToday": "დღეს",
-    "dateYesterday": "გუშინ"
+    "dateYesterday": "გუშინ",
+    "periodAll": "ყველა დრო",
+    "periodWeek": "ეს კვირა",
+    "periodMonth": "ეს თვე",
+    "noSignatureFilter": "ხელმოწერის გარეშე"
   },
   "reminders": {
     "title": "შენიშვნები",

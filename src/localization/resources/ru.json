@@ -557,7 +557,11 @@
     "exportReportTitle": "Принятые товары",
     "exportTotalItems": "Всего позиций",
     "dateToday": "Сегодня",
-    "dateYesterday": "Вчера"
+    "dateYesterday": "Вчера",
+    "periodAll": "Всё время",
+    "periodWeek": "Эта неделя",
+    "periodMonth": "Этот месяц",
+    "noSignatureFilter": "Без подписи"
   },
   "reminders": {
     "title": "Заметки",

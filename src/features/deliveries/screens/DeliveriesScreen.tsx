@@ -111,6 +111,8 @@ export function DeliveriesScreen() {
   const bulkDeleteInvoicesMutation = useBulkDeleteDeliveryInvoices();
   const [selectedInvoiceIds, setSelectedInvoiceIds] = useState<string[]>([]);
   const [bulkDeleteInvoicesConfirmVisible, setBulkDeleteInvoicesConfirmVisible] = useState(false);
+  const [invoicePeriod, setInvoicePeriod] = useState<'all' | 'week' | 'month'>('all');
+  const [invoiceNoSignatureOnly, setInvoiceNoSignatureOnly] = useState(false);
 
   const invoiceSelectionMode = selectedInvoiceIds.length > 0;
 
@@ -178,6 +180,20 @@ export function DeliveriesScreen() {
     });
 
   const sections = groupByDate(filtered);
+
+  const filteredInvoices = (invoices ?? [])
+    .filter((inv) => !invoiceNoSignatureOnly || !inv.hasSignature)
+    .filter((inv) => {
+      if (invoicePeriod === 'all') return true;
+      const daysBack = invoicePeriod === 'week' ? 7 : 30;
+      // Filtering by "how long ago" inherently depends on the current
+      // moment; this is a plain list-filtering computation, not a hook,
+      // and re-evaluating it on every render is the correct, intended
+      // behavior here.
+      /* eslint-disable-next-line react-hooks/purity */
+      const cutoff = Date.now() - daysBack * 24 * 60 * 60 * 1000;
+      return new Date(inv.receivedAt).getTime() >= cutoff;
+    });
 
   const cycleItemsSort = () => {
     setItemsSort((current) =>
@@ -376,90 +392,135 @@ export function DeliveriesScreen() {
         ) : null}
 
         {activeTab === 'invoices' ? (
-          invoicesLoading ? (
-            <View style={styles.center}>
-              <ActivityIndicator color={theme.colors.primary} />
-            </View>
-          ) : invoicesError ? (
-            <Text style={styles.errorText}>{t('organizations.settings.loadError')}</Text>
-          ) : (
-            <FlatList
-              data={invoices ?? []}
-              keyExtractor={(item) => item.id}
-              style={styles.flatList}
-              contentContainerStyle={[
-                styles.list,
-                { paddingBottom: tabBarClearance },
-                (invoices ?? []).length === 0 && styles.listEmptyGrow,
-              ]}
-              showsVerticalScrollIndicator={false}
-              ListEmptyComponent={
-                <View style={styles.emptyWrap}>
-                  <EmptyState
-                    icon="file-text"
-                    title={t('deliveries.invoice.empty')}
-                    message={t('deliveries.invoice.emptyMessage')}
-                  />
-                </View>
-              }
-              renderItem={({ item, index }: { item: DeliveryInvoice; index: number }) => (
-                <AnimatedListItem index={index} step={40} duration={220}>
-                  <Pressable
-                    onLongPress={() => toggleInvoiceSelect(item.id)}
-                    onPress={() =>
-                      invoiceSelectionMode ? toggleInvoiceSelect(item.id) : handleEditInvoice(item)
-                    }
+          <>
+            <View style={styles.invoiceFilterRow}>
+              {(['all', 'week', 'month'] as const).map((period) => (
+                <Pressable
+                  key={period}
+                  style={[styles.periodChip, invoicePeriod === period && styles.periodChipActive]}
+                  onPress={() => setInvoicePeriod(period)}
+                >
+                  <Text
+                    style={[
+                      styles.periodChipText,
+                      invoicePeriod === period && styles.periodChipTextActive,
+                    ]}
                   >
-                    <Card>
-                      <View style={styles.row}>
-                        {invoiceSelectionMode ? (
-                          <Feather
-                            name={selectedInvoiceIds.includes(item.id) ? 'check-circle' : 'circle'}
-                            size={20}
-                            color={
-                              selectedInvoiceIds.includes(item.id)
-                                ? theme.colors.primary
-                                : theme.colors.textSecondary
-                            }
-                          />
-                        ) : (
-                          <View style={styles.iconWrap}>
-                            <Feather name="file-text" size={18} color={theme.colors.primary} />
-                          </View>
-                        )}
-                        <View style={styles.info}>
-                          <Text style={styles.title} numberOfLines={1}>
-                            {item.distributorName}
-                          </Text>
-                          <Text style={styles.meta} numberOfLines={1}>
-                            {t('deliveries.invoice.numberPrefix')} {item.invoiceNumber}
-                            {item.totalAmount != null ? ` · ${item.totalAmount}₾` : ''}
-                          </Text>
-                          <View style={styles.barcodeRow}>
+                    {t(
+                      `deliveries.period${period === 'all' ? 'All' : period === 'week' ? 'Week' : 'Month'}`,
+                    )}
+                  </Text>
+                </Pressable>
+              ))}
+              <Pressable
+                style={[styles.periodChip, invoiceNoSignatureOnly && styles.periodChipActive]}
+                onPress={() => setInvoiceNoSignatureOnly((v) => !v)}
+              >
+                <Feather
+                  name="alert-circle"
+                  size={13}
+                  color={invoiceNoSignatureOnly ? theme.colors.primary : theme.colors.textSecondary}
+                />
+                <Text
+                  style={[
+                    styles.periodChipText,
+                    invoiceNoSignatureOnly && styles.periodChipTextActive,
+                  ]}
+                >
+                  {t('deliveries.noSignatureFilter')}
+                </Text>
+              </Pressable>
+            </View>
+
+            {invoicesLoading ? (
+              <View style={styles.center}>
+                <ActivityIndicator color={theme.colors.primary} />
+              </View>
+            ) : invoicesError ? (
+              <Text style={styles.errorText}>{t('organizations.settings.loadError')}</Text>
+            ) : (
+              <FlatList
+                data={filteredInvoices}
+                keyExtractor={(item) => item.id}
+                style={styles.flatList}
+                contentContainerStyle={[
+                  styles.list,
+                  { paddingBottom: tabBarClearance },
+                  filteredInvoices.length === 0 && styles.listEmptyGrow,
+                ]}
+                showsVerticalScrollIndicator={false}
+                ListEmptyComponent={
+                  <View style={styles.emptyWrap}>
+                    <EmptyState
+                      icon="file-text"
+                      title={t('deliveries.invoice.empty')}
+                      message={t('deliveries.invoice.emptyMessage')}
+                    />
+                  </View>
+                }
+                renderItem={({ item, index }: { item: DeliveryInvoice; index: number }) => (
+                  <AnimatedListItem index={index} step={40} duration={220}>
+                    <Pressable
+                      onLongPress={() => toggleInvoiceSelect(item.id)}
+                      onPress={() =>
+                        invoiceSelectionMode
+                          ? toggleInvoiceSelect(item.id)
+                          : handleEditInvoice(item)
+                      }
+                    >
+                      <Card>
+                        <View style={styles.row}>
+                          {invoiceSelectionMode ? (
                             <Feather
-                              name={item.hasSignature ? 'check-circle' : 'circle'}
-                              size={12}
+                              name={
+                                selectedInvoiceIds.includes(item.id) ? 'check-circle' : 'circle'
+                              }
+                              size={20}
                               color={
-                                item.hasSignature
-                                  ? theme.colors.success
+                                selectedInvoiceIds.includes(item.id)
+                                  ? theme.colors.primary
                                   : theme.colors.textSecondary
                               }
                             />
-                            <Text style={styles.barcodeText}>
-                              {item.hasSignature
-                                ? t('deliveries.invoice.hasSignature')
-                                : t('deliveries.invoice.noSignature')}
+                          ) : (
+                            <View style={styles.iconWrap}>
+                              <Feather name="file-text" size={18} color={theme.colors.primary} />
+                            </View>
+                          )}
+                          <View style={styles.info}>
+                            <Text style={styles.title} numberOfLines={1}>
+                              {item.distributorName}
                             </Text>
+                            <Text style={styles.meta} numberOfLines={1}>
+                              {t('deliveries.invoice.numberPrefix')} {item.invoiceNumber}
+                              {item.totalAmount != null ? ` · ${item.totalAmount}₾` : ''}
+                            </Text>
+                            <View style={styles.barcodeRow}>
+                              <Feather
+                                name={item.hasSignature ? 'check-circle' : 'circle'}
+                                size={12}
+                                color={
+                                  item.hasSignature
+                                    ? theme.colors.success
+                                    : theme.colors.textSecondary
+                                }
+                              />
+                              <Text style={styles.barcodeText}>
+                                {item.hasSignature
+                                  ? t('deliveries.invoice.hasSignature')
+                                  : t('deliveries.invoice.noSignature')}
+                              </Text>
+                            </View>
                           </View>
                         </View>
-                      </View>
-                      <DateTimeRow iso={item.receivedAt} theme={theme} />
-                    </Card>
-                  </Pressable>
-                </AnimatedListItem>
-              )}
-            />
-          )
+                        <DateTimeRow iso={item.receivedAt} theme={theme} />
+                      </Card>
+                    </Pressable>
+                  </AnimatedListItem>
+                )}
+              />
+            )}
+          </>
         ) : null}
 
         {activeTab === 'invoices' && invoiceSelectionMode ? (
@@ -782,5 +843,32 @@ function createStyles(theme: ReturnType<typeof useTheme>) {
       paddingTop: theme.spacing.md,
       paddingBottom: theme.spacing.xs,
     },
+    invoiceFilterRow: {
+      flexDirection: 'row',
+      flexWrap: 'wrap',
+      gap: theme.spacing.xs,
+      marginBottom: theme.spacing.md,
+    },
+    periodChip: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      gap: 4,
+      borderWidth: 1,
+      borderColor: theme.colors.border,
+      backgroundColor: theme.colors.card,
+      borderRadius: theme.radius.full,
+      paddingHorizontal: theme.spacing.md,
+      paddingVertical: theme.spacing.xsPlus,
+    },
+    periodChipActive: {
+      borderColor: theme.colors.primary,
+      backgroundColor: theme.colors.primary + '15',
+    },
+    periodChipText: {
+      fontSize: theme.fontSizes.xs,
+      fontWeight: theme.fontWeights.medium,
+      color: theme.colors.textSecondary,
+    },
+    periodChipTextActive: { color: theme.colors.primary, fontWeight: theme.fontWeights.semiBold },
   });
 }
