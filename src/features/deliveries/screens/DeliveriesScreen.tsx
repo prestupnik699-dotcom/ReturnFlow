@@ -556,7 +556,9 @@ export function DeliveriesScreen() {
                             ) : (
                               <View />
                             )}
-                            <DateTimeRow iso={item.receivedAt} theme={theme} />
+                            <View style={styles.invoiceDateTimeWrap}>
+                              <DateTimeRow iso={item.receivedAt} theme={theme} />
+                            </View>
                           </View>
                         </Card>
                       </Pressable>
@@ -944,6 +946,11 @@ function createStyles(theme: ReturnType<typeof useTheme>) {
       fontSize: theme.fontSizes.xs,
       fontWeight: theme.fontWeights.medium,
       color: theme.colors.primary,
+    },
+    invoiceDateTimeWrap: {
+      marginTop: theme.spacing.xs,
+      marginRight: -theme.spacing.lg,
+      marginBottom: -theme.spacing.md,
     },
   });
 }
