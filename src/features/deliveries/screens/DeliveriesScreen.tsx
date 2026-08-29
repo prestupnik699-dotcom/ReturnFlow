@@ -31,6 +31,7 @@ import { ConfirmDialog } from '@/components/ConfirmDialog';
 import { useExportDeliveryItems } from '@/features/deliveries/hooks/useExportDeliveryItems';
 import { SupplierFilterSheet } from '@/features/returns/screens/SupplierFilterSheet';
 import { useBulkDeleteDeliveryItems } from '@/features/deliveries/hooks/useBulkDeliveryItemActions';
+import { useBulkDeleteDeliveryInvoices } from '@/features/deliveries/hooks/useBulkDeliveryInvoiceActions';
 import type { DeliveryItem } from '@/features/deliveries/services/deliveries.service';
 import type { DeliveryInvoice } from '@/features/deliveries/services/deliveryInvoices.service';
 
@@ -107,6 +108,27 @@ export function DeliveriesScreen() {
   const [supplierFilterVisible, setSupplierFilterVisible] = useState(false);
   const [itemsSort, setItemsSort] = useState<'date' | 'name' | 'quantity'>('date');
   const [exportSheetVisible, setExportSheetVisible] = useState(false);
+  const bulkDeleteInvoicesMutation = useBulkDeleteDeliveryInvoices();
+  const [selectedInvoiceIds, setSelectedInvoiceIds] = useState<string[]>([]);
+  const [bulkDeleteInvoicesConfirmVisible, setBulkDeleteInvoicesConfirmVisible] = useState(false);
+
+  const invoiceSelectionMode = selectedInvoiceIds.length > 0;
+
+  const toggleInvoiceSelect = (id: string) => {
+    setSelectedInvoiceIds((prev) =>
+      prev.includes(id) ? prev.filter((x) => x !== id) : [...prev, id],
+    );
+  };
+
+  const confirmBulkDeleteInvoices = () => {
+    const ids = [...selectedInvoiceIds];
+    bulkDeleteInvoicesMutation.mutate(ids, {
+      onSuccess: () => {
+        setSelectedInvoiceIds([]);
+        setBulkDeleteInvoicesConfirmVisible(false);
+      },
+    });
+  };
   const {
     runExport,
     isExporting,
@@ -382,12 +404,29 @@ export function DeliveriesScreen() {
               }
               renderItem={({ item, index }: { item: DeliveryInvoice; index: number }) => (
                 <AnimatedListItem index={index} step={40} duration={220}>
-                  <Pressable onPress={() => handleEditInvoice(item)}>
+                  <Pressable
+                    onLongPress={() => toggleInvoiceSelect(item.id)}
+                    onPress={() =>
+                      invoiceSelectionMode ? toggleInvoiceSelect(item.id) : handleEditInvoice(item)
+                    }
+                  >
                     <Card>
                       <View style={styles.row}>
-                        <View style={styles.iconWrap}>
-                          <Feather name="file-text" size={18} color={theme.colors.primary} />
-                        </View>
+                        {invoiceSelectionMode ? (
+                          <Feather
+                            name={selectedInvoiceIds.includes(item.id) ? 'check-circle' : 'circle'}
+                            size={20}
+                            color={
+                              selectedInvoiceIds.includes(item.id)
+                                ? theme.colors.primary
+                                : theme.colors.textSecondary
+                            }
+                          />
+                        ) : (
+                          <View style={styles.iconWrap}>
+                            <Feather name="file-text" size={18} color={theme.colors.primary} />
+                          </View>
+                        )}
                         <View style={styles.info}>
                           <Text style={styles.title} numberOfLines={1}>
                             {item.distributorName}
@@ -423,7 +462,29 @@ export function DeliveriesScreen() {
           )
         ) : null}
 
-        {activeTab === 'invoices' ? (
+        {activeTab === 'invoices' && invoiceSelectionMode ? (
+          <View style={[styles.footerSelectionMode, { paddingBottom: tabBarClearance }]}>
+            <View style={styles.bulkBar}>
+              <Text style={styles.countText}>
+                {t('suppliers.catalog.selectedCount', { count: selectedInvoiceIds.length })}
+              </Text>
+              <View style={styles.bulkBarTop}>
+                <Pressable style={styles.cancelButton} onPress={() => setSelectedInvoiceIds([])}>
+                  <Text style={styles.cancelText}>{t('suppliers.catalog.cancelSelection')}</Text>
+                </Pressable>
+                <Pressable
+                  style={styles.deleteIconButton}
+                  onPress={() => setBulkDeleteInvoicesConfirmVisible(true)}
+                  hitSlop={8}
+                >
+                  <Feather name="trash-2" size={16} color={theme.colors.danger} />
+                </Pressable>
+              </View>
+            </View>
+          </View>
+        ) : null}
+
+        {activeTab === 'invoices' && !invoiceSelectionMode ? (
           <FAB
             onPress={handleAddInvoice}
             style={[styles.fab, { bottom: tabBarClearance + theme.spacing.md }]}
@@ -447,6 +508,18 @@ export function DeliveriesScreen() {
         loading={bulkDeleteMutation.isPending}
         onConfirm={confirmBulkDelete}
         onCancel={() => setBulkDeleteConfirmVisible(false)}
+      />
+
+      <ConfirmDialog
+        visible={bulkDeleteInvoicesConfirmVisible}
+        title={t('deliveries.bulkDeleteConfirmTitle', { count: selectedInvoiceIds.length })}
+        message={t('deliveries.deleteConfirmMessage')}
+        confirmLabel={t('organizations.settings.deleteConfirmButton')}
+        cancelLabel={t('organizations.settings.cancelButton')}
+        destructive
+        loading={bulkDeleteInvoicesMutation.isPending}
+        onConfirm={confirmBulkDeleteInvoices}
+        onCancel={() => setBulkDeleteInvoicesConfirmVisible(false)}
       />
 
       <SupplierFilterSheet
