@@ -553,7 +553,9 @@
     "exportColumnBarcode": "Штрихкод",
     "exportColumnDate": "Принято",
     "exportReportTitle": "Принятые товары",
-    "exportTotalItems": "Всего позиций"
+    "exportTotalItems": "Всего позиций",
+    "dateToday": "Сегодня",
+    "dateYesterday": "Вчера"
   },
   "reminders": {
     "title": "Заметки",

@@ -549,7 +549,9 @@
     "exportColumnBarcode": "შტრიხკოდი",
     "exportColumnDate": "მიღებულია",
     "exportReportTitle": "მიღებული პროდუქტები",
-    "exportTotalItems": "სულ პოზიციები"
+    "exportTotalItems": "სულ პოზიციები",
+    "dateToday": "დღეს",
+    "dateYesterday": "გუშინ"
   },
   "reminders": {
     "title": "შენიშვნები",

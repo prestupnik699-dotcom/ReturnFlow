@@ -553,7 +553,9 @@
     "exportColumnBarcode": "Barcode",
     "exportColumnDate": "Received",
     "exportReportTitle": "Received items",
-    "exportTotalItems": "Total items"
+    "exportTotalItems": "Total items",
+    "dateToday": "Today",
+    "dateYesterday": "Yesterday"
   },
   "reminders": {
     "title": "Reminders",

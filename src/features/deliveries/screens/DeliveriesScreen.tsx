@@ -2,6 +2,7 @@ import { useState } from 'react';
 import {
   View,
   FlatList,
+  SectionList,
   TextInput,
   ActivityIndicator,
   StyleSheet,
@@ -25,6 +26,7 @@ import { useDeliveryItems } from '@/features/deliveries/hooks/useDeliveryItems';
 import { useDeliveryInvoices } from '@/features/deliveries/hooks/useDeliveryInvoices';
 import { DeliveryInvoiceFormSheet } from '@/features/deliveries/components/DeliveryInvoiceFormSheet';
 import { FAB } from '@/components/FAB';
+import { groupByDate } from '@/features/deliveries/utils/groupByDate';
 import { ConfirmDialog } from '@/components/ConfirmDialog';
 import { useExportDeliveryItems } from '@/features/deliveries/hooks/useExportDeliveryItems';
 import { SupplierFilterSheet } from '@/features/returns/screens/SupplierFilterSheet';
@@ -153,6 +155,8 @@ export function DeliveriesScreen() {
       return new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime();
     });
 
+  const sections = groupByDate(filtered);
+
   const cycleItemsSort = () => {
     setItemsSort((current) =>
       current === 'date' ? 'name' : current === 'name' ? 'quantity' : 'date',
@@ -241,8 +245,8 @@ export function DeliveriesScreen() {
           ) : isError ? (
             <Text style={styles.errorText}>{t('organizations.settings.loadError')}</Text>
           ) : (
-            <FlatList
-              data={filtered}
+            <SectionList
+              sections={sections}
               keyExtractor={(item) => item.id}
               style={styles.flatList}
               contentContainerStyle={[
@@ -252,6 +256,7 @@ export function DeliveriesScreen() {
               ]}
               showsVerticalScrollIndicator={false}
               refreshControl={<RefreshControl {...refreshProps} />}
+              stickySectionHeadersEnabled={false}
               ListEmptyComponent={
                 <View style={styles.emptyWrap}>
                   <EmptyState
@@ -261,6 +266,15 @@ export function DeliveriesScreen() {
                   />
                 </View>
               }
+              renderSectionHeader={({ section }) => (
+                <Text style={styles.sectionHeader}>
+                  {section.labelKind === 'today'
+                    ? t('deliveries.dateToday')
+                    : section.labelKind === 'yesterday'
+                      ? t('deliveries.dateYesterday')
+                      : formatDatePart(section.dateIso!)}
+                </Text>
+              )}
               renderItem={({ item, index }: { item: DeliveryItem; index: number }) => (
                 <AnimatedListItem index={index} step={40} duration={220}>
                   <Pressable
@@ -687,6 +701,13 @@ function createStyles(theme: ReturnType<typeof useTheme>) {
       color: theme.colors.danger,
       textAlign: 'center',
       marginTop: theme.spacing.xs,
+    },
+    sectionHeader: {
+      fontSize: theme.fontSizes.sm,
+      fontWeight: theme.fontWeights.semiBold,
+      color: theme.colors.textSecondary,
+      paddingTop: theme.spacing.md,
+      paddingBottom: theme.spacing.xs,
     },
   });
 }
