@@ -25,6 +25,8 @@ import { useTabBarClearance } from '@/hooks/useTabBarClearance';
 import { useDeliveryItems } from '@/features/deliveries/hooks/useDeliveryItems';
 import { useDeliveryInvoices } from '@/features/deliveries/hooks/useDeliveryInvoices';
 import { DeliveryInvoiceFormSheet } from '@/features/deliveries/components/DeliveryInvoiceFormSheet';
+import { InvoicePhotoGallery } from '@/components/InvoicePhotoGallery';
+import { fetchDeliveryInvoicePhotoUrl } from '@/features/deliveries/services/deliveryInvoices.service';
 import { FAB } from '@/components/FAB';
 import { groupByDate } from '@/features/deliveries/utils/groupByDate';
 import { ConfirmDialog } from '@/components/ConfirmDialog';
@@ -216,434 +218,485 @@ export function DeliveriesScreen() {
     setFormVisible(true);
   };
 
+  const [galleryUris, setGalleryUris] = useState<string[]>([]);
+  const [galleryVisible, setGalleryVisible] = useState(false);
+  const [loadingPhotosFor, setLoadingPhotosFor] = useState<string | null>(null);
+
+  const handleViewPhotos = async (invoice: DeliveryInvoice) => {
+    if (invoice.photoUrls.length === 0) return;
+    setLoadingPhotosFor(invoice.id);
+    const urls = await Promise.all(
+      invoice.photoUrls.map((path) => fetchDeliveryInvoicePhotoUrl(path)),
+    );
+    setLoadingPhotosFor(null);
+    const validUrls = urls.filter((u): u is string => u != null);
+    if (validUrls.length === 0) return;
+    setGalleryUris(validUrls);
+    setGalleryVisible(true);
+  };
+
   return (
-    <Screen>
-      <View style={styles.container}>
-        <ScreenHeader title={t('deliveries.title')} onBack={() => router.back()} />
+    <>
+      <Screen>
+        <View style={styles.container}>
+          <ScreenHeader title={t('deliveries.title')} onBack={() => router.back()} />
 
-        <View style={styles.tabRow}>
-          <View
-            style={[styles.tabChip, activeTab === 'items' && styles.tabChipActive]}
-            onTouchEnd={() => setActiveTab('items')}
-          >
-            <Text style={[styles.tabChipText, activeTab === 'items' && styles.tabChipTextActive]}>
-              {t('deliveries.tabItems')}
-            </Text>
-          </View>
-          <View
-            style={[styles.tabChip, activeTab === 'invoices' && styles.tabChipActive]}
-            onTouchEnd={() => setActiveTab('invoices')}
-          >
-            <Text
-              style={[styles.tabChipText, activeTab === 'invoices' && styles.tabChipTextActive]}
+          <View style={styles.tabRow}>
+            <View
+              style={[styles.tabChip, activeTab === 'items' && styles.tabChipActive]}
+              onTouchEnd={() => setActiveTab('items')}
             >
-              {t('deliveries.tabInvoices')}
-            </Text>
-          </View>
-        </View>
-
-        {activeTab === 'items' ? (
-          <View style={styles.searchFilterRow}>
-            <View style={styles.searchRow}>
-              <Feather name="search" size={18} color={theme.colors.textSecondary} />
-              <TextInput
-                style={styles.searchInput}
-                placeholder={t('suppliers.searchPlaceholder')}
-                placeholderTextColor={theme.colors.textSecondary}
-                value={searchInput}
-                onChangeText={setSearchInput}
-              />
-            </View>
-            <Pressable
-              style={[styles.filterButton, supplierFilterId && styles.filterButtonActive]}
-              onPress={() => setSupplierFilterVisible(true)}
-            >
-              <Feather
-                name="filter"
-                size={18}
-                color={supplierFilterId ? theme.colors.primary : theme.colors.textSecondary}
-              />
-            </Pressable>
-            <Pressable style={styles.filterButton} onPress={cycleItemsSort}>
-              <Feather name={itemsSortIcon} size={18} color={theme.colors.textSecondary} />
-            </Pressable>
-            <Pressable style={styles.filterButton} onPress={() => setExportSheetVisible(true)}>
-              <Feather name="share" size={18} color={theme.colors.textSecondary} />
-            </Pressable>
-          </View>
-        ) : null}
-
-        {activeTab === 'items' ? <Text style={styles.sortLabel}>{itemsSortLabel}</Text> : null}
-
-        {activeTab === 'items' ? (
-          isLoading ? (
-            <View style={styles.center}>
-              <ActivityIndicator color={theme.colors.primary} />
-            </View>
-          ) : isError ? (
-            <Text style={styles.errorText}>{t('organizations.settings.loadError')}</Text>
-          ) : (
-            <SectionList
-              sections={sections}
-              keyExtractor={(item) => item.id}
-              style={styles.flatList}
-              contentContainerStyle={[
-                styles.list,
-                { paddingBottom: tabBarClearance },
-                filtered.length === 0 && styles.listEmptyGrow,
-              ]}
-              showsVerticalScrollIndicator={false}
-              refreshControl={<RefreshControl {...refreshProps} />}
-              stickySectionHeadersEnabled={false}
-              ListEmptyComponent={
-                <View style={styles.emptyWrap}>
-                  <EmptyState
-                    icon="download"
-                    title={t('deliveries.empty')}
-                    message={t('deliveries.emptyMessage')}
-                  />
-                </View>
-              }
-              renderSectionHeader={({ section }) => (
-                <Text style={styles.sectionHeader}>
-                  {section.labelKind === 'today'
-                    ? t('deliveries.dateToday')
-                    : section.labelKind === 'yesterday'
-                      ? t('deliveries.dateYesterday')
-                      : formatDatePart(section.dateIso!)}
-                </Text>
-              )}
-              renderItem={({ item, index }: { item: DeliveryItem; index: number }) => (
-                <AnimatedListItem index={index} step={40} duration={220}>
-                  <Pressable
-                    onLongPress={() => !item.pendingSync && toggleSelect(item.id)}
-                    onPress={() => selectionMode && !item.pendingSync && toggleSelect(item.id)}
-                  >
-                    <Card>
-                      <View style={styles.row}>
-                        {selectionMode ? (
-                          <Feather
-                            name={selectedIds.includes(item.id) ? 'check-circle' : 'circle'}
-                            size={20}
-                            color={
-                              selectedIds.includes(item.id)
-                                ? theme.colors.primary
-                                : theme.colors.textSecondary
-                            }
-                          />
-                        ) : (
-                          <View style={styles.iconWrap}>
-                            <Feather name="download" size={18} color={theme.colors.primary} />
-                          </View>
-                        )}
-                        <View style={styles.info}>
-                          <Text style={styles.title} numberOfLines={1}>
-                            {item.title}
-                          </Text>
-                          <Text style={styles.meta} numberOfLines={1}>
-                            {item.supplierName} · ×{item.quantity}
-                          </Text>
-                          {item.barcode ? (
-                            <View style={styles.barcodeRow}>
-                              <Ionicons
-                                name="barcode-outline"
-                                size={12}
-                                color={theme.colors.textSecondary}
-                              />
-                              <Text style={styles.barcodeText} numberOfLines={1}>
-                                {item.barcode}
-                              </Text>
-                            </View>
-                          ) : null}
-                          {item.pendingSync ? (
-                            <Text style={styles.pendingText}>{t('returns.pendingSync')}</Text>
-                          ) : null}
-                        </View>
-                      </View>
-                      <DateTimeRow iso={item.createdAt} theme={theme} />
-                    </Card>
-                  </Pressable>
-                </AnimatedListItem>
-              )}
-            />
-          )
-        ) : null}
-
-        {activeTab === 'items' && selectionMode ? (
-          <View style={[styles.footerSelectionMode, { paddingBottom: tabBarClearance }]}>
-            <View style={styles.bulkBar}>
-              <Text style={styles.countText}>
-                {t('suppliers.catalog.selectedCount', { count: selectedIds.length })}
+              <Text style={[styles.tabChipText, activeTab === 'items' && styles.tabChipTextActive]}>
+                {t('deliveries.tabItems')}
               </Text>
-              <View style={styles.bulkBarTop}>
-                <Pressable style={styles.cancelButton} onPress={() => setSelectedIds([])}>
-                  <Text style={styles.cancelText}>{t('suppliers.catalog.cancelSelection')}</Text>
-                </Pressable>
-                <Pressable
-                  style={styles.deleteIconButton}
-                  onPress={() => setBulkDeleteConfirmVisible(true)}
-                  hitSlop={8}
-                >
-                  <Feather name="trash-2" size={16} color={theme.colors.danger} />
-                </Pressable>
-              </View>
+            </View>
+            <View
+              style={[styles.tabChip, activeTab === 'invoices' && styles.tabChipActive]}
+              onTouchEnd={() => setActiveTab('invoices')}
+            >
+              <Text
+                style={[styles.tabChipText, activeTab === 'invoices' && styles.tabChipTextActive]}
+              >
+                {t('deliveries.tabInvoices')}
+              </Text>
             </View>
           </View>
-        ) : null}
 
-        {activeTab === 'invoices' ? (
-          <>
-            <View style={styles.invoiceFilterRow}>
-              {(['all', 'week', 'month'] as const).map((period) => (
-                <Pressable
-                  key={period}
-                  style={[styles.periodChip, invoicePeriod === period && styles.periodChipActive]}
-                  onPress={() => setInvoicePeriod(period)}
-                >
-                  <Text
-                    style={[
-                      styles.periodChipText,
-                      invoicePeriod === period && styles.periodChipTextActive,
-                    ]}
-                  >
-                    {t(
-                      `deliveries.period${period === 'all' ? 'All' : period === 'week' ? 'Week' : 'Month'}`,
-                    )}
-                  </Text>
-                </Pressable>
-              ))}
+          {activeTab === 'items' ? (
+            <View style={styles.searchFilterRow}>
+              <View style={styles.searchRow}>
+                <Feather name="search" size={18} color={theme.colors.textSecondary} />
+                <TextInput
+                  style={styles.searchInput}
+                  placeholder={t('suppliers.searchPlaceholder')}
+                  placeholderTextColor={theme.colors.textSecondary}
+                  value={searchInput}
+                  onChangeText={setSearchInput}
+                />
+              </View>
               <Pressable
-                style={[styles.periodChip, invoiceNoSignatureOnly && styles.periodChipActive]}
-                onPress={() => setInvoiceNoSignatureOnly((v) => !v)}
+                style={[styles.filterButton, supplierFilterId && styles.filterButtonActive]}
+                onPress={() => setSupplierFilterVisible(true)}
               >
                 <Feather
-                  name="alert-circle"
-                  size={13}
-                  color={invoiceNoSignatureOnly ? theme.colors.primary : theme.colors.textSecondary}
+                  name="filter"
+                  size={18}
+                  color={supplierFilterId ? theme.colors.primary : theme.colors.textSecondary}
                 />
-                <Text
-                  style={[
-                    styles.periodChipText,
-                    invoiceNoSignatureOnly && styles.periodChipTextActive,
-                  ]}
-                >
-                  {t('deliveries.noSignatureFilter')}
-                </Text>
+              </Pressable>
+              <Pressable style={styles.filterButton} onPress={cycleItemsSort}>
+                <Feather name={itemsSortIcon} size={18} color={theme.colors.textSecondary} />
+              </Pressable>
+              <Pressable style={styles.filterButton} onPress={() => setExportSheetVisible(true)}>
+                <Feather name="share" size={18} color={theme.colors.textSecondary} />
               </Pressable>
             </View>
+          ) : null}
 
-            {invoicesLoading ? (
+          {activeTab === 'items' ? <Text style={styles.sortLabel}>{itemsSortLabel}</Text> : null}
+
+          {activeTab === 'items' ? (
+            isLoading ? (
               <View style={styles.center}>
                 <ActivityIndicator color={theme.colors.primary} />
               </View>
-            ) : invoicesError ? (
+            ) : isError ? (
               <Text style={styles.errorText}>{t('organizations.settings.loadError')}</Text>
             ) : (
-              <FlatList
-                data={filteredInvoices}
+              <SectionList
+                sections={sections}
                 keyExtractor={(item) => item.id}
                 style={styles.flatList}
                 contentContainerStyle={[
                   styles.list,
                   { paddingBottom: tabBarClearance },
-                  filteredInvoices.length === 0 && styles.listEmptyGrow,
+                  filtered.length === 0 && styles.listEmptyGrow,
                 ]}
                 showsVerticalScrollIndicator={false}
+                refreshControl={<RefreshControl {...refreshProps} />}
+                stickySectionHeadersEnabled={false}
                 ListEmptyComponent={
                   <View style={styles.emptyWrap}>
                     <EmptyState
-                      icon="file-text"
-                      title={t('deliveries.invoice.empty')}
-                      message={t('deliveries.invoice.emptyMessage')}
+                      icon="download"
+                      title={t('deliveries.empty')}
+                      message={t('deliveries.emptyMessage')}
                     />
                   </View>
                 }
-                renderItem={({ item, index }: { item: DeliveryInvoice; index: number }) => (
+                renderSectionHeader={({ section }) => (
+                  <Text style={styles.sectionHeader}>
+                    {section.labelKind === 'today'
+                      ? t('deliveries.dateToday')
+                      : section.labelKind === 'yesterday'
+                        ? t('deliveries.dateYesterday')
+                        : formatDatePart(section.dateIso!)}
+                  </Text>
+                )}
+                renderItem={({ item, index }: { item: DeliveryItem; index: number }) => (
                   <AnimatedListItem index={index} step={40} duration={220}>
                     <Pressable
-                      onLongPress={() => toggleInvoiceSelect(item.id)}
-                      onPress={() =>
-                        invoiceSelectionMode
-                          ? toggleInvoiceSelect(item.id)
-                          : handleEditInvoice(item)
-                      }
+                      onLongPress={() => !item.pendingSync && toggleSelect(item.id)}
+                      onPress={() => selectionMode && !item.pendingSync && toggleSelect(item.id)}
                     >
                       <Card>
                         <View style={styles.row}>
-                          {invoiceSelectionMode ? (
+                          {selectionMode ? (
                             <Feather
-                              name={
-                                selectedInvoiceIds.includes(item.id) ? 'check-circle' : 'circle'
-                              }
+                              name={selectedIds.includes(item.id) ? 'check-circle' : 'circle'}
                               size={20}
                               color={
-                                selectedInvoiceIds.includes(item.id)
+                                selectedIds.includes(item.id)
                                   ? theme.colors.primary
                                   : theme.colors.textSecondary
                               }
                             />
                           ) : (
                             <View style={styles.iconWrap}>
-                              <Feather name="file-text" size={18} color={theme.colors.primary} />
+                              <Feather name="download" size={18} color={theme.colors.primary} />
                             </View>
                           )}
                           <View style={styles.info}>
                             <Text style={styles.title} numberOfLines={1}>
-                              {item.distributorName}
+                              {item.title}
                             </Text>
                             <Text style={styles.meta} numberOfLines={1}>
-                              {t('deliveries.invoice.numberPrefix')} {item.invoiceNumber}
-                              {item.totalAmount != null ? ` · ${item.totalAmount}₾` : ''}
+                              {item.supplierName} · ×{item.quantity}
                             </Text>
-                            <View style={styles.barcodeRow}>
-                              <Feather
-                                name={item.hasSignature ? 'check-circle' : 'circle'}
-                                size={12}
-                                color={
-                                  item.hasSignature
-                                    ? theme.colors.success
-                                    : theme.colors.textSecondary
-                                }
-                              />
-                              <Text style={styles.barcodeText}>
-                                {item.hasSignature
-                                  ? t('deliveries.invoice.hasSignature')
-                                  : t('deliveries.invoice.noSignature')}
-                              </Text>
-                            </View>
+                            {item.barcode ? (
+                              <View style={styles.barcodeRow}>
+                                <Ionicons
+                                  name="barcode-outline"
+                                  size={12}
+                                  color={theme.colors.textSecondary}
+                                />
+                                <Text style={styles.barcodeText} numberOfLines={1}>
+                                  {item.barcode}
+                                </Text>
+                              </View>
+                            ) : null}
+                            {item.pendingSync ? (
+                              <Text style={styles.pendingText}>{t('returns.pendingSync')}</Text>
+                            ) : null}
                           </View>
                         </View>
-                        <DateTimeRow iso={item.receivedAt} theme={theme} />
+                        <DateTimeRow iso={item.createdAt} theme={theme} />
                       </Card>
                     </Pressable>
                   </AnimatedListItem>
                 )}
               />
-            )}
-          </>
-        ) : null}
+            )
+          ) : null}
 
-        {activeTab === 'invoices' && invoiceSelectionMode ? (
-          <View style={[styles.footerSelectionMode, { paddingBottom: tabBarClearance }]}>
-            <View style={styles.bulkBar}>
-              <Text style={styles.countText}>
-                {t('suppliers.catalog.selectedCount', { count: selectedInvoiceIds.length })}
-              </Text>
-              <View style={styles.bulkBarTop}>
-                <Pressable style={styles.cancelButton} onPress={() => setSelectedInvoiceIds([])}>
-                  <Text style={styles.cancelText}>{t('suppliers.catalog.cancelSelection')}</Text>
-                </Pressable>
-                <Pressable
-                  style={styles.deleteIconButton}
-                  onPress={() => setBulkDeleteInvoicesConfirmVisible(true)}
-                  hitSlop={8}
-                >
-                  <Feather name="trash-2" size={16} color={theme.colors.danger} />
-                </Pressable>
+          {activeTab === 'items' && selectionMode ? (
+            <View style={[styles.footerSelectionMode, { paddingBottom: tabBarClearance }]}>
+              <View style={styles.bulkBar}>
+                <Text style={styles.countText}>
+                  {t('suppliers.catalog.selectedCount', { count: selectedIds.length })}
+                </Text>
+                <View style={styles.bulkBarTop}>
+                  <Pressable style={styles.cancelButton} onPress={() => setSelectedIds([])}>
+                    <Text style={styles.cancelText}>{t('suppliers.catalog.cancelSelection')}</Text>
+                  </Pressable>
+                  <Pressable
+                    style={styles.deleteIconButton}
+                    onPress={() => setBulkDeleteConfirmVisible(true)}
+                    hitSlop={8}
+                  >
+                    <Feather name="trash-2" size={16} color={theme.colors.danger} />
+                  </Pressable>
+                </View>
               </View>
             </View>
-          </View>
-        ) : null}
+          ) : null}
 
-        {activeTab === 'invoices' && !invoiceSelectionMode ? (
-          <FAB
-            onPress={handleAddInvoice}
-            style={[styles.fab, { bottom: tabBarClearance + theme.spacing.md }]}
-          />
-        ) : null}
-      </View>
+          {activeTab === 'invoices' ? (
+            <>
+              <View style={styles.invoiceFilterRow}>
+                {(['all', 'week', 'month'] as const).map((period) => (
+                  <Pressable
+                    key={period}
+                    style={[styles.periodChip, invoicePeriod === period && styles.periodChipActive]}
+                    onPress={() => setInvoicePeriod(period)}
+                  >
+                    <Text
+                      style={[
+                        styles.periodChipText,
+                        invoicePeriod === period && styles.periodChipTextActive,
+                      ]}
+                    >
+                      {t(
+                        `deliveries.period${period === 'all' ? 'All' : period === 'week' ? 'Week' : 'Month'}`,
+                      )}
+                    </Text>
+                  </Pressable>
+                ))}
+                <Pressable
+                  style={[styles.periodChip, invoiceNoSignatureOnly && styles.periodChipActive]}
+                  onPress={() => setInvoiceNoSignatureOnly((v) => !v)}
+                >
+                  <Feather
+                    name="alert-circle"
+                    size={13}
+                    color={
+                      invoiceNoSignatureOnly ? theme.colors.primary : theme.colors.textSecondary
+                    }
+                  />
+                  <Text
+                    style={[
+                      styles.periodChipText,
+                      invoiceNoSignatureOnly && styles.periodChipTextActive,
+                    ]}
+                  >
+                    {t('deliveries.noSignatureFilter')}
+                  </Text>
+                </Pressable>
+              </View>
 
-      <DeliveryInvoiceFormSheet
-        visible={formVisible}
-        onClose={() => setFormVisible(false)}
-        existingInvoice={editingInvoice}
-      />
-
-      <ConfirmDialog
-        visible={bulkDeleteConfirmVisible}
-        title={t('deliveries.bulkDeleteConfirmTitle', { count: selectedIds.length })}
-        message={t('deliveries.deleteConfirmMessage')}
-        confirmLabel={t('organizations.settings.deleteConfirmButton')}
-        cancelLabel={t('organizations.settings.cancelButton')}
-        destructive
-        loading={bulkDeleteMutation.isPending}
-        onConfirm={confirmBulkDelete}
-        onCancel={() => setBulkDeleteConfirmVisible(false)}
-      />
-
-      <ConfirmDialog
-        visible={bulkDeleteInvoicesConfirmVisible}
-        title={t('deliveries.bulkDeleteConfirmTitle', { count: selectedInvoiceIds.length })}
-        message={t('deliveries.deleteConfirmMessage')}
-        confirmLabel={t('organizations.settings.deleteConfirmButton')}
-        cancelLabel={t('organizations.settings.cancelButton')}
-        destructive
-        loading={bulkDeleteInvoicesMutation.isPending}
-        onConfirm={confirmBulkDeleteInvoices}
-        onCancel={() => setBulkDeleteInvoicesConfirmVisible(false)}
-      />
-
-      <SupplierFilterSheet
-        visible={supplierFilterVisible}
-        onClose={() => setSupplierFilterVisible(false)}
-        selectedSupplierId={supplierFilterId}
-        onSelect={setSupplierFilterId}
-        titleKey="deliveries.filterBySupplier"
-      />
-
-      <Modal
-        visible={exportSheetVisible}
-        animationType="fade"
-        transparent
-        onRequestClose={() => setExportSheetVisible(false)}
-      >
-        <Pressable style={styles.sheetBackdrop} onPress={() => setExportSheetVisible(false)}>
-          <Pressable style={styles.sheetCard}>
-            <Text style={styles.sheetTitle}>{t('deliveries.exportTitle')}</Text>
-            <Pressable
-              style={styles.sheetOption}
-              disabled={isExporting !== null}
-              onPress={() => {
-                setExportSheetVisible(false);
-                runExport(filtered, 'csv');
-              }}
-            >
-              {isExporting === 'csv' ? (
-                <ActivityIndicator size="small" color={theme.colors.primary} />
+              {invoicesLoading ? (
+                <View style={styles.center}>
+                  <ActivityIndicator color={theme.colors.primary} />
+                </View>
+              ) : invoicesError ? (
+                <Text style={styles.errorText}>{t('organizations.settings.loadError')}</Text>
               ) : (
-                <Feather name="grid" size={20} color={theme.colors.primary} />
+                <FlatList
+                  data={filteredInvoices}
+                  keyExtractor={(item) => item.id}
+                  style={styles.flatList}
+                  contentContainerStyle={[
+                    styles.list,
+                    { paddingBottom: tabBarClearance },
+                    filteredInvoices.length === 0 && styles.listEmptyGrow,
+                  ]}
+                  showsVerticalScrollIndicator={false}
+                  ListEmptyComponent={
+                    <View style={styles.emptyWrap}>
+                      <EmptyState
+                        icon="file-text"
+                        title={t('deliveries.invoice.empty')}
+                        message={t('deliveries.invoice.emptyMessage')}
+                      />
+                    </View>
+                  }
+                  renderItem={({ item, index }: { item: DeliveryInvoice; index: number }) => (
+                    <AnimatedListItem index={index} step={40} duration={220}>
+                      <Pressable
+                        onLongPress={() => toggleInvoiceSelect(item.id)}
+                        onPress={() =>
+                          invoiceSelectionMode
+                            ? toggleInvoiceSelect(item.id)
+                            : handleEditInvoice(item)
+                        }
+                      >
+                        <Card>
+                          <View style={styles.row}>
+                            {invoiceSelectionMode ? (
+                              <Feather
+                                name={
+                                  selectedInvoiceIds.includes(item.id) ? 'check-circle' : 'circle'
+                                }
+                                size={20}
+                                color={
+                                  selectedInvoiceIds.includes(item.id)
+                                    ? theme.colors.primary
+                                    : theme.colors.textSecondary
+                                }
+                              />
+                            ) : (
+                              <View style={styles.iconWrap}>
+                                <Feather name="file-text" size={18} color={theme.colors.primary} />
+                              </View>
+                            )}
+                            <View style={styles.info}>
+                              <Text style={styles.title} numberOfLines={1}>
+                                {item.distributorName}
+                              </Text>
+                              <Text style={styles.meta} numberOfLines={1}>
+                                {t('deliveries.invoice.numberPrefix')} {item.invoiceNumber}
+                                {item.totalAmount != null ? ` · ${item.totalAmount}₾` : ''}
+                              </Text>
+                              <View style={styles.barcodeRow}>
+                                <Feather
+                                  name={item.hasSignature ? 'check-circle' : 'circle'}
+                                  size={12}
+                                  color={
+                                    item.hasSignature
+                                      ? theme.colors.success
+                                      : theme.colors.textSecondary
+                                  }
+                                />
+                                <Text style={styles.barcodeText}>
+                                  {item.hasSignature
+                                    ? t('deliveries.invoice.hasSignature')
+                                    : t('deliveries.invoice.noSignature')}
+                                </Text>
+                              </View>
+                            </View>
+                          </View>
+                          <View style={styles.invoiceBottomRow}>
+                            {item.photoUrls.length > 0 ? (
+                              <Pressable
+                                style={styles.photoButton}
+                                onPress={() => handleViewPhotos(item)}
+                                disabled={loadingPhotosFor === item.id}
+                              >
+                                {loadingPhotosFor === item.id ? (
+                                  <ActivityIndicator size="small" color={theme.colors.primary} />
+                                ) : (
+                                  <Feather name="image" size={13} color={theme.colors.primary} />
+                                )}
+                                <Text style={styles.photoButtonText}>
+                                  {t('deliveries.invoice.viewPhotos', {
+                                    count: item.photoUrls.length,
+                                  })}
+                                </Text>
+                              </Pressable>
+                            ) : (
+                              <View />
+                            )}
+                            <DateTimeRow iso={item.receivedAt} theme={theme} />
+                          </View>
+                        </Card>
+                      </Pressable>
+                    </AnimatedListItem>
+                  )}
+                />
               )}
-              <Text style={styles.sheetOptionText}>{t('deliveries.exportCsv')}</Text>
+            </>
+          ) : null}
+
+          {activeTab === 'invoices' && invoiceSelectionMode ? (
+            <View style={[styles.footerSelectionMode, { paddingBottom: tabBarClearance }]}>
+              <View style={styles.bulkBar}>
+                <Text style={styles.countText}>
+                  {t('suppliers.catalog.selectedCount', { count: selectedInvoiceIds.length })}
+                </Text>
+                <View style={styles.bulkBarTop}>
+                  <Pressable style={styles.cancelButton} onPress={() => setSelectedInvoiceIds([])}>
+                    <Text style={styles.cancelText}>{t('suppliers.catalog.cancelSelection')}</Text>
+                  </Pressable>
+                  <Pressable
+                    style={styles.deleteIconButton}
+                    onPress={() => setBulkDeleteInvoicesConfirmVisible(true)}
+                    hitSlop={8}
+                  >
+                    <Feather name="trash-2" size={16} color={theme.colors.danger} />
+                  </Pressable>
+                </View>
+              </View>
+            </View>
+          ) : null}
+
+          {activeTab === 'invoices' && !invoiceSelectionMode ? (
+            <FAB
+              onPress={handleAddInvoice}
+              style={[styles.fab, { bottom: tabBarClearance + theme.spacing.md }]}
+            />
+          ) : null}
+        </View>
+
+        <DeliveryInvoiceFormSheet
+          visible={formVisible}
+          onClose={() => setFormVisible(false)}
+          existingInvoice={editingInvoice}
+        />
+
+        <ConfirmDialog
+          visible={bulkDeleteConfirmVisible}
+          title={t('deliveries.bulkDeleteConfirmTitle', { count: selectedIds.length })}
+          message={t('deliveries.deleteConfirmMessage')}
+          confirmLabel={t('organizations.settings.deleteConfirmButton')}
+          cancelLabel={t('organizations.settings.cancelButton')}
+          destructive
+          loading={bulkDeleteMutation.isPending}
+          onConfirm={confirmBulkDelete}
+          onCancel={() => setBulkDeleteConfirmVisible(false)}
+        />
+
+        <ConfirmDialog
+          visible={bulkDeleteInvoicesConfirmVisible}
+          title={t('deliveries.bulkDeleteConfirmTitle', { count: selectedInvoiceIds.length })}
+          message={t('deliveries.deleteConfirmMessage')}
+          confirmLabel={t('organizations.settings.deleteConfirmButton')}
+          cancelLabel={t('organizations.settings.cancelButton')}
+          destructive
+          loading={bulkDeleteInvoicesMutation.isPending}
+          onConfirm={confirmBulkDeleteInvoices}
+          onCancel={() => setBulkDeleteInvoicesConfirmVisible(false)}
+        />
+
+        <SupplierFilterSheet
+          visible={supplierFilterVisible}
+          onClose={() => setSupplierFilterVisible(false)}
+          selectedSupplierId={supplierFilterId}
+          onSelect={setSupplierFilterId}
+          titleKey="deliveries.filterBySupplier"
+        />
+
+        <Modal
+          visible={exportSheetVisible}
+          animationType="fade"
+          transparent
+          onRequestClose={() => setExportSheetVisible(false)}
+        >
+          <Pressable style={styles.sheetBackdrop} onPress={() => setExportSheetVisible(false)}>
+            <Pressable style={styles.sheetCard}>
+              <Text style={styles.sheetTitle}>{t('deliveries.exportTitle')}</Text>
+              <Pressable
+                style={styles.sheetOption}
+                disabled={isExporting !== null}
+                onPress={() => {
+                  setExportSheetVisible(false);
+                  runExport(filtered, 'csv');
+                }}
+              >
+                {isExporting === 'csv' ? (
+                  <ActivityIndicator size="small" color={theme.colors.primary} />
+                ) : (
+                  <Feather name="grid" size={20} color={theme.colors.primary} />
+                )}
+                <Text style={styles.sheetOptionText}>{t('deliveries.exportCsv')}</Text>
+              </Pressable>
+              <Pressable
+                style={styles.sheetOption}
+                disabled={isExporting !== null}
+                onPress={() => {
+                  setExportSheetVisible(false);
+                  runExport(filtered, 'pdf');
+                }}
+              >
+                {isExporting === 'pdf' ? (
+                  <ActivityIndicator size="small" color={theme.colors.primary} />
+                ) : (
+                  <Feather name="file-text" size={20} color={theme.colors.primary} />
+                )}
+                <Text style={styles.sheetOptionText}>{t('deliveries.exportPdf')}</Text>
+              </Pressable>
+              <Pressable style={styles.sheetCancel} onPress={() => setExportSheetVisible(false)}>
+                <Text style={styles.sheetCancelText}>
+                  {t('organizations.settings.cancelButton')}
+                </Text>
+              </Pressable>
+              {exportError ? (
+                <Text style={styles.exportErrorText}>
+                  {exportError === 'EMPTY'
+                    ? t('deliveries.exportEmpty')
+                    : t('deliveries.exportFailed')}
+                </Text>
+              ) : null}
             </Pressable>
-            <Pressable
-              style={styles.sheetOption}
-              disabled={isExporting !== null}
-              onPress={() => {
-                setExportSheetVisible(false);
-                runExport(filtered, 'pdf');
-              }}
-            >
-              {isExporting === 'pdf' ? (
-                <ActivityIndicator size="small" color={theme.colors.primary} />
-              ) : (
-                <Feather name="file-text" size={20} color={theme.colors.primary} />
-              )}
-              <Text style={styles.sheetOptionText}>{t('deliveries.exportPdf')}</Text>
-            </Pressable>
-            <Pressable style={styles.sheetCancel} onPress={() => setExportSheetVisible(false)}>
-              <Text style={styles.sheetCancelText}>{t('organizations.settings.cancelButton')}</Text>
-            </Pressable>
-            {exportError ? (
-              <Text style={styles.exportErrorText}>
-                {exportError === 'EMPTY'
-                  ? t('deliveries.exportEmpty')
-                  : t('deliveries.exportFailed')}
-              </Text>
-            ) : null}
           </Pressable>
-        </Pressable>
-      </Modal>
-    </Screen>
+        </Modal>
+      </Screen>
+
+      <InvoicePhotoGallery
+        visible={galleryVisible}
+        uris={galleryUris}
+        onClose={() => setGalleryVisible(false)}
+      />
+    </>
   );
 }
 
@@ -870,5 +923,25 @@ function createStyles(theme: ReturnType<typeof useTheme>) {
       color: theme.colors.textSecondary,
     },
     periodChipTextActive: { color: theme.colors.primary, fontWeight: theme.fontWeights.semiBold },
+    invoiceBottomRow: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      justifyContent: 'space-between',
+      paddingLeft: theme.spacing.lg,
+    },
+    photoButton: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      gap: 4,
+      backgroundColor: theme.colors.primary + '15',
+      borderRadius: theme.radius.full,
+      paddingHorizontal: theme.spacing.sm,
+      paddingVertical: 4,
+    },
+    photoButtonText: {
+      fontSize: theme.fontSizes.xs,
+      fontWeight: theme.fontWeights.medium,
+      color: theme.colors.primary,
+    },
   });
 }

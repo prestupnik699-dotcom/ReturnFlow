@@ -534,7 +534,9 @@
       "pageBadge": "Стр. {{n}}",
       "addPage": "Добавить страницу",
       "linkedSupplierLabel": "Связанный поставщик (необязательно)",
-      "noLinkedSupplier": "Не привязан"
+      "noLinkedSupplier": "Не привязан",
+      "viewPhotos": "{{count}} фото",
+      "viewPhotos_other": "{{count}} фото"
     },
     "tabItems": "Товары",
     "tabInvoices": "Накладные",

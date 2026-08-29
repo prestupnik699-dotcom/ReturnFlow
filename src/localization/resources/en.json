@@ -534,7 +534,9 @@
       "pageBadge": "Page {{n}}",
       "addPage": "Add page",
       "linkedSupplierLabel": "Linked supplier (optional)",
-      "noLinkedSupplier": "Not linked"
+      "noLinkedSupplier": "Not linked",
+      "viewPhotos": "{{count}} photo",
+      "viewPhotos_other": "{{count}} photos"
     },
     "tabItems": "Items",
     "tabInvoices": "Invoices",

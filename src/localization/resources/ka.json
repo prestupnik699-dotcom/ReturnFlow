@@ -530,7 +530,8 @@
       "pageBadge": "გვ. {{n}}",
       "addPage": "გვერდის დამატება",
       "linkedSupplierLabel": "დაკავშირებული მომწოდებელი (არასავალდებულო)",
-      "noLinkedSupplier": "არ არის დაკავშირებული"
+      "noLinkedSupplier": "არ არის დაკავშირებული",
+      "viewPhotos": "{{count}} ფოტო"
     },
     "tabItems": "პროდუქტები",
     "tabInvoices": "ზედნადებები",
