@@ -556,8 +556,24 @@ export function DeliveriesScreen() {
                             ) : (
                               <View />
                             )}
-                            <View style={styles.invoiceDateTimeWrap}>
-                              <DateTimeRow iso={item.receivedAt} theme={theme} />
+                            <View style={styles.invoiceDateTimeCompact}>
+                              <Feather
+                                name="calendar"
+                                size={11}
+                                color={theme.colors.textSecondary}
+                              />
+                              <Text style={styles.dateTimeText}>
+                                {formatDatePart(item.receivedAt)}
+                              </Text>
+                              <Feather
+                                name="clock"
+                                size={11}
+                                color={theme.colors.textSecondary}
+                                style={styles.clockIcon}
+                              />
+                              <Text style={styles.dateTimeText}>
+                                {formatTimePart(item.receivedAt)}
+                              </Text>
                             </View>
                           </View>
                         </Card>
@@ -947,10 +963,12 @@ function createStyles(theme: ReturnType<typeof useTheme>) {
       fontWeight: theme.fontWeights.medium,
       color: theme.colors.primary,
     },
-    invoiceDateTimeWrap: {
-      marginTop: theme.spacing.xs,
-      marginRight: -theme.spacing.lg,
-      marginBottom: -theme.spacing.md,
+    invoiceDateTimeCompact: { flexDirection: 'row', alignItems: 'center', gap: 4 },
+    dateTimeText: {
+      fontSize: theme.fontSizes.xs,
+      color: theme.colors.textSecondary,
+      fontVariant: ['tabular-nums'],
     },
+    clockIcon: { marginLeft: 8 },
   });
 }

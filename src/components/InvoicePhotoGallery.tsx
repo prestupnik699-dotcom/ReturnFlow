@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Modal, View, Image, Pressable, StyleSheet, FlatList, Dimensions } from 'react-native';
+import { Modal, View, Image, Pressable, StyleSheet, Dimensions } from 'react-native';
 import { Feather } from '@expo/vector-icons';
 import { Text } from '@/components/AppText';
 import { Gesture, GestureDetector } from 'react-native-gesture-handler';
@@ -13,14 +13,20 @@ type Props = {
 
 const IMAGE_RADIUS = 16;
 
-// react-native's built-in ScrollView zoom props (minimumZoomScale etc.)
-// only work on iOS — Android has no native pinch-zoom support on
-// ScrollView at all, so a real cross-platform zoom needs to be built by
-// hand with gesture-handler + reanimated (both already dependencies of
-// this app). Pinch scales the image; pan lets the person drag around
-// once zoomed in; a double-condition reset (pinch end + pan end) snaps
-// back to 1x so the next photo swipe isn't fighting a still-zoomed image.
-function ZoomableImage({ uri, width }: { uri: string; width: number }) {
+// One photo shown at a time with explicit prev/next buttons, NOT a
+// swipeable FlatList — a horizontally-paging FlatList and a
+// gesture-handler pinch/pan gesture both want to own horizontal touch
+// input, and RN's classic scroll responder system doesn't coordinate
+// with gesture-handler's gesture system, so pinch would get silently
+// stolen by page-swiping. Button navigation sidesteps that conflict
+// entirely and is what most photo viewers do anyway once zoom is
+// involved.
+//
+// The rounded-corner mask (borderRadius + overflow:hidden) lives on a
+// plain, non-animated outer View — putting it directly on the Animated
+// View that also carries the pinch/pan transform is a known source of
+// clipping rendering incorrectly on Android once a transform is active.
+function ZoomableImage({ uri }: { uri: string }) {
   const scale = useSharedValue(1);
   const translateX = useSharedValue(0);
   const translateY = useSharedValue(0);
@@ -51,8 +57,6 @@ function ZoomableImage({ uri, width }: { uri: string; width: number }) {
 
   const panGesture = Gesture.Pan()
     .onUpdate((e) => {
-      // Only allow panning once zoomed in — otherwise a pan gesture here
-      // would fight the FlatList's own horizontal swipe-between-photos.
       if (savedScale.value <= 1) return;
       translateX.value = savedTranslateX.value + e.translationX;
       translateY.value = savedTranslateY.value + e.translationY;
@@ -73,9 +77,9 @@ function ZoomableImage({ uri, width }: { uri: string; width: number }) {
   }));
 
   return (
-    <View style={[styles.page, { width }]}>
+    <View style={styles.imageMask}>
       <GestureDetector gesture={composedGesture}>
-        <Animated.View style={[styles.imageFrame, animatedStyle]}>
+        <Animated.View style={[styles.imageAnimatedLayer, animatedStyle]}>
           <Image source={{ uri }} style={styles.image} resizeMode="contain" />
         </Animated.View>
       </GestureDetector>
@@ -83,15 +87,13 @@ function ZoomableImage({ uri, width }: { uri: string; width: number }) {
   );
 }
 
-// A small paged photo gallery for multi-page invoices — swipe between
-// pages with a "1 of N" counter, rather than only ever being able to
-// see one photo at a time (which is what the single-image
-// ImageViewerModal is for, and remains unchanged for its other callers).
 export function InvoicePhotoGallery({ visible, uris, onClose }: Props) {
   const [activeIndex, setActiveIndex] = useState(0);
-  const screenWidth = Dimensions.get('window').width;
 
   if (uris.length === 0) return null;
+
+  const goPrev = () => setActiveIndex((i) => Math.max(0, i - 1));
+  const goNext = () => setActiveIndex((i) => Math.min(uris.length - 1, i + 1));
 
   return (
     <Modal
@@ -114,32 +116,52 @@ export function InvoicePhotoGallery({ visible, uris, onClose }: Props) {
           </View>
         ) : null}
 
-        <FlatList
-          data={uris}
-          keyExtractor={(uri, index) => `${uri}-${index}`}
-          horizontal
-          pagingEnabled
-          showsHorizontalScrollIndicator={false}
-          onMomentumScrollEnd={(e) => {
-            const index = Math.round(e.nativeEvent.contentOffset.x / screenWidth);
-            setActiveIndex(index);
-          }}
-          renderItem={({ item }) => <ZoomableImage uri={item} width={screenWidth} />}
-        />
+        {/* key={activeIndex} forces a fresh mount per photo, so zoom/pan
+            reset to 1x automatically when switching pages instead of
+            carrying over the previous photo's zoom state. */}
+        <ZoomableImage key={activeIndex} uri={uris[activeIndex]!} />
+
+        {uris.length > 1 ? (
+          <View style={styles.navRow}>
+            <Pressable
+              style={[styles.navButton, activeIndex === 0 && styles.navButtonDisabled]}
+              onPress={goPrev}
+              disabled={activeIndex === 0}
+              hitSlop={12}
+            >
+              <Feather name="chevron-left" size={26} color="#fff" />
+            </Pressable>
+            <Pressable
+              style={[
+                styles.navButton,
+                activeIndex === uris.length - 1 && styles.navButtonDisabled,
+              ]}
+              onPress={goNext}
+              disabled={activeIndex === uris.length - 1}
+              hitSlop={12}
+            >
+              <Feather name="chevron-right" size={26} color="#fff" />
+            </Pressable>
+          </View>
+        ) : null}
       </View>
     </Modal>
   );
 }
 
+const screenWidth = Dimensions.get('window').width;
+
 const styles = StyleSheet.create({
   backdrop: { flex: 1, backgroundColor: 'rgba(0,0,0,0.9)', justifyContent: 'center' },
-  page: { justifyContent: 'center', alignItems: 'center' },
-  imageFrame: {
-    width: '90%',
-    height: '80%',
+  imageMask: {
+    width: screenWidth * 0.9,
+    height: '75%',
+    alignSelf: 'center',
     borderRadius: IMAGE_RADIUS,
     overflow: 'hidden',
+    backgroundColor: '#000',
   },
+  imageAnimatedLayer: { width: '100%', height: '100%' },
   image: { width: '100%', height: '100%' },
   closeButton: { position: 'absolute', top: 60, right: 24, zIndex: 1 },
   counterBadge: {
@@ -153,4 +175,21 @@ const styles = StyleSheet.create({
     zIndex: 1,
   },
   counterText: { color: '#fff', fontSize: 13, fontWeight: '600' },
+  navRow: {
+    position: 'absolute',
+    bottom: 60,
+    left: 24,
+    right: 24,
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+  },
+  navButton: {
+    width: 48,
+    height: 48,
+    borderRadius: 24,
+    backgroundColor: 'rgba(255,255,255,0.15)',
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  navButtonDisabled: { opacity: 0.3 },
 });
