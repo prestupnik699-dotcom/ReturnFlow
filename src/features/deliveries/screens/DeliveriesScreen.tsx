@@ -946,6 +946,7 @@ function createStyles(theme: ReturnType<typeof useTheme>) {
       alignItems: 'center',
       justifyContent: 'space-between',
       paddingLeft: theme.spacing.lg,
+      paddingRight: theme.spacing.lg,
       paddingTop: theme.spacing.sm,
       paddingBottom: theme.spacing.md,
     },
