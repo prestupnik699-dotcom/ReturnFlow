@@ -31,6 +31,7 @@ import { FAB } from '@/components/FAB';
 import { groupByDate } from '@/features/deliveries/utils/groupByDate';
 import { ConfirmDialog } from '@/components/ConfirmDialog';
 import { useExportDeliveryItems } from '@/features/deliveries/hooks/useExportDeliveryItems';
+import { useExportInvoices } from '@/features/deliveries/hooks/useExportInvoices';
 import { SupplierFilterSheet } from '@/features/returns/screens/SupplierFilterSheet';
 import { useBulkDeleteDeliveryItems } from '@/features/deliveries/hooks/useBulkDeliveryItemActions';
 import { useBulkDeleteDeliveryInvoices } from '@/features/deliveries/hooks/useBulkDeliveryInvoiceActions';
@@ -148,6 +149,27 @@ export function DeliveriesScreen() {
     reportTitle: t('deliveries.exportReportTitle'),
     totalItemsLabel: t('deliveries.exportTotalItems'),
   });
+  const {
+    runExport: runInvoicesExport,
+    isExporting: isExportingInvoices,
+    error: invoicesExportError,
+  } = useExportInvoices({
+    columns: {
+      invoiceNumber: t('deliveries.invoice.exportColumnInvoiceNumber'),
+      distributor: t('deliveries.invoice.exportColumnDistributor'),
+      totalAmount: t('deliveries.invoice.exportColumnTotalAmount'),
+      pages: t('deliveries.invoice.exportColumnPages'),
+      items: t('deliveries.invoice.exportColumnItems'),
+      signature: t('deliveries.invoice.exportColumnSignature'),
+      date: t('deliveries.invoice.exportColumnDate'),
+    },
+    yes: t('deliveries.invoice.hasSignature'),
+    no: t('deliveries.invoice.noSignature'),
+    reportTitle: t('deliveries.invoice.exportReportTitle'),
+    totalInvoicesLabel: t('deliveries.invoice.exportTotalInvoices'),
+    grandTotalLabel: t('deliveries.invoice.exportGrandTotal'),
+  });
+  const [invoiceExportSheetVisible, setInvoiceExportSheetVisible] = useState(false);
   const styles = createStyles(theme);
 
   const selectionMode = selectedIds.length > 0;
@@ -481,6 +503,12 @@ export function DeliveriesScreen() {
                     {t('deliveries.noSignatureFilter')}
                   </Text>
                 </Pressable>
+                <Pressable
+                  style={styles.periodChip}
+                  onPress={() => setInvoiceExportSheetVisible(true)}
+                >
+                  <Feather name="share" size={13} color={theme.colors.textSecondary} />
+                </Pressable>
               </View>
 
               {invoicesLoading ? (
@@ -729,6 +757,67 @@ export function DeliveriesScreen() {
               {exportError ? (
                 <Text style={styles.exportErrorText}>
                   {exportError === 'EMPTY'
+                    ? t('deliveries.exportEmpty')
+                    : t('deliveries.exportFailed')}
+                </Text>
+              ) : null}
+            </Pressable>
+          </Pressable>
+        </Modal>
+
+        <Modal
+          visible={invoiceExportSheetVisible}
+          animationType="fade"
+          transparent
+          onRequestClose={() => setInvoiceExportSheetVisible(false)}
+        >
+          <Pressable
+            style={styles.sheetBackdrop}
+            onPress={() => setInvoiceExportSheetVisible(false)}
+          >
+            <Pressable style={styles.sheetCard}>
+              <Text style={styles.sheetTitle}>{t('deliveries.invoice.exportTitle')}</Text>
+              <Pressable
+                style={styles.sheetOption}
+                disabled={isExportingInvoices !== null}
+                onPress={() => {
+                  setInvoiceExportSheetVisible(false);
+                  runInvoicesExport(filteredInvoices, 'csv');
+                }}
+              >
+                {isExportingInvoices === 'csv' ? (
+                  <ActivityIndicator size="small" color={theme.colors.primary} />
+                ) : (
+                  <Feather name="grid" size={20} color={theme.colors.primary} />
+                )}
+                <Text style={styles.sheetOptionText}>{t('deliveries.exportCsv')}</Text>
+              </Pressable>
+              <Pressable
+                style={styles.sheetOption}
+                disabled={isExportingInvoices !== null}
+                onPress={() => {
+                  setInvoiceExportSheetVisible(false);
+                  runInvoicesExport(filteredInvoices, 'pdf');
+                }}
+              >
+                {isExportingInvoices === 'pdf' ? (
+                  <ActivityIndicator size="small" color={theme.colors.primary} />
+                ) : (
+                  <Feather name="file-text" size={20} color={theme.colors.primary} />
+                )}
+                <Text style={styles.sheetOptionText}>{t('deliveries.exportPdf')}</Text>
+              </Pressable>
+              <Pressable
+                style={styles.sheetCancel}
+                onPress={() => setInvoiceExportSheetVisible(false)}
+              >
+                <Text style={styles.sheetCancelText}>
+                  {t('organizations.settings.cancelButton')}
+                </Text>
+              </Pressable>
+              {invoicesExportError ? (
+                <Text style={styles.exportErrorText}>
+                  {invoicesExportError === 'EMPTY'
                     ? t('deliveries.exportEmpty')
                     : t('deliveries.exportFailed')}
                 </Text>
