@@ -531,7 +531,8 @@
       "addPage": "გვერდის დამატება",
       "linkedSupplierLabel": "დაკავშირებული მომწოდებელი (არასავალდებულო)",
       "noLinkedSupplier": "არ არის დაკავშირებული",
-      "viewPhotos": "{{count}} ფოტო"
+      "viewPhotos": "{{count}} ფოტო",
+      "amountWarning": "თანხა მნიშვნელოვნად განსხვავდება ამ მომწოდებლის ჩვეულებრივი თანხისგან (საშ. ~{{average}}₾)"
     },
     "tabItems": "პროდუქტები",
     "tabInvoices": "ზედნადებები",

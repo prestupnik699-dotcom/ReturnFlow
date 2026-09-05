@@ -536,7 +536,8 @@
       "linkedSupplierLabel": "Связанный поставщик (необязательно)",
       "noLinkedSupplier": "Не привязан",
       "viewPhotos": "{{count}} фото",
-      "viewPhotos_other": "{{count}} фото"
+      "viewPhotos_other": "{{count}} фото",
+      "amountWarning": "Сумма сильно отличается от обычной для этого поставщика (в среднем ~{{average}}₾)"
     },
     "tabItems": "Товары",
     "tabInvoices": "Накладные",

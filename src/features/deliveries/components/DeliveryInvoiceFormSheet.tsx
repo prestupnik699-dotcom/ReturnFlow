@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react';
 import { Modal, View, TextInput, StyleSheet, ScrollView, Image, Pressable } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Text } from '@/components/AppText';
-import { useForm, Controller } from 'react-hook-form';
+import { useForm, Controller, useWatch } from 'react-hook-form';
 import { useTranslation } from 'react-i18next';
 import * as ImagePicker from 'expo-image-picker';
 import { Feather } from '@expo/vector-icons';
@@ -12,6 +12,7 @@ import {
   useExtractInvoicePhoto,
   useCreateDeliveryInvoice,
   useUpdateDeliveryInvoice,
+  useDeliveryInvoices,
 } from '@/features/deliveries/hooks/useDeliveryInvoices';
 import { useAuthStore } from '@/stores/auth.store';
 import { useSuppliers } from '@/features/suppliers/hooks/useSuppliers';
@@ -75,6 +76,33 @@ export function DeliveryInvoiceFormSheet({ visible, onClose, existingInvoice }: 
   const { data: suppliers } = useSuppliers(false, 'name');
 
   const { control, handleSubmit, reset } = useForm<FormValues>({ defaultValues: EMPTY_FORM });
+  const watchedTotalAmount = useWatch({ control, name: 'totalAmount' });
+  const { data: allInvoices } = useDeliveryInvoices();
+
+  // A soft heads-up, not a blocker — compares the amount being entered
+  // against this same supplier's past invoices, so a typo (an extra
+  // zero, a misread digit from OCR) is more likely to be caught before
+  // saving. Needs at least 2 prior amounts from this supplier to be a
+  // meaningful comparison; with 0 or 1 data points a single unusual
+  // invoice would look identical to an actual outlier.
+  const amountWarning = (() => {
+    if (!supplierId) return null;
+    const entered = parseFloat(watchedTotalAmount?.trim() ?? '');
+    if (isNaN(entered)) return null;
+
+    const priorAmounts = (allInvoices ?? [])
+      .filter((inv) => inv.supplierId === supplierId && inv.id !== existingInvoice?.id)
+      .map((inv) => inv.totalAmount)
+      .filter((amount): amount is number => amount != null);
+
+    if (priorAmounts.length < 2) return null;
+
+    const average = priorAmounts.reduce((sum, a) => sum + a, 0) / priorAmounts.length;
+    if (average === 0) return null;
+
+    const deviation = Math.abs(entered - average) / average;
+    return deviation > 0.5 ? { entered, average } : null;
+  })();
 
   // Re-sync whenever the sheet opens for a (possibly different) existing
   // invoice, or opens fresh for a new one. This intentionally
@@ -410,6 +438,16 @@ export function DeliveryInvoiceFormSheet({ visible, onClose, existingInvoice }: 
                   />
                   <Text style={styles.currencySuffix}>₾</Text>
                 </View>
+                {amountWarning ? (
+                  <View style={styles.amountWarningBanner}>
+                    <Feather name="alert-triangle" size={14} color={theme.colors.warning} />
+                    <Text style={styles.amountWarningText}>
+                      {t('deliveries.invoice.amountWarning', {
+                        average: Math.round(amountWarning.average),
+                      })}
+                    </Text>
+                  </View>
+                ) : null}
               </View>
 
               <View style={styles.row}>
@@ -717,6 +755,21 @@ function createStyles(theme: ReturnType<typeof useTheme>) {
       flex: 1,
       fontSize: theme.fontSizes.md,
       color: theme.colors.textPrimary,
+    },
+    amountWarningBanner: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      gap: theme.spacing.xs,
+      backgroundColor: theme.colors.warning + '15',
+      borderRadius: theme.radius.sm,
+      paddingHorizontal: theme.spacing.md,
+      paddingVertical: theme.spacing.sm,
+      marginTop: theme.spacing.xs,
+    },
+    amountWarningText: {
+      flex: 1,
+      fontSize: theme.fontSizes.xs,
+      color: theme.colors.warning,
     },
   });
 }

@@ -536,7 +536,8 @@
       "linkedSupplierLabel": "Linked supplier (optional)",
       "noLinkedSupplier": "Not linked",
       "viewPhotos": "{{count}} photo",
-      "viewPhotos_other": "{{count}} photos"
+      "viewPhotos_other": "{{count}} photos",
+      "amountWarning": "This is much higher/lower than usual for this supplier (avg. ~{{average}}₾)"
     },
     "tabItems": "Items",
     "tabInvoices": "Invoices",
