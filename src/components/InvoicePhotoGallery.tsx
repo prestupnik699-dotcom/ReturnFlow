@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { Modal, View, Image, Pressable, StyleSheet, Dimensions } from 'react-native';
 import { Feather } from '@expo/vector-icons';
 import { Text } from '@/components/AppText';
-import { Gesture, GestureDetector } from 'react-native-gesture-handler';
+import { Gesture, GestureDetector, GestureHandlerRootView } from 'react-native-gesture-handler';
 import Animated, { useAnimatedStyle, useSharedValue, withTiming } from 'react-native-reanimated';
 
 type Props = {
@@ -103,7 +103,7 @@ export function InvoicePhotoGallery({ visible, uris, onClose }: Props) {
       onRequestClose={onClose}
       onShow={() => setActiveIndex(0)}
     >
-      <View style={styles.backdrop}>
+      <GestureHandlerRootView style={styles.backdrop}>
         <Pressable style={styles.closeButton} onPress={onClose} hitSlop={12}>
           <Feather name="x" size={28} color="#fff" />
         </Pressable>
@@ -144,7 +144,7 @@ export function InvoicePhotoGallery({ visible, uris, onClose }: Props) {
             </Pressable>
           </View>
         ) : null}
-      </View>
+      </GestureHandlerRootView>
     </Modal>
   );
 }
