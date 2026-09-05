@@ -558,7 +558,9 @@
     "periodAll": "ყველა დრო",
     "periodWeek": "ეს კვირა",
     "periodMonth": "ეს თვე",
-    "noSignatureFilter": "ხელმოწერის გარეშე"
+    "noSignatureFilter": "ხელმოწერის გარეშე",
+    "summaryTotalAmount": "ჯამური თანხა",
+    "summaryNoSignature": "ხელმოწერის გარეშე"
   },
   "reminders": {
     "title": "შენიშვნები",

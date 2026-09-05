@@ -563,7 +563,9 @@
     "periodAll": "Всё время",
     "periodWeek": "Эта неделя",
     "periodMonth": "Этот месяц",
-    "noSignatureFilter": "Без подписи"
+    "noSignatureFilter": "Без подписи",
+    "summaryTotalAmount": "Общая сумма",
+    "summaryNoSignature": "Без подписи"
   },
   "reminders": {
     "title": "Заметки",

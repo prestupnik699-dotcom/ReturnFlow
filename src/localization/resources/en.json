@@ -563,7 +563,9 @@
     "periodAll": "All time",
     "periodWeek": "This week",
     "periodMonth": "This month",
-    "noSignatureFilter": "No signature"
+    "noSignatureFilter": "No signature",
+    "summaryTotalAmount": "Total amount",
+    "summaryNoSignature": "No signature"
   },
   "reminders": {
     "title": "Reminders",

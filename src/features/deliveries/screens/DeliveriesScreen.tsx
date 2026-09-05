@@ -197,6 +197,12 @@ export function DeliveriesScreen() {
       return new Date(inv.receivedAt).getTime() >= cutoff;
     });
 
+  const invoicesSummary = {
+    totalAmount: filteredInvoices.reduce((sum, inv) => sum + (inv.totalAmount ?? 0), 0),
+    noSignatureCount: filteredInvoices.filter((inv) => !inv.hasSignature).length,
+    count: filteredInvoices.length,
+  };
+
   const cycleItemsSort = () => {
     setItemsSort((current) =>
       current === 'date' ? 'name' : current === 'name' ? 'quantity' : 'date',
@@ -413,6 +419,29 @@ export function DeliveriesScreen() {
 
           {activeTab === 'invoices' ? (
             <>
+              {invoicesSummary.count > 0 ? (
+                <View style={styles.summaryCard}>
+                  <View style={styles.summaryStat}>
+                    <Text style={styles.summaryValue}>
+                      {invoicesSummary.totalAmount.toLocaleString()}₾
+                    </Text>
+                    <Text style={styles.summaryLabel}>{t('deliveries.summaryTotalAmount')}</Text>
+                  </View>
+                  <View style={styles.summaryDivider} />
+                  <View style={styles.summaryStat}>
+                    <Text
+                      style={[
+                        styles.summaryValue,
+                        invoicesSummary.noSignatureCount > 0 && styles.summaryValueWarning,
+                      ]}
+                    >
+                      {invoicesSummary.noSignatureCount}
+                    </Text>
+                    <Text style={styles.summaryLabel}>{t('deliveries.summaryNoSignature')}</Text>
+                  </View>
+                </View>
+              ) : null}
+
               <View style={styles.invoiceFilterRow}>
                 {(['all', 'week', 'month'] as const).map((period) => (
                   <Pressable
@@ -941,6 +970,29 @@ function createStyles(theme: ReturnType<typeof useTheme>) {
       color: theme.colors.textSecondary,
     },
     periodChipTextActive: { color: theme.colors.primary, fontWeight: theme.fontWeights.semiBold },
+    summaryCard: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      backgroundColor: theme.colors.card,
+      borderRadius: theme.radius.md,
+      borderWidth: 1,
+      borderColor: theme.colors.border,
+      paddingVertical: theme.spacing.md,
+      marginBottom: theme.spacing.md,
+    },
+    summaryStat: { flex: 1, alignItems: 'center', gap: 2 },
+    summaryDivider: {
+      width: StyleSheet.hairlineWidth,
+      backgroundColor: theme.colors.border,
+      alignSelf: 'stretch',
+    },
+    summaryValue: {
+      fontSize: theme.fontSizes.lg,
+      fontWeight: theme.fontWeights.bold,
+      color: theme.colors.textPrimary,
+    },
+    summaryValueWarning: { color: theme.colors.warning },
+    summaryLabel: { fontSize: theme.fontSizes.xs, color: theme.colors.textSecondary },
     invoiceBottomRow: {
       flexDirection: 'row',
       alignItems: 'center',
