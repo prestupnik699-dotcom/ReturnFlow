@@ -1,5 +1,15 @@
 import { useEffect, useState } from 'react';
-import { Modal, View, TextInput, StyleSheet, ScrollView, Image, Pressable } from 'react-native';
+import {
+  Modal,
+  View,
+  TextInput,
+  StyleSheet,
+  ScrollView,
+  Image,
+  Pressable,
+  KeyboardAvoidingView,
+  Platform,
+} from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Text } from '@/components/AppText';
 import { useForm, Controller, useWatch } from 'react-hook-form';
@@ -292,234 +302,239 @@ export function DeliveryInvoiceFormSheet({ visible, onClose, existingInvoice }: 
       onRequestClose={handleClose}
     >
       <SafeAreaView style={styles.safeArea} edges={['top', 'bottom']}>
-        <ScrollView contentContainerStyle={styles.container} keyboardShouldPersistTaps="handled">
-          <Text style={styles.title}>
-            {isEditing ? t('deliveries.invoice.editTitle') : t('deliveries.invoice.formTitle')}
-          </Text>
+        <KeyboardAvoidingView
+          style={styles.flex1}
+          behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+        >
+          <ScrollView contentContainerStyle={styles.container} keyboardShouldPersistTaps="handled">
+            <Text style={styles.title}>
+              {isEditing ? t('deliveries.invoice.editTitle') : t('deliveries.invoice.formTitle')}
+            </Text>
 
-          {step === 'pickPhoto' ? (
-            <View style={styles.pickPhotoWrap}>
-              <Text style={styles.pickPhotoHint}>{t('deliveries.invoice.pickPhotoHint')}</Text>
-              <Button
-                label={t('deliveries.invoice.takePhoto')}
-                onPress={handleTakePhoto}
-                style={styles.pickPhotoButton}
-              />
-              <Button
-                label={t('deliveries.invoice.pickFromGallery')}
-                variant="outline"
-                onPress={handlePickFromGallery}
-                style={styles.pickPhotoButton}
-              />
-              <Button
-                label={t('deliveries.invoice.skipPhoto')}
-                variant="outline"
-                onPress={() => setStep('review')}
-                style={styles.pickPhotoButton}
-              />
-            </View>
-          ) : null}
+            {step === 'pickPhoto' ? (
+              <View style={styles.pickPhotoWrap}>
+                <Text style={styles.pickPhotoHint}>{t('deliveries.invoice.pickPhotoHint')}</Text>
+                <Button
+                  label={t('deliveries.invoice.takePhoto')}
+                  onPress={handleTakePhoto}
+                  style={styles.pickPhotoButton}
+                />
+                <Button
+                  label={t('deliveries.invoice.pickFromGallery')}
+                  variant="outline"
+                  onPress={handlePickFromGallery}
+                  style={styles.pickPhotoButton}
+                />
+                <Button
+                  label={t('deliveries.invoice.skipPhoto')}
+                  variant="outline"
+                  onPress={() => setStep('review')}
+                  style={styles.pickPhotoButton}
+                />
+              </View>
+            ) : null}
 
-          {step === 'extracting' ? (
-            <View style={styles.extractingWrap}>
-              {photoUris[0] ? (
-                <Image source={{ uri: photoUris[0] }} style={styles.photoPreview} />
-              ) : null}
-              <Text style={styles.extractingText}>{t('deliveries.invoice.extracting')}</Text>
-            </View>
-          ) : null}
+            {step === 'extracting' ? (
+              <View style={styles.extractingWrap}>
+                {photoUris[0] ? (
+                  <Image source={{ uri: photoUris[0] }} style={styles.photoPreview} />
+                ) : null}
+                <Text style={styles.extractingText}>{t('deliveries.invoice.extracting')}</Text>
+              </View>
+            ) : null}
 
-          {step === 'review' ? (
-            <View style={styles.reviewWrap}>
-              {photoUris.length > 0 ? (
-                <View style={styles.pagesRow}>
-                  {photoUris.map((uri, index) => (
-                    <View key={uri} style={styles.pageThumbWrap}>
-                      <Image source={{ uri }} style={styles.pageThumb} />
-                      <View style={styles.pageBadge}>
-                        <Text style={styles.pageBadgeText}>
-                          {t('deliveries.invoice.pageBadge', { n: index + 1 })}
-                        </Text>
+            {step === 'review' ? (
+              <View style={styles.reviewWrap}>
+                {photoUris.length > 0 ? (
+                  <View style={styles.pagesRow}>
+                    {photoUris.map((uri, index) => (
+                      <View key={uri} style={styles.pageThumbWrap}>
+                        <Image source={{ uri }} style={styles.pageThumb} />
+                        <View style={styles.pageBadge}>
+                          <Text style={styles.pageBadgeText}>
+                            {t('deliveries.invoice.pageBadge', { n: index + 1 })}
+                          </Text>
+                        </View>
+                        <Pressable
+                          style={styles.pageRemoveButton}
+                          onPress={() => handleRemovePage(index)}
+                          hitSlop={8}
+                        >
+                          <Feather name="x" size={12} color="#fff" />
+                        </Pressable>
                       </View>
-                      <Pressable
-                        style={styles.pageRemoveButton}
-                        onPress={() => handleRemovePage(index)}
-                        hitSlop={8}
-                      >
-                        <Feather name="x" size={12} color="#fff" />
-                      </Pressable>
-                    </View>
-                  ))}
-                  <Pressable style={styles.addPageButton} onPress={handleAddPage}>
-                    <Feather name="plus" size={22} color={theme.colors.primary} />
-                    <Text style={styles.addPageText}>{t('deliveries.invoice.addPage')}</Text>
+                    ))}
+                    <Pressable style={styles.addPageButton} onPress={handleAddPage}>
+                      <Feather name="plus" size={22} color={theme.colors.primary} />
+                      <Text style={styles.addPageText}>{t('deliveries.invoice.addPage')}</Text>
+                    </Pressable>
+                  </View>
+                ) : !isEditing ? (
+                  <Pressable style={styles.addFirstPhotoButton} onPress={handleAddPage}>
+                    <Feather name="camera" size={22} color={theme.colors.primary} />
+                    <Text style={styles.addPageText}>{t('deliveries.invoice.takePhoto')}</Text>
                   </Pressable>
-                </View>
-              ) : !isEditing ? (
-                <Pressable style={styles.addFirstPhotoButton} onPress={handleAddPage}>
-                  <Feather name="camera" size={22} color={theme.colors.primary} />
-                  <Text style={styles.addPageText}>{t('deliveries.invoice.takePhoto')}</Text>
-                </Pressable>
-              ) : null}
+                ) : null}
 
-              {extractMutation.isError ? (
-                <View style={styles.errorBanner}>
-                  <Text style={styles.errorBannerText}>
-                    {t('deliveries.invoice.extractionFailed')}
-                  </Text>
-                </View>
-              ) : null}
-
-              <View style={styles.field}>
-                <Text style={styles.label}>{t('deliveries.invoice.invoiceNumberLabel')}</Text>
-                <Controller
-                  control={control}
-                  name="invoiceNumber"
-                  render={({ field: { value, onChange, onBlur } }) => (
-                    <TextInput
-                      style={styles.input}
-                      value={value}
-                      onChangeText={onChange}
-                      onBlur={onBlur}
-                    />
-                  )}
-                />
-              </View>
-
-              <View style={styles.field}>
-                <Text style={styles.label}>{t('deliveries.invoice.distributorNameLabel')}</Text>
-                <Controller
-                  control={control}
-                  name="distributorName"
-                  render={({ field: { value, onChange, onBlur } }) => (
-                    <TextInput
-                      style={styles.input}
-                      value={value}
-                      onChangeText={onChange}
-                      onBlur={onBlur}
-                      autoCapitalize="words"
-                    />
-                  )}
-                />
-              </View>
-
-              <View style={styles.field}>
-                <Text style={styles.label}>{t('deliveries.invoice.linkedSupplierLabel')}</Text>
-                <Pressable
-                  style={styles.supplierPickerButton}
-                  onPress={() => setSupplierPickerVisible(true)}
-                >
-                  <Feather name="box" size={16} color={theme.colors.primary} />
-                  <Text style={styles.supplierPickerText} numberOfLines={1}>
-                    {supplierId
-                      ? ((suppliers ?? []).find((s) => s.id === supplierId)?.name ??
-                        t('deliveries.invoice.noLinkedSupplier'))
-                      : t('deliveries.invoice.noLinkedSupplier')}
-                  </Text>
-                  <Feather name="chevron-right" size={16} color={theme.colors.textSecondary} />
-                </Pressable>
-              </View>
-
-              <View style={styles.field}>
-                <Text style={styles.label}>{t('deliveries.invoice.totalAmountLabel')}</Text>
-                <View style={styles.currencyInputWrap}>
-                  <Controller
-                    control={control}
-                    name="totalAmount"
-                    render={({ field: { value, onChange, onBlur } }) => (
-                      <TextInput
-                        style={[styles.input, styles.currencyInput]}
-                        value={value}
-                        onChangeText={onChange}
-                        onBlur={onBlur}
-                        keyboardType="decimal-pad"
-                      />
-                    )}
-                  />
-                  <Text style={styles.currencySuffix}>₾</Text>
-                </View>
-                {amountWarning ? (
-                  <View style={styles.amountWarningBanner}>
-                    <Feather name="alert-triangle" size={14} color={theme.colors.warning} />
-                    <Text style={styles.amountWarningText}>
-                      {t('deliveries.invoice.amountWarning', {
-                        average: Math.round(amountWarning.average),
-                      })}
+                {extractMutation.isError ? (
+                  <View style={styles.errorBanner}>
+                    <Text style={styles.errorBannerText}>
+                      {t('deliveries.invoice.extractionFailed')}
                     </Text>
                   </View>
                 ) : null}
-              </View>
 
-              <View style={styles.row}>
-                <View style={[styles.field, styles.flex1]}>
-                  <Text style={styles.label}>{t('deliveries.invoice.pageCountLabel')}</Text>
+                <View style={styles.field}>
+                  <Text style={styles.label}>{t('deliveries.invoice.invoiceNumberLabel')}</Text>
                   <Controller
                     control={control}
-                    name="pageCount"
+                    name="invoiceNumber"
                     render={({ field: { value, onChange, onBlur } }) => (
                       <TextInput
                         style={styles.input}
                         value={value}
                         onChangeText={onChange}
                         onBlur={onBlur}
-                        keyboardType="number-pad"
                       />
                     )}
                   />
                 </View>
-                <View style={[styles.field, styles.flex1]}>
-                  <Text style={styles.label}>{t('deliveries.invoice.itemCountLabel')}</Text>
+
+                <View style={styles.field}>
+                  <Text style={styles.label}>{t('deliveries.invoice.distributorNameLabel')}</Text>
                   <Controller
                     control={control}
-                    name="itemCount"
+                    name="distributorName"
                     render={({ field: { value, onChange, onBlur } }) => (
                       <TextInput
                         style={styles.input}
                         value={value}
                         onChangeText={onChange}
                         onBlur={onBlur}
-                        keyboardType="number-pad"
+                        autoCapitalize="words"
                       />
                     )}
                   />
                 </View>
-              </View>
 
-              <Pressable
-                style={styles.signatureRow}
-                onPress={() => setHasSignature((current) => !current)}
-              >
-                <Feather
-                  name={hasSignature ? 'check-circle' : 'circle'}
-                  size={20}
-                  color={hasSignature ? theme.colors.primary : theme.colors.textSecondary}
-                />
-                <Text style={styles.signatureLabel}>{t('deliveries.invoice.hasSignature')}</Text>
-              </Pressable>
-
-              {saveMutation.isError ? (
-                <View style={styles.errorBanner}>
-                  <Text style={styles.errorBannerText}>{saveMutation.error.message}</Text>
+                <View style={styles.field}>
+                  <Text style={styles.label}>{t('deliveries.invoice.linkedSupplierLabel')}</Text>
+                  <Pressable
+                    style={styles.supplierPickerButton}
+                    onPress={() => setSupplierPickerVisible(true)}
+                  >
+                    <Feather name="box" size={16} color={theme.colors.primary} />
+                    <Text style={styles.supplierPickerText} numberOfLines={1}>
+                      {supplierId
+                        ? ((suppliers ?? []).find((s) => s.id === supplierId)?.name ??
+                          t('deliveries.invoice.noLinkedSupplier'))
+                        : t('deliveries.invoice.noLinkedSupplier')}
+                    </Text>
+                    <Feather name="chevron-right" size={16} color={theme.colors.textSecondary} />
+                  </Pressable>
                 </View>
-              ) : null}
 
-              <View style={styles.actions}>
-                <Button
-                  label={t('organizations.settings.cancelButton')}
-                  variant="outline"
-                  onPress={handleClose}
-                  style={styles.flexButton}
-                />
-                <Button
-                  label={t('deliveries.invoice.saveButton')}
-                  onPress={handleSubmit(onSubmit)}
-                  loading={saveMutation.isPending}
-                  style={styles.flexButton}
-                />
+                <View style={styles.field}>
+                  <Text style={styles.label}>{t('deliveries.invoice.totalAmountLabel')}</Text>
+                  <View style={styles.currencyInputWrap}>
+                    <Controller
+                      control={control}
+                      name="totalAmount"
+                      render={({ field: { value, onChange, onBlur } }) => (
+                        <TextInput
+                          style={[styles.input, styles.currencyInput]}
+                          value={value}
+                          onChangeText={onChange}
+                          onBlur={onBlur}
+                          keyboardType="decimal-pad"
+                        />
+                      )}
+                    />
+                    <Text style={styles.currencySuffix}>₾</Text>
+                  </View>
+                  {amountWarning ? (
+                    <View style={styles.amountWarningBanner}>
+                      <Feather name="alert-triangle" size={14} color={theme.colors.warning} />
+                      <Text style={styles.amountWarningText}>
+                        {t('deliveries.invoice.amountWarning', {
+                          average: Math.round(amountWarning.average),
+                        })}
+                      </Text>
+                    </View>
+                  ) : null}
+                </View>
+
+                <View style={styles.row}>
+                  <View style={[styles.field, styles.flex1]}>
+                    <Text style={styles.label}>{t('deliveries.invoice.pageCountLabel')}</Text>
+                    <Controller
+                      control={control}
+                      name="pageCount"
+                      render={({ field: { value, onChange, onBlur } }) => (
+                        <TextInput
+                          style={styles.input}
+                          value={value}
+                          onChangeText={onChange}
+                          onBlur={onBlur}
+                          keyboardType="number-pad"
+                        />
+                      )}
+                    />
+                  </View>
+                  <View style={[styles.field, styles.flex1]}>
+                    <Text style={styles.label}>{t('deliveries.invoice.itemCountLabel')}</Text>
+                    <Controller
+                      control={control}
+                      name="itemCount"
+                      render={({ field: { value, onChange, onBlur } }) => (
+                        <TextInput
+                          style={styles.input}
+                          value={value}
+                          onChangeText={onChange}
+                          onBlur={onBlur}
+                          keyboardType="number-pad"
+                        />
+                      )}
+                    />
+                  </View>
+                </View>
+
+                <Pressable
+                  style={styles.signatureRow}
+                  onPress={() => setHasSignature((current) => !current)}
+                >
+                  <Feather
+                    name={hasSignature ? 'check-circle' : 'circle'}
+                    size={20}
+                    color={hasSignature ? theme.colors.primary : theme.colors.textSecondary}
+                  />
+                  <Text style={styles.signatureLabel}>{t('deliveries.invoice.hasSignature')}</Text>
+                </Pressable>
+
+                {saveMutation.isError ? (
+                  <View style={styles.errorBanner}>
+                    <Text style={styles.errorBannerText}>{saveMutation.error.message}</Text>
+                  </View>
+                ) : null}
+
+                <View style={styles.actions}>
+                  <Button
+                    label={t('organizations.settings.cancelButton')}
+                    variant="outline"
+                    onPress={handleClose}
+                    style={styles.flexButton}
+                  />
+                  <Button
+                    label={t('deliveries.invoice.saveButton')}
+                    onPress={handleSubmit(onSubmit)}
+                    loading={saveMutation.isPending}
+                    style={styles.flexButton}
+                  />
+                </View>
               </View>
-            </View>
-          ) : null}
-        </ScrollView>
+            ) : null}
+          </ScrollView>
+        </KeyboardAvoidingView>
       </SafeAreaView>
 
       <Modal
